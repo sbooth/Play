@@ -1,0 +1,34 @@
+{
+    IBClasses = (
+        {
+            CLASS = AudioStreamTableViewDataSource; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {"" = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                addFiles = id; 
+                insertPlaylistWithSelectedStreams = id; 
+                removeAudioStreams = id; 
+            }; 
+            CLASS = LibraryDocument; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_playlistArrayController" = NSArrayController; 
+                "_playlistTableView" = NSTableView; 
+                "_streamArrayController" = NSArrayController; 
+                "_streamTableView" = NSTableView; 
+            }; 
+            SUPERCLASS = NSPersistentDocument; 
+        }, 
+        {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {CLASS = PlaylistTableViewDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}
