@@ -31,7 +31,10 @@
 	documentController			= [NSDocumentController sharedDocumentController];
 	recentDocumentURLs			= [documentController recentDocumentURLs];
 	
-	if(0 < [recentDocumentURLs count]) {
+	if(0 == [recentDocumentURLs count]) {
+		[documentController newDocument:self];
+	}
+	else {
 		NSURL					*documentURL;
 		NSDocument				*document;
 		NSError					*error;
