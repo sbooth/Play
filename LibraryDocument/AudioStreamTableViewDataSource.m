@@ -23,6 +23,16 @@
 
 @implementation AudioStreamTableViewDataSource
 
+- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+{
+	return 0;
+}
+
+- (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+	return nil;
+}
+
 - (NSDragOperation) tableView:(NSTableView *)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation
 {
 	NSDragOperation			result;

@@ -13,6 +13,15 @@
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
 		8C64110B0AE5FF2E0075644F /* LibraryDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411070AE5FF2E0075644F /* LibraryDocument.m */; };
 		8C64110C0AE5FF2E0075644F /* PlaylistTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411090AE5FF2E0075644F /* PlaylistTableViewDataSource.m */; };
+		8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */; };
+		8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8460AE736D5000581D5 /* AudioUnit.framework */; };
+		8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8470AE736D5000581D5 /* CoreAudio.framework */; };
+		8CB8C8750AE736DA000581D5 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7788DA0506752A1600599AAD /* CoreData.framework */; };
+		8CB8CDFB0AE74E2D000581D5 /* AudioStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB8CDF80AE74E2D000581D5 /* AudioStreamDecoder.m */; };
+		8CB8CDFC0AE74E2D000581D5 /* FLACStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB8CDFA0AE74E2D000581D5 /* FLACStreamDecoder.m */; };
+		8CB8CE250AE74F53000581D5 /* FLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8CE140AE74F53000581D5 /* FLAC.framework */; };
+		8CB8D4E30AE7E08F000581D5 /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB8D4E20AE7E08F000581D5 /* AudioPlayer.m */; };
+		8CB8DBE30AE7FF1E000581D5 /* CircularBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB8DBE20AE7FF1E000581D5 /* CircularBuffer.m */; };
 		8CD43AE90AE345A700B41F4D /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD43AE80AE345A700B41F4D /* PlayApplicationDelegate.m */; };
 		8CD440F90AE3F8B500B41F4D /* Add_Pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CD440F50AE3F8B500B41F4D /* Add_Pressed.png */; };
 		8CD440FA0AE3F8B500B41F4D /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CD440F60AE3F8B500B41F4D /* Add.png */; };
@@ -46,6 +55,18 @@
 		8C6411070AE5FF2E0075644F /* LibraryDocument.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = LibraryDocument.m; path = LibraryDocument/LibraryDocument.m; sourceTree = "<group>"; };
 		8C6411080AE5FF2E0075644F /* PlaylistTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlaylistTableViewDataSource.h; path = LibraryDocument/PlaylistTableViewDataSource.h; sourceTree = "<group>"; };
 		8C6411090AE5FF2E0075644F /* PlaylistTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlaylistTableViewDataSource.m; path = LibraryDocument/PlaylistTableViewDataSource.m; sourceTree = "<group>"; };
+		8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
+		8CB8C8460AE736D5000581D5 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
+		8CB8C8470AE736D5000581D5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		8CB8CDF70AE74E2D000581D5 /* AudioStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamDecoder.h; path = Audio/AudioStreamDecoder.h; sourceTree = "<group>"; };
+		8CB8CDF80AE74E2D000581D5 /* AudioStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamDecoder.m; path = Audio/AudioStreamDecoder.m; sourceTree = "<group>"; };
+		8CB8CDF90AE74E2D000581D5 /* FLACStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FLACStreamDecoder.h; path = Audio/FLACStreamDecoder.h; sourceTree = "<group>"; };
+		8CB8CDFA0AE74E2D000581D5 /* FLACStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FLACStreamDecoder.m; path = Audio/FLACStreamDecoder.m; sourceTree = "<group>"; };
+		8CB8CE140AE74F53000581D5 /* FLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FLAC.framework; path = Frameworks/FLAC.framework; sourceTree = "<group>"; };
+		8CB8D4E10AE7E08F000581D5 /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioPlayer.h; path = Audio/AudioPlayer.h; sourceTree = "<group>"; };
+		8CB8D4E20AE7E08F000581D5 /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioPlayer.m; path = Audio/AudioPlayer.m; sourceTree = "<group>"; };
+		8CB8DBE10AE7FF1E000581D5 /* CircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CircularBuffer.h; path = Audio/CircularBuffer.h; sourceTree = "<group>"; };
+		8CB8DBE20AE7FF1E000581D5 /* CircularBuffer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CircularBuffer.m; path = Audio/CircularBuffer.m; sourceTree = "<group>"; };
 		8CD43AE70AE345A700B41F4D /* PlayApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayApplicationDelegate.h; sourceTree = "<group>"; };
 		8CD43AE80AE345A700B41F4D /* PlayApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayApplicationDelegate.m; sourceTree = "<group>"; };
 		8CD440F50AE3F8B500B41F4D /* Add_Pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Add_Pressed.png; path = Images/Add_Pressed.png; sourceTree = "<group>"; };
@@ -66,6 +87,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */,
+				8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */,
+				8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */,
+				8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */,
+				8CB8C8750AE736DA000581D5 /* CoreData.framework in Frameworks */,
+				8CB8CE250AE74F53000581D5 /* FLAC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,6 +129,7 @@
 			children = (
 				E1B74B1A0667B4A90069E3BA /* Models */,
 				2A37F4ABFDCFA73011CA2CEA /* Library Document */,
+				8CB8C8420AE7369B000581D5 /* Audio */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				8CD43ACC0AE3441000B41F4D /* Images */,
@@ -153,10 +180,29 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8CB8CE140AE74F53000581D5 /* FLAC.framework */,
+				8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */,
+				8CB8C8460AE736D5000581D5 /* AudioUnit.framework */,
+				8CB8C8470AE736D5000581D5 /* CoreAudio.framework */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8CB8C8420AE7369B000581D5 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				8CB8DBE10AE7FF1E000581D5 /* CircularBuffer.h */,
+				8CB8DBE20AE7FF1E000581D5 /* CircularBuffer.m */,
+				8CB8CDF70AE74E2D000581D5 /* AudioStreamDecoder.h */,
+				8CB8CDF80AE74E2D000581D5 /* AudioStreamDecoder.m */,
+				8CB8CDF90AE74E2D000581D5 /* FLACStreamDecoder.h */,
+				8CB8CDFA0AE74E2D000581D5 /* FLACStreamDecoder.m */,
+				8CB8D4E10AE7E08F000581D5 /* AudioPlayer.h */,
+				8CB8D4E20AE7E08F000581D5 /* AudioPlayer.m */,
+			);
+			name = Audio;
 			sourceTree = "<group>";
 		};
 		8CD43ACC0AE3441000B41F4D /* Images */ = {
@@ -265,6 +311,10 @@
 				8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */,
 				8C64110B0AE5FF2E0075644F /* LibraryDocument.m in Sources */,
 				8C64110C0AE5FF2E0075644F /* PlaylistTableViewDataSource.m in Sources */,
+				8CB8CDFB0AE74E2D000581D5 /* AudioStreamDecoder.m in Sources */,
+				8CB8CDFC0AE74E2D000581D5 /* FLACStreamDecoder.m in Sources */,
+				8CB8D4E30AE7E08F000581D5 /* AudioPlayer.m in Sources */,
+				8CB8DBE30AE7FF1E000581D5 /* CircularBuffer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +368,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -340,6 +395,11 @@
 					ppc,
 					i386,
 				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;

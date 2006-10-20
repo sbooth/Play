@@ -19,29 +19,34 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "AudioPlayer.h"
 
-@interface LibraryDocument : NSPersistentDocument
+// A simple implementation of a circular (AKA ring) buffer
+@interface CircularBuffer : NSObject
 {
-	IBOutlet NSTableView		*_streamTableView;
-	IBOutlet NSTableView		*_playlistTableView;
-	
-	IBOutlet NSArrayController	*_streamArrayController;
-	IBOutlet NSArrayController	*_playlistArrayController;
-	
-	AudioPlayer					*_player;
+	uint8_t			*_buffer;
+	unsigned		_bufsize;
+
+	uint8_t			*_readPtr;
+	uint8_t			*_writePtr;
 }
 
-- (IBAction)	addFiles:(id)sender;
-- (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
-- (IBAction)	removeAudioStreams:(id)sender;
+- (id)				initWithSize:(unsigned)size;
 
-- (IBAction)	play:(id)sender;
-- (IBAction)	stop:(id)sender;
+- (void)			reset;
 
-- (void)		playStream:(NSArray *)streams;
+- (unsigned)		size;
+- (void)			resize:(unsigned)size;
 
-- (void)		addFileToLibrary:(NSString *)path;
-- (void)		addURLToLibrary:(NSURL *)url;
+- (unsigned)		bytesAvailable;
+- (unsigned)		freeSpaceAvailable;
+
+- (unsigned)		putData:(const void *)data byteCount:(unsigned)byteCount;
+- (unsigned)		getData:(void *)buffer byteCount:(unsigned)byteCount;
+
+- (const void *)	exposeBufferForReading;
+- (void)			readBytes:(unsigned)byteCount;
+
+- (void *)			exposeBufferForWriting;
+- (void)			wroteBytes:(unsigned)byteCount;
 
 @end

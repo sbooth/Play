@@ -19,13 +19,25 @@
  */
 
 #import "LibraryDocument.h"
+#import "AudioStreamDecoder.h"
 
 @interface LibraryDocument (Private)
+
+- (AudioPlayer *)			player;
 - (NSManagedObject *)		fetchLibraryObject;
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
 @end
 
 @implementation LibraryDocument
+
+- (id) init
+{
+	if((self = [super init])) {
+		_player = [[AudioPlayer alloc] init];
+	}
+	return self;
+}
 
 - (id) initWithType:(NSString *)type error:(NSError **)error
 {
@@ -46,6 +58,13 @@
     return self;
 }
 
+- (void) dealloc
+{
+	[_player release];		_player = nil;
+	
+	[super dealloc];
+}
+
 - (NSString *) windowNibName 
 {
     return @"LibraryDocument";
@@ -55,7 +74,7 @@
 {
     [super windowControllerDidLoadNib:windowController];
 
-	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
+//	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
 
 	// Set up drag and drop
 	[_streamTableView registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, @"NSURLsPboardType", NSURLPboardType, nil]];
@@ -63,10 +82,10 @@
 	
 	// Set sort descriptors
 	[_streamArrayController setSortDescriptors:[NSArray arrayWithObjects:
-		[[[NSSortDescriptor alloc] initWithKey:@"metadata.albumArtist" ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:@"metadata.artist" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"metadata.albumTitle" ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:@"metadata.title" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"metadata.trackNumber" ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:@"metadata.trackTitle" ascending:YES] autorelease],
 		nil]];
 	[_playlistArrayController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
@@ -81,7 +100,7 @@
 	NSArray			*types;
 	
 	panel	= [NSOpenPanel openPanel];
-	types	= [NSArray arrayWithObjects:@"flac", @"ogg", nil];
+	types	= [NSArray arrayWithObjects:@"flac", nil];
 	
 	[panel setAllowsMultipleSelection:YES];
 //	[panel setCanChooseDirectories:YES];
@@ -169,6 +188,10 @@
 	NSError						*error;
 	NSArray						*fetchResult;
 	NSMutableSet				*playlistSet;
+	AudioStreamDecoder			*streamDecoder;
+	NSManagedObject				*propertiesObject;
+	NSManagedObject				*metadataObject;
+	BOOL						result;
 	unsigned					i;
 	
 	managedObjectContext		= [self managedObjectContext];
@@ -189,9 +212,7 @@
 	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
 	
 	if(nil == fetchResult) {
-		BOOL					errorRecoveryDone;
-		
-		errorRecoveryDone		= [self presentError:error];
+		result					= [self presentError:error];
 	}
 	
 	// ========================================
@@ -218,11 +239,133 @@
 	// Fill in properties and relationships
 	[streamObject setValue:absoluteURL forKey:@"url"];
 	[streamObject setValue:libraryObject forKey:@"library"];
+	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
 	
 	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
 	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
+
+	// ========================================
+	// Read properties and metadata
+	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
+	
+	if(nil == streamDecoder) {
+		result					= [self presentError:error];
+		return;
+	}
+	
+	result						= [streamDecoder readPropertiesAndMetadata:&error];
+	
+	if(NO == result) {
+		result					= [self presentError:error];
+		return;
+	}
+	
+	propertiesObject			= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
+		
+	[streamObject setValue:propertiesObject forKey:@"properties"];
+
+	[propertiesObject setValue:[NSNumber numberWithFloat:[streamDecoder pcmFormat].mSampleRate] forKey:@"sampleRate"];
+	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mBitsPerChannel] forKey:@"bitsPerChannel"];
+	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mChannelsPerFrame] forKey:@"channelsPerFrame"];
+	[propertiesObject setValue:[NSNumber numberWithLongLong:[streamDecoder totalFrames]] forKey:@"totalFrames"];
+	
+	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
+	
+	[streamObject setValue:metadataObject forKey:@"metadata"];
+	
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.composer"] forKey:@"composer"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.discNumber"] forKey:@"discNumber"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.discTotal"] forKey:@"discTotal"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.genre"] forKey:@"genre"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.isrc"] forKey:@"isrc"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.mcn"] forKey:@"mcn"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.partOfCompilation"] forKey:@"partOfCompilation"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.title"] forKey:@"title"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackNumber"] forKey:@"trackNumber"];
+	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackTotal"] forKey:@"trackTotal"];
 }
 
+#pragma mark Playback Control
+
+- (IBAction) play:(id)sender
+{
+	NSArray						*streams;
+	
+	streams						= [_streamArrayController selectedObjects];
+
+	[self playStream:streams];
+}
+
+- (IBAction) stop:(id)sender
+{
+	[[self player] stop];
+}
+
+- (void) playStream:(NSArray *)streams
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*streamObject;
+	NSManagedObject				*propertiesObject;
+	NSURL						*url;
+	BOOL						result;
+	AudioStreamDecoder			*streamDecoder;
+	NSError						*error;
+	
+	if(0 == [streams count]) {
+		return;
+	}
+	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	streamObject				= [streams objectAtIndex:0];
+	propertiesObject			= [streamObject valueForKey:@"properties"];
+	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
+	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
+
+	if(nil == streamDecoder) {
+		BOOL					errorRecoveryDone;
+		
+		errorRecoveryDone		= [self presentError:error];
+		return;
+	}
+	
+	// Read properties for this stream if they aren't already known (they should be)
+	if(nil == propertiesObject) {		
+		
+		error					= nil;
+		result					= [streamDecoder readProperties:&error];
+
+		if(NO == result) {
+			BOOL					errorRecoveryDone;
+			
+			errorRecoveryDone		= [self presentError:error];
+			return;
+		}
+		
+		propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
+
+		// Read properties from the raw stream and set them
+		
+		[propertiesObject setValue:[NSNumber numberWithFloat:[streamDecoder pcmFormat].mSampleRate] forKey:@"sampleRate"];
+		[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mBitsPerChannel] forKey:@"bitsPerChannel"];
+		[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mChannelsPerFrame] forKey:@"channelsPerFrame"];
+		[propertiesObject setValue:[NSNumber numberWithLongLong:[streamDecoder totalFrames]] forKey:@"totalFrames"];
+
+		[streamObject setValue:propertiesObject forKey:@"properties"];
+	}
+		
+	result						= [[self player] setStreamDecoder:streamDecoder error:&error];
+	if(NO == result) {
+		
+	}
+	
+	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
+
+	[[self player] play];
+}
 
 @end
 
@@ -254,6 +397,11 @@
 @end
 
 @implementation LibraryDocument (Private)
+
+- (AudioPlayer *) player
+{
+	return [[_player retain] autorelease];
+}
 
 - (NSManagedObject *) fetchLibraryObject
 {

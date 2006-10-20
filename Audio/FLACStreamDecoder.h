@@ -18,30 +18,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
-#import "AudioPlayer.h"
+#import "AudioStreamDecoder.h"
+#include <FLAC/file_decoder.h>
 
-@interface LibraryDocument : NSPersistentDocument
+@interface FLACStreamDecoder : AudioStreamDecoder
 {
-	IBOutlet NSTableView		*_streamTableView;
-	IBOutlet NSTableView		*_playlistTableView;
-	
-	IBOutlet NSArrayController	*_streamArrayController;
-	IBOutlet NSArrayController	*_playlistArrayController;
-	
-	AudioPlayer					*_player;
+	FLAC__FileDecoder			*_flac;
+	FLAC__uint64				_totalFrames;
 }
-
-- (IBAction)	addFiles:(id)sender;
-- (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
-- (IBAction)	removeAudioStreams:(id)sender;
-
-- (IBAction)	play:(id)sender;
-- (IBAction)	stop:(id)sender;
-
-- (void)		playStream:(NSArray *)streams;
-
-- (void)		addFileToLibrary:(NSString *)path;
-- (void)		addURLToLibrary:(NSURL *)url;
 
 @end

@@ -19,29 +19,21 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "AudioPlayer.h"
+#include <AudioToolbox/AudioFormat.h>
+#include <AudioUnit/AudioUnit.h>
+#import "AudioStreamDecoder.h"
 
-@interface LibraryDocument : NSPersistentDocument
+@interface AudioPlayer : NSObject
 {
-	IBOutlet NSTableView		*_streamTableView;
-	IBOutlet NSTableView		*_playlistTableView;
-	
-	IBOutlet NSArrayController	*_streamArrayController;
-	IBOutlet NSArrayController	*_playlistArrayController;
-	
-	AudioPlayer					*_player;
+	AudioUnit				_audioUnit;
+	AudioStreamDecoder		*_streamDecoder;
 }
 
-- (IBAction)	addFiles:(id)sender;
-- (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
-- (IBAction)	removeAudioStreams:(id)sender;
+- (BOOL)	setStreamDecoder:(AudioStreamDecoder *)streamDecoder error:(NSError **)error;
 
-- (IBAction)	play:(id)sender;
-- (IBAction)	stop:(id)sender;
+- (void)	play;
+- (void)	stop;
 
-- (void)		playStream:(NSArray *)streams;
-
-- (void)		addFileToLibrary:(NSString *)path;
-- (void)		addURLToLibrary:(NSURL *)url;
+- (AudioUnit) audioUnit;
 
 @end
