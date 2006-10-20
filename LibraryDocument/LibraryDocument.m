@@ -84,7 +84,6 @@
 	[_streamArrayController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"metadata.artist" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"metadata.albumTitle" ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:@"metadata.title" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"metadata.trackNumber" ascending:YES] autorelease],
 		nil]];
 	[_playlistArrayController setSortDescriptors:[NSArray arrayWithObjects:
