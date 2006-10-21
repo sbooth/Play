@@ -260,15 +260,6 @@
 		return;
 	}
 	
-/*	propertiesObject			= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
-		
-	[streamObject setValue:propertiesObject forKey:@"properties"];
-
-	[propertiesObject setValue:[NSNumber numberWithFloat:[streamDecoder pcmFormat].mSampleRate] forKey:@"sampleRate"];
-	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mBitsPerChannel] forKey:@"bitsPerChannel"];
-	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mChannelsPerFrame] forKey:@"channelsPerFrame"];
-	[propertiesObject setValue:[NSNumber numberWithLongLong:[streamDecoder totalFrames]] forKey:@"totalFrames"];
-*/	
 	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
 	
 	[streamObject setValue:metadataObject forKey:@"metadata"];
