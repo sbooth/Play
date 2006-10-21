@@ -16,8 +16,8 @@
                 addFiles = id; 
                 insertPlaylistWithSelectedStreams = id; 
                 play = id; 
+                playPause = id; 
                 removeAudioStreams = id; 
-                stop = id; 
             }; 
             CLASS = LibraryDocument; 
             LANGUAGE = ObjC; 
