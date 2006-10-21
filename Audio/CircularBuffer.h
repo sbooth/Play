@@ -35,6 +35,7 @@
 - (void)			reset;
 
 - (unsigned)		size;
+- (void)			increaseSize:(unsigned)size;
 - (void)			resize:(unsigned)size;
 
 - (unsigned)		bytesAvailable;

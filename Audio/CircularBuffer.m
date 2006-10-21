@@ -53,6 +53,7 @@
 
 - (void)			reset							{ _readPtr = _writePtr = _buffer; }
 - (unsigned)		size							{ return _bufsize; }
+- (void)			increaseSize:(unsigned)size		{ [self resize:[self size] + size]; }
 
 - (void)			resize:(unsigned)size
 {
@@ -116,11 +117,6 @@
 - (unsigned)		getData:(void *)buffer byteCount:(unsigned)byteCount
 {
 	NSParameterAssert(NULL != buffer);
-
-	// Do nothing!
-	if(0 == byteCount) {
-		return 0;
-	}
 	
 	// Attempt to return some data, if possible
 	if(byteCount > [self bytesAvailable]) {
