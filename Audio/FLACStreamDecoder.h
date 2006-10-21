@@ -24,7 +24,6 @@
 @interface FLACStreamDecoder : AudioStreamDecoder
 {
 	FLAC__FileDecoder			*_flac;
-	FLAC__uint64				_totalFrames;
 }
 
 @end

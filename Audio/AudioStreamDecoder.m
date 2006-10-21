@@ -27,6 +27,16 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 @implementation AudioStreamDecoder
 
++ (void) initialize
+{
+	[self exposeBinding:@"currentFrame"];
+	[self exposeBinding:@"totalFrames"];
+	[self exposeBinding:@"framesRemaining"];
+
+	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
+	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
+}
+
 + (AudioStreamDecoder *) streamDecoderForURL:(NSURL *)url error:(NSError **)error
 {
 	NSParameterAssert(nil != url);
@@ -131,21 +141,26 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	bufferList->mBuffers[0].mDataByteSize	= bytesRead;
 	framesRead								= bytesRead / [self pcmFormat].mBytesPerFrame;
 	
+	[self setCurrentFrame:[self currentFrame] + framesRead];
+	
 	return framesRead;
 }
 
 - (NSString *)		sourceFormatDescription					{ return nil; }
 
-- (SInt64)			totalFrames								{ return -1; }
-- (SInt64)			currentFrame							{ return -1; }
+- (SInt64)			totalFrames								{ return _totalFrames; }
+- (SInt64)			currentFrame							{ return _currentFrame; }
+- (SInt64)			framesRemaining 						{ return ([self totalFrames] - [self currentFrame]); }
+
 - (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
 
-- (BOOL)			readProperties:(NSError **)error		{ return NO; }
-- (BOOL)			readMetadata:(NSError **)error			{ return NO; }
-- (BOOL)			readPropertiesAndMetadata:(NSError **)error		{ return NO; }
+- (BOOL)			readMetadata:(NSError **)error			{ return YES; }
 
-- (void)			fillPCMBuffer						{}
-- (void)			setupDecoder						{}
-- (void)			cleanupDecoder						{}
+- (void)			fillPCMBuffer							{}
+- (void)			setupDecoder							{}
+- (void)			cleanupDecoder							{}
+
+- (void)			setTotalFrames:(SInt64)totalFrames		{ _totalFrames = totalFrames; }
+- (void)			setCurrentFrame:(SInt64)currentFrame	{ _currentFrame = currentFrame; }
 
 @end

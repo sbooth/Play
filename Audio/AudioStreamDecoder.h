@@ -39,6 +39,9 @@ enum {
 	
 	AudioStreamBasicDescription		_pcmFormat;			// The type of PCM data provided by the stream
 	CircularBuffer					*_pcmBuffer;		// The buffer which holds the PCM audio data
+	
+	SInt64							_currentFrame;
+	SInt64							_totalFrames;
 
 	NSDictionary					*_metadata;			// Metadata dictionary
 }
@@ -57,6 +60,10 @@ enum {
 // Attempt to read frameCount frames of audio, returning the actual number of frames read
 - (UInt32)							readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 
+// Input audio information
+- (SInt64)							totalFrames;
+- (SInt64)							currentFrame;
+- (SInt64)							framesRemaining;
 
 // ========================================
 // Subclasses must implement these methods!
@@ -66,19 +73,19 @@ enum {
 - (NSString *)		sourceFormatDescription;
 
 // Input audio frame information
-- (SInt64)			totalFrames;
-- (SInt64)			currentFrame;
 - (SInt64)			seekToFrame:(SInt64)frame;
 
-// Read properties and/or metadata from the stream
-- (BOOL)			readProperties:(NSError **)error;
+// Read metadata from the stream
 - (BOOL)			readMetadata:(NSError **)error;
-- (BOOL)			readPropertiesAndMetadata:(NSError **)error;
 
 // The meat & potatoes-
 - (void)			setupDecoder;
 - (void)			cleanupDecoder;
 - (void)			fillPCMBuffer;
 // ========================================
+
+// KVC methods
+- (void)			setCurrentFrame:(SInt64)currentFrame;
+- (void)			setTotalFrames:(SInt64)framesRead;
 
 @end
