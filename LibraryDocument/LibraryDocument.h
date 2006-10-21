@@ -37,9 +37,10 @@
 - (IBAction)	removeAudioStreams:(id)sender;
 
 - (IBAction)	play:(id)sender;
-- (IBAction)	stop:(id)sender;
+- (IBAction)	playPause:(id)sender;
 
 - (void)		playStream:(NSArray *)streams;
+- (void)		streamPlaybackDidComplete;
 
 - (void)		addFileToLibrary:(NSString *)path;
 - (void)		addURLToLibrary:(NSURL *)url;

@@ -35,6 +35,7 @@
 {
 	if((self = [super init])) {
 		_player = [[AudioPlayer alloc] init];
+		[[self player] setValue:self forKey:@"owner"];
 	}
 	return self;
 }
@@ -188,7 +189,7 @@
 	NSArray						*fetchResult;
 	NSMutableSet				*playlistSet;
 	AudioStreamDecoder			*streamDecoder;
-	NSManagedObject				*propertiesObject;
+//	NSManagedObject				*propertiesObject;
 	NSManagedObject				*metadataObject;
 	BOOL						result;
 	unsigned					i;
@@ -252,14 +253,14 @@
 		return;
 	}
 	
-	result						= [streamDecoder readPropertiesAndMetadata:&error];
+	result						= [streamDecoder readMetadata:&error];
 	
 	if(NO == result) {
 		result					= [self presentError:error];
 		return;
 	}
 	
-	propertiesObject			= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
+/*	propertiesObject			= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
 		
 	[streamObject setValue:propertiesObject forKey:@"properties"];
 
@@ -267,7 +268,7 @@
 	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mBitsPerChannel] forKey:@"bitsPerChannel"];
 	[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mChannelsPerFrame] forKey:@"channelsPerFrame"];
 	[propertiesObject setValue:[NSNumber numberWithLongLong:[streamDecoder totalFrames]] forKey:@"totalFrames"];
-	
+*/	
 	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
 	
 	[streamObject setValue:metadataObject forKey:@"metadata"];
@@ -285,29 +286,43 @@
 	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.title"] forKey:@"title"];
 	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackNumber"] forKey:@"trackNumber"];
 	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackTotal"] forKey:@"trackTotal"];
+
+	// If no metadata was found, set the title to the filename
+	if(0 == [[streamDecoder valueForKeyPath:@"metadata.@count"] unsignedIntValue]) {
+		[metadataObject setValue:[[[url path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
+	}
 }
 
 #pragma mark Playback Control
 
 - (IBAction) play:(id)sender
 {
-	NSArray						*streams;
-	
-	streams						= [_streamArrayController selectedObjects];
-
-	[self playStream:streams];
+	if(nil == [_player valueForKey:@"streamDecoder"]) {
+		[self playStream:[_streamArrayController selectedObjects]];
+	}
+	else {
+		[[self player] play];
+	}
 }
 
-- (IBAction) stop:(id)sender
+- (IBAction) playPause:(id)sender
 {
-	[[self player] stop];
+	if(nil == [_player valueForKey:@"streamDecoder"]) {
+		[self playStream:[_streamArrayController selectedObjects]];
+	}
+	else {
+		[[self player] playPause];
+	}
+	
 }
 
 - (void) playStream:(NSArray *)streams
 {
+	NSParameterAssert(nil != streams);
+	
 	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
 	NSManagedObject				*streamObject;
-	NSManagedObject				*propertiesObject;
 	NSURL						*url;
 	BOOL						result;
 	AudioStreamDecoder			*streamDecoder;
@@ -319,8 +334,8 @@
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
 	streamObject				= [streams objectAtIndex:0];
-	propertiesObject			= [streamObject valueForKey:@"properties"];
 	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
 	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
 
@@ -331,30 +346,7 @@
 		return;
 	}
 	
-	// Read properties for this stream if they aren't already known (they should be)
-	if(nil == propertiesObject) {		
-		
-		error					= nil;
-		result					= [streamDecoder readProperties:&error];
-
-		if(NO == result) {
-			BOOL					errorRecoveryDone;
-			
-			errorRecoveryDone		= [self presentError:error];
-			return;
-		}
-		
-		propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
-
-		// Read properties from the raw stream and set them
-		
-		[propertiesObject setValue:[NSNumber numberWithFloat:[streamDecoder pcmFormat].mSampleRate] forKey:@"sampleRate"];
-		[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mBitsPerChannel] forKey:@"bitsPerChannel"];
-		[propertiesObject setValue:[NSNumber numberWithUnsignedInt:[streamDecoder pcmFormat].mChannelsPerFrame] forKey:@"channelsPerFrame"];
-		[propertiesObject setValue:[NSNumber numberWithLongLong:[streamDecoder totalFrames]] forKey:@"totalFrames"];
-
-		[streamObject setValue:propertiesObject forKey:@"properties"];
-	}
+	[[self player] stop];
 		
 	result						= [[self player] setStreamDecoder:streamDecoder error:&error];
 	if(NO == result) {
@@ -363,7 +355,47 @@
 	
 	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
 
+	[libraryObject setValue:streamObject forKey:@"nowPlaying"];
+	
 	[[self player] play];
+}
+
+#pragma mark Callbacks
+
+- (void) streamPlaybackDidComplete
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSError						*error;
+	NSNumber					*playCount;
+	NSArray						*streams;
+	unsigned					streamIndex;
+		
+	[[self player] stop];
+
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	playCount					= [streamObject valueForKey:@"playCount"];
+	playCount					= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	
+	[streamObject setValue:playCount forKey:@"playCount"];
+
+	[libraryObject setValue:nil forKey:@"nowPlaying"];
+	
+	streams						= [_streamArrayController arrangedObjects];
+	streamIndex					= [streams indexOfObject:streamObject];
+	
+	if(streamIndex + 1 < [streams count]) {
+		streamObject				= [streams objectAtIndex:streamIndex + 1];
+	
+		[self playStream:[NSArray arrayWithObject:streamObject]];
+	}
+	else {
+		[[self player] reset];	
+	}
 }
 
 @end
