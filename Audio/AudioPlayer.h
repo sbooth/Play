@@ -23,17 +23,37 @@
 #include <AudioUnit/AudioUnit.h>
 #import "AudioStreamDecoder.h"
 
+@class LibraryDocument;
+
 @interface AudioPlayer : NSObject
 {
 	AudioUnit				_audioUnit;
 	AudioStreamDecoder		*_streamDecoder;
+	
+	LibraryDocument			*_owner;
+	
+	BOOL					_isPlaying;
+	SInt64					_frameCountAccumulator;		// Accumulator value for UI updates
 }
 
-- (BOOL)	setStreamDecoder:(AudioStreamDecoder *)streamDecoder error:(NSError **)error;
+- (BOOL)				setStreamDecoder:(AudioStreamDecoder *)streamDecoder error:(NSError **)error;
+- (void)				reset;
 
-- (void)	play;
-- (void)	stop;
+- (void)				play;
+- (void)				playPause;
+- (void)				stop;
 
-- (AudioUnit) audioUnit;
+- (BOOL)				isPlaying;
+
+// The following methods are only updated approximately once per second to avoid excessive CPU loads
+// To truly observe the values use the streamDecoder
+- (SInt64)				totalFrames;
+
+- (SInt64)				currentFrame;
+- (void)				setCurrentFrame:(SInt64)currentFrame;
+
+- (NSString *)			totalSecondsString;
+- (NSString *)			currentSecondString;
+- (NSString *)			secondsRemainingString;
 
 @end

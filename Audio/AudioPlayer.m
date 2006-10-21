@@ -19,9 +19,21 @@
  */
 
 #import "AudioPlayer.h"
+#import "LibraryDocument.h"
 
 #include <CoreServices/CoreServices.h>
 
+@interface AudioPlayer (Private)
+
+- (AudioUnit)			audioUnit;
+- (void)				renderDidComplete;
+- (void)				accumulateFrames:(UInt32)frameCount;
+
+@end
+
+// ========================================
+// AudioUnit render function
+// Thin wrapper around an AudioStreamDecoder
 OSStatus	
 MyRenderer(void							*inRefCon, 
 		   AudioUnitRenderActionFlags 	*ioActionFlags, 
@@ -34,35 +46,36 @@ MyRenderer(void							*inRefCon,
 	NSAutoreleasePool		*pool;
 	AudioPlayer				*player;
 	AudioStreamDecoder		*streamDecoder;
+	UInt32					framesRead;
 	
 	pool				= [[NSAutoreleasePool alloc] init];
 	player				= (AudioPlayer *)inRefCon;
 	streamDecoder		= [player valueForKey:@"streamDecoder"];
+	framesRead			= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
 	
-	[streamDecoder readAudio:ioData frameCount:inNumberFrames];
-	
-	/*
-	RenderSin (sSinWaveFrameCount, 
-			   inNumberFrames,  
-			   ioData->mBuffers[0].mData, 
-			   sSampleRate, 
-			   sAmplitude, 
-			   sToneFrequency, 
-			   sWhichFormat);
-	
-	//we're just going to copy the data into each channel
-	for (UInt32 channel = 1; channel < ioData->mNumberBuffers; channel++)
-		memcpy (ioData->mBuffers[channel].mData, ioData->mBuffers[0].mData, ioData->mBuffers[0].mDataByteSize);
-	
-	sSinWaveFrameCount += inNumberFrames;
-	*/
-	
+	// Accumulate the frames for UI updates
+	[player accumulateFrames:framesRead];
+
+	if(0 == framesRead) {
+		[player renderDidComplete];
+	}	
+
 	[pool release];
 	
 	return noErr;
 }
 
 @implementation AudioPlayer
+
++ (void) initialize
+{
+	[self exposeBinding:@"currentFrame"];
+	[self exposeBinding:@"totalFrames"];
+	
+	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"currentSecondString"];
+	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"secondsRemainingString"];
+	[self setKeys:[NSArray arrayWithObject:@"totalFrames"] triggerChangeNotificationsForDependentKey:@"totalSecondsString"];
+}
 
 - (id) init
 {
@@ -148,6 +161,7 @@ MyRenderer(void							*inRefCon,
 	
 	if(nil != currentStreamDecoder) {
 		[currentStreamDecoder cleanupDecoder];
+		[self setValue:nil forKey:@"streamDecoder"];
 	}
 	
 	[super dealloc];
@@ -167,9 +181,15 @@ MyRenderer(void							*inRefCon,
 		[currentStreamDecoder cleanupDecoder];
 	}
 	
+	[self willChangeValueForKey:@"totalFrames"];
+	[self willChangeValueForKey:@"currentFrame"];
+
 	[self setValue:streamDecoder forKey:@"streamDecoder"];
 	[streamDecoder setupDecoder];
-	
+
+	[self didChangeValueForKey:@"totalFrames"];
+	[self didChangeValueForKey:@"currentFrame"];
+
 	pcmFormat					= [streamDecoder pcmFormat];
 	result						= AudioUnitSetProperty([self audioUnit],
 													   kAudioUnitProperty_StreamFormat,
@@ -185,22 +205,47 @@ MyRenderer(void							*inRefCon,
 			
 		}
 		
-		[self setNilValueForKey:@"streamDecoder"];
+		[self setValue:nil forKey:@"streamDecoder"];
 
 		return NO;
 	}
-			
+		
 	return YES;
+}
+
+- (void) reset
+{
+	[self willChangeValueForKey:@"totalFrames"];
+	[self willChangeValueForKey:@"currentFrame"];
+	
+	[self setValue:nil forKey:@"streamDecoder"];
+
+	[self didChangeValueForKey:@"totalFrames"];
+	[self didChangeValueForKey:@"currentFrame"];
+
+	_frameCountAccumulator			= 0;
 }
 
 - (void) play
 {
 	ComponentResult				result;
-
+	
 	result						= AudioOutputUnitStart([self audioUnit]);
 	
 	if(noErr != result) {
 		printf ("AudioOutputUnitStart=%ld\n", result);
+	}
+	
+	_isPlaying					= YES;
+}
+
+- (void) playPause
+{
+	if(_isPlaying) {
+		[self stop];
+	}
+	else {
+		[self play];
 	}
 }
 
@@ -213,15 +258,162 @@ MyRenderer(void							*inRefCon,
 	if(noErr != result) {
 		printf ("AudioOutputUnitStop=%ld\n", result);
 	}
+
+	_isPlaying					= NO;
 }
 
-//@end
+- (BOOL)		isPlaying		{ return _isPlaying; }
 
-//@implementation AudioPlayer (Private)
-
-- (AudioUnit) audioUnit
+- (SInt64) totalFrames
 {
-	return _audioUnit;
+	SInt64							result;
+	AudioStreamDecoder				*streamDecoder;
+	
+	result							= -1;
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		result						= [streamDecoder totalFrames];
+	}
+	
+	return result;
+}
+
+- (SInt64) currentFrame
+{
+	SInt64							result;
+	AudioStreamDecoder				*streamDecoder;
+	
+	result							= -1;
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		result						= [streamDecoder currentFrame];
+	}
+	
+	return result;
+}
+
+- (void) setCurrentFrame:(SInt64)currentFrame
+{
+	AudioStreamDecoder				*streamDecoder;
+	SInt64							seekedFrame;
+	BOOL							playing;
+	
+	playing							= [self isPlaying];
+	
+	if(playing) {
+		[self stop];
+	}
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	seekedFrame						= [streamDecoder seekToFrame:currentFrame];
+
+	NSAssert(seekedFrame == currentFrame, @"Unable to seek");
+	
+	if(playing) {
+		[self playPause];
+	}
+}
+
+- (NSString *) totalSecondsString
+{
+	NSString						*result;
+	NSTimeInterval					timeInterval;
+	AudioStreamDecoder				*streamDecoder;
+
+	result							= nil;
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		UInt32						minutes, seconds;
+		
+		minutes						= 0;
+		seconds						= 0;
+		timeInterval				= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);
+		minutes						= (UInt32)timeInterval / 60;
+		seconds						= (UInt32)timeInterval % 60;
+				
+		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
+	}
+	
+	return result;
+}
+
+- (NSString *) currentSecondString
+{
+	NSString						*result;
+	NSTimeInterval					timeInterval;
+	AudioStreamDecoder				*streamDecoder;
+	
+	result							= nil;
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		UInt32						minutes, seconds;
+		
+		minutes						= 0;
+		seconds						= 0;
+		timeInterval				= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);
+		minutes						= (UInt32)timeInterval / 60;
+		seconds						= (UInt32)timeInterval % 60;
+		
+		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
+	}
+	
+	return result;
+}
+
+- (NSString *) secondsRemainingString
+{
+	NSString						*result;
+	NSTimeInterval					timeInterval;
+	AudioStreamDecoder				*streamDecoder;
+	
+	result							= nil;
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		UInt32						minutes, seconds;
+		
+		minutes						= 0;
+		seconds						= 0;
+		timeInterval				= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
+		minutes						= (UInt32)timeInterval / 60;
+		seconds						= (UInt32)timeInterval % 60;
+		
+		result						= [NSString stringWithFormat:@"-%u:%.2u", minutes, seconds];
+	}
+	
+	return result;
+}
+
+@end
+
+@implementation AudioPlayer (Private)
+
+- (AudioUnit)			audioUnit						{ return _audioUnit; }
+
+- (void) renderDidComplete
+{
+	[_owner streamPlaybackDidComplete];
+}
+
+- (void) accumulateFrames:(UInt32)frameCount
+{
+	NSTimeInterval					seconds;
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	_frameCountAccumulator			+= frameCount;
+	seconds							= (NSTimeInterval) (_frameCountAccumulator / [streamDecoder pcmFormat].mSampleRate);
+	
+	if(1.0 < seconds) {
+		[self willChangeValueForKey:@"currentFrame"];
+		_frameCountAccumulator		= 0;
+		[self didChangeValueForKey:@"currentFrame"];
+	}
+	
 }
 
 @end
