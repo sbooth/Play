@@ -18,6 +18,10 @@
                 play = id; 
                 playPause = id; 
                 removeAudioStreams = id; 
+                skipBackward = id; 
+                skipForward = id; 
+                skipToBeginning = id; 
+                skipToEnd = id; 
             }; 
             CLASS = LibraryDocument; 
             LANGUAGE = ObjC; 
