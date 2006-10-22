@@ -43,6 +43,14 @@
 - (void)				playPause;
 - (void)				stop;
 
+- (void)				skipForward;
+- (void)				skipBackward;
+- (void)				skipForward:(UInt32)seconds;
+- (void)				skipBackward:(UInt32)seconds;
+
+- (void)				skipToEnd;
+- (void)				skipToBeginning;
+
 - (BOOL)				isPlaying;
 
 // The following methods are only updated approximately once per second to avoid excessive CPU loads

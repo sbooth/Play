@@ -307,6 +307,36 @@
 	
 }
 
+- (IBAction) skipForward:(id)sender
+{
+	[[self player] skipForward];
+}
+
+- (IBAction) skipBackward:(id)sender
+{
+	[[self player] skipBackward];
+}
+
+- (IBAction) skipToEnd:(id)sender
+{
+	[[self player] skipToEnd];
+}
+
+- (IBAction) skipToBeginning:(id)sender
+{
+	[[self player] skipToBeginning];
+}
+
+- (IBAction) nextStream:(id)sender
+{
+	
+}
+
+- (IBAction) previousStream:(id)sender
+{
+	
+}
+
 - (void) playStream:(NSArray *)streams
 {
 	NSParameterAssert(nil != streams);
@@ -360,6 +390,7 @@
 	NSManagedObject				*streamObject;
 	NSError						*error;
 	NSNumber					*playCount;
+	NSNumber					*newPlayCount;
 	NSArray						*streams;
 	unsigned					streamIndex;
 		
@@ -370,9 +401,9 @@
 	libraryObject				= [self fetchLibraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	playCount					= [streamObject valueForKey:@"playCount"];
-	playCount					= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[streamObject setValue:playCount forKey:@"playCount"];
+	[streamObject setValue:newPlayCount forKey:@"playCount"];
 
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
 	

@@ -262,6 +262,83 @@ MyRenderer(void							*inRefCon,
 	_isPlaying					= NO;
 }
 
+- (void) skipForward
+{
+	[self skipForward:3];
+}
+
+- (void) skipBackward
+{
+	[self skipBackward:3];
+}
+
+- (void) skipForward:(UInt32)seconds
+{
+	SInt64							currentFrame;
+	SInt64							desiredFrame;
+	SInt64							totalFrames;
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		totalFrames					= [streamDecoder totalFrames];
+		currentFrame				= [streamDecoder currentFrame];
+		desiredFrame				= currentFrame + (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+		
+		if(totalFrames < desiredFrame) {
+			desiredFrame = totalFrames;
+		}
+		
+		[self setCurrentFrame:desiredFrame];
+	}	
+}
+
+- (void) skipBackward:(UInt32)seconds
+{
+	SInt64							currentFrame;
+	SInt64							desiredFrame;
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		currentFrame				= [streamDecoder currentFrame];
+		desiredFrame				= currentFrame - (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+		
+		if(0 > desiredFrame) {
+			desiredFrame = 0;
+		}
+		
+		[self setCurrentFrame:desiredFrame];
+	}
+}
+
+- (void) skipToEnd
+{
+	SInt64							totalFrames;
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		totalFrames					= [streamDecoder totalFrames];		
+		
+		[self setCurrentFrame:totalFrames - 1];
+	}
+}
+
+- (void) skipToBeginning
+{
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self valueForKey:@"streamDecoder"];
+	
+	if(nil != streamDecoder) {
+		[self setCurrentFrame:0];
+	}
+}
+
 - (BOOL)		isPlaying		{ return _isPlaying; }
 
 - (SInt64) totalFrames
@@ -309,7 +386,7 @@ MyRenderer(void							*inRefCon,
 	streamDecoder					= [self valueForKey:@"streamDecoder"];
 	seekedFrame						= [streamDecoder seekToFrame:currentFrame];
 
-	NSAssert(seekedFrame == currentFrame, @"Unable to seek");
+	NSAssert2(seekedFrame == currentFrame, @"Seek failed: requested frame %qi, frame %qi", currentFrame, seekedFrame);
 	
 	if(playing) {
 		[self playPause];
@@ -382,7 +459,7 @@ MyRenderer(void							*inRefCon,
 		minutes						= (UInt32)timeInterval / 60;
 		seconds						= (UInt32)timeInterval % 60;
 		
-		result						= [NSString stringWithFormat:@"-%u:%.2u", minutes, seconds];
+		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
 	}
 	
 	return result;

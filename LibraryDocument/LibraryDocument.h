@@ -39,6 +39,15 @@
 - (IBAction)	play:(id)sender;
 - (IBAction)	playPause:(id)sender;
 
+- (IBAction)	skipForward:(id)sender;
+- (IBAction)	skipBackward:(id)sender;
+
+- (IBAction)	skipToEnd:(id)sender;
+- (IBAction)	skipToBeginning:(id)sender;
+
+- (IBAction)	nextStream:(id)sender;
+- (IBAction)	previousStream:(id)sender;
+
 - (void)		playStream:(NSArray *)streams;
 - (void)		streamPlaybackDidComplete;
 
