@@ -18,6 +18,7 @@
                 play = id; 
                 playPause = id; 
                 removeAudioStreams = id; 
+                showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
@@ -26,6 +27,7 @@
             CLASS = LibraryDocument; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                "_playPauseButton" = NSButton; 
                 "_playlistArrayController" = NSArrayController; 
                 "_playlistTableView" = NSTableView; 
                 "_streamArrayController" = NSArrayController; 
