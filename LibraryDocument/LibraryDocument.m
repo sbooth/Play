@@ -20,6 +20,9 @@
 
 #import "LibraryDocument.h"
 #import "AudioStreamDecoder.h"
+#import "AudioStreamInformationSheet.h"
+
+#import <Growl/GrowlApplicationBridge.h>
 
 @interface LibraryDocument (Private)
 
@@ -35,8 +38,9 @@
 {
 	if((self = [super init])) {
 		_player = [[AudioPlayer alloc] init];
-		[[self player] setValue:self forKey:@"owner"];
+		[[self player] setOwner:self];
 	}
+	
 	return self;
 }
 
@@ -56,6 +60,7 @@
 
         [self updateChangeCount:NSChangeCleared];
     }
+	
     return self;
 }
 
@@ -189,7 +194,7 @@
 	NSArray						*fetchResult;
 	NSMutableSet				*playlistSet;
 	AudioStreamDecoder			*streamDecoder;
-//	NSManagedObject				*propertiesObject;
+	NSManagedObject				*propertiesObject;
 	NSManagedObject				*metadataObject;
 	BOOL						result;
 	unsigned					i;
@@ -252,6 +257,23 @@
 		result					= [self presentError:error];
 		return;
 	}
+
+	result						= [streamDecoder readProperties:&error];
+	
+	if(NO == result) {
+		result					= [self presentError:error];
+		return;
+	}
+	
+	propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
+	
+	[streamObject setValue:propertiesObject forKey:@"properties"];
+	
+	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
+	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
+	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
+	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
+	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
 	
 	result						= [streamDecoder readMetadata:&error];
 	
@@ -288,23 +310,26 @@
 
 - (IBAction) play:(id)sender
 {
-	if(nil == [_player valueForKey:@"streamDecoder"]) {
+	if(NO == [[self player] hasValidStream]) {
 		[self playStream:[_streamArrayController selectedObjects]];
 	}
 	else {
 		[[self player] play];
 	}
+
+	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
 }
 
 - (IBAction) playPause:(id)sender
 {
-	if(nil == [_player valueForKey:@"streamDecoder"]) {
+	if(NO == [[self player] hasValidStream]) {
 		[self playStream:[_streamArrayController selectedObjects]];
 	}
 	else {
 		[[self player] playPause];
 	}
-	
+
+	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
 }
 
 - (IBAction) skipForward:(id)sender
@@ -337,6 +362,21 @@
 	
 }
 
+- (IBAction) showStreamInformationSheet:(id)sender
+{
+	AudioStreamInformationSheet		*streamInformationSheet;
+
+	streamInformationSheet			= [[AudioStreamInformationSheet alloc] initWithOwner:self];
+	
+	[[streamInformationSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
+
+	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
+								   modalForWindow:[self windowForSheet] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:streamInformationSheet];
+}
+
 - (void) playStream:(NSArray *)streams
 {
 	NSParameterAssert(nil != streams);
@@ -346,39 +386,51 @@
 	NSManagedObject				*streamObject;
 	NSURL						*url;
 	BOOL						result;
-	AudioStreamDecoder			*streamDecoder;
 	NSError						*error;
 	
 	if(0 == [streams count]) {
 		return;
 	}
 	
+	[[self player] stop];
+
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	
+	if(nil != streamObject) {
+		[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+		
+		[libraryObject setValue:nil forKey:@"nowPlaying"];
+	}
+	
 	streamObject				= [streams objectAtIndex:0];
 	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
-	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
+	result						= [[self player] setStreamURL:url error:&error];
 
-	if(nil == streamDecoder) {
+	if(NO == result) {
 		BOOL					errorRecoveryDone;
 		
 		errorRecoveryDone		= [self presentError:error];
 		return;
 	}
-	
-	[[self player] stop];
 		
-	result						= [[self player] setStreamDecoder:streamDecoder error:&error];
-	if(NO == result) {
-		
-	}
-	
-	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
+	[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
 
 	[libraryObject setValue:streamObject forKey:@"nowPlaying"];
+
+	[GrowlApplicationBridge notifyWithTitle:[streamObject valueForKeyPath:@"metadata.title"]
+								description:[streamObject valueForKeyPath:@"metadata.artist"]
+						   notificationName:@"Stream Playback Started" 
+								   iconData:nil 
+								   priority:0 
+								   isSticky:NO 
+							   clickContext:nil];
 	
 	[[self player] play];
+
+	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
 }
 
 #pragma mark Callbacks
@@ -394,8 +446,6 @@
 	NSArray						*streams;
 	unsigned					streamIndex;
 		
-	[[self player] stop];
-
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self fetchLibraryObject];
@@ -403,6 +453,8 @@
 	playCount					= [streamObject valueForKey:@"playCount"];
 	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
+	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
 	[streamObject setValue:newPlayCount forKey:@"playCount"];
 
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
@@ -505,6 +557,22 @@
 			[self addURLToLibrary:URL];
 		}	
 	}	
+}
+
+- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioStreamInformationSheet		*streamInformationSheet;
+	
+	streamInformationSheet			= (AudioStreamInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[streamInformationSheet release];
 }
 
 @end

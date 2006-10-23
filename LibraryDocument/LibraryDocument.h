@@ -28,7 +28,9 @@
 	
 	IBOutlet NSArrayController	*_streamArrayController;
 	IBOutlet NSArrayController	*_playlistArrayController;
-	
+
+	IBOutlet NSButton			*_playPauseButton;
+
 	AudioPlayer					*_player;
 }
 
@@ -47,6 +49,8 @@
 
 - (IBAction)	nextStream:(id)sender;
 - (IBAction)	previousStream:(id)sender;
+
+- (IBAction)	showStreamInformationSheet:(id)sender;
 
 - (void)		playStream:(NSArray *)streams;
 - (void)		streamPlaybackDidComplete;
