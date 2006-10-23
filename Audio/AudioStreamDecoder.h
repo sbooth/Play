@@ -42,7 +42,8 @@ enum {
 	
 	SInt64							_currentFrame;
 	SInt64							_totalFrames;
-
+	
+	NSDictionary					*_properties;		// Properties dictionary
 	NSDictionary					*_metadata;			// Metadata dictionary
 }
 
@@ -75,7 +76,8 @@ enum {
 // Input audio frame information
 - (SInt64)			seekToFrame:(SInt64)frame;
 
-// Read metadata from the stream
+// Read properties and metadata from the stream
+- (BOOL)			readProperties:(NSError **)error;
 - (BOOL)			readMetadata:(NSError **)error;
 
 // The meat & potatoes-

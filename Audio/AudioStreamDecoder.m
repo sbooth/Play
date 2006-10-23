@@ -142,7 +142,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	framesRead								= bytesRead / [self pcmFormat].mBytesPerFrame;
 	
 	[self setCurrentFrame:[self currentFrame] + framesRead];
-	
+		
 	return framesRead;
 }
 
@@ -154,6 +154,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 - (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
 
+- (BOOL)			readProperties:(NSError **)error		{ return YES; }
 - (BOOL)			readMetadata:(NSError **)error			{ return YES; }
 
 - (void)			fillPCMBuffer							{}

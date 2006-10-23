@@ -185,6 +185,115 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	return frame;
 }
 
+- (BOOL) readProperties:(NSError **)error
+{
+	NSString						*path				= [_url path];
+	FLAC__Metadata_Chain			*chain				= NULL;
+	FLAC__Metadata_Iterator			*iterator			= NULL;
+	FLAC__StreamMetadata			*block				= NULL;
+	NSMutableDictionary				*propertiesDictionary;
+				
+	chain							= FLAC__metadata_chain_new();
+	
+	NSAssert(NULL != chain, @"Unable to allocate memory.");
+	
+	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
+		
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary;
+			
+			errorDictionary			= [NSMutableDictionary dictionary];
+			
+			switch(FLAC__metadata_chain_status(chain)) {
+				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+					
+				case FLAC__METADATA_CHAIN_STATUS_READ_ERROR:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+					
+				case FLAC__METADATA_CHAIN_STATUS_SEEK_ERROR:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+					
+				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+					
+				case FLAC__METADATA_CHAIN_STATUS_ERROR_OPENING_FILE:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+					
+				default:
+					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					break;
+			}
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
+		
+		FLAC__metadata_chain_delete(chain);
+		
+		return NO;
+	}
+	
+	iterator					= FLAC__metadata_iterator_new();
+	
+	NSAssert(NULL != iterator, @"Unable to allocate memory.");
+	
+	FLAC__metadata_iterator_init(iterator, chain);
+	
+	do {
+		block					= FLAC__metadata_iterator_get_block(iterator);
+		
+		if(NULL == block) {
+			break;
+		}
+		
+		switch(block->type) {					
+			case FLAC__METADATA_TYPE_STREAMINFO:
+				propertiesDictionary			= [NSMutableDictionary dictionary];
+
+				[propertiesDictionary setValue:@"FLAC" forKey:@"formatName"];
+				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:@"totalFrames"];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:@"sampleRate"];				
+				
+				[self setValue:propertiesDictionary forKey:@"properties"];
+				break;
+
+			case FLAC__METADATA_TYPE_VORBIS_COMMENT:				break;
+			case FLAC__METADATA_TYPE_PADDING:						break;
+			case FLAC__METADATA_TYPE_APPLICATION:					break;
+			case FLAC__METADATA_TYPE_SEEKTABLE:						break;
+			case FLAC__METADATA_TYPE_CUESHEET:						break;
+			case FLAC__METADATA_TYPE_UNDEFINED:						break;
+			default:												break;
+		}
+	} while(FLAC__metadata_iterator_next(iterator));
+	
+	FLAC__metadata_iterator_delete(iterator);
+	FLAC__metadata_chain_delete(chain);
+	
+	return YES;
+}
+
 - (BOOL) readMetadata:(NSError **)error
 {
 	NSString						*path				= [_url path];
