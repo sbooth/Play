@@ -19,7 +19,6 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#include <AudioToolbox/AudioFormat.h>
 #include <AudioUnit/AudioUnit.h>
 #import "AudioStreamDecoder.h"
 
@@ -33,11 +32,17 @@
 	LibraryDocument			*_owner;
 	
 	BOOL					_isPlaying;
-	SInt64					_frameCountAccumulator;		// Accumulator value for UI updates
+
+	SInt64					_frameCounter;
 }
 
-- (BOOL)				setStreamDecoder:(AudioStreamDecoder *)streamDecoder error:(NSError **)error;
-- (void)				reset;
+- (LibraryDocument *)	owner;
+- (void)				setOwner:(LibraryDocument *)owner;
+
+- (BOOL)				setStreamURL:(NSURL *)url error:(NSError **)error;
+- (oneway void)			reset;
+
+- (BOOL)				hasValidStream;
 
 - (void)				play;
 - (void)				playPause;
@@ -54,7 +59,6 @@
 - (BOOL)				isPlaying;
 
 // The following methods are only updated approximately once per second to avoid excessive CPU loads
-// To truly observe the values use the streamDecoder
 - (SInt64)				totalFrames;
 
 - (SInt64)				currentFrame;
