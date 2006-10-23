@@ -30,7 +30,7 @@
 
 - (id)				init
 {
-	return [self initWithSize:10 * 1024];
+	return [self initWithSize:50 * 1024];
 }
 
 - (id)				initWithSize:(unsigned)size
