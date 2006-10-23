@@ -57,4 +57,26 @@
 	return NO;
 }
 
+- (void) awakeFromNib
+{
+	[GrowlApplicationBridge setGrowlDelegate:self];
+}
+
+- (NSDictionary *) registrationDictionaryForGrowl
+{
+	NSDictionary				*registrationDictionary;
+	NSArray						*defaultNotifications;
+	NSArray						*allNotifications;
+	
+	defaultNotifications		= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
+	allNotifications			= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
+	registrationDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
+		@"Play", GROWL_APP_NAME,  
+		allNotifications, GROWL_NOTIFICATIONS_ALL, 
+		defaultNotifications, GROWL_NOTIFICATIONS_DEFAULT,
+		nil];
+	
+	return registrationDictionary;
+}
+
 @end

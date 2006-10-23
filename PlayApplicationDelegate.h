@@ -19,8 +19,9 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <Growl/GrowlApplicationBridge.h>
 
-@interface PlayApplicationDelegate : NSObject
+@interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
 }
 
