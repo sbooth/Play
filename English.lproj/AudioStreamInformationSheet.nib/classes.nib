@@ -1,0 +1,15 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {cancel = id; ok = id; }; 
+            CLASS = AudioStreamInformationSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_sheet" = NSWindow; "_streamArrayController" = NSArrayController; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = CompilationButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = TagTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }
+    ); 
+    IBVersion = 1; 
+}
