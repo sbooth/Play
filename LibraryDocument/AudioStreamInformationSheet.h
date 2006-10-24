@@ -28,6 +28,7 @@
 
 	IBOutlet NSArrayController	*_streamArrayController;
 	
+	NSManagedObjectContext		*_managedObjectContext;
 	LibraryDocument				*_owner;
 }
 

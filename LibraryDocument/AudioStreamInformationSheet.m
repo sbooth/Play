@@ -25,15 +25,15 @@
 
 - (id) init
 {
-	return [self initWithOwner:nil];
-}
-
-- (id) initWithOwner:(LibraryDocument *)owner
-{
+//	return [self initWithOwner:nil];
+//}
+//
+//- (id) initWithOwner:(LibraryDocument *)owner
+//{
 	if((self = [super init])) {
 		BOOL		result;
 		
-		_owner		= [owner retain];
+//		_owner		= [owner retain];
 		
 		result		= [NSBundle loadNibNamed:@"AudioStreamInformationSheet" owner:self];
 		if(NO == result) {
