@@ -58,6 +58,14 @@
 		8CF8B86A0AED841300A99441 /* taglib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF8B8350AED841300A99441 /* taglib.framework */; };
 		8CF8B86B0AED841B00A99441 /* taglib.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF8B8350AED841300A99441 /* taglib.framework */; };
 		8CF8B8920AED868700A99441 /* MusepackMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8B8910AED868700A99441 /* MusepackMetadataReader.mm */; };
+		8CF8BE2D0AEDB57400A99441 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8BE2A0AEDB57400A99441 /* previous.png */; };
+		8CF8BE2E0AEDB57400A99441 /* next.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8BE2B0AEDB57400A99441 /* next.png */; };
+		8CF8BE2F0AEDB57400A99441 /* noatunloopsong.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8BE2C0AEDB57400A99441 /* noatunloopsong.png */; };
+		8CF8BE390AEDB69200A99441 /* roll.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8BE380AEDB69100A99441 /* roll.png */; };
+		8CF8C2BD0AEDBFE500A99441 /* AudioStreamTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8C2BB0AEDBFE500A99441 /* AudioStreamTableView.m */; };
+		8CF8C3170AEDC76000A99441 /* mt19937ar.c in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8C3160AEDC76000A99441 /* mt19937ar.c */; };
+		8CF8C3E50AEDD7EA00A99441 /* UtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8C3E30AEDD7EA00A99441 /* UtilityFunctions.m */; };
+		8CF8C4340AEDDB7500A99441 /* CoreAudioStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8C4320AEDDB7500A99441 /* CoreAudioStreamDecoder.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
@@ -151,6 +159,18 @@
 		8CF8B8330AED83E800A99441 /* OggVorbisMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggVorbisMetadataReader.mm; path = Audio/Metadata/OggVorbisMetadataReader.mm; sourceTree = "<group>"; };
 		8CF8B8350AED841300A99441 /* taglib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = taglib.framework; path = Frameworks/taglib.framework; sourceTree = "<group>"; };
 		8CF8B8910AED868700A99441 /* MusepackMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MusepackMetadataReader.mm; path = Audio/Metadata/MusepackMetadataReader.mm; sourceTree = "<group>"; };
+		8CF8BE2A0AEDB57400A99441 /* previous.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = previous.png; path = Images/previous.png; sourceTree = "<group>"; };
+		8CF8BE2B0AEDB57400A99441 /* next.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = next.png; path = Images/next.png; sourceTree = "<group>"; };
+		8CF8BE2C0AEDB57400A99441 /* noatunloopsong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = noatunloopsong.png; path = Images/noatunloopsong.png; sourceTree = "<group>"; };
+		8CF8BE380AEDB69100A99441 /* roll.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = roll.png; path = Images/roll.png; sourceTree = "<group>"; };
+		8CF8C2BA0AEDBFE500A99441 /* AudioStreamTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableView.h; path = LibraryDocument/AudioStreamTableView.h; sourceTree = "<group>"; };
+		8CF8C2BB0AEDBFE500A99441 /* AudioStreamTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamTableView.m; path = LibraryDocument/AudioStreamTableView.m; sourceTree = "<group>"; };
+		8CF8C3160AEDC76000A99441 /* mt19937ar.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = mt19937ar.c; path = Utilities/mt19937ar.c; sourceTree = "<group>"; };
+		8CF8C3640AEDCA6E00A99441 /* mt19937ar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mt19937ar.h; path = Utilities/mt19937ar.h; sourceTree = "<group>"; };
+		8CF8C3E20AEDD7E900A99441 /* UtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UtilityFunctions.h; path = Utilities/UtilityFunctions.h; sourceTree = "<group>"; };
+		8CF8C3E30AEDD7EA00A99441 /* UtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UtilityFunctions.m; path = Utilities/UtilityFunctions.m; sourceTree = "<group>"; };
+		8CF8C4310AEDDB7500A99441 /* CoreAudioStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoreAudioStreamDecoder.h; path = Audio/Decoders/CoreAudioStreamDecoder.h; sourceTree = "<group>"; };
+		8CF8C4320AEDDB7500A99441 /* CoreAudioStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoreAudioStreamDecoder.m; path = Audio/Decoders/CoreAudioStreamDecoder.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -212,6 +232,7 @@
 				8CF8AD2B0AED656600A99441 /* Decoders */,
 				8CF8B79B0AED7E4C00A99441 /* Metadata */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
+				8CF8C3150AEDC75000A99441 /* Utilities */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				8CD43ACC0AE3441000B41F4D /* Images */,
 				8CD4457F0AE3FD1400B41F4D /* Icons */,
@@ -225,14 +246,16 @@
 		2A37F4ABFDCFA73011CA2CEA /* Library Document */ = {
 			isa = PBXGroup;
 			children = (
-				8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */,
 				8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */,
+				8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */,
 				8C6411060AE5FF2E0075644F /* LibraryDocument.h */,
 				8C6411070AE5FF2E0075644F /* LibraryDocument.m */,
 				8C6411080AE5FF2E0075644F /* PlaylistTableViewDataSource.h */,
 				8C6411090AE5FF2E0075644F /* PlaylistTableViewDataSource.m */,
 				8CF8AA540AEBEE1A00A99441 /* AudioStreamInformationSheet.h */,
 				8CF8AA550AEBEE1A00A99441 /* AudioStreamInformationSheet.m */,
+				8CF8C2BA0AEDBFE500A99441 /* AudioStreamTableView.h */,
+				8CF8C2BB0AEDBFE500A99441 /* AudioStreamTableView.m */,
 			);
 			name = "Library Document";
 			sourceTree = "<group>";
@@ -291,6 +314,10 @@
 		8CD43ACC0AE3441000B41F4D /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8CF8BE380AEDB69100A99441 /* roll.png */,
+				8CF8BE2A0AEDB57400A99441 /* previous.png */,
+				8CF8BE2B0AEDB57400A99441 /* next.png */,
+				8CF8BE2C0AEDB57400A99441 /* noatunloopsong.png */,
 				8CF8968B0AEAB74F00A99441 /* player_end.png */,
 				8CF8968C0AEAB74F00A99441 /* player_fwd.png */,
 				8CF8968D0AEAB74F00A99441 /* player_pause.png */,
@@ -337,6 +364,8 @@
 				8CF8AD330AED657700A99441 /* OggVorbisStreamDecoder.m */,
 				8CF8B7000AED745700A99441 /* MusepackStreamDecoder.h */,
 				8CF8B7010AED745700A99441 /* MusepackStreamDecoder.m */,
+				8CF8C4310AEDDB7500A99441 /* CoreAudioStreamDecoder.h */,
+				8CF8C4320AEDDB7500A99441 /* CoreAudioStreamDecoder.m */,
 			);
 			name = Decoders;
 			sourceTree = "<group>";
@@ -354,6 +383,17 @@
 				8CF8B7C40AED7FB500A99441 /* FLACMetadataReader.m */,
 			);
 			name = Metadata;
+			sourceTree = "<group>";
+		};
+		8CF8C3150AEDC75000A99441 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				8CF8C3640AEDCA6E00A99441 /* mt19937ar.h */,
+				8CF8C3160AEDC76000A99441 /* mt19937ar.c */,
+				8CF8C3E20AEDD7E900A99441 /* UtilityFunctions.h */,
+				8CF8C3E30AEDD7EA00A99441 /* UtilityFunctions.m */,
+			);
+			name = Utilities;
 			sourceTree = "<group>";
 		};
 		E1B74B1A0667B4A90069E3BA /* Models */ = {
@@ -428,6 +468,10 @@
 				8CF8969A0AEAB75000A99441 /* player_stop.png in Resources */,
 				8CF896AE0AEAFA9800A99441 /* Play.icns in Resources */,
 				8CF8AA790AEBF09900A99441 /* AudioStreamInformationSheet.nib in Resources */,
+				8CF8BE2D0AEDB57400A99441 /* previous.png in Resources */,
+				8CF8BE2E0AEDB57400A99441 /* next.png in Resources */,
+				8CF8BE2F0AEDB57400A99441 /* noatunloopsong.png in Resources */,
+				8CF8BE390AEDB69200A99441 /* roll.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,6 +499,10 @@
 				8CF8B7C60AED7FB500A99441 /* FLACMetadataReader.m in Sources */,
 				8CF8B8340AED83E800A99441 /* OggVorbisMetadataReader.mm in Sources */,
 				8CF8B8920AED868700A99441 /* MusepackMetadataReader.mm in Sources */,
+				8CF8C2BD0AEDBFE500A99441 /* AudioStreamTableView.m in Sources */,
+				8CF8C3170AEDC76000A99441 /* mt19937ar.c in Sources */,
+				8CF8C3E50AEDD7EA00A99441 /* UtilityFunctions.m in Sources */,
+				8CF8C4340AEDDB7500A99441 /* CoreAudioStreamDecoder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
