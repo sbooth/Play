@@ -20,6 +20,8 @@
 
 #import "AudioStreamDecoder.h"
 #import "FLACStreamDecoder.h"
+#import "OggVorbisStreamDecoder.h"
+#import "MusepackStreamDecoder.h"
 
 #include <AudioToolbox/AudioFormat.h>
 
@@ -51,6 +53,16 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	
 	if([pathExtension isEqualToString:@"flac"]) {
 		result						= [[FLACStreamDecoder alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"ogg"]) {
+		result						= [[OggVorbisStreamDecoder alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"mpc"]) {
+		result						= [[MusepackStreamDecoder alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
@@ -155,7 +167,6 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 - (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
 
 - (BOOL)			readProperties:(NSError **)error		{ return YES; }
-- (BOOL)			readMetadata:(NSError **)error			{ return YES; }
 
 - (void)			fillPCMBuffer							{}
 - (void)			setupDecoder							{}
