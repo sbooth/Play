@@ -134,15 +134,30 @@
 {
 	CircularBuffer		*buffer;
 	long				bytesRead;
+	long				totalBytes;
+	void				*rawBuffer;
+	unsigned			availableSpace;
 	int					currentSection;
 	
 	buffer				= [self pcmBuffer];
+	rawBuffer			= [buffer exposeBufferForWriting];
+	availableSpace		= [buffer freeSpaceAvailable];
+	totalBytes			= 0;
 	currentSection		= 0;
-	bytesRead			= ov_read(&_vf, [buffer exposeBufferForWriting], [buffer freeSpaceAvailable], YES, sizeof(int16_t), YES, &currentSection);
-
-	NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
 	
-	[buffer wroteBytes:bytesRead];
+	for(;;) {
+		bytesRead		= ov_read(&_vf, rawBuffer + totalBytes, availableSpace - totalBytes, YES, sizeof(int16_t), YES, &currentSection);
+
+		NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
+		
+		totalBytes += bytesRead;
+
+		if(0 == bytesRead || totalBytes >= availableSpace) {
+			break;
+		}
+	}
+
+	[buffer wroteBytes:totalBytes];
 }
 
 @end
