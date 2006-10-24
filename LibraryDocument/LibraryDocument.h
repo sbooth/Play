@@ -35,6 +35,7 @@
 	
 	BOOL						_randomizePlayback;
 	BOOL						_loopPlayback;
+	BOOL						_playButtonEnabled;
 }
 
 - (IBAction)	addFiles:(id)sender;
@@ -68,5 +69,8 @@
 
 - (BOOL)		loopPlayback;
 - (void)		setLoopPlayback:(BOOL)loopPlayback;
+
+- (BOOL)		playButtonEnabled;
+- (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled;
 
 @end

@@ -22,6 +22,8 @@
 #import "AudioMetadataReader.h"
 #import "AudioStreamDecoder.h"
 #import "AudioStreamInformationSheet.h"
+#import "UtilityFunctions.h"
+
 #include "mt19937ar.h"
 
 #import <Growl/GrowlApplicationBridge.h>
@@ -30,7 +32,9 @@
 
 - (AudioPlayer *)			player;
 - (NSManagedObject *)		fetchLibraryObject;
+- (void)					updatePlayButtonState;
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
 @end
 
@@ -98,7 +102,9 @@
 		nil]];
 	[_playlistArrayController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
-		nil]];	
+		nil]];
+	
+	[self updatePlayButtonState];
 }
 
 #pragma mark Action Methods
@@ -106,7 +112,9 @@
 - (IBAction) addFiles:(id)sender
 {
 	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
-	NSArray			*types		= [NSArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
+	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
+	
+	[types addObjectsFromArray:getCoreAudioExtensions()];
 	
 	[panel setAllowsMultipleSelection:YES];
 //	[panel setCanChooseDirectories:YES];
@@ -338,7 +346,7 @@
 		[[self player] play];
 	}
 
-	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
+	[self updatePlayButtonState];
 }
 
 - (IBAction) playPause:(id)sender
@@ -365,7 +373,7 @@
 		[[self player] playPause];
 	}
 
-	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
+	[self updatePlayButtonState];
 }
 
 - (IBAction) skipForward:(id)sender
@@ -407,7 +415,8 @@
 	streams						= [_streamArrayController arrangedObjects];
 	
 	if(0 == [streams count]) {
-		[[self player] reset];	
+		[[self player] reset];
+		[self updatePlayButtonState];
 	}
 	else if([self randomizePlayback]) {
 		double						randomNumber;
@@ -440,7 +449,8 @@
 			[self playStream:[NSArray arrayWithObject:streamObject]];
 		}
 		else {
-			[[self player] reset];	
+			[[self player] reset];
+			[self updatePlayButtonState];
 		}
 	}
 }
@@ -574,7 +584,7 @@
 	
 	[[self player] play];
 
-	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
+	[self updatePlayButtonState];
 }
 
 #pragma mark Properties
@@ -584,6 +594,9 @@
 
 - (BOOL)		loopPlayback										{ return _loopPlayback; }
 - (void)		setLoopPlayback:(BOOL)loopPlayback					{ _loopPlayback = loopPlayback; }
+
+- (BOOL)		playButtonEnabled									{ return _playButtonEnabled; }
+- (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
 
 #pragma mark Callbacks
 
@@ -606,7 +619,6 @@
 	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
 	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
 	[streamObject setValue:newPlayCount forKey:@"playCount"];
-
 
 	[self nextStream:self];
 }
@@ -696,6 +708,49 @@
 			[self addURLToLibrary:URL];
 		}	
 	}	
+}
+
+- (void) updatePlayButtonState
+{
+	NSString						*buttonImagePath, *buttonAlternateImagePath;
+	NSImage							*buttonImage, *buttonAlternateImage;
+	
+	if([[self player] isPlaying]) {		
+		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
+		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
+		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
+		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
+
+		[_playPauseButton setState:NSOnState];
+		[_playPauseButton setImage:buttonImage];
+		[_playPauseButton setAlternateImage:buttonAlternateImage];
+		[_playPauseButton setToolTip:@"Pause playback"];
+
+		[self setPlayButtonEnabled:YES];
+	}
+	else if(NO == [[self player] hasValidStream]) {
+		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
+		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
+
+		[_playPauseButton setImage:buttonImage];
+		[_playPauseButton setAlternateImage:nil];		
+		[_playPauseButton setToolTip:@"Play"];
+
+		[self setPlayButtonEnabled:(0 == [[_streamArrayController arrangedObjects] count])];
+	}
+	else {
+		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
+		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];		
+		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
+		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
+		
+		[_playPauseButton setState:NSOffState];
+		[_playPauseButton setImage:buttonImage];
+		[_playPauseButton setAlternateImage:buttonAlternateImage];
+		[_playPauseButton setToolTip:@"Resume playback"];
+		
+		[self setPlayButtonEnabled:YES];
+	}
 }
 
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
