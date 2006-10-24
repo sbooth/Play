@@ -339,7 +339,12 @@
 			[self playStream:[NSArray arrayWithObject:streamObject]];
 		}
 		else {
-			[self playStream:[_streamArrayController selectedObjects]];
+			if(0 == [[_streamArrayController selectedObjects] count]) {
+				[self playStream:[_streamArrayController arrangedObjects]];
+			}
+			else {
+				[self playStream:[_streamArrayController selectedObjects]];
+			}
 		}
 	}
 	else {
@@ -366,7 +371,12 @@
 			[self playStream:[NSArray arrayWithObject:streamObject]];
 		}
 		else {
-			[self playStream:[_streamArrayController selectedObjects]];
+			if(0 == [[_streamArrayController selectedObjects] count]) {
+				[self playStream:[_streamArrayController arrangedObjects]];
+			}
+			else {
+				[self playStream:[_streamArrayController selectedObjects]];
+			}
 		}
 	}
 	else {
@@ -629,25 +639,29 @@
 
 - (void) tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-	id							bindingTarget;
-	NSString					*keyPath;
-	NSDictionary				*bindingOptions;
-
-	// When the selected Playlist changes, update the AudioStream Array Controller's bindings
-	[_streamArrayController unbind:@"contentSet"];
-
-	if(0 == [[[_playlistArrayController selection] valueForKey:@"@count"] intValue]) {
-		bindingTarget			= [self fetchLibraryObject];
-		keyPath					= @"streams";
-		bindingOptions			= [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:NSDeletesObjectsOnRemoveBindingsOption];
-	}
-	else {
-		bindingTarget			= _playlistArrayController;
-		keyPath					= @"selection.streams";
-		bindingOptions			= nil;
+	if([[aNotification object] isEqual:_playlistTableView]) {
+		id							bindingTarget;
+		NSString					*keyPath;
+		NSDictionary				*bindingOptions;
+		
+		// When the selected Playlist changes, update the AudioStream Array Controller's bindings
+		[_streamArrayController unbind:@"contentSet"];
+		
+		if(0 == [[[_playlistArrayController selection] valueForKey:@"@count"] intValue]) {
+			bindingTarget			= [self fetchLibraryObject];
+			keyPath					= @"streams";
+			bindingOptions			= [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:NSDeletesObjectsOnRemoveBindingsOption];
+		}
+		else {
+			bindingTarget			= _playlistArrayController;
+			keyPath					= @"selection.streams";
+			bindingOptions			= nil;
+		}
+		
+		[_streamArrayController bind:@"contentSet" toObject:bindingTarget withKeyPath:keyPath options:bindingOptions];
 	}
 	
-	[_streamArrayController bind:@"contentSet" toObject:bindingTarget withKeyPath:keyPath options:bindingOptions];
+	[self updatePlayButtonState];
 }
 
 @end
@@ -736,7 +750,7 @@
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:@"Play"];
 
-		[self setPlayButtonEnabled:(0 == [[_streamArrayController arrangedObjects] count])];
+		[self setPlayButtonEnabled:(0 != [[_streamArrayController arrangedObjects] count])];
 	}
 	else {
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
