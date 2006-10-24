@@ -22,6 +22,7 @@
 #import "AudioMetadataReader.h"
 #import "AudioStreamDecoder.h"
 #import "AudioStreamInformationSheet.h"
+#include "mt19937ar.h"
 
 #import <Growl/GrowlApplicationBridge.h>
 
@@ -40,6 +41,8 @@
 	if((self = [super init])) {
 		_player = [[AudioPlayer alloc] init];
 		[[self player] setOwner:self];
+		
+		init_genrand(time(NULL));
 	}
 	
 	return self;
@@ -102,11 +105,8 @@
 
 - (IBAction) addFiles:(id)sender
 {
-	NSOpenPanel		*panel;
-	NSArray			*types;
-	
-	panel	= [NSOpenPanel openPanel];
-	types	= [NSArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
+	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
+	NSArray			*types		= [NSArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
 	
 	[panel setAllowsMultipleSelection:YES];
 //	[panel setCanChooseDirectories:YES];
@@ -317,7 +317,22 @@
 - (IBAction) play:(id)sender
 {
 	if(NO == [[self player] hasValidStream]) {
-		[self playStream:[_streamArrayController selectedObjects]];
+		if([self randomizePlayback]) {
+			NSArray						*streams;
+			NSManagedObject				*streamObject;	
+			double						randomNumber;
+			unsigned					randomIndex;
+			
+			streams						= [_streamArrayController arrangedObjects];
+			randomNumber				= genrand_real2();
+			randomIndex					= (unsigned)(randomNumber * [streams count]);
+			streamObject				= [streams objectAtIndex:randomIndex];
+			
+			[self playStream:[NSArray arrayWithObject:streamObject]];
+		}
+		else {
+			[self playStream:[_streamArrayController selectedObjects]];
+		}
 	}
 	else {
 		[[self player] play];
@@ -329,7 +344,22 @@
 - (IBAction) playPause:(id)sender
 {
 	if(NO == [[self player] hasValidStream]) {
-		[self playStream:[_streamArrayController selectedObjects]];
+		if([self randomizePlayback]) {
+			NSArray						*streams;
+			NSManagedObject				*streamObject;	
+			double						randomNumber;
+			unsigned					randomIndex;
+			
+			streams						= [_streamArrayController arrangedObjects];
+			randomNumber				= genrand_real2();
+			randomIndex					= (unsigned)(randomNumber * [streams count]);
+			streamObject				= [streams objectAtIndex:randomIndex];
+			
+			[self playStream:[NSArray arrayWithObject:streamObject]];
+		}
+		else {
+			[self playStream:[_streamArrayController selectedObjects]];
+		}
 	}
 	else {
 		[[self player] playPause];
@@ -360,19 +390,127 @@
 
 - (IBAction) nextStream:(id)sender
 {
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSError						*error;
+	NSArray						*streams;
+	unsigned					streamIndex;
 	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	
+	[libraryObject setValue:nil forKey:@"nowPlaying"];
+	
+	streams						= [_streamArrayController arrangedObjects];
+	
+	if(0 == [streams count]) {
+		[[self player] reset];	
+	}
+	else if([self randomizePlayback]) {
+		double						randomNumber;
+		unsigned					randomIndex;
+		
+		randomNumber				= genrand_real2();
+		randomIndex					= (unsigned)(randomNumber * [streams count]);
+		streamObject				= [streams objectAtIndex:randomIndex];
+		
+		[self playStream:[NSArray arrayWithObject:streamObject]];
+	}
+	else if([self loopPlayback]) {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(streamIndex + 1 < [streams count]) {
+			streamObject				= [streams objectAtIndex:streamIndex + 1];			
+		}
+		else {
+			streamObject				= [streams objectAtIndex:0];
+		}
+		
+		[self playStream:[NSArray arrayWithObject:streamObject]];
+	}
+	else {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(streamIndex + 1 < [streams count]) {
+			streamObject				= [streams objectAtIndex:streamIndex + 1];
+			
+			[self playStream:[NSArray arrayWithObject:streamObject]];
+		}
+		else {
+			[[self player] reset];	
+		}
+	}
 }
 
 - (IBAction) previousStream:(id)sender
 {
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSError						*error;
+	NSArray						*streams;
+	unsigned					streamIndex;
 	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	
+	[libraryObject setValue:nil forKey:@"nowPlaying"];
+	
+	streams						= [_streamArrayController arrangedObjects];
+	
+	if(0 == [streams count]) {
+		[[self player] reset];	
+	}
+	else if([self randomizePlayback]) {
+		double						randomNumber;
+		unsigned					randomIndex;
+		
+		randomNumber				= genrand_real2();
+		randomIndex					= (unsigned)(randomNumber * [streams count]);
+		streamObject				= [streams objectAtIndex:randomIndex];
+		
+		[self playStream:[NSArray arrayWithObject:streamObject]];
+	}
+	else if([self loopPlayback]) {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(0 <= streamIndex - 1) {
+			streamObject				= [streams objectAtIndex:streamIndex - 1];
+		}
+		else {
+			streamObject				= [streams objectAtIndex:[streams count] - 1];
+		}
+		
+		[self playStream:[NSArray arrayWithObject:streamObject]];
+	}
+	else {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(0 <= streamIndex - 1) {
+			streamObject				= [streams objectAtIndex:streamIndex - 1];
+			
+			[self playStream:[NSArray arrayWithObject:streamObject]];
+		}
+		else {
+			[[self player] reset];	
+		}
+	}
 }
 
 - (IBAction) showStreamInformationSheet:(id)sender
 {
 	AudioStreamInformationSheet		*streamInformationSheet;
 
-	streamInformationSheet			= [[AudioStreamInformationSheet alloc] initWithOwner:self];
+	streamInformationSheet			= [[AudioStreamInformationSheet alloc] init];
+//	streamInformationSheet			= [[AudioStreamInformationSheet alloc] initWithOwner:self];
+
+	[streamInformationSheet setValue:self forKey:@"owner"];
+	[streamInformationSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
 	
 	[[streamInformationSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
 
@@ -439,6 +577,14 @@
 	[_playPauseButton setState:([[self player] isPlaying] ? NSOnState : NSOffState)];
 }
 
+#pragma mark Properties
+
+- (BOOL)		randomizePlayback									{ return _randomizePlayback; }
+- (void)		setRandomizePlayback:(BOOL)randomizePlayback		{ _randomizePlayback = randomizePlayback; }
+
+- (BOOL)		loopPlayback										{ return _loopPlayback; }
+- (void)		setLoopPlayback:(BOOL)loopPlayback					{ _loopPlayback = loopPlayback; }
+
 #pragma mark Callbacks
 
 - (void) streamPlaybackDidComplete
@@ -449,8 +595,6 @@
 	NSError						*error;
 	NSNumber					*playCount;
 	NSNumber					*newPlayCount;
-	NSArray						*streams;
-	unsigned					streamIndex;
 		
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
@@ -463,19 +607,8 @@
 	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
 	[streamObject setValue:newPlayCount forKey:@"playCount"];
 
-	[libraryObject setValue:nil forKey:@"nowPlaying"];
-	
-	streams						= [_streamArrayController arrangedObjects];
-	streamIndex					= [streams indexOfObject:streamObject];
-	
-	if(streamIndex + 1 < [streams count]) {
-		streamObject				= [streams objectAtIndex:streamIndex + 1];
-	
-		[self playStream:[NSArray arrayWithObject:streamObject]];
-	}
-	else {
-		[[self player] reset];	
-	}
+
+	[self nextStream:self];
 }
 
 @end

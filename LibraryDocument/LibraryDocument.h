@@ -32,6 +32,9 @@
 	IBOutlet NSButton			*_playPauseButton;
 
 	AudioPlayer					*_player;
+	
+	BOOL						_randomizePlayback;
+	BOOL						_loopPlayback;
 }
 
 - (IBAction)	addFiles:(id)sender;
@@ -57,5 +60,13 @@
 
 - (void)		addFileToLibrary:(NSString *)path;
 - (void)		addURLToLibrary:(NSURL *)url;
+
+// Properties
+
+- (BOOL)		randomizePlayback;
+- (void)		setRandomizePlayback:(BOOL)randomizePlayback;
+
+- (BOOL)		loopPlayback;
+- (void)		setLoopPlayback:(BOOL)loopPlayback;
 
 @end
