@@ -22,6 +22,9 @@
 #import "FLACStreamDecoder.h"
 #import "OggVorbisStreamDecoder.h"
 #import "MusepackStreamDecoder.h"
+#import "CoreAudioStreamDecoder.h"
+
+#import "UtilityFunctions.h"
 
 #include <AudioToolbox/AudioFormat.h>
 
@@ -63,6 +66,11 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackStreamDecoder alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
+		result						= [[CoreAudioStreamDecoder alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}

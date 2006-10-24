@@ -269,7 +269,7 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 			case FLAC__METADATA_TYPE_STREAMINFO:
 				propertiesDictionary			= [NSMutableDictionary dictionary];
 
-				[propertiesDictionary setValue:@"FLAC" forKey:@"formatName"];
+				[propertiesDictionary setValue:[NSString stringWithFormat:@"FLAC, %u channels, %u Hz", block->data.stream_info.channels, block->data.stream_info.sample_rate] forKey:@"formatName"];
 				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:@"totalFrames"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];

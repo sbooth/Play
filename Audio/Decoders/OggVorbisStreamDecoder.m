@@ -69,7 +69,7 @@
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:@"Ogg (Vorbis)" forKey:@"formatName"];
+	[propertiesDictionary setValue:[NSString stringWithFormat:@"Ogg (Vorbis), %u channels, %u Hz", ovInfo->channels, ovInfo->rate] forKey:@"formatName"];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
 	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
 //	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];
