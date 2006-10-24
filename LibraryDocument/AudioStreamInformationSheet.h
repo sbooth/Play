@@ -32,8 +32,6 @@
 	LibraryDocument				*_owner;
 }
 
-- (id)					initWithOwner:(LibraryDocument *)owner;
-
 - (NSWindow *)			sheet;
 
 - (IBAction)			ok:(id)sender;
