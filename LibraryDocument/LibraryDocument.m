@@ -19,6 +19,7 @@
  */
 
 #import "LibraryDocument.h"
+#import "AudioMetadataReader.h"
 #import "AudioStreamDecoder.h"
 #import "AudioStreamInformationSheet.h"
 
@@ -105,7 +106,7 @@
 	NSArray			*types;
 	
 	panel	= [NSOpenPanel openPanel];
-	types	= [NSArray arrayWithObjects:@"flac", nil];
+	types	= [NSArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
 	
 	[panel setAllowsMultipleSelection:YES];
 //	[panel setCanChooseDirectories:YES];
@@ -193,6 +194,7 @@
 	NSError						*error;
 	NSArray						*fetchResult;
 	NSMutableSet				*playlistSet;
+	AudioMetadataReader			*metadataReader;
 	AudioStreamDecoder			*streamDecoder;
 	NSManagedObject				*propertiesObject;
 	NSManagedObject				*metadataObject;
@@ -250,7 +252,7 @@
 	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
 
 	// ========================================
-	// Read properties and metadata
+	// Read properties
 	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
 	
 	if(nil == streamDecoder) {
@@ -268,14 +270,18 @@
 	propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
 	
 	[streamObject setValue:propertiesObject forKey:@"properties"];
-	
+		
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
 	
-	result						= [streamDecoder readMetadata:&error];
+	
+	// ========================================
+	// Read metadata
+	metadataReader				= [AudioMetadataReader metadataReaderForURL:url error:&error];
+	result						= [metadataReader readMetadata:&error];
 	
 	if(NO == result) {
 		result					= [self presentError:error];
@@ -285,23 +291,23 @@
 	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
 	
 	[streamObject setValue:metadataObject forKey:@"metadata"];
-	
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.composer"] forKey:@"composer"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.discNumber"] forKey:@"discNumber"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.discTotal"] forKey:@"discTotal"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.genre"] forKey:@"genre"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.isrc"] forKey:@"isrc"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.mcn"] forKey:@"mcn"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.partOfCompilation"] forKey:@"partOfCompilation"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.title"] forKey:@"title"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackNumber"] forKey:@"trackNumber"];
-	[metadataObject setValue:[streamDecoder valueForKeyPath:@"metadata.trackTotal"] forKey:@"trackTotal"];
+
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.composer"] forKey:@"composer"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discNumber"] forKey:@"discNumber"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discTotal"] forKey:@"discTotal"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.genre"] forKey:@"genre"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.isrc"] forKey:@"isrc"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.mcn"] forKey:@"mcn"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.partOfCompilation"] forKey:@"partOfCompilation"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.title"] forKey:@"title"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.trackNumber"] forKey:@"trackNumber"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.trackTotal"] forKey:@"trackTotal"];
 
 	// If no metadata was found, set the title to the filename
-	if(0 == [[streamDecoder valueForKeyPath:@"metadata.@count"] unsignedIntValue]) {
+	if(0 == [[metadataReader valueForKeyPath:@"metadata.@count"] unsignedIntValue]) {
 		[metadataObject setValue:[[[url path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
 	}
 }
