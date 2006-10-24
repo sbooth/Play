@@ -1,6 +1,13 @@
 {
     IBClasses = (
         {
+            ACTIONS = {openWith = id; openWithFinder = id; revealInFinder = id; }; 
+            CLASS = AudioStreamTableView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_streamArrayController" = NSArrayController; }; 
+            SUPERCLASS = NSTableView; 
+        }, 
+        {
             CLASS = AudioStreamTableViewDataSource; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
@@ -15,8 +22,10 @@
             ACTIONS = {
                 addFiles = id; 
                 insertPlaylistWithSelectedStreams = id; 
+                nextStream = id; 
                 play = id; 
                 playPause = id; 
+                previousStream = id; 
                 removeAudioStreams = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 
