@@ -31,7 +31,7 @@
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
-	if(NSDeleteCharacter == key && 0 == flags) {
+	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
 		if(-1 == [self selectedRow]) {
 			NSBeep();
 		}
