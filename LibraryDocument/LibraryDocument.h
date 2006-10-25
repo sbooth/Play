@@ -30,6 +30,7 @@
 	IBOutlet NSArrayController	*_playlistArrayController;
 
 	IBOutlet NSButton			*_playPauseButton;
+	IBOutlet NSImageView		*_albumArtImageView;
 
 	AudioPlayer					*_player;
 	
@@ -38,9 +39,13 @@
 	BOOL						_playButtonEnabled;
 }
 
-- (IBAction)	addFiles:(id)sender;
+// ========================================
+// Action methods
 - (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
+
 - (IBAction)	removeAudioStreams:(id)sender;
+
+- (IBAction)	showStreamInformationSheet:(id)sender;
 
 // ========================================
 // Playback control
@@ -56,21 +61,18 @@
 - (IBAction)	nextStream:(id)sender;
 - (IBAction)	previousStream:(id)sender;
 
-- (IBAction)	showStreamInformationSheet:(id)sender;
-
 // ========================================
 // File addition
+- (IBAction)				addFiles:(id)sender;
+
 - (NSManagedObject *)		addFileToLibrary:(NSString *)path;
 - (NSManagedObject *)		addURLToLibrary:(NSURL *)url;
 
 - (NSArray *)				addFilesToLibrary:(NSArray *)filenames;
 - (NSArray *)				addURLsToLibrary:(NSArray *)urls;
 
-- (void)		playStream:(NSArray *)streams;
-- (void)		streamPlaybackDidComplete;
-
+// ========================================
 // Properties
-
 - (BOOL)		randomizePlayback;
 - (void)		setRandomizePlayback:(BOOL)randomizePlayback;
 
@@ -79,5 +81,9 @@
 
 - (BOOL)		playButtonEnabled;
 - (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled;
+
+// ========================================
+// Callbacks
+- (void)		streamPlaybackDidComplete;
 
 @end
