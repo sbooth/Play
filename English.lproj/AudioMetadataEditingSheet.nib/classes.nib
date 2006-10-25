@@ -2,13 +2,9 @@
     IBClasses = (
         {
             ACTIONS = {cancel = id; chooseAlbumArt = id; ok = id; }; 
-            CLASS = AudioStreamInformationSheet; 
+            CLASS = AudioMetadataEditingSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {
-                "_albumArtImageView" = NSImageView; 
-                "_sheet" = NSWindow; 
-                "_streamObjectController" = NSObjectController; 
-            }; 
+            OUTLETS = {"_sheet" = NSWindow; "_streamArrayController" = NSArrayController; }; 
             SUPERCLASS = NSObject; 
         }, 
         {CLASS = CompilationButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
