@@ -20,6 +20,7 @@
 
 #import "AudioStreamInformationSheet.h"
 #import "LibraryDocument.h"
+#import "Genres.h"
 
 @implementation AudioStreamInformationSheet
 
@@ -41,6 +42,11 @@
 	return nil;
 }
 
+- (void) awakeFromNib
+{
+	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+}
+
 - (NSWindow *) sheet
 {
 	return [[_sheet retain] autorelease];
@@ -54,6 +60,35 @@
 - (IBAction) cancel:(id)sender
 {
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
+}
+
+- (IBAction) chooseAlbumArt:(id)sender
+{
+	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
+	
+	[panel setAllowsMultipleSelection:NO];
+	[panel setCanChooseDirectories:NO];
+	[panel setCanChooseFiles:YES];
+	
+	if(NSOKButton == [panel runModalForTypes:[NSImage imageFileTypes]]) {
+		NSArray		*filenames		= [panel filenames];
+		unsigned	count			= [filenames count];
+		unsigned	i;
+		NSImage		*image			= nil;
+		
+		for(i = 0; i < count; ++i) {
+			image	= [[NSImage alloc] initWithContentsOfFile:[filenames objectAtIndex:i]];
+			if(nil != image) {
+				[[_streamObjectController selection] setValue:[image TIFFRepresentation] forKeyPath:@"metadata.albumArt"];
+				[image release];
+			}
+		}
+	}		
+}
+
+- (NSArray *) genres
+{
+	return [Genres sharedGenres];
 }
 
 @end

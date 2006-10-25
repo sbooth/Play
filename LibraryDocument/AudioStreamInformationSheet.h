@@ -20,16 +20,15 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class LibraryDocument;
-
 @interface AudioStreamInformationSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSImageView		*_albumArtImageView;
 
-	IBOutlet NSArrayController	*_streamArrayController;
+	IBOutlet NSObjectController	*_streamObjectController;
 	
 	NSManagedObjectContext		*_managedObjectContext;
-	LibraryDocument				*_owner;
+	NSPersistentDocument		*_owner;
 }
 
 - (NSWindow *)			sheet;
@@ -37,5 +36,8 @@
 - (IBAction)			ok:(id)sender;
 - (IBAction)			cancel:(id)sender;
 
+- (IBAction)			chooseAlbumArt:(id)sender;
+
+- (NSArray *)			genres;
 
 @end
