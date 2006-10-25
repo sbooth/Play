@@ -107,6 +107,12 @@
 	[self updatePlayButtonState];
 }
 
+- (void) windowWillClose:(NSNotification *)aNotification
+{
+	[[self player] stop];
+	[[self player] reset];
+}
+
 #pragma mark Action Methods
 
 - (IBAction) addFiles:(id)sender
@@ -183,12 +189,12 @@
 
 #pragma mark File Addition
 
-- (void) addFileToLibrary:(NSString *)path
+- (NSManagedObject *) addFileToLibrary:(NSString *)path
 {
-	[self addURLToLibrary:[NSURL fileURLWithPath:path]];
+	return [self addURLToLibrary:[NSURL fileURLWithPath:path]];
 }
 
-- (void) addURLToLibrary:(NSURL *)url
+- (NSManagedObject *) addURLToLibrary:(NSURL *)url
 {
 	NSParameterAssert([url isFileURL]);
 	
@@ -240,7 +246,7 @@
 			[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
 		}
 		
-		return;
+		return [[streamObject retain] autorelease];
 	}
 	
 	// ========================================
@@ -263,16 +269,21 @@
 	// Read properties
 	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
 	
+	// If any errors occurred, remove the new streamObject and abort
 	if(nil == streamDecoder) {
+		[managedObjectContext deleteObject:streamObject];
+		
 		result					= [self presentError:error];
-		return;
+		return nil;
 	}
 
 	result						= [streamDecoder readProperties:&error];
 	
 	if(NO == result) {
+		[managedObjectContext deleteObject:streamObject];
+		
 		result					= [self presentError:error];
-		return;
+		return nil;
 	}
 	
 	propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
@@ -285,7 +296,6 @@
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
 	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
 	
-	
 	// ========================================
 	// Read metadata
 	metadataReader				= [AudioMetadataReader metadataReaderForURL:url error:&error];
@@ -293,7 +303,7 @@
 	
 	if(NO == result) {
 		result					= [self presentError:error];
-		return;
+		return [[streamObject retain] autorelease];
 	}
 	
 	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
@@ -318,6 +328,60 @@
 	if(0 == [[metadataReader valueForKeyPath:@"metadata.@count"] unsignedIntValue]) {
 		[metadataObject setValue:[[[url path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
 	}
+
+	return [[streamObject retain] autorelease];
+}
+
+- (NSArray *) addFilesToLibrary:(NSArray *)filenames
+{
+	NSManagedObject				*streamObject;
+	NSMutableArray				*streamObjects;
+	NSString					*filename;
+	unsigned					i;
+	
+	streamObjects				= [NSMutableArray array];
+	
+	for(i = 0; i < [filenames count]; ++i) {
+		filename				= [filenames objectAtIndex:i];			
+		streamObject			= [self addFileToLibrary:filename];
+		
+		if(nil != streamObject) {
+			[streamObjects addObject:streamObject];
+		}
+	}	
+	
+	if(0 < [streamObjects count]) {
+		[_streamArrayController setSelectedObjects:streamObjects];
+		[_streamArrayController rearrangeObjects];			
+	}
+	
+	return [[streamObjects retain] autorelease];
+}
+
+- (NSArray *) addURLsToLibrary:(NSArray *)urls
+{
+	NSManagedObject				*streamObject;
+	NSMutableArray				*streamObjects;
+	NSURL						*url;
+	unsigned					i;
+	
+	streamObject				= [NSMutableArray array];
+	
+	for(i = 0; i < [urls count]; ++i) {
+		url						= [urls objectAtIndex:i];			
+		streamObject			= [self addURLToLibrary:url];
+		
+		if(nil != streamObject) {
+			[streamObjects addObject:streamObject];
+		}
+	}	
+	
+	if(0 < [streamObjects count]) {
+		[_streamArrayController setSelectedObjects:streamObjects];
+		[_streamArrayController rearrangeObjects];			
+	}
+	
+	return [[streamObjects retain] autorelease];
 }
 
 #pragma mark Playback Control
@@ -711,16 +775,27 @@
 {
 	if(NSOKButton == returnCode) {
 		NSArray						*URLs;
+		NSManagedObject				*streamObject;
+		NSMutableArray				*streamObjects;
 		NSURL						*URL;
 		unsigned					i;
 		
 		URLs						= [panel URLs];
+		streamObjects				= [NSMutableArray array];
 		
 		for(i = 0; i < [URLs count]; ++i) {
-			URL						= [URLs objectAtIndex:i];
+			URL						= [URLs objectAtIndex:i];			
+			streamObject			= [self addURLToLibrary:URL];
 			
-			[self addURLToLibrary:URL];
+			if(nil != streamObject) {
+				[streamObjects addObject:streamObject];
+			}
 		}	
+		
+		if(0 < [streamObjects count]) {
+			[_streamArrayController setSelectedObjects:streamObjects];
+			[_streamArrayController rearrangeObjects];			
+		}
 	}	
 }
 

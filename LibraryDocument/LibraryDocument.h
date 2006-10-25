@@ -42,6 +42,8 @@
 - (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
 - (IBAction)	removeAudioStreams:(id)sender;
 
+// ========================================
+// Playback control
 - (IBAction)	play:(id)sender;
 - (IBAction)	playPause:(id)sender;
 
@@ -56,11 +58,16 @@
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
 
+// ========================================
+// File addition
+- (NSManagedObject *)		addFileToLibrary:(NSString *)path;
+- (NSManagedObject *)		addURLToLibrary:(NSURL *)url;
+
+- (NSArray *)				addFilesToLibrary:(NSArray *)filenames;
+- (NSArray *)				addURLsToLibrary:(NSArray *)urls;
+
 - (void)		playStream:(NSArray *)streams;
 - (void)		streamPlaybackDidComplete;
-
-- (void)		addFileToLibrary:(NSString *)path;
-- (void)		addURLToLibrary:(NSURL *)url;
 
 // Properties
 
