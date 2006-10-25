@@ -61,9 +61,9 @@
 	BOOL							success;
 	NSArray							*supportedTypes; 
 	NSString						*bestType;
-	unsigned						i;
 	id								document;
 	LibraryDocument					*libraryDocument;
+	NSArray							*streamObjects;
 	
 	success							= NO;
 	supportedTypes					= [NSArray arrayWithObjects: @"NSURLsPboardType", NSFilenamesPboardType, nil];
@@ -76,29 +76,17 @@
 	
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray						*filenames;
-		NSString					*filename;
 		
 		filenames					= [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
-
-		for(i = 0; i < [filenames count]; ++i) {
-			filename				= [filenames objectAtIndex:i];		
-			[libraryDocument addFileToLibrary:filename];
-		}			
-		
-		success						= YES;
+		streamObjects				= [libraryDocument addFilesToLibrary:filenames];
+		success						= (0 < [streamObjects count]);
 	}
 	else if([bestType isEqualToString:@"NSURLsPboardType"]) {
 		NSArray						*urls;
-		NSURL						*url;
 		
 		urls						= [[info draggingPasteboard] propertyListForType:@"NSURLsPboardType"];
-		
-		for(i = 0; i < [urls count]; ++i) {
-			urls					= [urls objectAtIndex:i];
-			[libraryDocument addURLToLibrary:url];
-		}
-		
-		success						= YES;
+		streamObjects				= [libraryDocument addURLsToLibrary:urls];
+		success						= (0 < [streamObjects count]);
 	}
 	
 	return success;
