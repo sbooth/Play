@@ -29,7 +29,8 @@ extern NSString * const			AudioStreamDecoderErrorDomain;
 
 enum {
 	AudioStreamDecoderFileFormatNotRecognizedError		= 0,
-	AudioStreamDecoderFileFormatNotSupportedError		= 1
+	AudioStreamDecoderFileFormatNotSupportedError		= 1,
+	AudioStreamDecoderInputOutputError					= 2
 };
 
 // A decoder reads audio data in some format and provides it as PCM

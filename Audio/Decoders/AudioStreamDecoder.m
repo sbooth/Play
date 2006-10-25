@@ -95,7 +95,6 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	return [result autorelease];
 }
 
-
 - (id) init
 {
 	if((self = [super init])) {
