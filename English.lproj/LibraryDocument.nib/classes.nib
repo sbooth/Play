@@ -36,6 +36,7 @@
             CLASS = LibraryDocument; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                "_albumArtImageView" = NSImageView; 
                 "_playPauseButton" = NSButton; 
                 "_playlistArrayController" = NSArrayController; 
                 "_playlistTableView" = NSTableView; 
@@ -44,6 +45,7 @@
             }; 
             SUPERCLASS = NSPersistentDocument; 
         }, 
+        {CLASS = LibraryDocumentWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
         {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
         {CLASS = PlaylistTableViewDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
