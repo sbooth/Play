@@ -30,15 +30,15 @@
 
 - (id)				init
 {
-	return [self initWithSize:10 * 1024];
+	return [self initWithBufferSize:10 * 1024];
 }
 
-- (id)				initWithSize:(unsigned)size
+- (id)				initWithBufferSize:(unsigned)bufferSize
 {
-	NSParameterAssert(0 < size);
+	NSParameterAssert(0 < bufferSize);
 	
 	if((self = [super init])) {
-		_bufsize	= size;
+		_bufsize	= bufferSize;
 		_buffer		= (uint8_t *)calloc(_bufsize, sizeof(uint8_t));
 		
 		NSAssert1(NULL != _buffer, @"Unable to allocate memory: %s", strerror(errno));
@@ -51,25 +51,38 @@
 	return nil;
 }
 
-- (void)			reset							{ _readPtr = _writePtr = _buffer; }
-- (unsigned)		size							{ return _bufsize; }
-- (void)			increaseSize:(unsigned)size		{ [self resize:[self size] + size]; }
+- (void) dealloc
+{
+	free(_buffer);		_buffer = NULL;
+	
+	[super dealloc];
+}
 
-- (void)			resize:(unsigned)size
+- (void)			reset							{ _readPtr = _writePtr = _buffer; }
+- (unsigned)		bufferSize						{ return _bufsize; }
+
+- (void)			increaseBufferSize:(unsigned)bufferSizeIncrease
+{
+	[self resizeBuffer:[self bufferSize] + bufferSizeIncrease];
+}
+
+- (void)			resizeBuffer:(unsigned)bufferSize
 {
 	uint8_t		*newbuf;
 	
 	// We can only grow in size, not shrink
-	NSParameterAssert(size > [self size]);
+	if(bufferSize <= [self bufferSize]) {
+		return;
+	}
 
 	[self normalizeBuffer];
 	
 	// Allocate a new buffer of the requested size
-	newbuf		= (uint8_t *)calloc(size, sizeof(uint8_t));
+	newbuf		= (uint8_t *)calloc(bufferSize, sizeof(uint8_t));
 	NSAssert1(NULL != newbuf, @"Unable to allocate memory: %s", strerror(errno));
 	
 	// Copy the current data into the new buffer
-	memcpy(newbuf, _buffer, [self size]);
+	memcpy(newbuf, _buffer, [self bufferSize]);
 	
 	// Adjust the read and write pointers
 	_readPtr	= newbuf + (_readPtr - _buffer);
@@ -78,12 +91,12 @@
 	// Free the old buffer and activate new one
 	free(_buffer);
 	_buffer		= newbuf;
-	_bufsize	= size;
+	_bufsize	= bufferSize;
 }
 
 - (unsigned)		bytesAvailable
 {	
-	return (_writePtr >= _readPtr ? (unsigned)(_writePtr - _readPtr) : [self size] - (unsigned)(_readPtr - _writePtr));
+	return (_writePtr >= _readPtr ? (unsigned)(_writePtr - _readPtr) : [self bufferSize] - (unsigned)(_readPtr - _writePtr));
 }
 
 - (unsigned)		freeSpaceAvailable				{ return _bufsize - [self bytesAvailable]; }

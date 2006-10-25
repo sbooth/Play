@@ -30,13 +30,13 @@
 	uint8_t			*_writePtr;
 }
 
-- (id)				initWithSize:(unsigned)size;
+- (id)				initWithBufferSize:(unsigned)size;
 
 - (void)			reset;
 
-- (unsigned)		size;
-- (void)			increaseSize:(unsigned)size;
-- (void)			resize:(unsigned)size;
+- (unsigned)		bufferSize;
+- (void)			increaseBufferSize:(unsigned)bufferSize;
+- (void)			resizeBuffer:(unsigned)bufferSize;
 
 - (unsigned)		bytesAvailable;
 - (unsigned)		freeSpaceAvailable;
