@@ -18,24 +18,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// ========================================
-// Error Codes
-// ========================================
-extern NSString * const			AudioMetadataReaderErrorDomain;
+#import "AudioMetadataReader.h"
 
-enum {
-	AudioMetadataReaderFileFormatNotRecognizedError		= 0,
-	AudioMetadataReaderFileFormatNotSupportedError		= 1
-};
-
-@interface AudioMetadataReader : NSObject
+@interface MP3MetadataReader : AudioMetadataReader
 {
-	NSURL							*_url;
-	NSDictionary					*_metadata;
 }
-
-+ (AudioMetadataReader *)			metadataReaderForURL:(NSURL *)url error:(NSError **)error;
-
-- (BOOL)							readMetadata:(NSError **)error;
 
 @end

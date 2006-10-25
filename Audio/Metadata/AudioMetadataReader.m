@@ -22,6 +22,9 @@
 #import "FLACMetadataReader.h"
 #import "OggVorbisMetadataReader.h"
 #import "MusepackMetadataReader.h"
+#import "MP3MetadataReader.h"
+
+NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioMetadataReader";
 
 @implementation AudioMetadataReader
 
@@ -49,6 +52,11 @@
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackMetadataReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"mp3"]) {
+		result						= [[MP3MetadataReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
