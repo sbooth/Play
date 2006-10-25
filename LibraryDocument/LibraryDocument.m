@@ -22,6 +22,7 @@
 #import "AudioMetadataReader.h"
 #import "AudioStreamDecoder.h"
 #import "AudioStreamInformationSheet.h"
+#import "AudioMetadataEditingSheet.h"
 #import "UtilityFunctions.h"
 
 #include "mt19937ar.h"
@@ -32,9 +33,11 @@
 
 - (AudioPlayer *)			player;
 - (NSManagedObject *)		fetchLibraryObject;
+- (void)					playStream:(NSArray *)streams;
 - (void)					updatePlayButtonState;
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)					showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
 @end
 
@@ -79,6 +82,8 @@
 	[super dealloc];
 }
 
+#pragma mark NSPersistentDocument Overrides
+
 - (NSString *) windowNibName 
 {
     return @"LibraryDocument";
@@ -105,6 +110,8 @@
 		nil]];
 	
 	[self updatePlayButtonState];
+	
+	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
 }
 
 - (void) windowWillClose:(NSNotification *)aNotification
@@ -113,20 +120,17 @@
 	[[self player] reset];
 }
 
-#pragma mark Action Methods
-
-- (IBAction) addFiles:(id)sender
+- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
-	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
-	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
-	
-	[types addObjectsFromArray:getCoreAudioExtensions()];
-	
-	[panel setAllowsMultipleSelection:YES];
-//	[panel setCanChooseDirectories:YES];
-	
-	[panel beginSheetForDirectory:nil file:nil types:types modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+	if([anItem action] == @selector(playPause:)) {
+		return [self playButtonEnabled];
+	}
+	else {
+		return [super validateUserInterfaceItem:anItem];
+	}
 }
+
+#pragma mark Action Methods
 
 - (IBAction) insertPlaylistWithSelectedStreams:(id)sender
 {
@@ -187,7 +191,63 @@
 	}
 }
 
+- (IBAction) showStreamInformationSheet:(id)sender
+{
+	NSArray						*streams;
+
+	streams						= [_streamArrayController selectedObjects];
+	
+	if(0 == [streams count]) {
+		return;
+	}
+	else if(1 == [streams count]) {
+		AudioStreamInformationSheet		*streamInformationSheet;
+
+		streamInformationSheet			= [[AudioStreamInformationSheet alloc] init];
+		
+		[streamInformationSheet setValue:self forKey:@"owner"];
+		[streamInformationSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
+
+		[[streamInformationSheet valueForKey:@"streamObjectController"] setContent:[[_streamArrayController selectedObjects] objectAtIndex:0]];
+		
+		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
+									   modalForWindow:[self windowForSheet] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:streamInformationSheet];
+	}
+	else {
+		AudioMetadataEditingSheet	*metadataEditingSheet;
+
+		metadataEditingSheet		= [[AudioMetadataEditingSheet alloc] init];
+		
+		[metadataEditingSheet setValue:self forKey:@"owner"];
+		[metadataEditingSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
+		
+		[[metadataEditingSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
+		
+		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
+									   modalForWindow:[self windowForSheet] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:metadataEditingSheet];
+	}
+}
+
 #pragma mark File Addition
+
+- (IBAction) addFiles:(id)sender
+{
+	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
+	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
+	
+	[types addObjectsFromArray:getCoreAudioExtensions()];
+	
+	[panel setAllowsMultipleSelection:YES];
+	//	[panel setCanChooseDirectories:YES];
+	
+	[panel beginSheetForDirectory:nil file:nil types:types modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+}
 
 - (NSManagedObject *) addFileToLibrary:(NSString *)path
 {
@@ -586,81 +646,6 @@
 	}
 }
 
-- (IBAction) showStreamInformationSheet:(id)sender
-{
-	AudioStreamInformationSheet		*streamInformationSheet;
-
-	streamInformationSheet			= [[AudioStreamInformationSheet alloc] init];
-//	streamInformationSheet			= [[AudioStreamInformationSheet alloc] initWithOwner:self];
-
-	[streamInformationSheet setValue:self forKey:@"owner"];
-	[streamInformationSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
-	
-	[[streamInformationSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
-
-	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
-								   modalForWindow:[self windowForSheet] 
-									modalDelegate:self 
-								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:streamInformationSheet];
-}
-
-- (void) playStream:(NSArray *)streams
-{
-	NSParameterAssert(nil != streams);
-	
-	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
-	NSManagedObject				*streamObject;
-	NSURL						*url;
-	BOOL						result;
-	NSError						*error;
-	
-	if(0 == [streams count]) {
-		return;
-	}
-	
-	[[self player] stop];
-
-	error						= nil;
-	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
-	
-	if(nil != streamObject) {
-		[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
-		
-		[libraryObject setValue:nil forKey:@"nowPlaying"];
-	}
-	
-	streamObject				= [streams objectAtIndex:0];
-	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
-	result						= [[self player] setStreamURL:url error:&error];
-
-	if(NO == result) {
-		BOOL					errorRecoveryDone;
-		
-		errorRecoveryDone		= [self presentError:error];
-		return;
-	}
-		
-	[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
-
-	[libraryObject setValue:streamObject forKey:@"nowPlaying"];
-
-	[GrowlApplicationBridge notifyWithTitle:[streamObject valueForKeyPath:@"metadata.title"]
-								description:[streamObject valueForKeyPath:@"metadata.artist"]
-						   notificationName:@"Stream Playback Started" 
-								   iconData:nil 
-								   priority:0 
-								   isSticky:NO 
-							   clickContext:nil];
-	
-	[[self player] play];
-
-	[self updatePlayButtonState];
-}
-
 #pragma mark Properties
 
 - (BOOL)		randomizePlayback									{ return _randomizePlayback; }
@@ -694,6 +679,10 @@
 	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
 	[streamObject setValue:newPlayCount forKey:@"playCount"];
 
+	if(nil == [streamObject valueForKey:@"firstPlayed"]) {
+		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
+	}
+	
 	[self nextStream:self];
 }
 
@@ -771,32 +760,64 @@
 	return [[libraryObject retain] autorelease];
 }
 
-- (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void) playStream:(NSArray *)streams
 {
-	if(NSOKButton == returnCode) {
-		NSArray						*URLs;
-		NSManagedObject				*streamObject;
-		NSMutableArray				*streamObjects;
-		NSURL						*URL;
-		unsigned					i;
+	NSParameterAssert(nil != streams);
+	
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSURL						*url;
+	BOOL						result;
+	NSError						*error;
+	
+	if(0 == [streams count]) {
+		return;
+	}
+	
+	[[self player] stop];
+	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	
+	if(nil != streamObject) {
+		[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
 		
-		URLs						= [panel URLs];
-		streamObjects				= [NSMutableArray array];
+		[libraryObject setValue:nil forKey:@"nowPlaying"];
+	}
+	
+	streamObject				= [streams objectAtIndex:0];
+	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
+	result						= [[self player] setStreamURL:url error:&error];
+	
+	if(NO == result) {
+		BOOL					errorRecoveryDone;
 		
-		for(i = 0; i < [URLs count]; ++i) {
-			URL						= [URLs objectAtIndex:i];			
-			streamObject			= [self addURLToLibrary:URL];
-			
-			if(nil != streamObject) {
-				[streamObjects addObject:streamObject];
-			}
-		}	
-		
-		if(0 < [streamObjects count]) {
-			[_streamArrayController setSelectedObjects:streamObjects];
-			[_streamArrayController rearrangeObjects];			
-		}
-	}	
+		errorRecoveryDone		= [self presentError:error];
+		return;
+	}
+	
+	[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
+	
+	[libraryObject setValue:streamObject forKey:@"nowPlaying"];
+	
+	[GrowlApplicationBridge notifyWithTitle:[streamObject valueForKeyPath:@"metadata.title"]
+								description:[streamObject valueForKeyPath:@"metadata.artist"]
+						   notificationName:@"Stream Playback Started" 
+								   iconData:[streamObject valueForKeyPath:@"metadata.albumArt"] 
+								   priority:0 
+								   isSticky:NO 
+							   clickContext:nil];
+	
+	if(nil == [streamObject valueForKeyPath:@"metadata.albumArt"]) {
+		[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+	}
+	
+	[[self player] play];
+	
+	[self updatePlayButtonState];
 }
 
 - (void) updatePlayButtonState
@@ -842,6 +863,34 @@
 	}
 }
 
+- (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	if(NSOKButton == returnCode) {
+		NSArray						*URLs;
+		NSManagedObject				*streamObject;
+		NSMutableArray				*streamObjects;
+		NSURL						*URL;
+		unsigned					i;
+		
+		URLs						= [panel URLs];
+		streamObjects				= [NSMutableArray array];
+		
+		for(i = 0; i < [URLs count]; ++i) {
+			URL						= [URLs objectAtIndex:i];			
+			streamObject			= [self addURLToLibrary:URL];
+			
+			if(nil != streamObject) {
+				[streamObjects addObject:streamObject];
+			}
+		}	
+		
+		if(0 < [streamObjects count]) {
+			[_streamArrayController setSelectedObjects:streamObjects];
+			[_streamArrayController rearrangeObjects];			
+		}
+	}	
+}
+
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	AudioStreamInformationSheet		*streamInformationSheet;
@@ -856,6 +905,22 @@
 	}
 	
 	[streamInformationSheet release];
+}
+
+- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioMetadataEditingSheet		*metadataEditingSheet;
+	
+	metadataEditingSheet			= (AudioMetadataEditingSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[metadataEditingSheet release];
 }
 
 @end
