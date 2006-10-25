@@ -61,6 +61,7 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	ExtAudioFileRef					extAudioFile;
+	NSString						*path;
 	OSStatus						result;
 	UInt32							specifierSize;
 	FSRef							ref;
@@ -70,11 +71,42 @@
 	NSMutableDictionary				*propertiesDictionary;
 
 	// Open the input file
+	path							= [[self valueForKey:@"url"] path];
 	result							= FSPathMakeRef((const UInt8 *)[[[self valueForKey:@"url"] path] fileSystemRepresentation], &ref, NULL);
-	NSAssert1(noErr == result, @"FSPathMakeRef failed: %@", UTCreateStringForOSType(result));
+
+	if(noErr != result) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderInputOutputError 
+													  userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
 	
 	result							= ExtAudioFileOpen(&ref, &extAudioFile);
-	NSAssert1(noErr == result, @"ExtAudioFileWrapAudioFileID failed: %@", UTCreateStringForOSType(result));
+
+	if(noErr != result) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Unknown File Format" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
+				
+		return NO;
+	}
 	
 	// Query file type
 	specifierSize					= sizeof(AudioStreamBasicDescription);
@@ -121,7 +153,7 @@
 	NSAssert1(noErr == result, @"FSPathMakeRef failed: %@", UTCreateStringForOSType(result));
 	
 	result			= ExtAudioFileOpen(&ref, &_extAudioFile);
-	NSAssert1(noErr == result, @"ExtAudioFileWrapAudioFileID failed: %@", UTCreateStringForOSType(result));
+	NSAssert1(noErr == result, @"ExtAudioFileOpen failed: %@", UTCreateStringForOSType(result));
 	
 	// Query file type
 	dataSize		= sizeof(AudioStreamBasicDescription);

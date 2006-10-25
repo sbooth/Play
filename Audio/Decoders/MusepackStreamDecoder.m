@@ -43,6 +43,7 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	NSMutableDictionary				*propertiesDictionary;
+	NSString						*path;
 	FILE							*file;
 	mpc_reader_file					reader_file;
 	mpc_decoder						decoder;
@@ -51,15 +52,49 @@
 	mpc_int32_t						intResult;
 	mpc_bool_t						boolResult;
 	
-	file			= fopen([[[self valueForKey:@"url"] path] fileSystemRepresentation], "r");
-	NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
-	
+	path			= [[self valueForKey:@"url"] path];
+	file			= fopen([path fileSystemRepresentation], "r");
+
+	if(NULL == file) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderInputOutputError 
+													  userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+		
 	mpc_reader_setup_file_reader(&reader_file, file);
 	
 	// Get input file information
 	mpc_streaminfo_init(&streaminfo);
 	intResult		= mpc_streaminfo_read(&streaminfo, &reader_file.reader);
-	NSAssert(ERROR_CODE_OK == intResult, NSLocalizedStringFromTable(@"The file does not appear to be a valid Musepack file.", @"Exceptions", @""));
+
+	if(ERROR_CODE_OK != intResult) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Musepack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Not a Musepack file" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
+
+		result			= fclose(file);
+		NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
+		
+		return NO;
+	}
 	
 	// Set up the decoder
 	mpc_decoder_setup(&decoder, &reader_file.reader);

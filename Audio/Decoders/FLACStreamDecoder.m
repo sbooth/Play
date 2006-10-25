@@ -48,7 +48,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 	
 	// Increase buffer size as required
 	if([[streamDecoder pcmBuffer] freeSpaceAvailable] < spaceRequired) {
-		[[streamDecoder pcmBuffer] increaseSize:spaceRequired];
+		[[streamDecoder pcmBuffer] increaseBufferSize:spaceRequired];
 	}
 	
 	switch(frame->header.bits_per_sample) {
@@ -200,9 +200,7 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary;
-			
-			errorDictionary			= [NSMutableDictionary dictionary];
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			
 			switch(FLAC__metadata_chain_status(chain)) {
 				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
@@ -211,30 +209,12 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 					
-				case FLAC__METADATA_CHAIN_STATUS_READ_ERROR:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_SEEK_ERROR:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
 					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
 					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_ERROR_OPENING_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
+										
 				default:
 					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
 					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
@@ -301,7 +281,7 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	
 	// Create FLAC decoder
 	_flac		= FLAC__file_decoder_new();
-	NSAssert(NULL != _flac, NSLocalizedStringFromTable(@"Unable to create the FLAC decoder.", @"Exceptions", @""));
+	NSAssert(NULL != _flac, @"Unable to create the FLAC decoder.");
 	
 	result		= FLAC__file_decoder_set_filename(_flac, [[[self valueForKey:@"url"] path] fileSystemRepresentation]);
 	NSAssert1(YES == result, @"FLAC__file_decoder_set_filename failed: %s", FLAC__FileDecoderStateString[FLAC__file_decoder_get_state(_flac)]);
@@ -366,8 +346,8 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	unsigned					bitsPerSample;
 	unsigned					blockByteSize;
 	
-	
 	for(;;) {
+	
 		// EOF?
 		if(FLAC__FILE_DECODER_END_OF_FILE == FLAC__file_decoder_get_state(_flac)) {
 			break;
@@ -375,6 +355,7 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 		
 		// A problem I've run into is calculating how many times to call process_single, since
 		// there is no good way to know in advance the bytes which will be required to hold a FLAC frame.
+		// This is because FLAC uses a "push" model, while most everything else uses a "pull" model
 		// I'll handle it here by checking to see if there is enough space for the block
 		// that was just read.  For files with varying block sizes, channels or sample depths
 		// this could blow up!

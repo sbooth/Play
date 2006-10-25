@@ -43,6 +43,7 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	NSMutableDictionary				*propertiesDictionary;
+	NSString						*path;
 	OggVorbis_File					vf;
 	vorbis_info						*ovInfo;
 	FILE							*file;
@@ -50,11 +51,45 @@
 	ogg_int64_t						totalFrames;
 	long							bitrate;
 	
-	file							= fopen([[[self valueForKey:@"url"] path] fileSystemRepresentation], "r");
-	NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
+	path							= [[self valueForKey:@"url"] path];
+	file							= fopen([path fileSystemRepresentation], "r");
+
+	if(NULL == file) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderInputOutputError 
+													  userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
 	
 	result							= ov_test(file, &vf, NULL, 0);
-	NSAssert(0 == result, NSLocalizedStringFromTable(@"The file does not appear to be a valid Ogg Vorbis file.", @"Exceptions", @""));
+	
+	if(0 != result) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+														  code:AudioStreamDecoderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
+		
+		result			= fclose(file);
+		NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
+		
+		return NO;
+	}
 	
 	result							= ov_test_open(&vf);
 	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Exceptions", @""));
