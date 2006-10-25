@@ -27,114 +27,126 @@
 - (BOOL) readMetadata:(NSError **)error
 {
 	NSMutableDictionary				*metadataDictionary;
-	TagLib::Ogg::Vorbis::File		f						([[_url path] fileSystemRepresentation], false);
+	NSString						*path					= [_url path];
+	TagLib::Ogg::Vorbis::File		f						([path fileSystemRepresentation], false);
 	TagLib::String					s;
 	TagLib::Ogg::XiphComment		*xiphComment;
 	BOOL							result;
 
-	if(f.isValid()) {
+	if(NO == f.isValid()) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+														  code:AudioMetadataReaderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
 		
-		metadataDictionary			= [NSMutableDictionary dictionary];
-		result						= YES;
-		xiphComment					= f.tag();
+		return NO;
+	}
+	
+	metadataDictionary			= [NSMutableDictionary dictionary];
+	result						= YES;
+	xiphComment					= f.tag();
 
-		if(NULL != xiphComment) {
-			TagLib::Ogg::FieldListMap		fieldList	= xiphComment->fieldListMap();
-			NSString						*value		= nil;
-			TagLib::String					tag;
-			
-			tag = "ALBUM";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"albumTitle"];
-			}
-			
-			tag = "ARTIST";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"artist"];
-			}
-			
-			tag = "GENRE";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"genre"];
-			}
-			
-			tag = "DATE";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+	if(NULL != xiphComment) {
+		TagLib::Ogg::FieldListMap		fieldList		= xiphComment->fieldListMap();
+		NSString						*value			= nil;
+		NSNumber						*numberValue	= nil;
+		TagLib::String					tag;
+		
+		tag = "ALBUM";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"albumTitle"];
+		}
+		
+		tag = "ARTIST";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"artist"];
+		}
+		
+		tag = "GENRE";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"genre"];
+		}
+		
+		tag = "DATE";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
 //				[metadataDictionary setValue:value forKey:@"date"];
-			}
-			
-			tag = "DESCRIPTION";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-//				[metadataDictionary setValue:value forKey:@"comment"];
-			}
-			
-			tag = "TITLE";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"title"];
-			}
-			
-			tag = "TRACKNUMBER";
-			if(fieldList.contains(tag)) {
-				value = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-				[metadataDictionary setValue:value forKey:@"trackNumber"];
-			}
-			
-			tag = "COMPOSER";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"composer"];
-			}
-			
-			tag = "TRACKTOTAL";
-			if(fieldList.contains(tag)) {
-				value = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-				[metadataDictionary setValue:value forKey:@"trackTotal"];
-			}
-			
-			tag = "DISCNUMBER";
-			if(fieldList.contains(tag)) {
-				value = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-				[metadataDictionary setValue:value forKey:@"discNumber"];
-			}
-			
-			tag = "DISCTOTAL";
-			if(fieldList.contains(tag)) {
-				value = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-				[metadataDictionary setValue:value forKey:@"discTotal"];
-			}
-			
-			tag = "COMPILATION";
-			if(fieldList.contains(tag)) {
-				value = [NSNumber numberWithBool:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-				[metadataDictionary setValue:value forKey:@"partOfCompilation"];
-			}
-			
-			tag = "ISRC";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"isrc"];
-			}					
-			
-			tag = "MCN";
-			if(fieldList.contains(tag)) {
-				value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-				[metadataDictionary setValue:value forKey:@"mcn"];
-			}					
-		}		
+		}
 		
-		[self setValue:metadataDictionary forKey:@"metadata"];
-	}
-	else {
-		result = NO;
-	}
+		tag = "DESCRIPTION";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+//				[metadataDictionary setValue:value forKey:@"comment"];
+		}
+		
+		tag = "TITLE";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"title"];
+		}
+		
+		tag = "TRACKNUMBER";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:@"trackNumber"];
+		}
+		
+		tag = "COMPOSER";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"composer"];
+		}
+		
+		tag = "TRACKTOTAL";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:@"trackTotal"];
+		}
+		
+		tag = "DISCNUMBER";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:@"discNumber"];
+		}
+		
+		tag = "DISCTOTAL";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:@"discTotal"];
+		}
+		
+		tag = "COMPILATION";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithBool:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:@"partOfCompilation"];
+		}
+		
+		tag = "ISRC";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"isrc"];
+		}					
+		
+		tag = "MCN";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:@"mcn"];
+		}					
+	}		
+	
+	[self setValue:metadataDictionary forKey:@"metadata"];
 
-	return result;
+	return YES;
 }
 
 @end

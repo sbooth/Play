@@ -27,74 +27,83 @@
 - (BOOL) readMetadata:(NSError **)error
 {
 	NSMutableDictionary				*metadataDictionary;
-	BOOL							result;
-	TagLib::MPC::File				f						([[_url path] fileSystemRepresentation], false);
+	NSString						*path					= [_url path];
+	TagLib::MPC::File				f						([path fileSystemRepresentation], false);
 	TagLib::String					s;
 	TagLib::ID3v1::Tag				*id3v1Tag;
 	TagLib::APE::Tag				*apeTag;
 		
-	if(f.isValid()) {
-		
-		metadataDictionary			= [NSMutableDictionary dictionary];
-		result						= YES;
-		
-		// Album title
-		s = f.tag()->album();
-		if(false == s.isNull()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"albumTitle"];
+	if(NO == f.isValid()) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Musepack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Not a Musepack file" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			
+			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+														  code:AudioMetadataReaderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
 		}
 		
-		// Artist
-		s = f.tag()->artist();
-		if(false == s.isNull()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"artist"];
-		}
-		
-		// Genre
-		s = f.tag()->genre();
-		if(false == s.isNull()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"genre"];
-		}
-		
-		// Year
-		if(0 != f.tag()->year()) {
+		return NO;
+	}
+	
+	metadataDictionary			= [NSMutableDictionary dictionary];
+	
+	// Album title
+	s = f.tag()->album();
+	if(false == s.isNull()) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"albumTitle"];
+	}
+	
+	// Artist
+	s = f.tag()->artist();
+	if(false == s.isNull()) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"artist"];
+	}
+	
+	// Genre
+	s = f.tag()->genre();
+	if(false == s.isNull()) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"genre"];
+	}
+	
+	// Year
+	if(0 != f.tag()->year()) {
 //			[metadataDictionary setValue:f.tag()->year() forKey:@"year"];
-		}
-		
-		// Comment
-		s = f.tag()->comment();
-		if(false == s.isNull()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"comment"];
-		}
-		
-		// Track title
-		s = f.tag()->title();
-		if(false == s.isNull()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"title"];
-		}
-		
-		// Track number
-		if(0 != f.tag()->track()) {
-			[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:@"trackNumber"];
-		}
-				
-		id3v1Tag = f.ID3v1Tag();
-		if(NULL != id3v1Tag) {
+	}
+	
+	// Comment
+	s = f.tag()->comment();
+	if(false == s.isNull()) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"comment"];
+	}
+	
+	// Track title
+	s = f.tag()->title();
+	if(false == s.isNull()) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"title"];
+	}
+	
+	// Track number
+	if(0 != f.tag()->track()) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:@"trackNumber"];
+	}
 			
-		}
+	id3v1Tag = f.ID3v1Tag();
+	if(NULL != id3v1Tag) {
 		
-		apeTag = f.APETag();
-		if(NULL != apeTag) {
-			
-		}
+	}
+	
+	apeTag = f.APETag();
+	if(NULL != apeTag) {
+		
+	}
 
-		[self setValue:metadataDictionary forKey:@"metadata"];
-	}
-	else {
-		result = NO;
-	}
+	[self setValue:metadataDictionary forKey:@"metadata"];
 		
-	return result;
+	return YES;
 }
 
 @end

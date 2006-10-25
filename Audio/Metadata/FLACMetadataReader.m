@@ -19,7 +19,6 @@
  */
 
 #import "FLACMetadataReader.h"
-#import "AudioStreamDecoder.h"
 #include <FLAC/metadata.h>
 
 @implementation FLACMetadataReader
@@ -42,9 +41,7 @@
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary;
-			
-			errorDictionary			= [NSMutableDictionary dictionary];
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			
 			switch(FLAC__metadata_chain_status(chain)) {
 				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
@@ -52,31 +49,13 @@
 					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
 					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_READ_ERROR:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_SEEK_ERROR:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
+									
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
 					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
 					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_ERROR_OPENING_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
+										
 				default:
 					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
 					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
@@ -84,8 +63,8 @@
 					break;
 			}
 			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderFileFormatNotRecognizedError 
+			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+														  code:AudioMetadataReaderFileFormatNotRecognizedError 
 													  userInfo:errorDictionary];
 		}
 		
