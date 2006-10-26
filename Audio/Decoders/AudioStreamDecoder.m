@@ -32,16 +32,6 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 @implementation AudioStreamDecoder
 
-+ (void) initialize
-{
-	[self exposeBinding:@"currentFrame"];
-	[self exposeBinding:@"totalFrames"];
-	[self exposeBinding:@"framesRemaining"];
-
-	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
-	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
-}
-
 + (AudioStreamDecoder *) streamDecoderForURL:(NSURL *)url error:(NSError **)error
 {
 	NSParameterAssert(nil != url);
@@ -95,24 +85,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	return [result autorelease];
 }
 
-- (id) init
-{
-	if((self = [super init])) {
-		_pcmBuffer		= [[CircularBuffer alloc] init];
-		return self;
-	}
-	return nil;
-}
-
-- (void) dealloc
-{
-	[_pcmBuffer release];		_pcmBuffer = nil;
-		
-	[super dealloc];
-}
-
 - (AudioStreamBasicDescription)		pcmFormat			{ return _pcmFormat; }
-- (CircularBuffer *)				pcmBuffer			{ return [[_pcmBuffer retain] autorelease]; }
 
 - (NSString *)						pcmFormatDescription
 {
@@ -135,51 +108,36 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	NSParameterAssert(0 < bufferList->mNumberBuffers);
 	NSParameterAssert(0 < frameCount);
 
-	UInt32							framesRead;
-	UInt32							byteCount;
-	UInt32							bytesRead;
+	UInt32									framesRead;
+	UInt32									byteCount;
+	UInt32									bytesRead;
 	
-//	NSParameterAssert(bufferList->mBuffers[0].mDataByteSize >= byteCount);
+	framesRead								= 0;
+	byteCount								= frameCount * [self pcmFormat].mBytesPerPacket;	
+	bytesRead								= [self readRawAudio:bufferList->mBuffers[0].mData byteCount:byteCount];
 	
-	framesRead						= 0;
-	byteCount						= frameCount * [self pcmFormat].mBytesPerPacket;
-	bytesRead						= 0;
-	
-	// If there aren't enough bytes in the buffer, fill it as much as possible
-	if([[self pcmBuffer] bytesAvailable] < byteCount) {
-		[self fillPCMBuffer];
-	}
-	
-	// If there still aren't enough bytes available, return what we have
-	if([[self pcmBuffer] bytesAvailable] < byteCount) {
-		byteCount = [[self pcmBuffer] bytesAvailable];
-	}
-	
-	bytesRead								= [[self pcmBuffer] getData:bufferList->mBuffers[0].mData byteCount:byteCount];
 	bufferList->mBuffers[0].mNumberChannels	= [self pcmFormat].mChannelsPerFrame;
 	bufferList->mBuffers[0].mDataByteSize	= bytesRead;
 	framesRead								= bytesRead / [self pcmFormat].mBytesPerFrame;
 	
-	[self setCurrentFrame:[self currentFrame] + framesRead];
-		
 	return framesRead;
 }
 
 - (NSString *)		sourceFormatDescription					{ return nil; }
 
-- (SInt64)			totalFrames								{ return _totalFrames; }
-- (SInt64)			currentFrame							{ return _currentFrame; }
+- (SInt64)			totalFrames								{ return 0; }
+- (SInt64)			currentFrame							{ return 0; }
 - (SInt64)			framesRemaining 						{ return ([self totalFrames] - [self currentFrame]); }
 
-- (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
+- (SInt64)			seekToFrame:(SInt64)desiredFrame		{ return -1; }
 
 - (BOOL)			readProperties:(NSError **)error		{ return YES; }
 
-- (void)			fillPCMBuffer							{}
 - (void)			setupDecoder							{}
 - (void)			cleanupDecoder							{}
 
-- (void)			setTotalFrames:(SInt64)totalFrames		{ _totalFrames = totalFrames; }
-- (void)			setCurrentFrame:(SInt64)currentFrame	{ _currentFrame = currentFrame; }
+- (UInt32)			readRawAudio:(void *)buffer byteCount:(UInt32)byteCount { return 0;}
+
+- (void)			setCurrentFrame:(SInt64)currentFrame	{ [self seekToFrame:currentFrame]; }
 
 @end

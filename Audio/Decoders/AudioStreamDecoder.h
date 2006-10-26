@@ -20,7 +20,6 @@
 
 #import <Cocoa/Cocoa.h>
 #include <CoreAudio/CoreAudioTypes.h>
-#import "CircularBuffer.h"
 
 // ========================================
 // Error Codes
@@ -37,15 +36,8 @@ enum {
 @interface AudioStreamDecoder : NSObject
 {
 	NSURL							*_url;				// The location of the raw stream
-	
 	AudioStreamBasicDescription		_pcmFormat;			// The type of PCM data provided by the stream
-	CircularBuffer					*_pcmBuffer;		// The buffer which holds the PCM audio data
-	
-	SInt64							_currentFrame;
-	SInt64							_totalFrames;
-	
 	NSDictionary					*_properties;		// Properties dictionary
-	NSDictionary					*_metadata;			// Metadata dictionary
 }
 
 + (AudioStreamDecoder *)			streamDecoderForURL:(NSURL *)url error:(NSError **)error;
@@ -56,15 +48,10 @@ enum {
 // A descriptive string of the PCM data format
 - (NSString *)						pcmFormatDescription;
 
-// The buffer which holds the PCM data
-- (CircularBuffer *)				pcmBuffer;
-
 // Attempt to read frameCount frames of audio, returning the actual number of frames read
 - (UInt32)							readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 
-// Input audio information
-- (SInt64)							totalFrames;
-- (SInt64)							currentFrame;
+// Input audio frame information
 - (SInt64)							framesRemaining;
 
 // ========================================
@@ -74,20 +61,24 @@ enum {
 // The format of audio data contained in the raw stream at _url
 - (NSString *)		sourceFormatDescription;
 
-// Input audio frame information
-- (SInt64)			seekToFrame:(SInt64)frame;
-
 // Read stream properties
 - (BOOL)			readProperties:(NSError **)error;
 
-// The meat & potatoes-
 - (void)			setupDecoder;
 - (void)			cleanupDecoder;
-- (void)			fillPCMBuffer;
+
+// Input audio frame information
+- (SInt64)			totalFrames;
+- (SInt64)			currentFrame;
+
+- (SInt64)			seekToFrame:(SInt64)desiredFrame;
+
+// The meat & potatoes-
+- (UInt32)			readRawAudio:(void *)buffer byteCount:(UInt32)byteCount;
+
 // ========================================
 
-// KVC methods
+// KVC alias for seekToFrame
 - (void)			setCurrentFrame:(SInt64)currentFrame;
-- (void)			setTotalFrames:(SInt64)framesRead;
 
 @end
