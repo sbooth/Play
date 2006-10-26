@@ -101,6 +101,11 @@
 
 - (unsigned)		freeSpaceAvailable				{ return _bufsize - [self bytesAvailable]; }
 
+- (double)			percentFull
+{
+	return (double)((double)[self bytesAvailable] / (double)[self bufferSize]);
+}
+
 - (unsigned)		putData:(const void *)data byteCount:(unsigned)byteCount
 {
 	NSParameterAssert(NULL != data);

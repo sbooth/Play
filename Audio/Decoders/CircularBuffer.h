@@ -40,6 +40,7 @@
 
 - (unsigned)		bytesAvailable;
 - (unsigned)		freeSpaceAvailable;
+- (double)			percentFull;
 
 - (unsigned)		putData:(const void *)data byteCount:(unsigned)byteCount;
 - (unsigned)		getData:(void *)buffer byteCount:(unsigned)byteCount;
