@@ -24,20 +24,14 @@
 
 - (NSString *)		sourceFormatDescription			{ return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (Vorbis)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate]; }
 
-- (SInt64) seekToFrame:(SInt64)frame
+- (SInt64)			totalFrames						{ return ov_pcm_total(&_vf, -1); }
+- (SInt64)			currentFrame					{ return ov_pcm_tell(&_vf); }
+
+- (SInt64) seekToFrame:(SInt64)desiredFrame
 {
-	int							result;
-	
-	result						= ov_pcm_seek(&_vf, frame); 
-	
-	if(0 != result) {
-		return -1;
-	}
-	
-	[[self pcmBuffer] reset]; 
-	[self setCurrentFrame:frame];	
-	
-	return frame;	
+	int		result		=	ov_pcm_seek(&_vf, desiredFrame); 
+		
+	return (0 == result ? desiredFrame : -1);	
 }
 
 - (BOOL) readProperties:(NSError **)error
@@ -107,7 +101,6 @@
 	[propertiesDictionary setValue:[NSString stringWithFormat:@"Ogg (Vorbis), %u channels, %u Hz", ovInfo->channels, ovInfo->rate] forKey:@"formatName"];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
 	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
-//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->channels] forKey:@"channelsPerFrame"];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->rate] forKey:@"sampleRate"];				
 	
@@ -136,11 +129,8 @@
 	
 	// Get input file information
 	ovInfo							= ov_info(&_vf, -1);
-	
 	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
 	
-	[self setTotalFrames:ov_pcm_total(&_vf, -1)];
-
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
@@ -165,34 +155,25 @@
 	}
 }
 
-- (void) fillPCMBuffer
+- (UInt32) readRawAudio:(void *)buffer byteCount:(UInt32)byteCount
 {
-	CircularBuffer		*buffer;
-	long				bytesRead;
-	long				totalBytes;
-	void				*rawBuffer;
-	unsigned			availableSpace;
-	int					currentSection;
-	
-	buffer				= [self pcmBuffer];
-	rawBuffer			= [buffer exposeBufferForWriting];
-	availableSpace		= [buffer freeSpaceAvailable];
-	totalBytes			= 0;
-	currentSection		= 0;
-	
+	UInt32							bytesRead			= 0;
+	UInt32							totalBytes			= 0;
+	int								currentSection		= 0;
+		
 	for(;;) {
-		bytesRead		= ov_read(&_vf, rawBuffer + totalBytes, availableSpace - totalBytes, YES, sizeof(int16_t), YES, &currentSection);
-
+		bytesRead		= ov_read(&_vf, buffer + totalBytes, byteCount - totalBytes, YES, sizeof(int16_t), YES, &currentSection);
+		
 		NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
 		
-		totalBytes += bytesRead;
-
-		if(0 == bytesRead || totalBytes >= availableSpace) {
+		totalBytes		+= bytesRead;
+		
+		if(0 == bytesRead || totalBytes >= byteCount) {
 			break;
 		}
 	}
 
-	[buffer wroteBytes:totalBytes];
+	return totalBytes;
 }
 
 @end
