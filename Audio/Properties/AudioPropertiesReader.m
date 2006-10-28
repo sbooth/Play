@@ -63,9 +63,21 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 		[result setValue:url forKey:@"url"];
 	}
 	else {
-		result						= [[AudioPropertiesReader alloc] init];
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary;
+			
+			errorDictionary			= [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"File Format Not Recognized" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
+													  userInfo:errorDictionary];
+		}
 		
-		[result setValue:url forKey:@"url"];
+		result						= nil;
 	}
 	
 	return [result autorelease];
