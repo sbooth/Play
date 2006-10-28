@@ -19,6 +19,7 @@
  */
 
 #import "LibraryDocument.h"
+#import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
 #import "AudioStreamDecoder.h"
 #import "AudioStreamInformationSheet.h"
@@ -268,8 +269,8 @@
 	NSError						*error;
 	NSArray						*fetchResult;
 	NSMutableSet				*playlistSet;
+	AudioPropertiesReader		*propertiesReader;
 	AudioMetadataReader			*metadataReader;
-	AudioStreamDecoder			*streamDecoder;
 	NSManagedObject				*propertiesObject;
 	NSManagedObject				*metadataObject;
 	BOOL						result;
@@ -327,17 +328,17 @@
 
 	// ========================================
 	// Read properties
-	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:&error];
+	propertiesReader			= [AudioPropertiesReader propertiesReaderForURL:url error:&error];
 	
 	// If any errors occurred, remove the new streamObject and abort
-	if(nil == streamDecoder) {
+	if(nil == propertiesReader) {
 		[managedObjectContext deleteObject:streamObject];
 		
 		result					= [self presentError:error];
 		return nil;
 	}
 
-	result						= [streamDecoder readProperties:&error];
+	result						= [propertiesReader readProperties:&error];
 	
 	if(NO == result) {
 		[managedObjectContext deleteObject:streamObject];
@@ -350,11 +351,11 @@
 	
 	[streamObject setValue:propertiesObject forKey:@"properties"];
 		
-	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
-	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
-	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
-	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
-	[propertiesObject setValue:[streamDecoder valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
 	
 	// ========================================
 	// Read metadata
@@ -900,6 +901,7 @@
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+		[_streamArrayController rearrangeObjects];			
 	}
 	else if(NSCancelButton == returnCode) {
 	}
@@ -916,6 +918,7 @@
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+		[_streamArrayController rearrangeObjects];			
 	}
 	else if(NSCancelButton == returnCode) {
 	}
