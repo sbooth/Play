@@ -22,6 +22,9 @@
 #import "FLACPropertiesReader.h"
 #import "OggVorbisPropertiesReader.h"
 #import "MusepackPropertiesReader.h"
+#import "CoreAudioPropertiesReader.h"
+
+#import "UtilityFunctions.h"
 
 NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPropertiesReader";
 
@@ -51,6 +54,11 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackPropertiesReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
+		result						= [[CoreAudioPropertiesReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
