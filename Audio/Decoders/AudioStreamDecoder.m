@@ -126,7 +126,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		
 		if(KERN_SUCCESS != result) {
 #if DEBUG
-			mach_error("Couldn't create semaphore", error);
+			mach_error("Couldn't create semaphore", result);
 #endif
 			[self release];
 			return nil;
@@ -320,7 +320,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	
 	if(KERN_SUCCESS != result) {
 #if DEBUG
-		mach_error("Couldn't set producer thread's extended policy", error);
+		mach_error("Couldn't set producer thread's extended policy", result);
 #endif
 	}
 
@@ -329,7 +329,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 	if(KERN_SUCCESS != result) {
 #if DEBUG
-		mach_error("Couldn't set producer thread's precedence policy", error);
+		mach_error("Couldn't set producer thread's precedence policy", result);
 #endif
 	}
 }
