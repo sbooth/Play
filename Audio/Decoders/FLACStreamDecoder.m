@@ -43,12 +43,16 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 	unsigned			sample, channel;
 	int32_t				audioSample;
 	
+	UInt32				bytesAvailableToWrite;
+	void				*pcmBuffer;
+
 	// Calculate the number of audio data points contained in the frame (should be one for each channel)
 	spaceRequired		= frame->header.blocksize * frame->header.channels * (frame->header.bits_per_sample / 8);
-	
+	bytesAvailableToWrite = [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&pcmBuffer];
+
 	// Increase buffer size as required
-	if([[streamDecoder pcmBuffer] freeSpaceAvailable] < spaceRequired) {
-		[[streamDecoder pcmBuffer] increaseBufferSize:spaceRequired];
+	if(bytesAvailableToWrite < spaceRequired) {
+		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 	}
 	
 	switch(frame->header.bits_per_sample) {
@@ -56,35 +60,35 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 		case 8:
 			
 			// Interleave the audio (no need for byte swapping)
-			alias8 = [[streamDecoder pcmBuffer] exposeBufferForWriting];
+			alias8 = pcmBuffer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias8++ = (int8_t)buffer[channel][sample];
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] wroteBytes:spaceRequired];
+			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
 		case 16:
 			
 			// Interleave the audio, converting to big endian byte order 
-			alias16 = [[streamDecoder pcmBuffer] exposeBufferForWriting];
+			alias16 = pcmBuffer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias16++ = (int16_t)OSSwapHostToBigInt16((int16_t)buffer[channel][sample]);
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] wroteBytes:spaceRequired];
+			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
 		case 24:				
 			
 			// Interleave the audio
-			alias8 = [[streamDecoder pcmBuffer] exposeBufferForWriting];
+			alias8 = pcmBuffer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					audioSample	= OSSwapHostToBigInt32(buffer[channel][sample]);
@@ -94,21 +98,21 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] wroteBytes:spaceRequired];
+			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
 		case 32:
 			
 			// Interleave the audio, converting to big endian byte order 
-			alias32 = [[streamDecoder pcmBuffer] exposeBufferForWriting];
+			alias32 = pcmBuffer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias32++ = OSSwapHostToBigInt32(buffer[channel][sample]);
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] wroteBytes:spaceRequired];
+			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
@@ -167,111 +171,15 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 
 @implementation FLACStreamDecoder
 
-- (NSString *)		sourceFormatDescription			{ return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"FLAC", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate]; }
-
-- (SInt64) seekToFrame:(SInt64)frame
+- (NSString *) sourceFormatDescription
 {
-	FLAC__bool					result;
-	
-	result						= FLAC__file_decoder_seek_absolute(_flac, frame);
-	
-	if(NO == result) {
-		return -1;
-	}
-	
-	[[self pcmBuffer] reset];
-	[self setCurrentFrame:frame];	
-	
-	return frame;
+	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"FLAC", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
-- (BOOL) readProperties:(NSError **)error
+- (SInt64) performSeekToFrame:(SInt64)frame
 {
-	NSString						*path				= [_url path];
-	FLAC__Metadata_Chain			*chain				= NULL;
-	FLAC__Metadata_Iterator			*iterator			= NULL;
-	FLAC__StreamMetadata			*block				= NULL;
-	NSMutableDictionary				*propertiesDictionary;
-				
-	chain							= FLAC__metadata_chain_new();
-	
-	NSAssert(NULL != chain, @"Unable to allocate memory.");
-	
-	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
-		
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			
-			switch(FLAC__metadata_chain_status(chain)) {
-				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-					
-				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-										
-				default:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-					break;
-			}
-			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
-		}
-		
-		FLAC__metadata_chain_delete(chain);
-		
-		return NO;
-	}
-	
-	iterator					= FLAC__metadata_iterator_new();
-	
-	NSAssert(NULL != iterator, @"Unable to allocate memory.");
-	
-	FLAC__metadata_iterator_init(iterator, chain);
-	
-	do {
-		block					= FLAC__metadata_iterator_get_block(iterator);
-		
-		if(NULL == block) {
-			break;
-		}
-		
-		switch(block->type) {					
-			case FLAC__METADATA_TYPE_STREAMINFO:
-				propertiesDictionary			= [NSMutableDictionary dictionary];
-
-				[propertiesDictionary setValue:[NSString stringWithFormat:@"FLAC, %u channels, %u Hz", block->data.stream_info.channels, block->data.stream_info.sample_rate] forKey:@"formatName"];
-				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:@"totalFrames"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:@"sampleRate"];				
-				
-				[self setValue:propertiesDictionary forKey:@"properties"];
-				break;
-
-			case FLAC__METADATA_TYPE_VORBIS_COMMENT:				break;
-			case FLAC__METADATA_TYPE_PADDING:						break;
-			case FLAC__METADATA_TYPE_APPLICATION:					break;
-			case FLAC__METADATA_TYPE_SEEKTABLE:						break;
-			case FLAC__METADATA_TYPE_CUESHEET:						break;
-			case FLAC__METADATA_TYPE_UNDEFINED:						break;
-			default:												break;
-		}
-	} while(FLAC__metadata_iterator_next(iterator));
-	
-	FLAC__metadata_iterator_delete(iterator);
-	FLAC__metadata_chain_delete(chain);
-	
-	return YES;
+	FLAC__bool		result		= FLAC__file_decoder_seek_absolute(_flac, frame);
+	return (result ? frame : -1);
 }
 
 - (void) setupDecoder
@@ -337,8 +245,6 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 
 - (void) fillPCMBuffer
 {
-	CircularBuffer				*buffer				= [self pcmBuffer];
-	
 	FLAC__bool					result;
 	
 	unsigned					blockSize;
@@ -346,6 +252,9 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	unsigned					bitsPerSample;
 	unsigned					blockByteSize;
 	
+	UInt32						bytesAvailableToWrite;
+	void						*dummy;
+
 	for(;;) {
 	
 		// EOF?
@@ -366,9 +275,11 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 		bitsPerSample		= FLAC__file_decoder_get_bits_per_sample(_flac); 
 		
 		blockByteSize		= blockSize * channels * (bitsPerSample / 8);
-		
+
+		bytesAvailableToWrite = [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&dummy];
+
 		//Ensure sufficient space remains in the buffer
-		if([buffer freeSpaceAvailable] >= blockByteSize) {
+		if(bytesAvailableToWrite >= blockByteSize) {
 			result	= FLAC__file_decoder_process_single(_flac);
 			NSAssert1(YES == result, @"FLAC__file_decoder_process_single failed: %s", FLAC__FileDecoderStateString[FLAC__file_decoder_get_state(_flac)]);
 		}
