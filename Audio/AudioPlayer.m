@@ -478,7 +478,11 @@ MyRenderNotification(void							*inRefCon,
 		
 		seekedFrame					= [streamDecoder seekToFrame:currentFrame];
 
-		NSAssert2(seekedFrame == currentFrame, @"Seek failed: requested frame %qi, got %qi", currentFrame, seekedFrame);
+#if DEBUG
+		if(seekedFrame != currentFrame) {
+			NSLog(@"Seek failed: requested frame %qi, got %qi", currentFrame, seekedFrame);
+		}
+#endif
 		
 		if(isPlaying) {
 			[self play];
