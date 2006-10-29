@@ -79,6 +79,15 @@
 	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
+	// Zero out part of the asbd so we only get the format's name
+    asbd.mSampleRate			= 0;
+//    asbd.mFormatFlags			= 0;
+    asbd.mBytesPerPacket		= 0;
+    asbd.mFramesPerPacket		= 0;
+    asbd.mBytesPerFrame			= 0;
+    asbd.mChannelsPerFrame		= 0;
+    asbd.mBitsPerChannel		= 0;
+	
 	specifierSize		= sizeof(fileFormat);
 	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &fileFormat);
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
