@@ -30,12 +30,7 @@
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
 	int		result		= ov_pcm_seek(&_vf, frame); 
-	
-	if(0 != result) {
-		return -1;
-	}
-	
-	return frame;	
+	return (0 == result ? frame : -1);
 }
 
 - (void) setupDecoder
@@ -84,46 +79,41 @@
 
 - (void) fillPCMBuffer
 {
-	BOOL				continueReading;
 	UInt32				bytesToWrite, bytesAvailableToWrite;
+	UInt32				bytesRead, bytesWritten;
+	int					currentSection;
 	void				*writePointer;
 
-	do {
-		continueReading				= NO;
+	for(;;) {
 		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
 		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+		currentSection				= 0;
+		bytesWritten				= 0;
 
-		if(bytesAvailableToWrite >= bytesToWrite) {
-			UInt32					bytesRead, bytesWritten;
-			int						currentSection;
+		if(bytesToWrite > bytesAvailableToWrite) {
+			break;
+		}
 
-			currentSection			= 0;
-			bytesWritten			= 0;
-
-			for(;;) {
-				bytesRead		= ov_read(&_vf, writePointer + bytesWritten, bytesAvailableToWrite - bytesWritten, YES, sizeof(int16_t), YES, &currentSection);
-				
-				NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
-				
-				bytesWritten	+= bytesRead;
-				
-				if(0 == bytesRead || bytesWritten >= bytesAvailableToWrite) {
-					break;
-				}
-			}
-
-			if(0 < bytesWritten) {
-                [[self pcmBuffer] didWriteLength:bytesWritten];				
-			}
+		for(;;) {
+			bytesRead			= ov_read(&_vf, writePointer + bytesWritten, bytesAvailableToWrite - bytesWritten, YES, sizeof(int16_t), YES, &currentSection);
+			NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
 			
-			if(0 == bytesRead) {
-				[self setAtEndOfStream:YES];
-			}
-			else {
-				continueReading = YES;
+			bytesWritten		+= bytesRead;
+			
+			if(0 == bytesRead || bytesWritten >= bytesAvailableToWrite) {
+				break;
 			}
 		}
-	} while(continueReading);
+
+		if(0 < bytesWritten) {
+			[[self pcmBuffer] didWriteLength:bytesWritten];				
+		}
+		
+		if(0 == bytesRead) {
+			[self setAtEndOfStream:YES];
+			break;
+		}
+	}
 }
 
 @end

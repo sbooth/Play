@@ -44,11 +44,11 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 	int32_t				audioSample;
 	
 	UInt32				bytesAvailableToWrite;
-	void				*pcmBuffer;
+	void				*writePointer;
 
 	// Calculate the number of audio data points contained in the frame (should be one for each channel)
 	spaceRequired		= frame->header.blocksize * frame->header.channels * (frame->header.bits_per_sample / 8);
-	bytesAvailableToWrite = [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&pcmBuffer];
+	bytesAvailableToWrite = [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
 
 	// Increase buffer size as required
 	if(bytesAvailableToWrite < spaceRequired) {
@@ -60,7 +60,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 		case 8:
 			
 			// Interleave the audio (no need for byte swapping)
-			alias8 = pcmBuffer;
+			alias8 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias8++ = (int8_t)buffer[channel][sample];
@@ -74,7 +74,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 		case 16:
 			
 			// Interleave the audio, converting to big endian byte order 
-			alias16 = pcmBuffer;
+			alias16 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias16++ = (int16_t)OSSwapHostToBigInt16((int16_t)buffer[channel][sample]);
@@ -88,7 +88,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 		case 24:				
 			
 			// Interleave the audio
-			alias8 = pcmBuffer;
+			alias8 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					audioSample	= OSSwapHostToBigInt32(buffer[channel][sample]);
@@ -105,7 +105,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 		case 32:
 			
 			// Interleave the audio, converting to big endian byte order 
-			alias32 = pcmBuffer;
+			alias32 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
 					*alias32++ = OSSwapHostToBigInt32(buffer[channel][sample]);
@@ -252,15 +252,12 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	unsigned					bitsPerSample;
 	unsigned					blockByteSize;
 	
-	UInt32						bytesAvailableToWrite;
+	UInt32						bytesToWrite, bytesAvailableToWrite;
 	void						*dummy;
 
 	for(;;) {
-	
-		// EOF?
-		if(FLAC__FILE_DECODER_END_OF_FILE == FLAC__file_decoder_get_state(_flac)) {
-			break;
-		}
+		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&dummy];
 		
 		// A problem I've run into is calculating how many times to call process_single, since
 		// there is no good way to know in advance the bytes which will be required to hold a FLAC frame.
@@ -270,20 +267,23 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 		// this could blow up!
 		// It's not feasible to use the maximum possible values, because
 		// maxBlocksize(65535) * maxBitsPerSample(32) * maxChannels(8) = 16,776,960 (No 16 MB buffers here!)
-		blockSize			= FLAC__file_decoder_get_blocksize(_flac);
-		channels			= FLAC__file_decoder_get_channels(_flac);
-		bitsPerSample		= FLAC__file_decoder_get_bits_per_sample(_flac); 
+		blockSize					= FLAC__file_decoder_get_blocksize(_flac);
+		channels					= FLAC__file_decoder_get_channels(_flac);
+		bitsPerSample				= FLAC__file_decoder_get_bits_per_sample(_flac); 
 		
-		blockByteSize		= blockSize * channels * (bitsPerSample / 8);
+		blockByteSize				= blockSize * channels * (bitsPerSample / 8);
 
-		bytesAvailableToWrite = [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&dummy];
-
-		//Ensure sufficient space remains in the buffer
-		if(bytesAvailableToWrite >= blockByteSize) {
-			result	= FLAC__file_decoder_process_single(_flac);
-			NSAssert1(YES == result, @"FLAC__file_decoder_process_single failed: %s", FLAC__FileDecoderStateString[FLAC__file_decoder_get_state(_flac)]);
+		// Ensure sufficient space remains in the buffer
+		if(bytesAvailableToWrite < bytesToWrite || bytesAvailableToWrite < blockByteSize) {
+			break;
 		}
-		else {
+
+		result	= FLAC__file_decoder_process_single(_flac);
+		NSAssert1(YES == result, @"FLAC__file_decoder_process_single failed: %s", FLAC__FileDecoderStateString[FLAC__file_decoder_get_state(_flac)]);
+		
+		// EOF?
+		if(FLAC__FILE_DECODER_END_OF_FILE == FLAC__file_decoder_get_state(_flac)) {
+			[self setAtEndOfStream:YES];
 			break;
 		}
 	}

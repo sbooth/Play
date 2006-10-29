@@ -112,41 +112,38 @@
 
 - (void) fillPCMBuffer
 {
-	BOOL				continueReading;
 	UInt32				bytesToWrite, bytesAvailableToWrite;
 	void				*writePointer;
+	OSStatus			result;
+	AudioBufferList		bufferList;
+	UInt32				frameCount;
 	
-	do {
-		continueReading				= NO;
+	for(;;) {
 		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
 		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
 		
-		if(bytesAvailableToWrite >= bytesToWrite) {
-			OSStatus				result;
-			AudioBufferList			bufferList;
-			UInt32					frameCount;
-
-			bufferList.mNumberBuffers				= 1;
-			bufferList.mBuffers[0].mNumberChannels	= [self pcmFormat].mChannelsPerFrame;
-			bufferList.mBuffers[0].mData			= writePointer;
-			bufferList.mBuffers[0].mDataByteSize	= bytesAvailableToWrite;
-			frameCount								= bufferList.mBuffers[0].mDataByteSize / [self pcmFormat].mBytesPerFrame;
-			
-			result					= ExtAudioFileRead(_extAudioFile, &frameCount, &bufferList);
-			NSAssert1(noErr == result, @"ExtAudioFileRead failed: %@", UTCreateStringForOSType(result));
-			
-			if(0 < bufferList.mBuffers[0].mDataByteSize) {
-                [[self pcmBuffer] didWriteLength:bufferList.mBuffers[0].mDataByteSize];				
-			}
-			
-			if(0 == bufferList.mBuffers[0].mDataByteSize || 0 == frameCount) {
-				[self setAtEndOfStream:YES];
-			}
-			else {
-				continueReading = YES;
-			}
+		if(bytesAvailableToWrite < bytesToWrite) {
+			break;
 		}
-	} while(continueReading);
+
+		bufferList.mNumberBuffers				= 1;
+		bufferList.mBuffers[0].mNumberChannels	= [self pcmFormat].mChannelsPerFrame;
+		bufferList.mBuffers[0].mData			= writePointer;
+		bufferList.mBuffers[0].mDataByteSize	= bytesAvailableToWrite;
+		frameCount								= bufferList.mBuffers[0].mDataByteSize / [self pcmFormat].mBytesPerFrame;
+		
+		result									= ExtAudioFileRead(_extAudioFile, &frameCount, &bufferList);
+		NSAssert1(noErr == result, @"ExtAudioFileRead failed: %@", UTCreateStringForOSType(result));
+		
+		if(0 < bufferList.mBuffers[0].mDataByteSize) {
+			[[self pcmBuffer] didWriteLength:bufferList.mBuffers[0].mDataByteSize];				
+		}
+		
+		if(0 == bufferList.mBuffers[0].mDataByteSize || 0 == frameCount) {
+			[self setAtEndOfStream:YES];
+			break;
+		}
+	}
 }
 
 @end
