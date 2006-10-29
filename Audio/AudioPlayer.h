@@ -34,6 +34,8 @@
 	BOOL					_isPlaying;
 
 	SInt64					_frameCounter;
+	
+	NSRunLoop				*_runLoop;
 }
 
 - (LibraryDocument *)	owner;

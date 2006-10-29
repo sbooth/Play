@@ -27,10 +27,14 @@
 
 - (AudioUnit)			audioUnit;
 
+- (NSRunLoop *)			runLoop;
+
 - (AudioStreamDecoder *) streamDecoder;
 - (void)				setStreamDecoder:(AudioStreamDecoder *)streamDecoder;
 
+//- (void)				didReachEndOfStream:(id)arg;
 - (void)				didReachEndOfStream;
+//- (void)				didReadFrames:(NSNumber *)frameCount;
 - (void)				didReadFrames:(UInt32)frameCount;
 
 - (void)				currentFrameNeedsUpdate;
@@ -63,15 +67,28 @@ MyRenderer(void							*inRefCon,
 	player					= (AudioPlayer *)inRefCon;
 	streamDecoder			= [player streamDecoder];
 	framesRead				= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
+		
+#if DEBUG
+	if(framesRead != inNumberFrames) {
+		NSLog(@"MyRenderer requested %i frames, got %i", inNumberFrames, framesRead);
+	}
+#endif
 	
 	if(0 == framesRead) {
 		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
 		
 		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
-			memset(ioData->mBuffers[currentBuffer].mData, 0, sizeof(ioData->mBuffers[currentBuffer].mData));
+			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
 		}
 		
-		[player didReachEndOfStream];
+		if([streamDecoder atEndOfStream]) {
+			[player didReachEndOfStream];
+//			[[player runLoop] performSelector:@selector(didReachEndOfStream:) 
+//									   target:player 
+//									 argument:nil 
+//										order:0
+//										modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
+		}
 	}
 	
 	[pool release];
@@ -93,11 +110,20 @@ MyRenderNotification(void							*inRefCon,
 	pool					= [[NSAutoreleasePool alloc] init];
 	player					= (AudioPlayer *)inRefCon;
 	
-	if(kAudioUnitRenderAction_PostRender & *ioActionFlags) {
-//		if(kAudioTimeStampSampleTimeValid & inTimeStamp->mFlags) {
-//			NSLog(@"time = %f", inTimeStamp->mSampleTime/44100.);
-//		}
+	if(kAudioUnitRenderAction_PostRender & (*ioActionFlags)) {
+
+#if DEBUG
+		if(kAudioTimeStampSampleTimeValid & inTimeStamp->mFlags) {
+			NSLog(@"PostRender time = %f", inTimeStamp->mSampleTime/44100.);
+		}
+#endif
+
 		[player didReadFrames:inNumFrames];
+//		[[player runLoop] performSelector:@selector(didReadFrames:) 
+//								   target:player 
+//								 argument:[NSNumber numberWithUnsignedInt:inNumFrames]
+//									order:0
+//									modes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];
 	}
 	
 	[pool release];
@@ -185,6 +211,8 @@ MyRenderNotification(void							*inRefCon,
 		
 		AudioUnitAddRenderNotify(_audioUnit, MyRenderNotification, (void *)self);
 
+		_runLoop = [[NSRunLoop currentRunLoop] retain];
+		
 		return self;
 	}
 	
@@ -207,11 +235,12 @@ MyRenderNotification(void							*inRefCon,
 
 	
 	if(nil != [self streamDecoder]) {
-		[[self streamDecoder] cleanupDecoder];
+		[[self streamDecoder] stopDecoding:nil];
 		[_streamDecoder release];		_streamDecoder = nil;
 	}
 	
 	[_owner release];					_owner = nil;
+	[_runLoop release];					_runLoop = nil;
 	
 	[super dealloc];
 }
@@ -226,8 +255,9 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder				*streamDecoder;
 
 	if(nil != [self streamDecoder]) {
-		[[self streamDecoder] cleanupDecoder];
-		[self setStreamDecoder:nil];		
+		[[self streamDecoder] stopDecoding:error];
+		[self setStreamDecoder:nil];
+		
 	}
 	
 	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:error];
@@ -245,7 +275,7 @@ MyRenderNotification(void							*inRefCon,
 	[self willChangeValueForKey:@"currentFrame"];
 	
 	[self setStreamDecoder:streamDecoder];
-	[[self streamDecoder] setupDecoder];
+	[[self streamDecoder] startDecoding:error];
 	
 	[self didChangeValueForKey:@"totalFrames"];
 	[self didChangeValueForKey:@"currentFrame"];
@@ -537,9 +567,14 @@ MyRenderNotification(void							*inRefCon,
 	return _audioUnit;
 }
 
+- (NSRunLoop *)	runLoop
+{
+	return [[_runLoop retain] autorelease];
+}
+
 - (AudioStreamDecoder *) streamDecoder
 {
-	return _streamDecoder;
+	return [[_streamDecoder retain] autorelease];
 }
 
 - (void) setStreamDecoder:(AudioStreamDecoder *)streamDecoder
@@ -548,21 +583,26 @@ MyRenderNotification(void							*inRefCon,
 	_streamDecoder = [streamDecoder retain];
 }
 
+//- (void) didReachEndOfStream:(id)arg
 - (void) didReachEndOfStream
 {
 	[self stop];
+	//	[_owner streamPlaybackDidComplete];
 	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
 }
 
+//- (void) didReadFrames:(NSNumber *)frameCount
 - (void) didReadFrames:(UInt32)frameCount
 {
-	NSTimeInterval			seconds;	
+	NSTimeInterval			seconds;
 	
 	// Accumulate the frames for UI updates approx. once per second
+//	_frameCounter			+= [frameCount unsignedIntValue];
 	_frameCounter			+= frameCount;
 	seconds					= (NSTimeInterval) (_frameCounter / [[self streamDecoder] pcmFormat].mSampleRate);
 	
 	if(1.0 < seconds) {
+//		[self currentFrameNeedsUpdate];
 		[self performSelectorOnMainThread:@selector(currentFrameNeedsUpdate) withObject:nil waitUntilDone:NO];
 		_frameCounter		= 0;
 	}
