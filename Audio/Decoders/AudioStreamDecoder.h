@@ -20,6 +20,11 @@
 
 #import <Cocoa/Cocoa.h>
 #include <CoreAudio/CoreAudioTypes.h>
+#import <mach/mach.h>
+#import "VirtualRingBuffer.h"
+
+#define RING_BUFFER_SIZE				(128 * 1024)
+#define RING_BUFFER_WRITE_CHUNK_SIZE	(16 * 1024)
 
 // ========================================
 // Error Codes
@@ -32,12 +37,23 @@ enum {
 	AudioStreamDecoderInputOutputError					= 2
 };
 
+@class AudioStreamReaderThread;
+
 // A decoder reads audio data in some format and provides it as PCM
 @interface AudioStreamDecoder : NSObject
 {
 	NSURL							*_url;				// The location of the raw stream
+	
 	AudioStreamBasicDescription		_pcmFormat;			// The type of PCM data provided by the stream
-	NSDictionary					*_properties;		// Properties dictionary
+    VirtualRingBuffer				*_pcmBuffer;		// The buffer which holds the PCM audio data
+	
+	SInt64							_currentFrame;
+	SInt64							_totalFrames;
+		
+	BOOL							_atEndOfStream;
+	BOOL							_keepProcessingFile;
+	
+    semaphore_t						_semaphore;			// Semaphore for intra-thread communication
 }
 
 + (AudioStreamDecoder *)			streamDecoderForURL:(NSURL *)url error:(NSError **)error;
@@ -48,11 +64,30 @@ enum {
 // A descriptive string of the PCM data format
 - (NSString *)						pcmFormatDescription;
 
+// The buffer which holds the PCM data
+- (VirtualRingBuffer *)				pcmBuffer;
+
 // Attempt to read frameCount frames of audio, returning the actual number of frames read
 - (UInt32)							readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 
-// Input audio frame information
+// ========================================
+// Input audio information
+// ========================================
+- (SInt64)							totalFrames;
+- (SInt64)							currentFrame;
 - (SInt64)							framesRemaining;
+
+- (SInt64)							seekToFrame:(SInt64)frame;
+
+- (BOOL)							atEndOfStream;
+- (void)							setAtEndOfStream:(BOOL)atEndOfStream;
+
+// ========================================
+// Decoder control
+// ========================================
+- (void)							startDecoding:(NSError **)error;
+- (void)							stopDecoding:(NSError **)error;
+
 
 // ========================================
 // Subclasses must implement these methods!
@@ -61,24 +96,23 @@ enum {
 // The format of audio data contained in the raw stream at _url
 - (NSString *)		sourceFormatDescription;
 
-// Read stream properties
-- (BOOL)			readProperties:(NSError **)error;
-
-- (void)			setupDecoder;
-- (void)			cleanupDecoder;
-
 // Input audio frame information
-- (SInt64)			totalFrames;
-- (SInt64)			currentFrame;
-
-- (SInt64)			seekToFrame:(SInt64)desiredFrame;
+- (SInt64)			performSeekToFrame:(SInt64)frame;
 
 // The meat & potatoes-
-- (UInt32)			readRawAudio:(void *)buffer byteCount:(UInt32)byteCount;
+- (void)			setupDecoder;
+- (void)			cleanupDecoder;
+- (void)			fillPCMBuffer;
 
 // ========================================
+// End subclass methods
+// ========================================
 
-// KVC alias for seekToFrame
+
+// ========================================
+// KVC methods
+// ========================================
 - (void)			setCurrentFrame:(SInt64)currentFrame;
+- (void)			setTotalFrames:(SInt64)framesRead;
 
 @end
