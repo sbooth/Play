@@ -76,7 +76,7 @@
 	
 	// Year
 	if(0 != f.tag()->year()) {
-//			[result setAlbumYear:f.tag()->year()];
+		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:@"date"];
 	}
 	
 	// Comment

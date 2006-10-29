@@ -78,13 +78,13 @@
 		tag = "DATE";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-//				[metadataDictionary setValue:value forKey:@"date"];
+			[metadataDictionary setValue:value forKey:@"date"];
 		}
 		
 		tag = "DESCRIPTION";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-//				[metadataDictionary setValue:value forKey:@"comment"];
+			[metadataDictionary setValue:value forKey:@"comment"];
 		}
 		
 		tag = "TITLE";

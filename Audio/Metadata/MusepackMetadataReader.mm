@@ -71,7 +71,7 @@
 	
 	// Year
 	if(0 != f.tag()->year()) {
-//			[metadataDictionary setValue:f.tag()->year() forKey:@"year"];
+		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:@"date"];
 	}
 	
 	// Comment

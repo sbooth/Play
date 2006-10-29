@@ -76,8 +76,7 @@
 	// Year
 	MP4GetMetadataYear(mp4FileHandle, &s);
 	if(NULL != s) {
-		// Avoid atoi()
-		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:s] intValue]] forKey:@"year"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"date"];
 	}
 	
 	// Composer

@@ -114,7 +114,7 @@
 							[metadataDictionary setValue:value forKey:@"genre"];
 						}
 						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"]) {
-							[metadataDictionary setValue:value forKey:@"data"];
+							[metadataDictionary setValue:value forKey:@"date"];
 						}
 						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"]) {
 							[metadataDictionary setValue:value forKey:@"comment"];
