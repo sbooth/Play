@@ -1,12 +1,18 @@
 {
     IBClasses = (
         {
-            ACTIONS = {playPause = id; }; 
+            ACTIONS = {playPause = id; togglePlayerControlsWindow = id; }; 
             CLASS = FirstResponder; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = PlayApplicationDelegate; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+        {CLASS = PlayApplicationDelegate; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {checkForUpdates = id; }; 
+            CLASS = SUUpdater; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }
     ); 
     IBVersion = 1; 
 }
