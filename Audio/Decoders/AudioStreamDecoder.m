@@ -39,14 +39,6 @@
 
 NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioStreamDecoder";
 
-// ========================================
-// Lock Conditions
-enum {
-	AudioStreamDecoderConditionNoData			= 0,
-	AudioStreamDecoderConditionNeedsData		= 1,
-	AudioStreamDecoderConditionHasData			= 2
-};
-
 @interface AudioStreamDecoder (Private)
 
 - (semaphore_t)			semaphore;
