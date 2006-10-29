@@ -371,6 +371,7 @@
 	
 	[streamObject setValue:metadataObject forKey:@"metadata"];
 
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArt"] forKey:@"albumArt"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
