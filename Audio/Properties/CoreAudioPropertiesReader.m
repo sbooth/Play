@@ -32,8 +32,9 @@
 	UInt32							specifierSize;
 	FSRef							ref;
 	SInt64							totalFrames;
-	AudioStreamBasicDescription		asbd;
+	AudioStreamBasicDescription		asbd, asbdCopy;
 	NSString						*fileFormat;
+//	UInt32							isVBR;
 	NSMutableDictionary				*propertiesDictionary;
 	
 	// Open the input file
@@ -79,23 +80,24 @@
 	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
+	// This doesn't work how I would expect it to
+//	specifierSize					= sizeof(isVBR);
+//	result							= AudioFormatGetProperty(kAudioFormatProperty_FormatIsVBR, sizeof(asbd), &asbd, &specifierSize, &isVBR);
+//	NSAssert1(noErr == result, @"AudioFormatGetProperty(kAudioFormatProperty_FormatIsVBR) failed: %@", UTCreateStringForOSType(result));
+	
 	// Zero out part of the asbd so we only get the format's name
-    asbd.mSampleRate			= 0;
-//    asbd.mFormatFlags			= 0;
-    asbd.mBytesPerPacket		= 0;
-    asbd.mFramesPerPacket		= 0;
-    asbd.mBytesPerFrame			= 0;
-    asbd.mChannelsPerFrame		= 0;
-    asbd.mBitsPerChannel		= 0;
+	memset(&asbdCopy, 0, sizeof(AudioStreamBasicDescription));
+	asbdCopy.mFormatID			= asbd.mFormatID;
+	asbdCopy.mFormatFlags		= asbd.mFormatFlags;
 	
 	specifierSize		= sizeof(fileFormat);
-	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &fileFormat);
+	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbdCopy, &specifierSize, &fileFormat);
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
 	
 	specifierSize					= sizeof(totalFrames);
 	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
 	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
-	
+		
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
 	[propertiesDictionary setValue:[fileFormat autorelease] forKey:@"formatName"];
@@ -103,8 +105,25 @@
 	if(0 != asbd.mBitsPerChannel) {
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:@"bitsPerChannel"];
 	}
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData & asbd.mFormatFlags) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];
+		
+	}
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData & asbd.mFormatFlags) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:20] forKey:@"bitsPerChannel"];
+		
+	}
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData & asbd.mFormatFlags) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:24] forKey:@"bitsPerChannel"];
+		
+	}
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData & asbd.mFormatFlags) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:32] forKey:@"bitsPerChannel"];
+		
+	}
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:@"sampleRate"];				
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:@"sampleRate"];
+//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:isVBR] forKey:@"isVBR"];
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
