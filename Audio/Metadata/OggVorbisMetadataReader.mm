@@ -31,7 +31,6 @@
 	TagLib::Ogg::Vorbis::File		f						([path fileSystemRepresentation], false);
 	TagLib::String					s;
 	TagLib::Ogg::XiphComment		*xiphComment;
-	BOOL							result;
 
 	if(NO == f.isValid()) {
 		if(nil != error) {
@@ -50,7 +49,6 @@
 	}
 	
 	metadataDictionary			= [NSMutableDictionary dictionary];
-	result						= YES;
 	xiphComment					= f.tag();
 
 	if(NULL != xiphComment) {
