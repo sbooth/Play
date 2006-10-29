@@ -23,6 +23,9 @@
 #import "OggVorbisMetadataReader.h"
 #import "MusepackMetadataReader.h"
 #import "MP3MetadataReader.h"
+#import "MP4MetadataReader.h"
+
+#import "UtilityFunctions.h"
 
 NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioMetadataReader";
 
@@ -45,9 +48,50 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		
 		[result setValue:url forKey:@"url"];
 	}
+	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		result						= [[OggVorbisMetadataReader alloc] init];
+		OggStreamType			type		= oggStreamType(url);
+
+		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
+
+			if(nil != error) {
+				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				
+				switch(type) {
+					case kOggStreamTypeInvalid:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+						
+					case kOggStreamTypeUnknown:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+						
+					default:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+				}
+				
+				*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+															  code:AudioMetadataReaderFileFormatNotRecognizedError 
+														  userInfo:errorDictionary];
+			}
+			
+			return nil;
+		}
 		
+		switch(type) {
+			case kOggStreamTypeVorbis:		result = [[OggVorbisMetadataReader alloc] init];			break;
+//			case kOggStreamTypeFLAC:		result = [[OggFLACMetadataReader alloc] init];				break;
+//			case kOggStreamTypeSpeex:		result = [[AudioMetadataReader alloc] init];				break;
+			default:						result = [[AudioMetadataReader alloc] init];				break;
+		}
+
 		[result setValue:url forKey:@"url"];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
@@ -57,6 +101,11 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
 		result						= [[MP3MetadataReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
+		result						= [[MP4MetadataReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}

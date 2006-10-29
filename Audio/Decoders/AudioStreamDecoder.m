@@ -93,7 +93,47 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		[result setValue:url forKey:@"url"];
 	}
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		result						= [[OggVorbisStreamDecoder alloc] init];
+		OggStreamType			type		= oggStreamType(url);
+		
+		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
+			
+			if(nil != error) {
+				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				
+				switch(type) {
+					case kOggStreamTypeInvalid:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+						
+					case kOggStreamTypeUnknown:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+						
+					default:
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						break;
+				}
+				
+				*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+															  code:AudioStreamDecoderFileFormatNotRecognizedError 
+														  userInfo:errorDictionary];
+			}
+			
+			return nil;
+		}
+		
+		switch(type) {
+			case kOggStreamTypeVorbis:		result = [[OggVorbisStreamDecoder alloc] init];				break;
+//			case kOggStreamTypeFLAC:		result = [[OggFLACStreamDecoder alloc] init];				break;
+//			case kOggStreamTypeSpeex:		result = [[AudioStreamDecoder alloc] init];					break;
+			default:						result = nil;												break;
+		}
 		
 		[result setValue:url forKey:@"url"];
 	}

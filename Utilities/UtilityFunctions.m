@@ -65,7 +65,7 @@ oggStreamType(NSURL *url)
 	result		= ogg_sync_pageout(&oy, &og);
 //	NSCAssert(1 == result, @"The file does not appear to be an Ogg bitstream.");
 	
-	if(0 == result) {
+	if(1 == result) {
 		// Upgrade the stream type from invalid to unknown
 		streamType	= kOggStreamTypeUnknown;
 		
@@ -123,13 +123,14 @@ oggStreamType(NSURL *url)
 				}
 			}		
 		}
+
+		ogg_stream_clear(&os);
 	}
 	
 	// Clean up
 	result = close(fd);
 	NSCAssert1(-1 != result, @"Unable to close the input file (%s).", strerror(errno));
 	
-	ogg_stream_clear(&os);
 	ogg_sync_clear(&oy);
 	
 	return streamType;
