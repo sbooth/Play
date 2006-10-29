@@ -42,7 +42,7 @@
 	return [fileFormat autorelease];
 }
 
-- (SInt64) seekToFrame:(SInt64)frame
+- (SInt64) performSeekToFrame:(SInt64)frame
 {
 	OSStatus	result;
 	
@@ -52,92 +52,7 @@
 		return -1;
 	}
 	
-	[[self pcmBuffer] reset];
-	[self setCurrentFrame:frame];	
-
 	return frame;
-}
-
-- (BOOL) readProperties:(NSError **)error
-{
-	ExtAudioFileRef					extAudioFile;
-	NSString						*path;
-	OSStatus						result;
-	UInt32							specifierSize;
-	FSRef							ref;
-	SInt64							totalFrames;
-	AudioStreamBasicDescription		asbd;
-	NSString						*fileFormat;
-	NSMutableDictionary				*propertiesDictionary;
-
-	// Open the input file
-	path							= [[self valueForKey:@"url"] path];
-	result							= FSPathMakeRef((const UInt8 *)[[[self valueForKey:@"url"] path] fileSystemRepresentation], &ref, NULL);
-
-	if(noErr != result) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderInputOutputError 
-													  userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
-	
-	result							= ExtAudioFileOpen(&ref, &extAudioFile);
-
-	if(noErr != result) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unknown File Format" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
-		}
-				
-		return NO;
-	}
-	
-	// Query file type
-	specifierSize					= sizeof(AudioStreamBasicDescription);
-	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
-	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
-	
-	specifierSize		= sizeof(fileFormat);
-	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &fileFormat);
-	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
-
-	specifierSize					= sizeof(totalFrames);
-	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
-	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
-	
-	propertiesDictionary			= [NSMutableDictionary dictionary];
-	
-	[propertiesDictionary setValue:[fileFormat autorelease] forKey:@"formatName"];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
-	if(0 != asbd.mBitsPerChannel) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:@"bitsPerChannel"];
-	}
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:@"sampleRate"];				
-	
-	[self setValue:propertiesDictionary forKey:@"properties"];
-	
-	// Close the output file
-	result		= ExtAudioFileDispose(extAudioFile);
-	NSAssert1(noErr == result, @"ExtAudioFileDispose failed: %@", UTCreateStringForOSType(result));
-	
-	return YES;
 }
 
 - (void) setupDecoder
@@ -182,6 +97,8 @@
 	// Tell the extAudioFile the format we'd like for data
 	result			= ExtAudioFileSetProperty(_extAudioFile, kExtAudioFileProperty_ClientDataFormat, sizeof(_pcmFormat), &_pcmFormat);
 	NSAssert1(noErr == result, @"ExtAudioFileSetProperty failed: %@", UTCreateStringForOSType(result));
+
+	[super setupDecoder];
 }
 
 - (void) cleanupDecoder
@@ -195,23 +112,41 @@
 
 - (void) fillPCMBuffer
 {
-	CircularBuffer		*buffer				= [self pcmBuffer];
-	OSStatus			result;
-	AudioBufferList		bufferList;
-	UInt32				frameCount;
+	BOOL				continueReading;
+	UInt32				bytesToWrite, bytesAvailableToWrite;
+	void				*writePointer;
 	
-	bufferList.mNumberBuffers				= 1;
-	bufferList.mBuffers[0].mNumberChannels	= [self pcmFormat].mChannelsPerFrame;
-	bufferList.mBuffers[0].mData			= [buffer exposeBufferForWriting];
-	bufferList.mBuffers[0].mDataByteSize	= [buffer freeSpaceAvailable];
-	
-	frameCount								= bufferList.mBuffers[0].mDataByteSize / [self pcmFormat].mBytesPerFrame;
-	result									= ExtAudioFileRead(_extAudioFile, &frameCount, &bufferList);
-	NSAssert1(noErr == result, @"ExtAudioFileRead failed: %@", UTCreateStringForOSType(result));
-	
-	NSAssert(frameCount * [self pcmFormat].mBytesPerFrame == bufferList.mBuffers[0].mDataByteSize, @"mismatch");
-	
-	[buffer wroteBytes:bufferList.mBuffers[0].mDataByteSize];
+	do {
+		continueReading				= NO;
+		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+		
+		if(bytesAvailableToWrite >= bytesToWrite) {
+			OSStatus				result;
+			AudioBufferList			bufferList;
+			UInt32					frameCount;
+
+			bufferList.mNumberBuffers				= 1;
+			bufferList.mBuffers[0].mNumberChannels	= [self pcmFormat].mChannelsPerFrame;
+			bufferList.mBuffers[0].mData			= writePointer;
+			bufferList.mBuffers[0].mDataByteSize	= bytesAvailableToWrite;
+			frameCount								= bufferList.mBuffers[0].mDataByteSize / [self pcmFormat].mBytesPerFrame;
+			
+			result					= ExtAudioFileRead(_extAudioFile, &frameCount, &bufferList);
+			NSAssert1(noErr == result, @"ExtAudioFileRead failed: %@", UTCreateStringForOSType(result));
+			
+			if(0 < bufferList.mBuffers[0].mDataByteSize) {
+                [[self pcmBuffer] didWriteLength:bufferList.mBuffers[0].mDataByteSize];				
+			}
+			
+			if(0 == bufferList.mBuffers[0].mDataByteSize || 0 == frameCount) {
+				[self setAtEndOfStream:YES];
+			}
+			else {
+				continueReading = YES;
+			}
+		}
+	} while(continueReading);
 }
 
 @end

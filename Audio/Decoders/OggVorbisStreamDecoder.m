@@ -22,94 +22,20 @@
 
 @implementation OggVorbisStreamDecoder
 
-- (NSString *)		sourceFormatDescription			{ return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (Vorbis)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate]; }
-
-- (SInt64)			totalFrames						{ return ov_pcm_total(&_vf, -1); }
-- (SInt64)			currentFrame					{ return ov_pcm_tell(&_vf); }
-
-- (SInt64) seekToFrame:(SInt64)desiredFrame
+- (NSString *) sourceFormatDescription
 {
-	int		result		=	ov_pcm_seek(&_vf, desiredFrame); 
-		
-	return (0 == result ? desiredFrame : -1);	
+	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (Vorbis)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
-- (BOOL) readProperties:(NSError **)error
+- (SInt64) performSeekToFrame:(SInt64)frame
 {
-	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path;
-	OggVorbis_File					vf;
-	vorbis_info						*ovInfo;
-	FILE							*file;
-	int								result;
-	ogg_int64_t						totalFrames;
-	long							bitrate;
-	
-	path							= [[self valueForKey:@"url"] path];
-	file							= fopen([path fileSystemRepresentation], "r");
-
-	if(NULL == file) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderInputOutputError 
-													  userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
-	
-	result							= ov_test(file, &vf, NULL, 0);
+	int		result		= ov_pcm_seek(&_vf, frame); 
 	
 	if(0 != result) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
-		}
-		
-		result			= fclose(file);
-		NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
-		
-		return NO;
+		return -1;
 	}
 	
-	result							= ov_test_open(&vf);
-	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Exceptions", @""));
-	
-	// Get input file information
-	ovInfo							= ov_info(&vf, -1);
-	
-	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
-
-	totalFrames						= ov_pcm_total(&vf, -1);
-	bitrate							= ov_bitrate(&vf, -1);
-	
-	propertiesDictionary			= [NSMutableDictionary dictionary];
-	
-	[propertiesDictionary setValue:[NSString stringWithFormat:@"Ogg (Vorbis), %u channels, %u Hz", ovInfo->channels, ovInfo->rate] forKey:@"formatName"];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
-	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->channels] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->rate] forKey:@"sampleRate"];				
-	
-	[self setValue:propertiesDictionary forKey:@"properties"];
-	
-	result							= ov_clear(&vf);
-	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to close the input file.", @"Exceptions", @""));
-	
-	return YES;
+	return frame;	
 }
 
 - (void) setupDecoder
@@ -129,8 +55,11 @@
 	
 	// Get input file information
 	ovInfo							= ov_info(&_vf, -1);
+	
 	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
 	
+	[self setTotalFrames:ov_pcm_total(&_vf, -1)];
+
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
@@ -146,34 +75,55 @@
 
 - (void) cleanupDecoder
 {
-	int							result;
-	
-	result						= ov_clear(&_vf); 
+	int		result		= ov_clear(&_vf); 
 	
 	if(0 != result) {
 		NSLog(@"ov_clear failed");
 	}
 }
 
-- (UInt32) readRawAudio:(void *)buffer byteCount:(UInt32)byteCount
+- (void) fillPCMBuffer
 {
-	UInt32							bytesRead			= 0;
-	UInt32							totalBytes			= 0;
-	int								currentSection		= 0;
-		
-	for(;;) {
-		bytesRead		= ov_read(&_vf, buffer + totalBytes, byteCount - totalBytes, YES, sizeof(int16_t), YES, &currentSection);
-		
-		NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
-		
-		totalBytes		+= bytesRead;
-		
-		if(0 == bytesRead || totalBytes >= byteCount) {
-			break;
-		}
-	}
+	BOOL				continueReading;
+	UInt32				bytesToWrite, bytesAvailableToWrite;
+	void				*writePointer;
 
-	return totalBytes;
+	do {
+		continueReading				= NO;
+		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+
+		if(bytesAvailableToWrite >= bytesToWrite) {
+			UInt32					bytesRead, bytesWritten;
+			int						currentSection;
+
+			currentSection			= 0;
+			bytesWritten			= 0;
+
+			for(;;) {
+				bytesRead		= ov_read(&_vf, writePointer + bytesWritten, bytesAvailableToWrite - bytesWritten, YES, sizeof(int16_t), YES, &currentSection);
+				
+				NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
+				
+				bytesWritten	+= bytesRead;
+				
+				if(0 == bytesRead || bytesWritten >= bytesAvailableToWrite) {
+					break;
+				}
+			}
+
+			if(0 < bytesWritten) {
+                [[self pcmBuffer] didWriteLength:bytesWritten];				
+			}
+			
+			if(0 == bytesRead) {
+				[self setAtEndOfStream:YES];
+			}
+			else {
+				continueReading = YES;
+			}
+		}
+	} while(continueReading);
 }
 
 @end

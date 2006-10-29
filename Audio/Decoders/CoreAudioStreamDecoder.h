@@ -19,7 +19,6 @@
  */
 
 #import "AudioStreamDecoder.h"
-#include <CoreAudio/CoreAudioTypes.h>
 #include <AudioToolbox/ExtendedAudioFile.h>
 
 @interface CoreAudioStreamDecoder : AudioStreamDecoder
