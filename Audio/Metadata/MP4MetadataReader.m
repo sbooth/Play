@@ -126,7 +126,11 @@
 	artCount = MP4GetMetadataCoverArtCount(mp4FileHandle);
 	if(0 < artCount) {
 		MP4GetMetadataCoverArt(mp4FileHandle, &bytes, &length);
-		[metadataDictionary setValue:[NSData dataWithBytes:bytes length:length] forKey:@"albumArt"];
+		NSImage				*image	= [[NSImage alloc] initWithData:[NSData dataWithBytes:bytes length:length]];
+		if(nil != image) {
+			[metadataDictionary setValue:[image TIFFRepresentation] forKey:@"albumArt"];
+			[image release];
+		}
 	}
 	
 	MP4Close(mp4FileHandle);	

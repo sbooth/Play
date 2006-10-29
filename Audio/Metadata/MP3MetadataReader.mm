@@ -147,8 +147,12 @@
 		// Extract album art if present
 		frameList = id3v2tag->frameListMap()["APIC"];
 		if(NO == frameList.isEmpty() && NULL != (picture = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(frameList.front()))) {
-			TagLib::ByteVector bv = picture->picture();
-//				[result setAlbumArt:[[[NSImage alloc] initWithData:[NSData dataWithBytes:bv.data() length:bv.size()]] autorelease]];
+			TagLib::ByteVector	bv		= picture->picture();
+			NSImage				*image	= [[NSImage alloc] initWithData:[NSData dataWithBytes:bv.data() length:bv.size()]];
+			if(nil != image) {
+				[metadataDictionary setValue:[image TIFFRepresentation] forKey:@"albumArt"];
+				[image release];
+			}
 		}
 		
 		// Extract compilation if present (iTunes TCMP tag)
