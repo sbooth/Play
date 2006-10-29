@@ -351,9 +351,11 @@
 	
 	[streamObject setValue:propertiesObject forKey:@"properties"];
 		
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitrate"] forKey:@"bitrate"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.isVBR"] forKey:@"isVBR"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
 	
@@ -375,7 +377,9 @@
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.comment"] forKey:@"comment"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.composer"] forKey:@"composer"];
+	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.date"] forKey:@"date"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discNumber"] forKey:@"discNumber"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discTotal"] forKey:@"discTotal"];
 	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.genre"] forKey:@"genre"];
