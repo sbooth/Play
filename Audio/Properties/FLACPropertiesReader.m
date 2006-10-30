@@ -92,6 +92,7 @@
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:@"sampleRate"];				
+				[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)block->data.stream_info.total_samples / block->data.stream_info.sample_rate] forKey:@"duration"];
 				
 				[self setValue:propertiesDictionary forKey:@"properties"];
 				break;

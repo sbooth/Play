@@ -123,6 +123,7 @@
 	}
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:@"channelsPerFrame"];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:@"sampleRate"];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / asbd.mSampleRate] forKey:@"duration"];
 //	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:isVBR] forKey:@"isVBR"];
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
