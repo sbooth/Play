@@ -238,14 +238,11 @@
 - (IBAction) addFiles:(id)sender
 {
 	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
-	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", @"wv", @"ape", nil];
-	
-	[types addObjectsFromArray:getCoreAudioExtensions()];
 	
 	[panel setAllowsMultipleSelection:YES];
-	//	[panel setCanChooseDirectories:YES];
+	[panel setCanChooseDirectories:YES];
 	
-	[panel beginSheetForDirectory:nil file:nil types:types modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+	[panel beginSheetForDirectory:nil file:nil types:getAudioExtensions() modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
 }
 
 - (NSManagedObject *) addFileToLibrary:(NSString *)path
@@ -873,23 +870,51 @@
 - (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	if(NSOKButton == returnCode) {
+		NSFileManager				*manager;
 		NSArray						*URLs;
 		NSManagedObject				*streamObject;
 		NSMutableArray				*streamObjects;
+		NSArray						*allowedTypes;
 		NSURL						*URL;
+		NSString					*path;
+		NSDirectoryEnumerator		*directoryEnumerator;
+		NSString					*filename;
+		BOOL						result, isDir;
 		unsigned					i;
 		
 		URLs						= [panel URLs];
 		streamObjects				= [NSMutableArray array];
-		
+		manager						= [NSFileManager defaultManager];
+		allowedTypes				= getAudioExtensions();
+
 		for(i = 0; i < [URLs count]; ++i) {
 			URL						= [URLs objectAtIndex:i];			
-			streamObject			= [self addURLToLibrary:URL];
+			path					= [URL path];
 			
-			if(nil != streamObject) {
-				[streamObjects addObject:streamObject];
+			result					= [manager fileExistsAtPath:path isDirectory:&isDir];
+			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
+
+			if(isDir) {
+				directoryEnumerator		= [manager enumeratorAtPath:path];
+				
+				while((filename = [directoryEnumerator nextObject])) {
+					if([allowedTypes containsObject:[filename pathExtension]]) {
+						streamObject			= [self addFileToLibrary:[path stringByAppendingPathComponent:filename]];
+						
+						if(nil != streamObject) {
+							[streamObjects addObject:streamObject];
+						}
+					}
+				}
 			}
-		}	
+			else {
+				streamObject			= [self addURLToLibrary:URL];
+				
+				if(nil != streamObject) {
+					[streamObjects addObject:streamObject];
+				}
+			}
+		}
 		
 		if(0 < [streamObjects count]) {
 			[_streamArrayController setSelectedObjects:streamObjects];
