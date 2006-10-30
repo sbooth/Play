@@ -10,7 +10,16 @@
 		775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
 		8C27A2840AF3D96C002B846D /* VirtualRingBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27A2820AF3D96C002B846D /* VirtualRingBuffer.m */; };
 		8C27A3AB0AF3F14E002B846D /* CoreAudioStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8C4320AEDDB7500A99441 /* CoreAudioStreamDecoder.m */; };
-		8C27A3BB0AF3F300002B846D /* MusepackStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8B7010AED745700A99441 /* MusepackStreamDecoder.m */; };
+		8C27A4030AF40A05002B846D /* FLACStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8AD310AED657700A99441 /* FLACStreamDecoder.m */; };
+		8C27A4D20AF40C6E002B846D /* MusepackStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8B7010AED745700A99441 /* MusepackStreamDecoder.m */; };
+		8C27A56C0AF45168002B846D /* MP4MetadataReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27A56A0AF45168002B846D /* MP4MetadataReader.m */; };
+		8C27ACBC0AF48FAC002B846D /* Play.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 8C27ACBB0AF48FAC002B846D /* Play.sdef */; };
+		8C27ACF40AF51256002B846D /* SecondsFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27ACF20AF51256002B846D /* SecondsFormatter.m */; };
+		8C27AD340AF5157F002B846D /* OggFLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C27AD280AF5157F002B846D /* OggFLAC.framework */; };
+		8C27AD350AF51588002B846D /* OggFLAC.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C27AD280AF5157F002B846D /* OggFLAC.framework */; };
+		8C27AD4E0AF516E4002B846D /* OggFLACStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */; };
+		8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */; };
+		8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */; };
 		8C6411000AE5FF070075644F /* LibraryDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */; };
 		8C6411010AE5FF070075644F /* Play.xcclassmodel in Resources */ = {isa = PBXBuildFile; fileRef = 8C6410FF0AE5FF070075644F /* Play.xcclassmodel */; };
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
@@ -96,6 +105,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8C27AD350AF51588002B846D /* OggFLAC.framework in Copy Frameworks */,
 				8CC308900AEEB15900B443A3 /* mac.framework in Copy Frameworks */,
 				8CC308910AEEB15900B443A3 /* mp4v2.framework in Copy Frameworks */,
 				8CC308920AEEB15900B443A3 /* wavpack.framework in Copy Frameworks */,
@@ -124,6 +134,18 @@
 		7788DA0506752A1600599AAD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		8C27A2810AF3D96C002B846D /* VirtualRingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = VirtualRingBuffer.h; path = Audio/Decoders/VirtualRingBuffer.h; sourceTree = "<group>"; };
 		8C27A2820AF3D96C002B846D /* VirtualRingBuffer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = VirtualRingBuffer.m; path = Audio/Decoders/VirtualRingBuffer.m; sourceTree = "<group>"; };
+		8C27A5690AF45168002B846D /* MP4MetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MP4MetadataReader.h; path = Audio/Metadata/MP4MetadataReader.h; sourceTree = "<group>"; };
+		8C27A56A0AF45168002B846D /* MP4MetadataReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MP4MetadataReader.m; path = Audio/Metadata/MP4MetadataReader.m; sourceTree = "<group>"; };
+		8C27ACBB0AF48FAC002B846D /* Play.sdef */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.sdef; name = Play.sdef; path = AppleScript/Play.sdef; sourceTree = "<group>"; };
+		8C27ACF10AF51256002B846D /* SecondsFormatter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SecondsFormatter.h; path = Formatters/SecondsFormatter.h; sourceTree = "<group>"; };
+		8C27ACF20AF51256002B846D /* SecondsFormatter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SecondsFormatter.m; path = Formatters/SecondsFormatter.m; sourceTree = "<group>"; };
+		8C27AD1E0AF51503002B846D /* OggFLACStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACStreamDecoder.h; path = Audio/Decoders/OggFLACStreamDecoder.h; sourceTree = "<group>"; };
+		8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OggFLACStreamDecoder.m; path = Audio/Decoders/OggFLACStreamDecoder.m; sourceTree = "<group>"; };
+		8C27AD280AF5157F002B846D /* OggFLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OggFLAC.framework; path = Frameworks/OggFLAC.framework; sourceTree = "<group>"; };
+		8C27AD5F0AF517CE002B846D /* OggFLACPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACPropertiesReader.h; path = Audio/Properties/OggFLACPropertiesReader.h; sourceTree = "<group>"; };
+		8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OggFLACPropertiesReader.m; path = Audio/Properties/OggFLACPropertiesReader.m; sourceTree = "<group>"; };
+		8C27ADC00AF51D61002B846D /* OggFLACMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACMetadataReader.h; path = Audio/Metadata/OggFLACMetadataReader.h; sourceTree = "<group>"; };
+		8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggFLACMetadataReader.mm; path = Audio/Metadata/OggFLACMetadataReader.mm; sourceTree = "<group>"; };
 		8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = wrapper.xcdatamodel; name = LibraryDocument.xcdatamodel; path = Models/LibraryDocument.xcdatamodel; sourceTree = "<group>"; };
 		8C6410FF0AE5FF070075644F /* Play.xcclassmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcclassmodel; name = Play.xcclassmodel; path = Models/Play.xcclassmodel; sourceTree = "<group>"; };
 		8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = LibraryDocument/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
@@ -216,7 +238,7 @@
 		8CFDA5840AF330B700FF7CE5 /* CoreAudioPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CoreAudioPropertiesReader.h; path = Audio/Properties/CoreAudioPropertiesReader.h; sourceTree = "<group>"; };
 		8CFDA5850AF330B700FF7CE5 /* CoreAudioPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CoreAudioPropertiesReader.m; path = Audio/Properties/CoreAudioPropertiesReader.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D15AC370486D014006FF6A4 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D15AC370486D014006FF6A4 /* Play.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,6 +261,7 @@
 				8CC3088D0AEEB14C00B443A3 /* mac.framework in Frameworks */,
 				8CC3088E0AEEB14C00B443A3 /* mp4v2.framework in Frameworks */,
 				8CC3088F0AEEB14C00B443A3 /* wavpack.framework in Frameworks */,
+				8C27AD340AF5157F002B846D /* OggFLAC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,7 +304,9 @@
 				8CF8B79B0AED7E4C00A99441 /* Metadata */,
 				8CF8AD2B0AED656600A99441 /* Decoders */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
+				8C27ACEE0AF51239002B846D /* Formatters */,
 				8CF8C3150AEDC75000A99441 /* Utilities */,
+				8C27ACB80AF48F91002B846D /* AppleScript */,
 				2A37F4B8FDCFA73011CA2CEA /* Resources */,
 				8CD43ACC0AE3441000B41F4D /* Images */,
 				8CD4457F0AE3FD1400B41F4D /* Icons */,
@@ -341,6 +366,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8C27AD280AF5157F002B846D /* OggFLAC.framework */,
 				8CC308690AEEB14C00B443A3 /* mac.framework */,
 				8CC3086A0AEEB14C00B443A3 /* mp4v2.framework */,
 				8CC3086B0AEEB14C00B443A3 /* wavpack.framework */,
@@ -358,6 +384,23 @@
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8C27ACB80AF48F91002B846D /* AppleScript */ = {
+			isa = PBXGroup;
+			children = (
+				8C27ACBB0AF48FAC002B846D /* Play.sdef */,
+			);
+			name = AppleScript;
+			sourceTree = "<group>";
+		};
+		8C27ACEE0AF51239002B846D /* Formatters */ = {
+			isa = PBXGroup;
+			children = (
+				8C27ACF10AF51256002B846D /* SecondsFormatter.h */,
+				8C27ACF20AF51256002B846D /* SecondsFormatter.m */,
+			);
+			name = Formatters;
 			sourceTree = "<group>";
 		};
 		8CB8C8420AE7369B000581D5 /* Audio */ = {
@@ -412,6 +455,8 @@
 		8CF8AD2B0AED656600A99441 /* Decoders */ = {
 			isa = PBXGroup;
 			children = (
+				8C27AD1E0AF51503002B846D /* OggFLACStreamDecoder.h */,
+				8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */,
 				8C27A2810AF3D96C002B846D /* VirtualRingBuffer.h */,
 				8C27A2820AF3D96C002B846D /* VirtualRingBuffer.m */,
 				8CF8AD2C0AED657700A99441 /* AudioStreamDecoder.h */,
@@ -431,6 +476,8 @@
 		8CF8B79B0AED7E4C00A99441 /* Metadata */ = {
 			isa = PBXGroup;
 			children = (
+				8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */,
+				8C27ADC00AF51D61002B846D /* OggFLACMetadataReader.h */,
 				8CC303190AEE947C00B443A3 /* MP3MetadataReader.mm */,
 				8CF8B8910AED868700A99441 /* MusepackMetadataReader.mm */,
 				8CF8B8330AED83E800A99441 /* OggVorbisMetadataReader.mm */,
@@ -441,6 +488,8 @@
 				8CF8B7C30AED7FB500A99441 /* FLACMetadataReader.h */,
 				8CF8B7C40AED7FB500A99441 /* FLACMetadataReader.m */,
 				8CC303090AEE942C00B443A3 /* MP3MetadataReader.h */,
+				8C27A5690AF45168002B846D /* MP4MetadataReader.h */,
+				8C27A56A0AF45168002B846D /* MP4MetadataReader.m */,
 			);
 			name = Metadata;
 			sourceTree = "<group>";
@@ -461,6 +510,8 @@
 		8CFDA4DF0AF32B2300FF7CE5 /* Properties */ = {
 			isa = PBXGroup;
 			children = (
+				8C27AD5F0AF517CE002B846D /* OggFLACPropertiesReader.h */,
+				8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */,
 				8CFDA5840AF330B700FF7CE5 /* CoreAudioPropertiesReader.h */,
 				8CFDA5850AF330B700FF7CE5 /* CoreAudioPropertiesReader.m */,
 				8CFDA4E20AF32BCF00FF7CE5 /* AudioPropertiesReader.h */,
@@ -552,6 +603,7 @@
 				8CF8BE2F0AEDB57400A99441 /* noatunloopsong.png in Resources */,
 				8CF8BE390AEDB69200A99441 /* roll.png in Resources */,
 				8CC30CB00AEF477200B443A3 /* AudioMetadataEditingSheet.nib in Resources */,
+				8C27ACBC0AF48FAC002B846D /* Play.sdef in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,7 +642,13 @@
 				8CFDA5870AF330B800FF7CE5 /* CoreAudioPropertiesReader.m in Sources */,
 				8C27A2840AF3D96C002B846D /* VirtualRingBuffer.m in Sources */,
 				8C27A3AB0AF3F14E002B846D /* CoreAudioStreamDecoder.m in Sources */,
-				8C27A3BB0AF3F300002B846D /* MusepackStreamDecoder.m in Sources */,
+				8C27A4030AF40A05002B846D /* FLACStreamDecoder.m in Sources */,
+				8C27A4D20AF40C6E002B846D /* MusepackStreamDecoder.m in Sources */,
+				8C27A56C0AF45168002B846D /* MP4MetadataReader.m in Sources */,
+				8C27ACF40AF51256002B846D /* SecondsFormatter.m in Sources */,
+				8C27AD4E0AF516E4002B846D /* OggFLACStreamDecoder.m in Sources */,
+				8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */,
+				8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -666,11 +724,13 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_4)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_5)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_4 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_5 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -685,6 +745,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/Frameworks/taglib.framework/Headers",
 					"$(inherited)",
+					"$(SRCROOT)/Frameworks/mp4v2.framework/Headers",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -707,11 +768,13 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_4)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_5)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_4 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_5 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
@@ -724,6 +787,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/Frameworks/taglib.framework/Headers",
 					"$(inherited)",
+					"$(SRCROOT)/Frameworks/mp4v2.framework/Headers",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
