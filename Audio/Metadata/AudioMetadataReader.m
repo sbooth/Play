@@ -20,6 +20,7 @@
 
 #import "AudioMetadataReader.h"
 #import "FLACMetadataReader.h"
+#import "OggFLACMetadataReader.h"
 #import "OggVorbisMetadataReader.h"
 #import "MusepackMetadataReader.h"
 #import "MP3MetadataReader.h"
@@ -87,7 +88,7 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		
 		switch(type) {
 			case kOggStreamTypeVorbis:		result = [[OggVorbisMetadataReader alloc] init];			break;
-//			case kOggStreamTypeFLAC:		result = [[OggFLACMetadataReader alloc] init];				break;
+			case kOggStreamTypeFLAC:		result = [[OggFLACMetadataReader alloc] init];				break;
 //			case kOggStreamTypeSpeex:		result = [[AudioMetadataReader alloc] init];				break;
 			default:						result = [[AudioMetadataReader alloc] init];				break;
 		}
