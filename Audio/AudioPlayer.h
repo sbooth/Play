@@ -21,6 +21,7 @@
 #import <Cocoa/Cocoa.h>
 #include <AudioUnit/AudioUnit.h>
 #import "AudioStreamDecoder.h"
+#import "SecondsFormatter.h"
 
 @class LibraryDocument;
 
@@ -34,6 +35,7 @@
 	BOOL					_isPlaying;
 
 	SInt64					_frameCounter;
+	NSFormatter				*_secondsFormatter;
 	
 	NSRunLoop				*_runLoop;
 }

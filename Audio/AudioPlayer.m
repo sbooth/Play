@@ -27,6 +27,8 @@
 
 - (AudioUnit)			audioUnit;
 
+- (NSFormatter *)		secondsFormatter;
+
 - (NSRunLoop *)			runLoop;
 
 - (AudioStreamDecoder *) streamDecoder;
@@ -213,7 +215,8 @@ MyRenderNotification(void							*inRefCon,
 		
 		AudioUnitAddRenderNotify(_audioUnit, MyRenderNotification, (void *)self);
 
-		_runLoop = [[NSRunLoop currentRunLoop] retain];
+		_secondsFormatter	= [[SecondsFormatter alloc] init];
+		_runLoop			= [[NSRunLoop currentRunLoop] retain];
 		
 		return self;
 	}
@@ -242,6 +245,7 @@ MyRenderNotification(void							*inRefCon,
 	}
 	
 	[_owner release];					_owner = nil;
+	[_secondsFormatter release];		_secondsFormatter = nil;
 	[_runLoop release];					_runLoop = nil;
 	
 	[super dealloc];
@@ -511,15 +515,8 @@ MyRenderNotification(void							*inRefCon,
 	streamDecoder					= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		UInt32						minutes, seconds;
-		
-		minutes						= 0;
-		seconds						= 0;
-		timeInterval				= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);
-		minutes						= (UInt32)timeInterval / 60;
-		seconds						= (UInt32)timeInterval % 60;
-				
-		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
+		timeInterval				= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);				
+		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -535,15 +532,8 @@ MyRenderNotification(void							*inRefCon,
 	streamDecoder					= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		UInt32						minutes, seconds;
-		
-		minutes						= 0;
-		seconds						= 0;
-		timeInterval				= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);
-		minutes						= (UInt32)timeInterval / 60;
-		seconds						= (UInt32)timeInterval % 60;
-		
-		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
+		timeInterval				= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);		
+		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -559,15 +549,8 @@ MyRenderNotification(void							*inRefCon,
 	streamDecoder					= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		UInt32						minutes, seconds;
-		
-		minutes						= 0;
-		seconds						= 0;
 		timeInterval				= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
-		minutes						= (UInt32)timeInterval / 60;
-		seconds						= (UInt32)timeInterval % 60;
-		
-		result						= [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
+		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -580,6 +563,11 @@ MyRenderNotification(void							*inRefCon,
 - (AudioUnit) audioUnit
 {
 	return _audioUnit;
+}
+
+- (NSFormatter *) secondsFormatter
+{
+	return [[_secondsFormatter retain] autorelease];
 }
 
 - (NSRunLoop *)	runLoop
