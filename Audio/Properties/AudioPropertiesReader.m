@@ -20,6 +20,7 @@
 
 #import "AudioPropertiesReader.h"
 #import "FLACPropertiesReader.h"
+#import "OggFLACPropertiesReader.h"
 #import "OggVorbisPropertiesReader.h"
 #import "MusepackPropertiesReader.h"
 #import "CoreAudioPropertiesReader.h"
@@ -85,7 +86,7 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 		
 		switch(type) {
 			case kOggStreamTypeVorbis:		result = [[OggVorbisPropertiesReader alloc] init];			break;
-//			case kOggStreamTypeFLAC:		result = [[OggFLACPropertiesReader alloc] init];			break;
+			case kOggStreamTypeFLAC:		result = [[OggFLACPropertiesReader alloc] init];			break;
 //			case kOggStreamTypeSpeex:		result = [[AudioPropertiesReader alloc] init];				break;
 			default:						result = nil;												break;
 		}
