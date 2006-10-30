@@ -23,7 +23,9 @@
 #include <AudioToolbox/AudioFile.h>
 #include <ogg/ogg.h>
 
-static NSArray *sCoreAudioExtensions	= nil;
+static NSArray		*sBuiltinExtensions		= nil;
+static NSArray		*sCoreAudioExtensions	= nil;
+static NSArray		*sAudioExtensions		= nil;
 
 OggStreamType 
 oggStreamType(NSURL *url)
@@ -136,6 +138,19 @@ oggStreamType(NSURL *url)
 	return streamType;
 }
 
+NSArray * 
+getBuiltinExtensions()
+{
+	@synchronized(sBuiltinExtensions) {
+		if(nil == sBuiltinExtensions) {
+			sBuiltinExtensions = [NSArray arrayWithObjects:@"ogg", @"flac", @"ape", @"wv", @"mpc", nil];
+			[sBuiltinExtensions retain];
+		}
+	}
+	
+	return sBuiltinExtensions;
+}
+
 NSArray *
 getCoreAudioExtensions()
 {
@@ -153,4 +168,18 @@ getCoreAudioExtensions()
 	}
 	
 	return sCoreAudioExtensions;
+}
+
+NSArray *
+getAudioExtensions()
+{
+	@synchronized(sAudioExtensions) {
+		if(nil == sAudioExtensions) {
+			sAudioExtensions = [NSMutableArray arrayWithArray:getCoreAudioExtensions()];
+			[(NSMutableArray *)sAudioExtensions addObjectsFromArray:getBuiltinExtensions()];
+			[sAudioExtensions retain];
+		}
+	}
+	
+	return sAudioExtensions;
 }

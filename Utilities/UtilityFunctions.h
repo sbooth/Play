@@ -37,7 +37,9 @@ extern "C" {
 	// Determine the type of audio contained in an ogg stream
 	OggStreamType oggStreamType(NSURL *url);
 
+	NSArray * getBuiltinExtensions();
 	NSArray * getCoreAudioExtensions();
+	NSArray * getAudioExtensions();
 
 #ifdef __cplusplus
 }
