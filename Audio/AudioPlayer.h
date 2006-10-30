@@ -45,6 +45,7 @@
 - (oneway void)			reset;
 
 - (BOOL)				hasValidStream;
+- (BOOL)				streamSupportsSeeking;
 
 - (void)				play;
 - (void)				playPause;

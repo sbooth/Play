@@ -77,6 +77,7 @@ enum {
 - (SInt64)							currentFrame;
 - (SInt64)							framesRemaining;
 
+- (BOOL)							supportsSeeking;
 - (SInt64)							seekToFrame:(SInt64)frame;
 
 - (BOOL)							atEndOfStream;

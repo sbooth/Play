@@ -138,8 +138,10 @@ MyRenderNotification(void							*inRefCon,
 	[self exposeBinding:@"currentFrame"];
 	[self exposeBinding:@"totalFrames"];
 	[self exposeBinding:@"hasValidStream"];
+	[self exposeBinding:@"streamSupportsSeeking"];
 	
 	[self setKeys:[NSArray arrayWithObject:@"streamDecoder"] triggerChangeNotificationsForDependentKey:@"hasValidStream"];
+	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"streamSupportsSeeking"];
 
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
@@ -317,6 +319,11 @@ MyRenderNotification(void							*inRefCon,
 	return (nil != [self streamDecoder]);
 }
 
+- (BOOL) streamSupportsSeeking
+{
+	return ([self hasValidStream] && [[self streamDecoder] supportsSeeking]);
+}
+
 - (void) play
 {
 	ComponentResult				result;
@@ -372,7 +379,7 @@ MyRenderNotification(void							*inRefCon,
 	
 	streamDecoder					= [self streamDecoder];
 	
-	if(nil != streamDecoder) {
+	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
 		totalFrames					= [streamDecoder totalFrames];
 		currentFrame				= [streamDecoder currentFrame];
 		desiredFrame				= currentFrame + (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
@@ -393,7 +400,7 @@ MyRenderNotification(void							*inRefCon,
 	
 	streamDecoder					= [self streamDecoder];
 	
-	if(nil != streamDecoder) {
+	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
 		currentFrame				= [streamDecoder currentFrame];
 		desiredFrame				= currentFrame - (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
 		
@@ -412,7 +419,7 @@ MyRenderNotification(void							*inRefCon,
 	
 	streamDecoder					= [self streamDecoder];
 	
-	if(nil != streamDecoder) {
+	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
 		totalFrames					= [streamDecoder totalFrames];		
 		
 		[self setCurrentFrame:totalFrames - 1];
@@ -421,7 +428,11 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipToBeginning
 {
-	if(nil != [self streamDecoder]) {
+	AudioStreamDecoder				*streamDecoder;
+	
+	streamDecoder					= [self streamDecoder];
+	
+	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
 		[self setCurrentFrame:0];
 	}
 }

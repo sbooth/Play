@@ -42,6 +42,11 @@
 	return [fileFormat autorelease];
 }
 
+- (BOOL) supportsSeeking
+{
+	return YES;
+}
+
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
 	OSStatus	result;

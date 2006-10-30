@@ -176,6 +176,11 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"FLAC", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
+- (BOOL) supportsSeeking
+{
+	return YES;
+}
+
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
 	FLAC__bool		result		= FLAC__file_decoder_seek_absolute(_flac, frame);

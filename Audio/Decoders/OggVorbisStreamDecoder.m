@@ -27,6 +27,11 @@
 	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (Vorbis)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
+- (BOOL) supportsSeeking
+{
+	return YES;
+}
+
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
 	int		result		= ov_pcm_seek(&_vf, frame); 

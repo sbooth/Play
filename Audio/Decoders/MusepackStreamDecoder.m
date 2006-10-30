@@ -27,6 +27,11 @@
 	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Musepack", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
+- (BOOL) supportsSeeking
+{
+	return YES;
+}
+
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
 	mpc_bool_t		result		= mpc_decoder_seek_sample(&_decoder, frame);

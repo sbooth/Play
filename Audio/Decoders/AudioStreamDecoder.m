@@ -38,6 +38,7 @@
 
 #import "AudioStreamDecoder.h"
 #import "FLACStreamDecoder.h"
+#import "OggFLACStreamDecoder.h"
 #import "OggVorbisStreamDecoder.h"
 #import "MusepackStreamDecoder.h"
 #import "CoreAudioStreamDecoder.h"
@@ -130,7 +131,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		
 		switch(type) {
 			case kOggStreamTypeVorbis:		result = [[OggVorbisStreamDecoder alloc] init];				break;
-//			case kOggStreamTypeFLAC:		result = [[OggFLACStreamDecoder alloc] init];				break;
+			case kOggStreamTypeFLAC:		result = [[OggFLACStreamDecoder alloc] init];				break;
 //			case kOggStreamTypeSpeex:		result = [[AudioStreamDecoder alloc] init];					break;
 			default:						result = nil;												break;
 		}
@@ -261,6 +262,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 - (SInt64)			totalFrames								{ return _totalFrames; }
 - (SInt64)			currentFrame							{ return _currentFrame; }
 - (SInt64)			framesRemaining 						{ return ([self totalFrames] - [self currentFrame]); }
+- (BOOL)			supportsSeeking							{ return NO; }
 
 - (SInt64) seekToFrame:(SInt64)frame
 {	
