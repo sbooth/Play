@@ -101,12 +101,12 @@
 	<string>plaY</string>
 	<key>CFBundleVersion</key>
 	<string>0.1a</string>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-	<key>NSAppleScriptEnabled</key>
-	<string>YES</string>
+	<string>PlayApplication</string>
 	<key>OSAScriptingDefinition</key>
 	<string>Play.sdef</string>
 	<key>SUFeedURL</key>
