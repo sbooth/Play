@@ -354,10 +354,13 @@
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitrate"] forKey:@"bitrate"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
+	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.duration"] forKey:@"duration"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.isVBR"] forKey:@"isVBR"];
+//	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.isVBR"] forKey:@"isVBR"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
 	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
+
+	[streamObject setValue:propertiesObject forKey:@"properties"];
 	
 	// ========================================
 	// Read metadata
