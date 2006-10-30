@@ -19,12 +19,22 @@
  */
 
 #import "AudioStreamTableView.h"
+#import "SecondsFormatter.h"
 
 @interface AudioStreamTableView (Private)
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 @implementation AudioStreamTableView
+
+- (void) awakeFromNib
+{
+	NSFormatter		*formatter		= [[SecondsFormatter alloc] init];
+	
+	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
+	
+	[formatter release];
+}
 
 - (void) keyDown:(NSEvent *)event
 {
