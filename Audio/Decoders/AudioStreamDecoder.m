@@ -43,6 +43,7 @@
 #import "MusepackStreamDecoder.h"
 #import "CoreAudioStreamDecoder.h"
 #import "WavPackStreamDecoder.h"
+#import "MonkeysAudioStreamDecoder.h"
 
 #import "UtilityFunctions.h"
 
@@ -146,6 +147,11 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackStreamDecoder alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"ape"]) {
+		result						= [[MonkeysAudioStreamDecoder alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}

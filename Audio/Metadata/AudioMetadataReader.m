@@ -26,6 +26,7 @@
 #import "MP3MetadataReader.h"
 #import "MP4MetadataReader.h"
 #import "WavPackMetadataReader.h"
+#import "MonkeysAudioMetadataReader.h"
 
 #import "UtilityFunctions.h"
 
@@ -113,6 +114,11 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackMetadataReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"ape"]) {
+		result						= [[MonkeysAudioMetadataReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
