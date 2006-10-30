@@ -25,6 +25,7 @@
 #import "MusepackMetadataReader.h"
 #import "MP3MetadataReader.h"
 #import "MP4MetadataReader.h"
+#import "WavPackMetadataReader.h"
 
 #import "UtilityFunctions.h"
 
@@ -107,6 +108,11 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
 		result						= [[MP4MetadataReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"wv"]) {
+		result						= [[WavPackMetadataReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}

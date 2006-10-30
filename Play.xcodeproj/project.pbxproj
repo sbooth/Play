@@ -21,6 +21,9 @@
 		8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */; };
 		8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */; };
 		8C27B0480AF567A8002B846D /* PlayApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B0460AF567A8002B846D /* PlayApplication.m */; };
+		8C27B1620AF5BAEB002B846D /* WavPackStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B1600AF5BAEB002B846D /* WavPackStreamDecoder.m */; };
+		8C27B1940AF5BDF4002B846D /* WavPackPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B1920AF5BDF4002B846D /* WavPackPropertiesReader.m */; };
+		8C27B1D00AF5C004002B846D /* WavPackMetadataReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B1CE0AF5C004002B846D /* WavPackMetadataReader.m */; };
 		8C6411000AE5FF070075644F /* LibraryDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */; };
 		8C6411010AE5FF070075644F /* Play.xcclassmodel in Resources */ = {isa = PBXBuildFile; fileRef = 8C6410FF0AE5FF070075644F /* Play.xcclassmodel */; };
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
@@ -149,6 +152,12 @@
 		8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggFLACMetadataReader.mm; path = Audio/Metadata/OggFLACMetadataReader.mm; sourceTree = "<group>"; };
 		8C27B0450AF567A8002B846D /* PlayApplication.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PlayApplication.h; sourceTree = "<group>"; };
 		8C27B0460AF567A8002B846D /* PlayApplication.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PlayApplication.m; sourceTree = "<group>"; };
+		8C27B15F0AF5BAEB002B846D /* WavPackStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WavPackStreamDecoder.h; path = Audio/Decoders/WavPackStreamDecoder.h; sourceTree = "<group>"; };
+		8C27B1600AF5BAEB002B846D /* WavPackStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackStreamDecoder.m; path = Audio/Decoders/WavPackStreamDecoder.m; sourceTree = "<group>"; };
+		8C27B1910AF5BDF4002B846D /* WavPackPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WavPackPropertiesReader.h; path = Audio/Properties/WavPackPropertiesReader.h; sourceTree = "<group>"; };
+		8C27B1920AF5BDF4002B846D /* WavPackPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackPropertiesReader.m; path = Audio/Properties/WavPackPropertiesReader.m; sourceTree = "<group>"; };
+		8C27B1CD0AF5C004002B846D /* WavPackMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WavPackMetadataReader.h; path = Audio/Metadata/WavPackMetadataReader.h; sourceTree = "<group>"; };
+		8C27B1CE0AF5C004002B846D /* WavPackMetadataReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataReader.m; path = Audio/Metadata/WavPackMetadataReader.m; sourceTree = "<group>"; };
 		8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = wrapper.xcdatamodel; name = LibraryDocument.xcdatamodel; path = Models/LibraryDocument.xcdatamodel; sourceTree = "<group>"; };
 		8C6410FF0AE5FF070075644F /* Play.xcclassmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcclassmodel; name = Play.xcclassmodel; path = Models/Play.xcclassmodel; sourceTree = "<group>"; };
 		8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = LibraryDocument/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
@@ -460,6 +469,8 @@
 		8CF8AD2B0AED656600A99441 /* Decoders */ = {
 			isa = PBXGroup;
 			children = (
+				8C27B15F0AF5BAEB002B846D /* WavPackStreamDecoder.h */,
+				8C27B1600AF5BAEB002B846D /* WavPackStreamDecoder.m */,
 				8C27AD1E0AF51503002B846D /* OggFLACStreamDecoder.h */,
 				8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */,
 				8C27A2810AF3D96C002B846D /* VirtualRingBuffer.h */,
@@ -481,6 +492,8 @@
 		8CF8B79B0AED7E4C00A99441 /* Metadata */ = {
 			isa = PBXGroup;
 			children = (
+				8C27B1CD0AF5C004002B846D /* WavPackMetadataReader.h */,
+				8C27B1CE0AF5C004002B846D /* WavPackMetadataReader.m */,
 				8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */,
 				8C27ADC00AF51D61002B846D /* OggFLACMetadataReader.h */,
 				8CC303190AEE947C00B443A3 /* MP3MetadataReader.mm */,
@@ -515,6 +528,8 @@
 		8CFDA4DF0AF32B2300FF7CE5 /* Properties */ = {
 			isa = PBXGroup;
 			children = (
+				8C27B1910AF5BDF4002B846D /* WavPackPropertiesReader.h */,
+				8C27B1920AF5BDF4002B846D /* WavPackPropertiesReader.m */,
 				8C27AD5F0AF517CE002B846D /* OggFLACPropertiesReader.h */,
 				8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */,
 				8CFDA5840AF330B700FF7CE5 /* CoreAudioPropertiesReader.h */,
@@ -655,6 +670,9 @@
 				8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */,
 				8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */,
 				8C27B0480AF567A8002B846D /* PlayApplication.m in Sources */,
+				8C27B1620AF5BAEB002B846D /* WavPackStreamDecoder.m in Sources */,
+				8C27B1940AF5BDF4002B846D /* WavPackPropertiesReader.m in Sources */,
+				8C27B1D00AF5C004002B846D /* WavPackMetadataReader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

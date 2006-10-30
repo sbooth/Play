@@ -238,7 +238,7 @@
 - (IBAction) addFiles:(id)sender
 {
 	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
-	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", nil];
+	NSMutableArray	*types		= [NSMutableArray arrayWithObjects:@"flac", @"ogg", @"mpc", @"wv", nil];
 	
 	[types addObjectsFromArray:getCoreAudioExtensions()];
 	

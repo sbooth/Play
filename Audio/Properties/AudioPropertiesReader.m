@@ -24,6 +24,7 @@
 #import "OggVorbisPropertiesReader.h"
 #import "MusepackPropertiesReader.h"
 #import "CoreAudioPropertiesReader.h"
+#import "WavPackPropertiesReader.h"
 
 #import "UtilityFunctions.h"
 
@@ -95,6 +96,11 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackPropertiesReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"wv"]) {
+		result						= [[WavPackPropertiesReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
