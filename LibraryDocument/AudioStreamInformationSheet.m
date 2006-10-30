@@ -24,6 +24,11 @@
 
 @implementation AudioStreamInformationSheet
 
++ (void) initialize
+{
+	[self setKeys:[NSArray arrayWithObject:@"owner"] triggerChangeNotificationsForDependentKey:@"managedObjectContext"];
+}
+
 - (id) init
 {
 	if((self = [super init])) {
@@ -52,6 +57,11 @@
 	return [[_sheet retain] autorelease];
 }
 
+- (NSManagedObjectContext *) managedObjectContext
+{
+	return [_owner managedObjectContext];
+}
+
 - (IBAction) ok:(id)sender
 {
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSOKButton];
@@ -60,6 +70,28 @@
 - (IBAction) cancel:(id)sender
 {
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
+}
+
+- (IBAction) undo:(id)sender
+{
+	[[[self managedObjectContext] undoManager] undo];
+}
+
+- (IBAction) redo:(id)sender
+{
+	[[[self managedObjectContext] undoManager] redo];
+}
+
+- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
+{
+	if([anItem action] == @selector(undo:)) {
+		return [[[self managedObjectContext] undoManager] canUndo];
+	}
+	else if([anItem action] == @selector(redo:)) {
+		return [[[self managedObjectContext] undoManager] canRedo];
+	}
+	
+	return YES;
 }
 
 - (IBAction) chooseAlbumArt:(id)sender

@@ -207,7 +207,6 @@
 		streamInformationSheet			= [[AudioStreamInformationSheet alloc] init];
 		
 		[streamInformationSheet setValue:self forKey:@"owner"];
-		[streamInformationSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
 
 		[[streamInformationSheet valueForKey:@"streamObjectController"] setContent:[[_streamArrayController selectedObjects] objectAtIndex:0]];
 		
@@ -223,7 +222,6 @@
 		metadataEditingSheet		= [[AudioMetadataEditingSheet alloc] init];
 		
 		[metadataEditingSheet setValue:self forKey:@"owner"];
-		[metadataEditingSheet setValue:[self managedObjectContext] forKey:@"managedObjectContext"];
 		
 		[[metadataEditingSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
 		

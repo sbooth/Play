@@ -27,14 +27,17 @@
 
 	IBOutlet NSObjectController	*_streamObjectController;
 	
-	NSManagedObjectContext		*_managedObjectContext;
 	NSPersistentDocument		*_owner;
 }
 
 - (NSWindow *)			sheet;
+- (NSManagedObjectContext *) managedObjectContext;
 
 - (IBAction)			ok:(id)sender;
 - (IBAction)			cancel:(id)sender;
+
+- (IBAction)			undo:(id)sender;
+- (IBAction)			redo:(id)sender;
 
 - (IBAction)			chooseAlbumArt:(id)sender;
 

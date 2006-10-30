@@ -20,6 +20,8 @@
 		8C27AD4E0AF516E4002B846D /* OggFLACStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */; };
 		8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */; };
 		8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */; };
+		8C27AF370AF54A3E002B846D /* PlayApplication.h in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C27AF350AF54A3E002B846D /* PlayApplication.h */; };
+		8C27AF380AF54A3E002B846D /* PlayApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AF360AF54A3E002B846D /* PlayApplication.m */; };
 		8C6411000AE5FF070075644F /* LibraryDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */; };
 		8C6411010AE5FF070075644F /* Play.xcclassmodel in Resources */ = {isa = PBXBuildFile; fileRef = 8C6410FF0AE5FF070075644F /* Play.xcclassmodel */; };
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
@@ -116,6 +118,7 @@
 				8CF8B7580AED7A3300A99441 /* mpcdec.framework in Copy Frameworks */,
 				8CF8B7590AED7A3300A99441 /* ogg.framework in Copy Frameworks */,
 				8CF8B75A0AED7A3300A99441 /* vorbis.framework in Copy Frameworks */,
+				8C27AF370AF54A3E002B846D /* PlayApplication.h in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,6 +149,8 @@
 		8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OggFLACPropertiesReader.m; path = Audio/Properties/OggFLACPropertiesReader.m; sourceTree = "<group>"; };
 		8C27ADC00AF51D61002B846D /* OggFLACMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACMetadataReader.h; path = Audio/Metadata/OggFLACMetadataReader.h; sourceTree = "<group>"; };
 		8C27ADDC0AF52372002B846D /* OggFLACMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggFLACMetadataReader.mm; path = Audio/Metadata/OggFLACMetadataReader.mm; sourceTree = "<group>"; };
+		8C27AF350AF54A3E002B846D /* PlayApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayApplication.h; path = Utilities/PlayApplication.h; sourceTree = "<group>"; };
+		8C27AF360AF54A3E002B846D /* PlayApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlayApplication.m; path = Utilities/PlayApplication.m; sourceTree = "<group>"; };
 		8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = wrapper.xcdatamodel; name = LibraryDocument.xcdatamodel; path = Models/LibraryDocument.xcdatamodel; sourceTree = "<group>"; };
 		8C6410FF0AE5FF070075644F /* Play.xcclassmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcclassmodel; name = Play.xcclassmodel; path = Models/Play.xcclassmodel; sourceTree = "<group>"; };
 		8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = LibraryDocument/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
@@ -238,7 +243,7 @@
 		8CFDA5840AF330B700FF7CE5 /* CoreAudioPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CoreAudioPropertiesReader.h; path = Audio/Properties/CoreAudioPropertiesReader.h; sourceTree = "<group>"; };
 		8CFDA5850AF330B700FF7CE5 /* CoreAudioPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CoreAudioPropertiesReader.m; path = Audio/Properties/CoreAudioPropertiesReader.m; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D15AC370486D014006FF6A4 /* Play.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D15AC370486D014006FF6A4 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -345,6 +350,8 @@
 				8CD43AE80AE345A700B41F4D /* PlayApplicationDelegate.m */,
 				32DBCF750370BD2300C91783 /* Play_Prefix.pch */,
 				2A37F4B0FDCFA73011CA2CEA /* main.m */,
+				8C27AF350AF54A3E002B846D /* PlayApplication.h */,
+				8C27AF360AF54A3E002B846D /* PlayApplication.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -649,6 +656,7 @@
 				8C27AD4E0AF516E4002B846D /* OggFLACStreamDecoder.m in Sources */,
 				8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */,
 				8C27ADDD0AF52372002B846D /* OggFLACMetadataReader.mm in Sources */,
+				8C27AF380AF54A3E002B846D /* PlayApplication.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
