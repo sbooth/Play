@@ -21,6 +21,10 @@
 			<string>Binary</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.sbooth.Play.LibraryDocument</string>
+			</array>
 			<key>LSTypeIsPackage</key>
 			<false/>
 			<key>NSDocumentClass</key>
@@ -79,6 +83,8 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Play 0.1 alpha</string>
 	<key>CFBundleIconFile</key>
 	<string>Play</string>
 	<key>CFBundleIdentifier</key>
@@ -90,14 +96,20 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
+	<string>0.1a</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>plaY</string>
 	<key>CFBundleVersion</key>
-	<string>22</string>
+	<string>0.1a</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
+	<key>OSAScriptingDefinition</key>
+	<string>Play.sdef</string>
+	<key>SUFeedURL</key>
+	<string>http://sbooth.org/Play/appcast.xml</string>
 </dict>
 </plist>
