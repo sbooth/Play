@@ -19,7 +19,7 @@
  */
 
 /*
- * A special thanks to Kurt Revis <krevis@snoize.com> for his help with 
+ * Special thanks to Kurt Revis <krevis@snoize.com> for his help with 
  * the threaded file reading code.
  *
  * Most of the code in the fillRingBufferInThread: and setThreadPolicy methods
