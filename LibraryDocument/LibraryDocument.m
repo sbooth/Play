@@ -429,7 +429,7 @@
 	NSURL						*url;
 	unsigned					i;
 	
-	streamObject				= [NSMutableArray array];
+	streamObjects				= [NSMutableArray array];
 	
 	for(i = 0; i < [urls count]; ++i) {
 		url						= [urls objectAtIndex:i];			

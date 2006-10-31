@@ -19,6 +19,8 @@
  */
 
 #import "PlayApplicationDelegate.h"
+#import "LibraryDocument.h"
+#import "UtilityFunctions.h"
 
 @implementation PlayApplicationDelegate
 
@@ -54,6 +56,43 @@
 - (BOOL) applicationShouldOpenUntitledFile:(NSApplication *)sender
 {
 	// Don't automatically create an untitled document
+	return NO;
+}
+
+- (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
+{
+	NSDocument					*document;
+	NSDocumentController		*documentController;
+	NSURL						*fileURL;
+	NSError						*error;
+	
+	// First try to open the file as one of our document types
+	error						= nil;
+	fileURL						= [NSURL fileURLWithPath:filename];
+	documentController			= [NSDocumentController sharedDocumentController];
+	document					= [documentController openDocumentWithContentsOfURL:fileURL display:YES error:&error];
+	
+	if(nil != document) {
+		return YES;
+	}
+	else if([getAudioExtensions() containsObject:[filename pathExtension]]) {
+		NSArray						*streamObjects;
+		
+		streamObjects				= nil;
+		document					= [documentController currentDocument];
+
+		if(nil == document) {
+			[documentController newDocument:self];
+			document				= [documentController currentDocument];
+		}
+
+		if([document isKindOfClass:[LibraryDocument class]]) {
+			streamObjects				= [(LibraryDocument *)document addURLsToLibrary:[NSArray arrayWithObject:fileURL]];
+		}
+
+		return (0 == [streamObjects count] ? NO : YES);
+	}		
+	
 	return NO;
 }
 
