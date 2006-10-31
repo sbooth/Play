@@ -18,6 +18,24 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/*
+ * Special thanks to Michael Ash for the code to dynamically show and hide
+ * table columns.  Some of the code in the windowControllerDidLoadNib: method,
+ * and most of the code in the tableViewColumnDidMove:, tableViewColumnDidResize:, 
+ * saveStreamTableColumnOrder:, and streamTableHeaderContextMenuSelected: methods come from his
+ * Creatures source code.  The copyright for those portions is:
+ *
+ * Copyright (c) 2005, Michael Ash
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Neither the name of the author nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #import "LibraryDocument.h"
 #import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
@@ -40,9 +58,58 @@
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
+- (void)					saveStreamTableColumnOrder;
+- (IBAction)				streamTableHeaderContextMenuSelected:(id)sender;
+
 @end
 
 @implementation LibraryDocument
+
++ (void)initialize
+{
+	// Setup table column defaults
+	NSDictionary				*visibleColumnsDictionary;
+	NSDictionary				*columnSizesDictionary;
+	NSDictionary				*columnOrderArray;
+	NSDictionary				*streamTableDefaults;
+	
+	visibleColumnsDictionary	= [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithBool:YES], @"title",
+			[NSNumber numberWithBool:YES], @"artist",
+			[NSNumber numberWithBool:YES], @"albumTitle",
+			[NSNumber numberWithBool:YES], @"genre",
+			[NSNumber numberWithBool:YES], @"track",
+			[NSNumber numberWithBool:YES], @"formatName",
+			[NSNumber numberWithBool:NO], @"composer",
+			[NSNumber numberWithBool:YES], @"duration",
+			[NSNumber numberWithBool:NO], @"playCount",
+			[NSNumber numberWithBool:NO], @"lastPlayed",
+			nil];
+	
+	columnSizesDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithFloat:186], @"title",
+			[NSNumber numberWithFloat:129], @"artist",
+			[NSNumber numberWithFloat:128], @"albumTitle",
+			[NSNumber numberWithFloat:63], @"genre",
+			[NSNumber numberWithFloat:54], @"track",
+			[NSNumber numberWithFloat:88], @"formatName",
+			[NSNumber numberWithFloat:99], @"composer",
+			[NSNumber numberWithFloat:74], @"duration",
+			[NSNumber numberWithFloat:72], @"playCount",
+			[NSNumber numberWithFloat:96], @"lastPlayed",
+			nil];
+	
+	columnOrderArray			= [NSArray arrayWithObjects:
+		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatName", nil];
+	
+	streamTableDefaults			= [NSDictionary dictionaryWithObjectsAndKeys:
+		visibleColumnsDictionary, @"streamTableColumnVisibility",
+		columnSizesDictionary, @"streamTableColumnSizes",
+		columnOrderArray, @"streamTableColumnOrder",
+		nil];
+	
+	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
+}	
 
 - (id) init
 {
@@ -50,10 +117,13 @@
 		_player = [[AudioPlayer alloc] init];
 		[[self player] setOwner:self];
 		
+		// Seed random number generator
 		init_genrand(time(NULL));
+		
+		return self;
 	}
 	
-	return self;
+	return nil;
 }
 
 - (id) initWithType:(NSString *)type error:(NSError **)error
@@ -71,14 +141,19 @@
         [[managedObjectContext undoManager] removeAllActions];
 
         [self updateChangeCount:NSChangeCleared];
+		
+		return self;
     }
 	
-    return self;
+    return nil;
 }
 
 - (void) dealloc
 {
-	[_player release];		_player = nil;
+	[_player release];							_player = nil;
+	[_streamTableVisibleColumns release];		_streamTableVisibleColumns = nil;
+	[_streamTableHiddenColumns release];		_streamTableHiddenColumns = nil;
+	[_streamTableHeaderContextMenu release];	_streamTableHeaderContextMenu = nil;
 	
 	[super dealloc];
 }
@@ -94,9 +169,17 @@
 {
     [super windowControllerDidLoadNib:windowController];
 
+	NSDictionary	*visibleDictionary;
+	NSDictionary	*sizesDictionary;
+	NSArray			*orderArray, *tableColumns;
+	NSEnumerator	*enumerator;
+	id <NSMenuItem> contextMenuItem;	
+	id				obj;
+	int				menuIndex, i;
+	
 //	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
 
-	// Set up drag and drop
+	// Setup drag and drop
 	[_streamTableView registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, @"NSURLsPboardType", NSURLPboardType, nil]];
 	[_playlistTableView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
 	
@@ -110,9 +193,61 @@
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
 		nil]];
 	
+	// Default window state
 	[self updatePlayButtonState];
-	
 	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+	
+	// Setup stream table columns
+	visibleDictionary					= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
+	sizesDictionary						= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
+	orderArray							= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
+	
+	tableColumns						= [_streamTableView tableColumns];
+	enumerator							= [tableColumns objectEnumerator];
+	
+	_streamTableVisibleColumns			= [[NSMutableSet alloc] init];
+	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
+	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
+
+	[[_streamTableView headerView] setMenu:_streamTableHeaderContextMenu];
+
+	// Keep our changes from generating notifications to ourselves
+	[_streamTableView setDelegate:nil];
+	
+	while((obj = [enumerator nextObject])) {
+		menuIndex						= 0;
+		
+		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+			menuIndex++;
+		}
+		
+		contextMenuItem					= [_streamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
+
+		[contextMenuItem setTarget:self];
+		[contextMenuItem setRepresentedObject:obj];
+		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
+		
+//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
+		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
+		
+		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
+			[_streamTableVisibleColumns addObject:obj];
+		}
+		else {
+			[_streamTableHiddenColumns addObject:obj];
+			[_streamTableView removeTableColumn:obj];
+		}
+	}
+	
+	i									= 0;
+	enumerator							= [orderArray objectEnumerator];
+	while((obj = [enumerator nextObject])) {
+		[_streamTableView moveColumn:[_streamTableView columnWithIdentifier:obj] toColumn:i];
+		++i;
+	}
+	
+	[_streamTableView setDelegate:self];
 }
 
 - (void) windowWillClose:(NSNotification *)aNotification
@@ -766,6 +901,7 @@
 	[self playNextStream:self];
 }
 
+
 @end
 
 @implementation LibraryDocument (NSTableViewDelegateMethods)
@@ -795,6 +931,33 @@
 	}
 	
 	[self updatePlayButtonState];
+}
+
+
+- (void) tableViewColumnDidMove:(NSNotification *)aNotification
+{
+	if([[aNotification object] isEqual:_streamTableView]) {
+		[self saveStreamTableColumnOrder];
+	}
+}
+
+- (void) tableViewColumnDidResize:(NSNotification *)aNotification
+{
+	if([[aNotification object] isEqual:_streamTableView]) {
+		NSMutableDictionary		*sizes;
+		NSEnumerator			*enumerator;
+		id column;
+
+		sizes					= [NSMutableDictionary dictionary];
+		enumerator				= [[_streamTableView tableColumns] objectEnumerator];
+		
+		while((column = [enumerator nextObject])) {
+			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
+		}
+		
+		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
+	//	[[NSUserDefaults standardUserDefaults] synchronize];
+	}
 }
 
 @end
@@ -1031,6 +1194,61 @@
 	}
 	
 	[metadataEditingSheet release];
+}
+
+#pragma mark Stream Table Management
+
+- (void) saveStreamTableColumnOrder
+{
+	NSMutableArray		*identifiers;
+	NSEnumerator		*enumerator;
+	id					obj;
+	
+	identifiers			= [NSMutableArray array];
+	enumerator			= [[_streamTableView tableColumns] objectEnumerator];
+	
+	while((obj = [enumerator nextObject])) {
+		[identifiers addObject:[obj identifier]];
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
+	//	[[NSUserDefaults standardUserDefaults] synchronize];
+}	
+
+- (IBAction) streamTableHeaderContextMenuSelected:(id)sender
+{
+	NSMutableDictionary		*visibleDictionary;
+	NSEnumerator			*enumerator;
+	id						obj;
+	
+	if(NSOnState == [sender state]) {
+		[sender setState:NSOffState];
+		[_streamTableHiddenColumns addObject:[sender representedObject]];
+		[_streamTableVisibleColumns removeObject:[sender representedObject]];
+		[_streamTableView removeTableColumn:[sender representedObject]];
+	}
+	else {
+		[sender setState:NSOnState];
+		[_streamTableView addTableColumn:[sender representedObject]];
+		[_streamTableVisibleColumns addObject:[sender representedObject]];
+		[_streamTableHiddenColumns removeObject:[sender representedObject]];
+	}
+	
+	visibleDictionary	= [NSMutableDictionary dictionary];
+	enumerator			= [_streamTableVisibleColumns objectEnumerator];
+	
+	while((obj = [enumerator nextObject])) {
+		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
+	}
+	
+	enumerator			= [_streamTableHiddenColumns objectEnumerator];
+	while((obj = [enumerator nextObject])) {
+		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
+	
+	[self saveStreamTableColumnOrder];
 }
 
 @end

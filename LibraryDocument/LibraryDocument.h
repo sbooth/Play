@@ -37,6 +37,10 @@
 	BOOL						_randomizePlayback;
 	BOOL						_loopPlayback;
 	BOOL						_playButtonEnabled;
+	
+	NSMutableSet				*_streamTableVisibleColumns;
+	NSMutableSet				*_streamTableHiddenColumns;
+	NSMenu						*_streamTableHeaderContextMenu;
 }
 
 // ========================================
