@@ -27,6 +27,7 @@
 		8C27B22E0AF5C5F7002B846D /* MonkeysAudioStreamDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B22C0AF5C5F6002B846D /* MonkeysAudioStreamDecoder.mm */; };
 		8C27B2670AF5C853002B846D /* MonkeysAudioPropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B2650AF5C852002B846D /* MonkeysAudioPropertiesReader.mm */; };
 		8C27B29C0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B29A0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm */; };
+		8C27B56D0AF70D9C002B846D /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B56B0AF70D9C002B846D /* FileURLFormatter.m */; };
 		8C6411000AE5FF070075644F /* LibraryDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */; };
 		8C6411010AE5FF070075644F /* Play.xcclassmodel in Resources */ = {isa = PBXBuildFile; fileRef = 8C6410FF0AE5FF070075644F /* Play.xcclassmodel */; };
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
@@ -167,6 +168,8 @@
 		8C27B2650AF5C852002B846D /* MonkeysAudioPropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioPropertiesReader.mm; path = Audio/Properties/MonkeysAudioPropertiesReader.mm; sourceTree = "<group>"; };
 		8C27B2990AF5CABE002B846D /* MonkeysAudioMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioMetadataReader.h; path = Audio/Metadata/MonkeysAudioMetadataReader.h; sourceTree = "<group>"; };
 		8C27B29A0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioMetadataReader.mm; path = Audio/Metadata/MonkeysAudioMetadataReader.mm; sourceTree = "<group>"; };
+		8C27B56A0AF70D9C002B846D /* FileURLFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileURLFormatter.h; path = Formatters/FileURLFormatter.h; sourceTree = "<group>"; };
+		8C27B56B0AF70D9C002B846D /* FileURLFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileURLFormatter.m; path = Formatters/FileURLFormatter.m; sourceTree = "<group>"; };
 		8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = wrapper.xcdatamodel; name = LibraryDocument.xcdatamodel; path = Models/LibraryDocument.xcdatamodel; sourceTree = "<group>"; };
 		8C6410FF0AE5FF070075644F /* Play.xcclassmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcclassmodel; name = Play.xcclassmodel; path = Models/Play.xcclassmodel; sourceTree = "<group>"; };
 		8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = LibraryDocument/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
@@ -422,6 +425,8 @@
 			children = (
 				8C27ACF10AF51256002B846D /* SecondsFormatter.h */,
 				8C27ACF20AF51256002B846D /* SecondsFormatter.m */,
+				8C27B56A0AF70D9C002B846D /* FileURLFormatter.h */,
+				8C27B56B0AF70D9C002B846D /* FileURLFormatter.m */,
 			);
 			name = Formatters;
 			sourceTree = "<group>";
@@ -691,6 +696,7 @@
 				8C27B22E0AF5C5F7002B846D /* MonkeysAudioStreamDecoder.mm in Sources */,
 				8C27B2670AF5C853002B846D /* MonkeysAudioPropertiesReader.mm in Sources */,
 				8C27B29C0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm in Sources */,
+				8C27B56D0AF70D9C002B846D /* FileURLFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
