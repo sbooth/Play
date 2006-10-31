@@ -1,7 +1,16 @@
 {
     IBClasses = (
         {
-            ACTIONS = {playPause = id; togglePlayerControlsWindow = id; }; 
+            ACTIONS = {
+                addFiles = id; 
+                playNextStream = id; 
+                playPause = id; 
+                playPreviousStream = id; 
+                skipBackward = id; 
+                skipForward = id; 
+                skipToBeginning = id; 
+                skipToEnd = id; 
+            }; 
             CLASS = FirstResponder; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 

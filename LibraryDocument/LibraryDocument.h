@@ -58,8 +58,8 @@
 - (IBAction)	skipToEnd:(id)sender;
 - (IBAction)	skipToBeginning:(id)sender;
 
-- (IBAction)	nextStream:(id)sender;
-- (IBAction)	previousStream:(id)sender;
+- (IBAction)	playNextStream:(id)sender;
+- (IBAction)	playPreviousStream:(id)sender;
 
 // ========================================
 // File addition
@@ -81,6 +81,9 @@
 
 - (BOOL)		playButtonEnabled;
 - (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled;
+
+- (BOOL)		canPlayNextStream;
+- (BOOL)		canPlayPreviousStream;
 
 // ========================================
 // Callbacks

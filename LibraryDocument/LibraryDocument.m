@@ -126,6 +126,18 @@
 	if([anItem action] == @selector(playPause:)) {
 		return [self playButtonEnabled];
 	}
+	else if([anItem action] == @selector(skipForward:) 
+			|| [anItem action] == @selector(skipBackward:) 
+			|| [anItem action] == @selector(skipToEnd:) 
+			|| [anItem action] == @selector(skipToBeginning:)) {
+		return [[self player] hasValidStream];
+	}
+	else if([anItem action] == @selector(playNextStream:)) {
+		return [self canPlayNextStream];
+	}
+	else if([anItem action] == @selector(playPreviousStream:)) {
+		return [self canPlayPreviousStream];
+	}
 	else {
 		return [super validateUserInterfaceItem:anItem];
 	}
@@ -534,7 +546,7 @@
 	[[self player] skipToBeginning];
 }
 
-- (IBAction) nextStream:(id)sender
+- (IBAction) playNextStream:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
 	NSManagedObject				*libraryObject;
@@ -549,10 +561,11 @@
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
-	
+	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+
 	streams						= [_streamArrayController arrangedObjects];
 	
-	if(0 == [streams count]) {
+	if(nil == streamObject || 0 == [streams count]) {
 		[[self player] reset];
 		[self updatePlayButtonState];
 	}
@@ -582,7 +595,7 @@
 		streamIndex					= [streams indexOfObject:streamObject];
 		
 		if(streamIndex + 1 < [streams count]) {
-			streamObject				= [streams objectAtIndex:streamIndex + 1];
+			streamObject			= [streams objectAtIndex:streamIndex + 1];
 			
 			[self playStream:[NSArray arrayWithObject:streamObject]];
 		}
@@ -593,7 +606,7 @@
 	}
 }
 
-- (IBAction) previousStream:(id)sender
+- (IBAction) playPreviousStream:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
 	NSManagedObject				*libraryObject;
@@ -608,10 +621,11 @@
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
+	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
 	
 	streams						= [_streamArrayController arrangedObjects];
 	
-	if(0 == [streams count]) {
+	if(nil == streamObject || 0 == [streams count]) {
 		[[self player] reset];	
 	}
 	else if([self randomizePlayback]) {
@@ -627,7 +641,7 @@
 	else if([self loopPlayback]) {
 		streamIndex					= [streams indexOfObject:streamObject];
 		
-		if(0 <= streamIndex - 1) {
+		if(1 <= streamIndex) {
 			streamObject				= [streams objectAtIndex:streamIndex - 1];
 		}
 		else {
@@ -639,8 +653,8 @@
 	else {
 		streamIndex					= [streams indexOfObject:streamObject];
 		
-		if(0 <= streamIndex - 1) {
-			streamObject				= [streams objectAtIndex:streamIndex - 1];
+		if(1 <= streamIndex) {
+			streamObject			= [streams objectAtIndex:streamIndex - 1];
 			
 			[self playStream:[NSArray arrayWithObject:streamObject]];
 		}
@@ -660,6 +674,68 @@
 
 - (BOOL)		playButtonEnabled									{ return _playButtonEnabled; }
 - (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
+
+- (BOOL) canPlayNextStream
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSArray						*streams;
+	unsigned					streamIndex;
+	BOOL						result;
+	
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streams						= [_streamArrayController arrangedObjects];
+	
+	if(nil == streamObject || 0 == [streams count]) {
+		result					= NO;
+	}
+	else if([self randomizePlayback]) {
+		result					= YES;
+	}
+	else if([self loopPlayback]) {
+		result					= YES;
+	}
+	else {
+		streamIndex				= [streams indexOfObject:streamObject];
+		result					= (streamIndex + 1 < [streams count]);
+	}
+	
+	return result;
+}
+
+- (BOOL) canPlayPreviousStream
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSArray						*streams;
+	unsigned					streamIndex;
+	BOOL						result;
+	
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streams						= [_streamArrayController arrangedObjects];
+	
+	if(nil == streamObject || 0 == [streams count]) {
+		result					= NO;
+	}
+	else if([self randomizePlayback]) {
+		result					= YES;
+	}
+	else if([self loopPlayback]) {
+		result					= YES;
+	}
+	else {
+		streamIndex				= [streams indexOfObject:streamObject];
+		result					= (1 <= streamIndex);
+	}
+	
+	return result;
+}
 
 #pragma mark Callbacks
 
@@ -687,7 +763,7 @@
 		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
 	
-	[self nextStream:self];
+	[self playNextStream:self];
 }
 
 @end
