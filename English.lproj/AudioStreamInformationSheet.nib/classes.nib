@@ -12,6 +12,7 @@
             SUPERCLASS = NSObject; 
         }, 
         {CLASS = CompilationButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {CLASS = TagTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }
     ); 
