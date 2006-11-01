@@ -74,30 +74,32 @@
 	NSDictionary				*streamTableDefaults;
 	
 	visibleColumnsDictionary	= [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithBool:YES], @"title",
-			[NSNumber numberWithBool:YES], @"artist",
-			[NSNumber numberWithBool:YES], @"albumTitle",
-			[NSNumber numberWithBool:YES], @"genre",
-			[NSNumber numberWithBool:YES], @"track",
-			[NSNumber numberWithBool:YES], @"formatName",
-			[NSNumber numberWithBool:NO], @"composer",
-			[NSNumber numberWithBool:YES], @"duration",
-			[NSNumber numberWithBool:NO], @"playCount",
-			[NSNumber numberWithBool:NO], @"lastPlayed",
-			nil];
+		[NSNumber numberWithBool:YES], @"title",
+		[NSNumber numberWithBool:YES], @"artist",
+		[NSNumber numberWithBool:YES], @"albumTitle",
+		[NSNumber numberWithBool:YES], @"genre",
+		[NSNumber numberWithBool:YES], @"track",
+		[NSNumber numberWithBool:YES], @"formatName",
+		[NSNumber numberWithBool:NO], @"composer",
+		[NSNumber numberWithBool:YES], @"duration",
+		[NSNumber numberWithBool:NO], @"playCount",
+		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"date",
+		nil];
 	
 	columnSizesDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithFloat:186], @"title",
-			[NSNumber numberWithFloat:129], @"artist",
-			[NSNumber numberWithFloat:128], @"albumTitle",
-			[NSNumber numberWithFloat:63], @"genre",
-			[NSNumber numberWithFloat:54], @"track",
-			[NSNumber numberWithFloat:88], @"formatName",
-			[NSNumber numberWithFloat:99], @"composer",
-			[NSNumber numberWithFloat:74], @"duration",
-			[NSNumber numberWithFloat:72], @"playCount",
-			[NSNumber numberWithFloat:96], @"lastPlayed",
-			nil];
+		[NSNumber numberWithFloat:186], @"title",
+		[NSNumber numberWithFloat:129], @"artist",
+		[NSNumber numberWithFloat:128], @"albumTitle",
+		[NSNumber numberWithFloat:63], @"genre",
+		[NSNumber numberWithFloat:54], @"track",
+		[NSNumber numberWithFloat:88], @"formatName",
+		[NSNumber numberWithFloat:99], @"composer",
+		[NSNumber numberWithFloat:74], @"duration",
+		[NSNumber numberWithFloat:72], @"playCount",
+		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:50], @"date",
+		nil];
 	
 	columnOrderArray			= [NSArray arrayWithObjects:
 		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatName", nil];
