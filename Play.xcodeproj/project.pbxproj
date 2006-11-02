@@ -28,6 +28,7 @@
 		8C27B2670AF5C853002B846D /* MonkeysAudioPropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B2650AF5C852002B846D /* MonkeysAudioPropertiesReader.mm */; };
 		8C27B29C0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B29A0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm */; };
 		8C27B56D0AF70D9C002B846D /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B56B0AF70D9C002B846D /* FileURLFormatter.m */; };
+		8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */; };
 		8C6411000AE5FF070075644F /* LibraryDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */; };
 		8C6411010AE5FF070075644F /* Play.xcclassmodel in Resources */ = {isa = PBXBuildFile; fileRef = 8C6410FF0AE5FF070075644F /* Play.xcclassmodel */; };
 		8C64110A0AE5FF2E0075644F /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6411050AE5FF2E0075644F /* AudioStreamTableViewDataSource.m */; };
@@ -170,6 +171,8 @@
 		8C27B29A0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioMetadataReader.mm; path = Audio/Metadata/MonkeysAudioMetadataReader.mm; sourceTree = "<group>"; };
 		8C27B56A0AF70D9C002B846D /* FileURLFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileURLFormatter.h; path = Formatters/FileURLFormatter.h; sourceTree = "<group>"; };
 		8C27B56B0AF70D9C002B846D /* FileURLFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileURLFormatter.m; path = Formatters/FileURLFormatter.m; sourceTree = "<group>"; };
+		8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
+		8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8C6410FE0AE5FF070075644F /* LibraryDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = wrapper.xcdatamodel; name = LibraryDocument.xcdatamodel; path = Models/LibraryDocument.xcdatamodel; sourceTree = "<group>"; };
 		8C6410FF0AE5FF070075644F /* Play.xcclassmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcclassmodel; name = Play.xcclassmodel; path = Models/Play.xcclassmodel; sourceTree = "<group>"; };
 		8C6411040AE5FF2E0075644F /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = LibraryDocument/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
@@ -546,6 +549,8 @@
 		8CFDA4DF0AF32B2300FF7CE5 /* Properties */ = {
 			isa = PBXGroup;
 			children = (
+				8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */,
+				8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */,
 				8C27B2640AF5C852002B846D /* MonkeysAudioPropertiesReader.h */,
 				8C27B2650AF5C852002B846D /* MonkeysAudioPropertiesReader.mm */,
 				8C27B1910AF5BDF4002B846D /* WavPackPropertiesReader.h */,
@@ -697,6 +702,7 @@
 				8C27B2670AF5C853002B846D /* MonkeysAudioPropertiesReader.mm in Sources */,
 				8C27B29C0AF5CABE002B846D /* MonkeysAudioMetadataReader.mm in Sources */,
 				8C27B56D0AF70D9C002B846D /* FileURLFormatter.m in Sources */,
+				8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
