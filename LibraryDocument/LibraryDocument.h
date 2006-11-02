@@ -41,6 +41,8 @@
 	NSMutableSet				*_streamTableVisibleColumns;
 	NSMutableSet				*_streamTableHiddenColumns;
 	NSMenu						*_streamTableHeaderContextMenu;
+	
+	NSThread					*_libraryThread;
 }
 
 // ========================================
@@ -69,11 +71,11 @@
 // File addition
 - (IBAction)				addFiles:(id)sender;
 
-- (NSManagedObject *)		addFileToLibrary:(NSString *)path;
-- (NSManagedObject *)		addURLToLibrary:(NSURL *)url;
+- (void)					addFileToLibrary:(NSString *)path;
+- (void)					addURLToLibrary:(NSURL *)URL;
 
-- (NSArray *)				addFilesToLibrary:(NSArray *)filenames;
-- (NSArray *)				addURLsToLibrary:(NSArray *)urls;
+- (void)					addFilesToLibrary:(NSArray *)filenames;
+- (void)					addURLsToLibrary:(NSArray *)URLs;
 
 // ========================================
 // Properties

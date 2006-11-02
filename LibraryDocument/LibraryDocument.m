@@ -51,15 +51,24 @@
 @interface LibraryDocument (Private)
 
 - (AudioPlayer *)			player;
+
+- (NSThread *)				thread;
+
 - (NSManagedObject *)		fetchLibraryObject;
+
 - (void)					playStream:(NSArray *)streams;
+
 - (void)					updatePlayButtonState;
+
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
 - (void)					saveStreamTableColumnOrder;
 - (IBAction)				streamTableHeaderContextMenuSelected:(id)sender;
+
+- (void)					scheduleURLForAddition:(NSURL *)URL;
+- (void)					insertEntityForURL:(NSDictionary *)arguments;
 
 @end
 
@@ -116,12 +125,13 @@
 - (id) init
 {
 	if((self = [super init])) {
-		_player = [[AudioPlayer alloc] init];
+		_player			= [[AudioPlayer alloc] init];
 		[[self player] setOwner:self];
 		
 		// Seed random number generator
 		init_genrand(time(NULL));
 		
+		_libraryThread	= [[NSThread currentThread] retain];
 		return self;
 	}
 	
@@ -156,6 +166,7 @@
 	[_streamTableVisibleColumns release];		_streamTableVisibleColumns = nil;
 	[_streamTableHiddenColumns release];		_streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release];	_streamTableHeaderContextMenu = nil;
+	[_libraryThread release];					_libraryThread = nil;
 	
 	[super dealloc];
 }
@@ -394,207 +405,106 @@
 	[panel beginSheetForDirectory:nil file:nil types:getAudioExtensions() modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
 }
 
-- (NSManagedObject *) addFileToLibrary:(NSString *)path
+
+
+- (void) addFileToLibrary:(NSString *)path
 {
-	return [self addURLToLibrary:[NSURL fileURLWithPath:path]];
+	[self addURLsToLibrary:[NSArray arrayWithObject:[NSURL fileURLWithPath:path]]];	
 }
 
-- (NSManagedObject *) addURLToLibrary:(NSURL *)url
+- (void) addURLToLibrary:(NSURL *)URL
 {
-	NSParameterAssert([url isFileURL]);
-	
-	NSString					*absoluteURL;
-	NSManagedObject				*streamObject;
-	NSManagedObjectContext		*managedObjectContext;
-	NSEntityDescription			*streamEntityDescription;
-	NSManagedObject				*libraryObject;
-	NSFetchRequest				*fetchRequest;
-	NSPredicate					*predicate;
-	NSError						*error;
-	NSArray						*fetchResult;
-	NSMutableSet				*playlistSet;
-	AudioPropertiesReader		*propertiesReader;
-	AudioMetadataReader			*metadataReader;
-	NSManagedObject				*propertiesObject;
-	NSManagedObject				*metadataObject;
-	BOOL						result;
-	unsigned					i;
-	
-	managedObjectContext		= [self managedObjectContext];
-
-	// Convert the URL to a string for storage and comparison
-	absoluteURL					= [url absoluteString];
-	
-	// ========================================
-	// Verify that the requested AudioStream does not already exist in this Library, as identified by URL
-	streamEntityDescription		= [NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
-	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	predicate					= [NSPredicate predicateWithFormat:@"url = %@", absoluteURL];
-	error						= nil;
-	
-	[fetchRequest setEntity:streamEntityDescription];
-	[fetchRequest setPredicate:predicate];
-	
-	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
-	
-	if(nil == fetchResult) {
-		result					= [self presentError:error];
-	}
-	
-	// ========================================
-	// If the AudioStream does exist in the Library, just add it to any playlists that are selected
-	if(0 < [fetchResult count]) {
-		for(i = 0; i < [fetchResult count]; ++i) {
-			streamObject		= [fetchResult objectAtIndex:i];
-			
-			playlistSet			= [streamObject mutableSetValueForKey:@"playlists"];
-			[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
-		}
-		
-		return [[streamObject retain] autorelease];
-	}
-	
-	// ========================================
-	// Now that we know the AudioStream isn't in the Library, add it
-	streamObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
-	
-	// Fetch the Library entity from the store
-	libraryObject				= [self fetchLibraryObject];
-	
-	// ========================================
-	// Fill in properties and relationships
-	[streamObject setValue:absoluteURL forKey:@"url"];
-	[streamObject setValue:libraryObject forKey:@"library"];
-	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
-	
-	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
-	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
-
-	// ========================================
-	// Read properties
-	propertiesReader			= [AudioPropertiesReader propertiesReaderForURL:url error:&error];
-	
-	// If any errors occurred, remove the new streamObject and abort
-	if(nil == propertiesReader) {
-		[managedObjectContext deleteObject:streamObject];
-		
-		result					= [self presentError:error];
-		return nil;
-	}
-
-	result						= [propertiesReader readProperties:&error];
-	
-	if(NO == result) {
-		[managedObjectContext deleteObject:streamObject];
-		
-		result					= [self presentError:error];
-		return nil;
-	}
-	
-	propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
-	
-	[streamObject setValue:propertiesObject forKey:@"properties"];
-		
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitrate"] forKey:@"bitrate"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.bitsPerChannel"] forKey:@"bitsPerChannel"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.channelsPerFrame"] forKey:@"channelsPerFrame"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.duration"] forKey:@"duration"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.formatName"] forKey:@"formatName"];
-//	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.isVBR"] forKey:@"isVBR"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.sampleRate"] forKey:@"sampleRate"];
-	[propertiesObject setValue:[propertiesReader valueForKeyPath:@"properties.totalFrames"] forKey:@"totalFrames"];
-
-	[streamObject setValue:propertiesObject forKey:@"properties"];
-	
-	// ========================================
-	// Read metadata
-	metadataReader				= [AudioMetadataReader metadataReaderForURL:url error:&error];
-	result						= [metadataReader readMetadata:&error];
-	
-	if(NO == result) {
-		result					= [self presentError:error];
-		return [[streamObject retain] autorelease];
-	}
-	
-	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
-	
-	[streamObject setValue:metadataObject forKey:@"metadata"];
-
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArt"] forKey:@"albumArt"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumArtist"] forKey:@"albumArtist"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.albumTitle"] forKey:@"albumTitle"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.artist"] forKey:@"artist"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.comment"] forKey:@"comment"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.composer"] forKey:@"composer"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.date"] forKey:@"date"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discNumber"] forKey:@"discNumber"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.discTotal"] forKey:@"discTotal"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.genre"] forKey:@"genre"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.isrc"] forKey:@"isrc"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.mcn"] forKey:@"mcn"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.partOfCompilation"] forKey:@"partOfCompilation"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.title"] forKey:@"title"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.trackNumber"] forKey:@"trackNumber"];
-	[metadataObject setValue:[metadataReader valueForKeyPath:@"metadata.trackTotal"] forKey:@"trackTotal"];
-
-	// If no metadata was found, set the title to the filename
-	if(0 == [[metadataReader valueForKeyPath:@"metadata.@count"] unsignedIntValue]) {
-		[metadataObject setValue:[[[url path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
-	}
-
-	return [[streamObject retain] autorelease];
+	[self addURLsToLibrary:[NSArray arrayWithObject:URL]];
 }
 
-- (NSArray *) addFilesToLibrary:(NSArray *)filenames
+- (void) addFilesToLibrary:(NSArray *)filenames
 {
-	NSManagedObject				*streamObject;
-	NSMutableArray				*streamObjects;
+	// This should never be performed on the main thread to avoid blocking the UI
+	if([self thread] == [NSThread currentThread]) {
+		[NSThread detachNewThreadSelector:@selector(addFilesToLibrary:) toTarget:self withObject:filenames];		
+		return;
+	}
+	
+	NSAutoreleasePool			*pool;
+	NSFileManager				*manager;
+	NSArray						*allowedTypes;
+	NSString					*path;
+	NSDirectoryEnumerator		*directoryEnumerator;
 	NSString					*filename;
+	BOOL						result, isDir;
 	unsigned					i;
 	
-	streamObjects				= [NSMutableArray array];
+	pool						= [[NSAutoreleasePool alloc] init];
+	manager						= [NSFileManager defaultManager];
+	allowedTypes				= getAudioExtensions();
 	
 	for(i = 0; i < [filenames count]; ++i) {
-		filename				= [filenames objectAtIndex:i];			
-		streamObject			= [self addFileToLibrary:filename];
+		path					= [filenames objectAtIndex:i];
 		
-		if(nil != streamObject) {
-			[streamObjects addObject:streamObject];
+		result					= [manager fileExistsAtPath:path isDirectory:&isDir];
+		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
+		
+		if(isDir) {
+			directoryEnumerator		= [manager enumeratorAtPath:path];
+			
+			while((filename = [directoryEnumerator nextObject])) {
+				if([allowedTypes containsObject:[filename pathExtension]]) {
+					[self scheduleURLForAddition:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]]];
+				}
+			}
 		}
-	}	
-	
-	if(0 < [streamObjects count]) {
-		[_streamArrayController setSelectedObjects:streamObjects];
-		[_streamArrayController rearrangeObjects];			
+		else {
+			[self scheduleURLForAddition:[NSURL fileURLWithPath:path]];
+		}
 	}
 	
-	return [[streamObjects retain] autorelease];
+	[pool release];
 }
 
-- (NSArray *) addURLsToLibrary:(NSArray *)urls
+- (void) addURLsToLibrary:(NSArray *)URLs;
 {
-	NSManagedObject				*streamObject;
-	NSMutableArray				*streamObjects;
-	NSURL						*url;
-	unsigned					i;
-	
-	streamObjects				= [NSMutableArray array];
-	
-	for(i = 0; i < [urls count]; ++i) {
-		url						= [urls objectAtIndex:i];			
-		streamObject			= [self addURLToLibrary:url];
-		
-		if(nil != streamObject) {
-			[streamObjects addObject:streamObject];
-		}
-	}	
-	
-	if(0 < [streamObjects count]) {
-		[_streamArrayController setSelectedObjects:streamObjects];
-		[_streamArrayController rearrangeObjects];			
+	// This should never be performed on the main thread to avoid blocking the UI
+	if([self thread] == [NSThread currentThread]) {
+		[NSThread detachNewThreadSelector:@selector(addURLsToLibrary:) toTarget:self withObject:URLs];		
+		return;
 	}
 	
-	return [[streamObjects retain] autorelease];
+	NSAutoreleasePool			*pool;
+	NSFileManager				*manager;
+	NSArray						*allowedTypes;
+	NSURL						*URL;
+	NSString					*path;
+	NSDirectoryEnumerator		*directoryEnumerator;
+	NSString					*filename;
+	BOOL						result, isDir;
+	unsigned					i;
+	
+	pool						= [[NSAutoreleasePool alloc] init];
+	manager						= [NSFileManager defaultManager];
+	allowedTypes				= getAudioExtensions();
+	
+	for(i = 0; i < [URLs count]; ++i) {
+		URL						= [URLs objectAtIndex:i];			
+		path					= [URL path];
+		
+		result					= [manager fileExistsAtPath:path isDirectory:&isDir];
+		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
+		
+		if(isDir) {
+			directoryEnumerator		= [manager enumeratorAtPath:path];
+			
+			while((filename = [directoryEnumerator nextObject])) {
+				if([allowedTypes containsObject:[filename pathExtension]]) {
+					[self scheduleURLForAddition:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]]];
+				}
+			}
+		}
+		else {
+			[self scheduleURLForAddition:URL];
+		}
+	}
+	
+	[pool release];
 }
 
 #pragma mark Playback Control
@@ -971,6 +881,11 @@
 	return [[_player retain] autorelease];
 }
 
+- (NSThread *) thread
+{
+	return [[_libraryThread retain] autorelease];
+}
+
 - (NSManagedObject *) fetchLibraryObject
 {
 	NSManagedObjectContext		*managedObjectContext;
@@ -1003,6 +918,34 @@
 	libraryObject				= [fetchResult objectAtIndex:0];
 
 	return [[libraryObject retain] autorelease];
+}
+
+- (NSManagedObject *) fetchStreamObjectForURL:(NSURL *)url error:(NSError **)error
+{
+	NSString					*absoluteURL;
+	NSManagedObjectContext		*managedObjectContext;
+	NSEntityDescription			*streamEntityDescription;
+	NSFetchRequest				*fetchRequest;
+	NSPredicate					*predicate;
+	NSArray						*fetchResult;
+	
+	managedObjectContext		= [self managedObjectContext];
+	
+	// Convert the URL to a string for storage and comparison
+	absoluteURL					= [url absoluteString];
+	
+	// ========================================
+	// Verify that the requested AudioStream does not already exist in this Library, as identified by URL
+	streamEntityDescription		= [NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	predicate					= [NSPredicate predicateWithFormat:@"url = %@", absoluteURL];
+	
+	[fetchRequest setEntity:streamEntityDescription];
+	[fetchRequest setPredicate:predicate];
+	
+	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:error];
+	
+	return (nil != fetchResult && 0 < [fetchResult count] ? [fetchResult objectAtIndex:0] : nil);
 }
 
 - (void) playStream:(NSArray *)streams
@@ -1111,57 +1054,8 @@
 - (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	if(NSOKButton == returnCode) {
-		NSFileManager				*manager;
-		NSArray						*URLs;
-		NSManagedObject				*streamObject;
-		NSMutableArray				*streamObjects;
-		NSArray						*allowedTypes;
-		NSURL						*URL;
-		NSString					*path;
-		NSDirectoryEnumerator		*directoryEnumerator;
-		NSString					*filename;
-		BOOL						result, isDir;
-		unsigned					i;
-		
-		URLs						= [panel URLs];
-		streamObjects				= [NSMutableArray array];
-		manager						= [NSFileManager defaultManager];
-		allowedTypes				= getAudioExtensions();
-
-		for(i = 0; i < [URLs count]; ++i) {
-			URL						= [URLs objectAtIndex:i];			
-			path					= [URL path];
-			
-			result					= [manager fileExistsAtPath:path isDirectory:&isDir];
-			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
-
-			if(isDir) {
-				directoryEnumerator		= [manager enumeratorAtPath:path];
-				
-				while((filename = [directoryEnumerator nextObject])) {
-					if([allowedTypes containsObject:[filename pathExtension]]) {
-						streamObject			= [self addFileToLibrary:[path stringByAppendingPathComponent:filename]];
-						
-						if(nil != streamObject) {
-							[streamObjects addObject:streamObject];
-						}
-					}
-				}
-			}
-			else {
-				streamObject			= [self addURLToLibrary:URL];
-				
-				if(nil != streamObject) {
-					[streamObjects addObject:streamObject];
-				}
-			}
-		}
-		
-		if(0 < [streamObjects count]) {
-			[_streamArrayController setSelectedObjects:streamObjects];
-			[_streamArrayController rearrangeObjects];			
-		}
-	}	
+		[self addURLsToLibrary:[panel URLs]];
+	}
 }
 
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
@@ -1251,6 +1145,160 @@
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
 	
 	[self saveStreamTableColumnOrder];
+}
+
+#pragma mark File Addition
+
+- (void) scheduleURLForAddition:(NSURL *)URL
+{
+	NSParameterAssert([URL isFileURL]);
+	
+	NSError						*error;
+	AudioPropertiesReader		*propertiesReader;
+	AudioMetadataReader			*metadataReader;
+	NSDictionary				*callbackArguments;
+	BOOL						result;
+	
+	// First read the properties
+	error						= nil;
+	propertiesReader			= [AudioPropertiesReader propertiesReaderForURL:URL error:&error];
+	
+	if(nil == propertiesReader) {
+		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
+		return;
+	}
+	
+	result						= [propertiesReader readProperties:&error];
+	
+	if(NO == result) {
+		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
+		return;
+	}
+	
+	// Now read the metadata
+	metadataReader				= [AudioMetadataReader metadataReaderForURL:URL error:&error];
+	
+	if(nil == metadataReader) {		
+		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
+		return;
+	}
+	
+	result						= [metadataReader readMetadata:&error];
+	
+	if(NO == result) {
+		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
+		return;
+	}
+	
+	callbackArguments		= [NSDictionary dictionaryWithObjectsAndKeys:
+		URL, @"url", 
+		[propertiesReader valueForKey:@"properties"], @"properties", 
+		[metadataReader valueForKey:@"metadata"], @"metadata", 
+		nil]; 
+	
+	[self performSelectorOnMainThread:@selector(insertEntityForURL:) withObject:callbackArguments waitUntilDone:NO];
+}
+
+- (void) insertEntityForURL:(NSDictionary *)arguments
+{
+	NSURL						*URL;
+	NSDictionary				*properties;
+	NSDictionary				*metadata;
+	NSString					*absoluteURL;
+	NSManagedObject				*streamObject;
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*propertiesObject;
+	NSManagedObject				*metadataObject;
+	NSError						*error;
+	NSMutableSet				*playlistSet;
+	BOOL						result;
+	
+	managedObjectContext		= [self managedObjectContext];
+	URL							= [arguments valueForKey:@"url"];
+	properties					= [arguments valueForKey:@"properties"];
+	metadata					= [arguments valueForKey:@"metadata"];
+	
+	// Convert the URL to a string for storage and comparison
+	absoluteURL					= [URL absoluteString];
+	
+	// ========================================
+	// Verify that the requested AudioStream does not already exist in this Library
+	error						= nil;
+	streamObject				= [self fetchStreamObjectForURL:URL error:&error];
+	
+	if(nil == streamObject && nil != error) {
+		result					= [self presentError:error];
+		return;
+	}
+	
+	// ========================================
+	// If the AudioStream does exist in the Library, just add it to any playlists that are selected
+	if(nil != streamObject) {
+		playlistSet			= [streamObject mutableSetValueForKey:@"playlists"];
+		[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
+		
+		return;
+	}
+	
+	// ========================================
+	// Now that we know the AudioStream isn't in the Library, add it
+	streamObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
+	
+	// Fetch the Library entity from the store
+	libraryObject				= [self fetchLibraryObject];
+	
+	// ========================================
+	// Fill in properties and relationships
+	[streamObject setValue:absoluteURL forKey:@"url"];
+	[streamObject setValue:libraryObject forKey:@"library"];
+	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
+	
+	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
+	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
+	
+	// ========================================
+	// Set properties	
+	propertiesObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioProperties" inManagedObjectContext:managedObjectContext];
+	
+	[propertiesObject setValue:[properties valueForKey:@"bitrate"] forKey:@"bitrate"];
+	[propertiesObject setValue:[properties valueForKey:@"bitsPerChannel"] forKey:@"bitsPerChannel"];
+	[propertiesObject setValue:[properties valueForKey:@"channelsPerFrame"] forKey:@"channelsPerFrame"];
+	[propertiesObject setValue:[properties valueForKey:@"duration"] forKey:@"duration"];
+	[propertiesObject setValue:[properties valueForKey:@"formatName"] forKey:@"formatName"];
+	//	[propertiesObject setValue:[properties valueForKey:@"isVBR"] forKey:@"isVBR"];
+	[propertiesObject setValue:[properties valueForKey:@"sampleRate"] forKey:@"sampleRate"];
+	[propertiesObject setValue:[properties valueForKey:@"totalFrames"] forKey:@"totalFrames"];
+	
+	[streamObject setValue:propertiesObject forKey:@"properties"];
+	
+	// ========================================
+	// Set metadata
+	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
+	
+	[metadataObject setValue:[metadata valueForKey:@"albumArt"] forKey:@"albumArt"];
+	[metadataObject setValue:[metadata valueForKey:@"albumArtist"] forKey:@"albumArtist"];
+	[metadataObject setValue:[metadata valueForKey:@"albumTitle"] forKey:@"albumTitle"];
+	[metadataObject setValue:[metadata valueForKey:@"artist"] forKey:@"artist"];
+	[metadataObject setValue:[metadata valueForKey:@"comment"] forKey:@"comment"];
+	[metadataObject setValue:[metadata valueForKey:@"composer"] forKey:@"composer"];
+	[metadataObject setValue:[metadata valueForKey:@"date"] forKey:@"date"];
+	[metadataObject setValue:[metadata valueForKey:@"discNumber"] forKey:@"discNumber"];
+	[metadataObject setValue:[metadata valueForKey:@"discTotal"] forKey:@"discTotal"];
+	[metadataObject setValue:[metadata valueForKey:@"genre"] forKey:@"genre"];
+	[metadataObject setValue:[metadata valueForKey:@"isrc"] forKey:@"isrc"];
+	[metadataObject setValue:[metadata valueForKey:@"mcn"] forKey:@"mcn"];
+	[metadataObject setValue:[metadata valueForKey:@"partOfCompilation"] forKey:@"partOfCompilation"];
+	[metadataObject setValue:[metadata valueForKey:@"title"] forKey:@"title"];
+	[metadataObject setValue:[metadata valueForKey:@"trackNumber"] forKey:@"trackNumber"];
+	[metadataObject setValue:[metadata valueForKey:@"trackTotal"] forKey:@"trackTotal"];
+	
+	[streamObject setValue:metadataObject forKey:@"metadata"];
+	
+	// If no metadata was found, set the title to the filename
+	if(0 == [[metadata valueForKey:@"@count"] unsignedIntValue]) {
+		[metadataObject setValue:[[[URL path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
+	}
 }
 
 @end

@@ -78,101 +78,21 @@
 	
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray						*filenames;
-		NSFileManager				*manager;
-		NSManagedObject				*streamObject;
-		NSMutableArray				*streamObjects;
-		NSArray						*allowedTypes;
-		NSDirectoryEnumerator		*directoryEnumerator;
-		NSString					*filename;
-		NSString					*path;
-		BOOL						result, isDir;
-		unsigned					i;
 		
 		filenames					= [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 		
-		streamObjects				= [NSMutableArray array];
-		manager						= [NSFileManager defaultManager];
-		allowedTypes				= getAudioExtensions();
-
-		for(i = 0; i < [filenames count]; ++i) {
-			path					= [filenames objectAtIndex:i];			
-			
-			result					= [manager fileExistsAtPath:path isDirectory:&isDir];
-			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
-			
-			if(isDir) {
-				directoryEnumerator	= [manager enumeratorAtPath:path];
-				
-				while((filename = [directoryEnumerator nextObject])) {
-					if([allowedTypes containsObject:[filename pathExtension]]) {
-						streamObject = [libraryDocument addFileToLibrary:[path stringByAppendingPathComponent:filename]];
-						
-						if(nil != streamObject) {
-							++count;
-						}
-					}
-				}
-			}
-			else {
-				streamObject		= [libraryDocument addFileToLibrary:filename];
-				
-				if(nil != streamObject) {
-					++count;
-				}
-			}
-		}
+		[libraryDocument addFilesToLibrary:filenames];
 		
-		success						= (0 != count);		
+		success						= YES;		
 	}
 	else if([bestType isEqualToString:@"NSURLsPboardType"]) {
-		NSArray						*urls;
-		NSURL						*url;
-		NSFileManager				*manager;
-		NSManagedObject				*streamObject;
-		NSMutableArray				*streamObjects;
-		NSArray						*allowedTypes;
-		NSDirectoryEnumerator		*directoryEnumerator;
-		NSString					*filename;
-		NSString					*path;
-		BOOL						result, isDir;
-		unsigned					i;
+		NSArray						*URLs;
 		
-		urls						= [[info draggingPasteboard] propertyListForType:@"NSURLsPboardType"];
+		URLs						= [[info draggingPasteboard] propertyListForType:@"NSURLsPboardType"];
 		
-		streamObjects				= [NSMutableArray array];
-		manager						= [NSFileManager defaultManager];
-		allowedTypes				= getAudioExtensions();
-		
-		for(i = 0; i < [urls count]; ++i) {
-			url						= [urls objectAtIndex:i];
-			path					= [url path];
-			
-			result					= [manager fileExistsAtPath:path isDirectory:&isDir];
-			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to locate the input file.", @"Exceptions", @""));
-			
-			if(isDir) {
-				directoryEnumerator	= [manager enumeratorAtPath:path];
-				
-				while((filename = [directoryEnumerator nextObject])) {
-					if([allowedTypes containsObject:[filename pathExtension]]) {
-						streamObject = [libraryDocument addFileToLibrary:[path stringByAppendingPathComponent:filename]];
-						
-						if(nil != streamObject) {
-							++count;
-						}
-					}
-				}
-			}
-			else {
-				streamObject		= [libraryDocument addURLToLibrary:url];
-				
-				if(nil != streamObject) {
-					++count;
-				}
-			}
-		}
-		
-		success						= (0 != count);		
+		[libraryDocument addURLsToLibrary:URLs];
+
+		success						= YES;		
 	}
 	
 	return success;

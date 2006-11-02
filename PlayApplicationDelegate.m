@@ -76,9 +76,6 @@
 		return YES;
 	}
 	else if([getAudioExtensions() containsObject:[filename pathExtension]]) {
-		NSArray						*streamObjects;
-		
-		streamObjects				= nil;
 		document					= [documentController currentDocument];
 
 		if(nil == document) {
@@ -87,10 +84,10 @@
 		}
 
 		if([document isKindOfClass:[LibraryDocument class]]) {
-			streamObjects				= [(LibraryDocument *)document addURLsToLibrary:[NSArray arrayWithObject:fileURL]];
+			[(LibraryDocument *)document addURLsToLibrary:[NSArray arrayWithObject:fileURL]];
 		}
 
-		return (0 == [streamObjects count] ? NO : YES);
+		return YES;
 	}		
 	
 	return NO;
