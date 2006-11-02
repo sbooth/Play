@@ -419,12 +419,6 @@
 
 - (void) addFilesToLibrary:(NSArray *)filenames
 {
-	// This should never be performed on the main thread to avoid blocking the UI
-	if([self thread] == [NSThread currentThread]) {
-		[NSThread detachNewThreadSelector:@selector(addFilesToLibrary:) toTarget:self withObject:filenames];		
-		return;
-	}
-	
 	NSAutoreleasePool			*pool;
 	NSFileManager				*manager;
 	NSArray						*allowedTypes;
@@ -435,6 +429,20 @@
 	unsigned					i;
 	
 	pool						= [[NSAutoreleasePool alloc] init];
+	
+	// This should never be performed on the main thread to avoid blocking the UI
+	if([self thread] == [NSThread currentThread]) {
+		[NSThread detachNewThreadSelector:@selector(addFilesToLibrary:) toTarget:self withObject:filenames];
+		[pool release];
+		return;
+	}	
+	
+	// We don't need a high priority for file addition
+	result						= [NSThread setThreadPriority:0.4];
+	if(NO == result) {
+		NSLog(@"Unable to set the thread priority.");
+	}
+
 	manager						= [NSFileManager defaultManager];
 	allowedTypes				= getAudioExtensions();
 	
@@ -463,12 +471,6 @@
 
 - (void) addURLsToLibrary:(NSArray *)URLs;
 {
-	// This should never be performed on the main thread to avoid blocking the UI
-	if([self thread] == [NSThread currentThread]) {
-		[NSThread detachNewThreadSelector:@selector(addURLsToLibrary:) toTarget:self withObject:URLs];		
-		return;
-	}
-	
 	NSAutoreleasePool			*pool;
 	NSFileManager				*manager;
 	NSArray						*allowedTypes;
@@ -480,6 +482,20 @@
 	unsigned					i;
 	
 	pool						= [[NSAutoreleasePool alloc] init];
+
+	// This should never be performed on the main thread to avoid blocking the UI
+	if([self thread] == [NSThread currentThread]) {
+		[NSThread detachNewThreadSelector:@selector(addURLsToLibrary:) toTarget:self withObject:URLs];		
+		[pool release];
+		return;
+	}
+	
+	// We don't need a high priority for file addition
+	result						= [NSThread setThreadPriority:0.4];
+	if(NO == result) {
+		NSLog(@"Unable to set the thread priority.");
+	}
+	
 	manager						= [NSFileManager defaultManager];
 	allowedTypes				= getAudioExtensions();
 	
@@ -827,6 +843,7 @@
 		
 		// When the selected Playlist changes, update the AudioStream Array Controller's bindings
 		[_streamArrayController unbind:@"contentSet"];
+		[_streamArrayController setContent:nil];
 		
 		if(0 == [[[_playlistArrayController selection] valueForKey:@"@count"] intValue]) {
 			bindingTarget			= [self fetchLibraryObject];
@@ -878,12 +895,12 @@
 
 - (AudioPlayer *) player
 {
-	return [[_player retain] autorelease];
+	return _player;
 }
 
 - (NSThread *) thread
 {
-	return [[_libraryThread retain] autorelease];
+	return _libraryThread;
 }
 
 - (NSManagedObject *) fetchLibraryObject
