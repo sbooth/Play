@@ -26,6 +26,7 @@
 #import "CoreAudioPropertiesReader.h"
 #import "WavPackPropertiesReader.h"
 #import "MonkeysAudioPropertiesReader.h"
+#import "MP3PropertiesReader.h"
 
 #import "UtilityFunctions.h"
 
@@ -107,6 +108,11 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioPropertiesReader alloc] init];
+		
+		[result setValue:url forKey:@"url"];
+	}
+	else if([pathExtension isEqualToString:@"mp3"]) {
+		result						= [[MP3PropertiesReader alloc] init];
 		
 		[result setValue:url forKey:@"url"];
 	}
