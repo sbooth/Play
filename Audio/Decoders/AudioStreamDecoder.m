@@ -204,9 +204,9 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 - (void) dealloc
 {
-	[_pcmBuffer release];		_pcmBuffer = nil;
+	[_pcmBuffer release],		_pcmBuffer = nil;
 
-	semaphore_destroy(mach_task_self(), _semaphore);	_semaphore = 0;
+	semaphore_destroy(mach_task_self(), _semaphore),	_semaphore = 0;
 
 	[super dealloc];
 }
