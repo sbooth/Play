@@ -138,7 +138,11 @@
 		frameCount								= bufferList.mBuffers[0].mDataByteSize / [self pcmFormat].mBytesPerFrame;
 		
 		result									= ExtAudioFileRead(_extAudioFile, &frameCount, &bufferList);
-		NSAssert1(noErr == result, @"ExtAudioFileRead failed: %@", UTCreateStringForOSType(result));
+		
+		if(noErr != result) {
+			NSLog(@"ExtAudioFileRead failed: %i", result);
+			return;
+		}
 		
 		if(0 < bufferList.mBuffers[0].mDataByteSize) {
 			[[self pcmBuffer] didWriteLength:bufferList.mBuffers[0].mDataByteSize];				
