@@ -44,6 +44,8 @@
 #import "AudioMetadataEditingSheet.h"
 #import "UtilityFunctions.h"
 
+#import "ImageAndTextCell.h"
+
 #include "mt19937ar.h"
 
 #import <Growl/GrowlApplicationBridge.h>
@@ -51,10 +53,10 @@
 @interface LibraryDocument (Private)
 
 - (AudioPlayer *)			player;
-
 - (NSThread *)				thread;
 
 - (NSManagedObject *)		fetchLibraryObject;
+- (NSManagedObject *)		fetchStreamObjectForURL:(NSURL *)url error:(NSError **)error;
 
 - (void)					playStream:(NSArray *)streams;
 
@@ -132,6 +134,7 @@
 		init_genrand(time(NULL));
 		
 		_libraryThread	= [[NSThread currentThread] retain];
+		
 		return self;
 	}
 	
@@ -162,11 +165,11 @@
 
 - (void) dealloc
 {
-	[_player release];							_player = nil;
-	[_streamTableVisibleColumns release];		_streamTableVisibleColumns = nil;
-	[_streamTableHiddenColumns release];		_streamTableHiddenColumns = nil;
-	[_streamTableHeaderContextMenu release];	_streamTableHeaderContextMenu = nil;
-	[_libraryThread release];					_libraryThread = nil;
+	[_player release],							_player = nil;
+	[_streamTableVisibleColumns release],		_streamTableVisibleColumns = nil;
+	[_streamTableHiddenColumns release],		_streamTableHiddenColumns = nil;
+	[_streamTableHeaderContextMenu release],	_streamTableHeaderContextMenu = nil;
+	[_libraryThread release],					_libraryThread = nil;
 	
 	[super dealloc];
 }
@@ -189,6 +192,8 @@
 	id <NSMenuItem> contextMenuItem;	
 	id				obj;
 	int				menuIndex, i;
+	NSTableColumn	*tableColumn;
+	NSCell			*dataCell;
 	
 //	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
 
@@ -209,6 +214,14 @@
 	// Default window state
 	[self updatePlayButtonState];
 	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+	
+	// Setup playlist table
+	tableColumn							= [_playlistTableView tableColumnWithIdentifier:@"name"];
+	dataCell							= [[ImageAndTextCell alloc] init];
+
+	[tableColumn setDataCell:dataCell];
+	[tableColumn bind:@"value" toObject:_playlistArrayController withKeyPath:@"arrangedObjects.name" options:nil];
+	[dataCell release];
 	
 	// Setup stream table columns
 	visibleDictionary					= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
@@ -293,6 +306,37 @@
 
 #pragma mark Action Methods
 
+- (IBAction) insertPlaylist:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	NSManagedObject				*libraryObject;
+	BOOL						selectionChanged;
+	
+//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
+//	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
 - (IBAction) insertPlaylistWithSelectedStreams:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
@@ -302,18 +346,31 @@
 	NSMutableSet				*streamsSet;
 	BOOL						selectionChanged;
 
+//	[_playlistDrawer open];
+
 	managedObjectContext		= [self managedObjectContext];
 	selectedStreams				= [_streamArrayController selectedObjects];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"Playlist" inManagedObjectContext:managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self fetchLibraryObject];
 	
 	[playlistObject setValue:libraryObject forKey:@"library"];
+	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
 	
 	streamsSet					= [playlistObject mutableSetValueForKey:@"streams"];
 	
 	[streamsSet addObjectsFromArray:selectedStreams];
 	
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) editPlaylist:(id)sender
+{
+	NSLog(@"editPlaylist");
 }
 
 - (IBAction) removeAudioStreams:(id)sender
@@ -368,7 +425,7 @@
 		
 		[streamInformationSheet setValue:self forKey:@"owner"];
 
-		[[streamInformationSheet valueForKey:@"streamObjectController"] setContent:[[_streamArrayController selectedObjects] objectAtIndex:0]];
+		[[streamInformationSheet valueForKey:@"streamObjectController"] setContent:[streams objectAtIndex:0]];
 		
 		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 									   modalForWindow:[self windowForSheet] 
@@ -802,6 +859,38 @@
 
 #pragma mark Callbacks
 
+- (void) streamPlaybackDidStart:(NSURL *)url
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSError						*error;
+	NSNumber					*playCount;
+	NSNumber					*newPlayCount;
+	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	playCount					= [streamObject valueForKey:@"playCount"];
+	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	
+	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
+	[streamObject setValue:newPlayCount forKey:@"playCount"];
+	
+	if(nil == [streamObject valueForKey:@"firstPlayed"]) {
+		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
+	}
+
+	streamObject				= [self fetchStreamObjectForURL:url error:&error];
+
+	if(nil != streamObject) {
+		[libraryObject setValue:streamObject forKey:@"nowPlaying"];		
+		[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
+	}
+}
+
 - (void) streamPlaybackDidComplete
 {
 	NSManagedObjectContext		*managedObjectContext;
@@ -829,6 +918,67 @@
 	[self playNextStream:self];
 }
 
+- (void) requestNextStream
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*libraryObject;
+	NSManagedObject				*streamObject;
+	NSError						*error;
+	NSArray						*streams;
+	unsigned					streamIndex;
+	NSURL						*url;
+	BOOL						result;
+	
+	error						= nil;
+	managedObjectContext		= [self managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+		
+	streams						= [_streamArrayController arrangedObjects];
+	
+	if(nil == streamObject || 0 == [streams count]) {
+		streamObject				= nil;
+	}
+	else if([self randomizePlayback]) {
+		double						randomNumber;
+		unsigned					randomIndex;
+		
+		randomNumber				= genrand_real2();
+		randomIndex					= (unsigned)(randomNumber * [streams count]);
+		streamObject				= [streams objectAtIndex:randomIndex];
+	}
+	else if([self loopPlayback]) {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(streamIndex + 1 < [streams count]) {
+			streamObject				= [streams objectAtIndex:streamIndex + 1];			
+		}
+		else {
+			streamObject				= [streams objectAtIndex:0];
+		}
+	}
+	else {
+		streamIndex					= [streams indexOfObject:streamObject];
+		
+		if(streamIndex + 1 < [streams count]) {
+			streamObject			= [streams objectAtIndex:streamIndex + 1];
+		}
+		else {
+			streamObject				= nil;
+		}
+	}
+	
+	if(nil != streamObject) {
+		url									= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
+		result								= [[self player] setNextStreamURL:url error:&error];
+		
+		if(NO == result) {
+			if(nil != error) {
+				
+			}
+		}
+	}
+}
 
 @end
 
@@ -885,7 +1035,25 @@
 		}
 		
 		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
-	//	[[NSUserDefaults standardUserDefaults] synchronize];
+	}
+}
+
+- (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+	if([aTableView isEqual:_playlistTableView] && [[aTableColumn identifier] isEqualToString:@"name"]) {
+		NSDictionary			*infoForBinding;
+		
+		infoForBinding			= [aTableView infoForBinding:NSContentBinding];
+		
+		if(nil != infoForBinding) {
+			NSArrayController	*arrayController;
+			NSManagedObject		*playlistObject;
+			
+			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
+			playlistObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+			
+			[aCell setImage:[playlistObject valueForKey:@"image"]];
+		}
 	}
 }
 

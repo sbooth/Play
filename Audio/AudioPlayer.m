@@ -34,16 +34,37 @@
 - (AudioStreamDecoder *) streamDecoder;
 - (void)				setStreamDecoder:(AudioStreamDecoder *)streamDecoder;
 
+- (AudioStreamDecoder *) nextStreamDecoder;
+- (void)				setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder;
+
 //- (void)				didReachEndOfStream:(id)arg;
 - (void)				didReachEndOfStream;
 //- (void)				didReadFrames:(NSNumber *)frameCount;
 - (void)				didReadFrames:(UInt32)frameCount;
+
+- (void)				didStartUsingNextStreamDecoder;
 
 - (void)				currentFrameNeedsUpdate;
 
 - (void)				setIsPlaying:(BOOL)isPlaying;
 
 @end
+
+#if DEBUG
+static void dumpASBD(const AudioStreamBasicDescription *asbd)
+{
+	NSLog(@"====================");
+	NSLog(@"mSampleRate         %f", asbd->mSampleRate);
+	NSLog(@"mFormatID           %.4s", (const char *)(&asbd->mFormatID));
+	NSLog(@"mFormatFlags        %u", asbd->mFormatFlags);
+	NSLog(@"mBytesPerPacket     %u", asbd->mBytesPerPacket);
+	NSLog(@"mFramesPerPacket    %u", asbd->mFramesPerPacket);
+	NSLog(@"mBytesPerFrame      %u", asbd->mBytesPerFrame);
+	NSLog(@"mChannelsPerFrame   %u", asbd->mChannelsPerFrame);
+	NSLog(@"mBitsPerChannel     %u", asbd->mBitsPerChannel);
+	NSLog(@"mReserved           %u", asbd->mReserved);
+}
+#endif
 
 // ========================================
 // AudioUnit render function
@@ -63,11 +84,24 @@ MyRenderer(void							*inRefCon,
 	NSAutoreleasePool		*pool;
 	AudioPlayer				*player;
 	AudioStreamDecoder		*streamDecoder;
-	UInt32					framesRead, currentBuffer;
+	UInt32					framesRead, currentBuffer, originalBufferSize;
 
 	pool					= [[NSAutoreleasePool alloc] init];
 	player					= (AudioPlayer *)inRefCon;
 	streamDecoder			= [player streamDecoder];
+	
+	if(nil == streamDecoder) {
+		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
+		
+		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
+			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
+		}
+		
+		[pool release];
+		return noErr;
+	}
+	
+	originalBufferSize		= ioData->mBuffers[0].mDataByteSize;
 	framesRead				= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
 		
 #if DEBUG
@@ -75,6 +109,28 @@ MyRenderer(void							*inRefCon,
 		NSLog(@"MyRenderer requested %i frames, got %i", inNumberFrames, framesRead);
 	}
 #endif
+	
+	// If this stream is finished, roll straight into the next one if possible
+	if(framesRead != inNumberFrames && [streamDecoder atEndOfStream] && nil != [player nextStreamDecoder]) {
+		AudioBufferList			additionalData;
+		UInt32					additionalFramesRead;
+		UInt32					bufferSizeAfterFirstRead;
+
+		[player didStartUsingNextStreamDecoder];
+		
+		streamDecoder								= [player streamDecoder];
+		
+		bufferSizeAfterFirstRead					= ioData->mBuffers[0].mDataByteSize;
+		additionalData.mNumberBuffers				= 1;
+		additionalData.mBuffers[0].mData			= ioData->mBuffers[0].mData + ioData->mBuffers[0].mDataByteSize;
+		additionalData.mBuffers[0].mDataByteSize	= originalBufferSize - ioData->mBuffers[0].mDataByteSize;
+		
+		additionalFramesRead	= [streamDecoder readAudio:&additionalData frameCount:inNumberFrames - framesRead];
+		
+		ioData->mBuffers[0].mDataByteSize			= bufferSizeAfterFirstRead + additionalData.mBuffers[0].mDataByteSize;
+
+		framesRead									+= additionalFramesRead;
+	}
 	
 	if(0 == framesRead) {
 		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
@@ -244,21 +300,26 @@ MyRenderNotification(void							*inRefCon,
 		[_streamDecoder release];		_streamDecoder = nil;
 	}
 	
-	[_owner release];					_owner = nil;
-	[_secondsFormatter release];		_secondsFormatter = nil;
-	[_runLoop release];					_runLoop = nil;
+	[_owner release],					_owner = nil;
+	[_secondsFormatter release],		_secondsFormatter = nil;
+	[_runLoop release],					_runLoop = nil;
 	
 	[super dealloc];
 }
 
 - (LibraryDocument *)	owner									{ return [[_owner retain] autorelease]; }
-- (void)				setOwner:(LibraryDocument *)owner		{ [_owner release]; _owner = [owner retain]; }
+- (void)				setOwner:(LibraryDocument *)owner		{ [_owner release], _owner = [owner retain]; }
 
 - (BOOL) setStreamURL:(NSURL *)url error:(NSError **)error
 {
 	BOOL							result;
 	AudioStreamBasicDescription		pcmFormat;
 	AudioStreamDecoder				*streamDecoder;
+
+	if(nil != [self nextStreamDecoder]) {
+		[[self nextStreamDecoder] stopDecoding:error];
+		[self setNextStreamDecoder:nil];
+	}
 
 	if(nil != [self streamDecoder]) {
 		[[self streamDecoder] stopDecoding:error];
@@ -307,12 +368,54 @@ MyRenderNotification(void							*inRefCon,
 	return YES;
 }
 
+- (BOOL) setNextStreamURL:(NSURL *)url error:(NSError **)error
+{
+	AudioStreamBasicDescription		pcmFormat, nextPCMFormat;
+	AudioStreamDecoder				*streamDecoder;
+		
+	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:error];
+	
+	if(nil == streamDecoder) {
+		
+		if(nil != error) {
+			
+		}
+		
+		return NO;
+	}
+	
+	[self setNextStreamDecoder:streamDecoder];
+	[[self nextStreamDecoder] startDecoding:error];
+	
+	pcmFormat		= [[self streamDecoder] pcmFormat];
+	nextPCMFormat	= [[self nextStreamDecoder] pcmFormat];
+
+	// We can only join the two files if they have the same formats (mSampleRate, etc)
+	if(0 != memcmp(&pcmFormat, &nextPCMFormat, sizeof(pcmFormat))) {
+
+#if DEBUG
+		NSLog(@"Unable to join buffers, PCM formats don't match:");
+		dumpASBD(&pcmFormat);
+		dumpASBD(&nextPCMFormat);
+#endif
+		
+		[[self nextStreamDecoder] stopDecoding:error];
+		[self setNextStreamDecoder:nil];
+		
+		return NO;
+	}
+	
+	return YES;
+}
+
 - (void) reset
 {
 	[self willChangeValueForKey:@"totalFrames"];
 	[self willChangeValueForKey:@"currentFrame"];
 	
 	[self setStreamDecoder:nil];
+	[self setNextStreamDecoder:nil];
+	_requestedNextStream = NO;
 
 	[self didChangeValueForKey:@"totalFrames"];
 	[self didChangeValueForKey:@"currentFrame"];
@@ -499,6 +602,13 @@ MyRenderNotification(void							*inRefCon,
 		}
 #endif
 		
+		if(nil != [self nextStreamDecoder]) {
+			NSError *error;
+			[[self nextStreamDecoder] stopDecoding:&error];
+			[self setNextStreamDecoder:nil];
+			_requestedNextStream = NO;
+		}
+		
 		if(isPlaying) {
 			[self play];
 		}
@@ -567,23 +677,34 @@ MyRenderNotification(void							*inRefCon,
 
 - (NSFormatter *) secondsFormatter
 {
-	return [[_secondsFormatter retain] autorelease];
+	return _secondsFormatter;
 }
 
 - (NSRunLoop *)	runLoop
 {
-	return [[_runLoop retain] autorelease];
+	return _runLoop;
 }
 
 - (AudioStreamDecoder *) streamDecoder
 {
-	return [[_streamDecoder retain] autorelease];
+	return _streamDecoder;
 }
 
 - (void) setStreamDecoder:(AudioStreamDecoder *)streamDecoder
 {
 	[_streamDecoder release];
 	_streamDecoder = [streamDecoder retain];
+}
+
+- (AudioStreamDecoder *) nextStreamDecoder
+{
+	return _nextStreamDecoder;
+}
+
+- (void) setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder
+{
+	[_nextStreamDecoder release];
+	_nextStreamDecoder = [nextStreamDecoder retain];
 }
 
 //- (void) didReachEndOfStream:(id)arg
@@ -597,18 +718,34 @@ MyRenderNotification(void							*inRefCon,
 //- (void) didReadFrames:(NSNumber *)frameCount
 - (void) didReadFrames:(UInt32)frameCount
 {
-	NSTimeInterval			seconds;
+	NSTimeInterval			seconds, secondsRemaining;
 	
 	// Accumulate the frames for UI updates approx. once per second
 //	_frameCounter			+= [frameCount unsignedIntValue];
 	_frameCounter			+= frameCount;
 	seconds					= (NSTimeInterval) (_frameCounter / [[self streamDecoder] pcmFormat].mSampleRate);
+	secondsRemaining		= (NSTimeInterval) ([[self streamDecoder] framesRemaining] / [[self streamDecoder] pcmFormat].mSampleRate);
+	
+	if(2.0 > secondsRemaining && nil == [self nextStreamDecoder] && NO == _requestedNextStream) {
+		_requestedNextStream = YES;
+		[_owner performSelectorOnMainThread:@selector(requestNextStream) withObject:nil waitUntilDone:NO];
+	}
 	
 	if(1.0 < seconds) {
 //		[self currentFrameNeedsUpdate];
 		[self performSelectorOnMainThread:@selector(currentFrameNeedsUpdate) withObject:nil waitUntilDone:NO];
 		_frameCounter		= 0;
 	}
+}
+
+
+- (void) didStartUsingNextStreamDecoder
+{
+	[self setStreamDecoder:[self nextStreamDecoder]];
+	[self setNextStreamDecoder:nil];
+	_requestedNextStream = NO;
+	
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] valueForKey:@"url"] waitUntilDone:NO];
 }
 
 - (void) currentFrameNeedsUpdate

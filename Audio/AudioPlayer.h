@@ -30,6 +30,9 @@
 	AudioUnit				_audioUnit;
 	AudioStreamDecoder		*_streamDecoder;
 	
+	AudioStreamDecoder		*_nextStreamDecoder;
+	BOOL					_requestedNextStream;
+	
 	LibraryDocument			*_owner;
 	
 	BOOL					_isPlaying;
@@ -44,7 +47,9 @@
 - (void)				setOwner:(LibraryDocument *)owner;
 
 - (BOOL)				setStreamURL:(NSURL *)url error:(NSError **)error;
-- (oneway void)			reset;
+- (BOOL)				setNextStreamURL:(NSURL *)url error:(NSError **)error;
+
+- (void)				reset;
 
 - (BOOL)				hasValidStream;
 - (BOOL)				streamSupportsSeeking;
@@ -63,7 +68,7 @@
 
 - (BOOL)				isPlaying;
 
-// The following methods are only updated approximately once per second to avoid excessive CPU loads
+// UI bindings (updated approximately once per second to avoid excessive CPU loads)
 - (SInt64)				totalFrames;
 
 - (SInt64)				currentFrame;

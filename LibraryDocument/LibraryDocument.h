@@ -31,6 +31,7 @@
 
 	IBOutlet NSButton			*_playPauseButton;
 	IBOutlet NSImageView		*_albumArtImageView;
+	IBOutlet NSDrawer			*_playlistDrawer;
 
 	AudioPlayer					*_player;
 	
@@ -47,11 +48,15 @@
 
 // ========================================
 // Action methods
+- (IBAction)	insertPlaylist:(id)sender;
 - (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
+
+- (IBAction)	editPlaylist:(id)sender;
 
 - (IBAction)	removeAudioStreams:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
+
 
 // ========================================
 // Playback control
@@ -93,6 +98,8 @@
 
 // ========================================
 // Callbacks
+- (void)		streamPlaybackDidStart:(NSURL *)url;
 - (void)		streamPlaybackDidComplete;
+- (void)		requestNextStream;
 
 @end
