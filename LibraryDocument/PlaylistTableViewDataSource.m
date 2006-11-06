@@ -42,18 +42,24 @@
 
 	if(nil != infoForBinding) {
 		NSArrayController	*arrayController;
+		NSManagedObject		*playlistObject;
 		unsigned			objectCount;
 		
 		arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
 		objectCount			= [[arrayController arrangedObjects] count];
-		
+
 		if(0 < objectCount) {
 			if(row >= objectCount) {
 				--row;
 			}
-			
-			[tableView setDropRow:row dropOperation:NSTableViewDropOn];
-			result			= NSDragOperationCopy;
+		
+			playlistObject	= [[arrayController arrangedObjects] objectAtIndex:row];
+
+			// Only allow dropping streams on static playlists
+			if([[[playlistObject entity] name] isEqualToString:@"StaticPlaylist"]) {
+				[tableView setDropRow:row dropOperation:NSTableViewDropOn];
+				result			= NSDragOperationCopy;
+			}
 		}
 	}
 	
@@ -78,7 +84,7 @@
 		
 		destinationArrayController	= [destinationContentBindingInfo objectForKey:NSObservedObjectKey];
 		sourceArrayController		= nil;
-		
+
 		contentSetBindingInfo		= [destinationArrayController infoForBinding:NSContentSetBinding];
 		if(nil != contentSetBindingInfo) {
 			sourceArrayController	= [contentSetBindingInfo objectForKey:NSObservedObjectKey];  
