@@ -26,6 +26,7 @@
 {
 	NSString		*result			= nil;
 	unsigned		value;
+	unsigned		days			= 0;
 	unsigned		hours			= 0;
 	unsigned		minutes			= 0;
 	unsigned		seconds			= 0;
@@ -43,9 +44,17 @@
 		minutes -= 60;
 		++hours;
 	}
+	
+	while(24 <= hours) {
+		hours -= 24;
+		++days;
+	}
 
-	if(0 < hours) {
-		result = [NSString stringWithFormat:@"%u:%u:%.2u", hours, minutes, seconds];
+	if(0 < days) {
+		result = [NSString stringWithFormat:@"%u:%.2u:%.2u:%.2u", days, hours, minutes, seconds];
+	}
+	else if(0 < hours) {
+		result = [NSString stringWithFormat:@"%u:%.2u:%.2u", hours, minutes, seconds];
 	}
 	else if(0 < minutes) {
 		result = [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
