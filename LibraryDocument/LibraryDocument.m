@@ -1059,9 +1059,14 @@
 			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
 			streamObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 
+			// Highlight the currently playing stream
 			if([[streamObject valueForKey:@"isPlaying"] boolValue]) {
 				[aCell setDrawsBackground:YES];
-				[aCell setBackgroundColor:[NSColor secondarySelectedControlColor]];
+
+				// Emacs "NavajoWhite" -> 255, 222, 173
+//				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
+				// Emacs "LightSteelBlue" -> 176, 196, 222
+				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
 			}
 			else {
 				[aCell setDrawsBackground:NO];
