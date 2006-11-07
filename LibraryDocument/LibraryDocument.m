@@ -229,6 +229,9 @@
 	if([anItem action] == @selector(playPause:)) {
 		return [self playButtonEnabled];
 	}
+	else if([anItem action] == @selector(addFiles:)) {
+		return [_streamArrayController canAdd];
+	}
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
 			|| [anItem action] == @selector(skipToEnd:) 
