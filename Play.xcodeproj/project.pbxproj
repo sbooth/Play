@@ -33,6 +33,9 @@
 		8C3A80480AFFD40800A03FEB /* Library.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A803A0AFFD40800A03FEB /* Library.m */; };
 		8C3A804A0AFFD40800A03FEB /* Playlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A803C0AFFD40800A03FEB /* Playlist.m */; };
 		8C3A804C0AFFD40800A03FEB /* StaticPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A803E0AFFD40800A03FEB /* StaticPlaylist.m */; };
+		8C3A84FB0AFFDEE200A03FEB /* OggVorbisMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A84FA0AFFDEE200A03FEB /* OggVorbisMetadataWriter.mm */; };
+		8C3A85090AFFDFBD00A03FEB /* OggFLACMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A85070AFFDFBD00A03FEB /* OggFLACMetadataWriter.mm */; };
+		8C3A852D0AFFE46C00A03FEB /* MP3MetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A852B0AFFE46C00A03FEB /* MP3MetadataWriter.mm */; };
 		8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */; };
 		8C5C87E30AFC588000D1E17A /* StaticPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */; };
 		8C5C87E40AFC588000D1E17A /* FolderPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */; };
@@ -209,6 +212,12 @@
 		8C3A803C0AFFD40800A03FEB /* Playlist.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Playlist.m; path = ManagedObjects/Playlist.m; sourceTree = "<group>"; };
 		8C3A803D0AFFD40800A03FEB /* StaticPlaylist.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = StaticPlaylist.h; path = ManagedObjects/StaticPlaylist.h; sourceTree = "<group>"; };
 		8C3A803E0AFFD40800A03FEB /* StaticPlaylist.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = StaticPlaylist.m; path = ManagedObjects/StaticPlaylist.m; sourceTree = "<group>"; };
+		8C3A80730AFFDC9000A03FEB /* OggVorbisMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OggVorbisMetadataWriter.h; path = Audio/Metadata/Writers/OggVorbisMetadataWriter.h; sourceTree = "<group>"; };
+		8C3A84FA0AFFDEE200A03FEB /* OggVorbisMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggVorbisMetadataWriter.mm; path = Audio/Metadata/Writers/OggVorbisMetadataWriter.mm; sourceTree = "<group>"; };
+		8C3A85060AFFDFBD00A03FEB /* OggFLACMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACMetadataWriter.h; path = Audio/Metadata/Writers/OggFLACMetadataWriter.h; sourceTree = "<group>"; };
+		8C3A85070AFFDFBD00A03FEB /* OggFLACMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggFLACMetadataWriter.mm; path = Audio/Metadata/Writers/OggFLACMetadataWriter.mm; sourceTree = "<group>"; };
+		8C3A852A0AFFE46C00A03FEB /* MP3MetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3MetadataWriter.h; path = Audio/Metadata/Writers/MP3MetadataWriter.h; sourceTree = "<group>"; };
+		8C3A852B0AFFE46C00A03FEB /* MP3MetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3MetadataWriter.mm; path = Audio/Metadata/Writers/MP3MetadataWriter.mm; sourceTree = "<group>"; };
 		8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
 		8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = StaticPlaylist.png; path = Images/StaticPlaylist.png; sourceTree = "<group>"; };
@@ -539,10 +548,16 @@
 		8C5C90250AFD1BFE00D1E17A /* Metadata Writers */ = {
 			isa = PBXGroup;
 			children = (
+				8C3A852A0AFFE46C00A03FEB /* MP3MetadataWriter.h */,
+				8C3A852B0AFFE46C00A03FEB /* MP3MetadataWriter.mm */,
+				8C3A85060AFFDFBD00A03FEB /* OggFLACMetadataWriter.h */,
+				8C3A85070AFFDFBD00A03FEB /* OggFLACMetadataWriter.mm */,
+				8C3A84FA0AFFDEE200A03FEB /* OggVorbisMetadataWriter.mm */,
 				8C5C90420AFD1D5000D1E17A /* FLACMetadataWriter.h */,
 				8C5C90430AFD1D5000D1E17A /* FLACMetadataWriter.m */,
 				8C5C902F0AFD1C2600D1E17A /* AudioMetadataWriter.h */,
 				8C5C90300AFD1C2600D1E17A /* AudioMetadataWriter.m */,
+				8C3A80730AFFDC9000A03FEB /* OggVorbisMetadataWriter.h */,
 			);
 			name = "Metadata Writers";
 			sourceTree = "<group>";
@@ -907,6 +922,9 @@
 				8C3A80480AFFD40800A03FEB /* Library.m in Sources */,
 				8C3A804A0AFFD40800A03FEB /* Playlist.m in Sources */,
 				8C3A804C0AFFD40800A03FEB /* StaticPlaylist.m in Sources */,
+				8C3A84FB0AFFDEE200A03FEB /* OggVorbisMetadataWriter.mm in Sources */,
+				8C3A85090AFFDFBD00A03FEB /* OggFLACMetadataWriter.mm in Sources */,
+				8C3A852D0AFFE46C00A03FEB /* MP3MetadataWriter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
