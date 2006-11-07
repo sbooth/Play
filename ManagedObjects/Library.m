@@ -20,10 +20,13 @@
 
 #import "Library.h"
 
+#import "Playlist.h"
+#import "AudioStream.h"
+
 @implementation Library 
 
 
-- (void)addPlaylistsObject:(NSManagedObject *)value 
+- (void)addPlaylistsObject:(Playlist *)value 
 {    
     NSSet *changedObjects = [[NSSet alloc] initWithObjects:&value count:1];
     
@@ -36,7 +39,7 @@
     [changedObjects release];
 }
 
-- (void)removePlaylistsObject:(NSManagedObject *)value 
+- (void)removePlaylistsObject:(Playlist *)value 
 {
     NSSet *changedObjects = [[NSSet alloc] initWithObjects:&value count:1];
     
@@ -50,7 +53,7 @@
 }
 
 
-- (void)addStreamsObject:(NSManagedObject *)value 
+- (void)addStreamsObject:(AudioStream *)value 
 {    
     NSSet *changedObjects = [[NSSet alloc] initWithObjects:&value count:1];
     
@@ -63,7 +66,7 @@
     [changedObjects release];
 }
 
-- (void)removeStreamsObject:(NSManagedObject *)value 
+- (void)removeStreamsObject:(AudioStream *)value 
 {
     NSSet *changedObjects = [[NSSet alloc] initWithObjects:&value count:1];
     
@@ -77,7 +80,7 @@
 }
 
 
-- (NSManagedObject *)nowPlaying 
+- (AudioStream *)nowPlaying 
 {
     id tmpObject;
     
@@ -88,7 +91,7 @@
     return tmpObject;
 }
 
-- (void)setNowPlaying:(NSManagedObject *)value 
+- (void)setNowPlaying:(AudioStream *)value 
 {
     [self willChangeValueForKey: @"nowPlaying"];
     [self setPrimitiveValue: value

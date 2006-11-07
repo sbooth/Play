@@ -20,19 +20,22 @@
 
 #import <CoreData/CoreData.h>
 
+@class Playlist;
+@class AudioStream;
+
 @interface Library :  NSManagedObject  
 {
 }
 
 // Access to-many relationship via -[NSObject mutableSetValueForKey:]
-- (void)	addPlaylistsObject:(NSManagedObject *)value;
-- (void)	removePlaylistsObject:(NSManagedObject *)value;
+- (void)addPlaylistsObject:(Playlist *)value;
+- (void)removePlaylistsObject:(Playlist *)value;
 
 // Access to-many relationship via -[NSObject mutableSetValueForKey:]
-- (void)	addStreamsObject:(NSManagedObject *)value;
-- (void)	removeStreamsObject:(NSManagedObject *)value;
+- (void)addStreamsObject:(AudioStream *)value;
+- (void)removeStreamsObject:(AudioStream *)value;
 
-- (NSManagedObject *)	nowPlaying;
-- (void)				setNowPlaying:(NSManagedObject *)value;
+- (AudioStream *)nowPlaying;
+- (void)setNowPlaying:(AudioStream *)value;
 
 @end
