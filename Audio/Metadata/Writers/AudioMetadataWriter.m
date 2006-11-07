@@ -20,8 +20,8 @@
 
 #import "AudioMetadataWriter.h"
 #import "FLACMetadataWriter.h"
-//#import "OggFLACMetadataWriter.h"
-//#import "OggVorbisMetadataWriter.h"
+#import "OggFLACMetadataWriter.h"
+#import "OggVorbisMetadataWriter.h"
 //#import "MusepackMetadataWriter.h"
 //#import "MP3MetadataWriter.h"
 //#import "MP4MetadataWriter.h"
@@ -50,7 +50,7 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		result						= [[FLACMetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}/*
+	}
 	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
 		OggStreamType			type		= oggStreamType(url);
@@ -96,7 +96,7 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		}
 
 		[result setValue:url forKey:@"url"];
-	}
+	}/*
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackMetadataWriter alloc] init];
 		
