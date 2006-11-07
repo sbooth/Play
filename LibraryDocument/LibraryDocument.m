@@ -101,6 +101,7 @@
 		[NSNumber numberWithBool:NO], @"playCount",
 		[NSNumber numberWithBool:NO], @"lastPlayed",
 		[NSNumber numberWithBool:NO], @"date",
+		[NSNumber numberWithBool:NO], @"partOfCompilation",
 		nil];
 	
 	columnSizesDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
@@ -115,6 +116,7 @@
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
 		[NSNumber numberWithFloat:50], @"date",
+		[NSNumber numberWithFloat:70], @"partOfCompilation",
 		nil];
 	
 	columnOrderArray			= [NSArray arrayWithObjects:

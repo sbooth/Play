@@ -57,7 +57,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>library</string>
+				<string>playlibrary</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>LibraryDocument</string>
