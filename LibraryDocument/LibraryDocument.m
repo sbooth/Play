@@ -62,6 +62,11 @@
 
 - (void)					updatePlayButtonState;
 
+- (void)					setupStreamButtons;
+- (void)					setupPlaylistButtons;
+- (void)					setupStreamTableColumns;
+- (void)					setupPlaylistTable;
+
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
@@ -185,16 +190,6 @@
 {
     [super windowControllerDidLoadNib:windowController];
 
-	NSDictionary	*visibleDictionary;
-	NSDictionary	*sizesDictionary;
-	NSArray			*orderArray, *tableColumns;
-	NSEnumerator	*enumerator;
-	id <NSMenuItem> contextMenuItem;	
-	id				obj;
-	int				menuIndex, i;
-	NSTableColumn	*tableColumn;
-	NSCell			*dataCell;
-	
 //	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
 
 	// Setup drag and drop
@@ -215,65 +210,10 @@
 	[self updatePlayButtonState];
 	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
 	
-	// Setup playlist table
-	tableColumn							= [_playlistTableView tableColumnWithIdentifier:@"name"];
-	dataCell							= [[ImageAndTextCell alloc] init];
-
-	[tableColumn setDataCell:dataCell];
-	[tableColumn bind:@"value" toObject:_playlistArrayController withKeyPath:@"arrangedObjects.name" options:nil];
-	[dataCell release];
-	
-	// Setup stream table columns
-	visibleDictionary					= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
-	sizesDictionary						= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
-	orderArray							= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
-	
-	tableColumns						= [_streamTableView tableColumns];
-	enumerator							= [tableColumns objectEnumerator];
-	
-	_streamTableVisibleColumns			= [[NSMutableSet alloc] init];
-	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
-	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
-
-	[[_streamTableView headerView] setMenu:_streamTableHeaderContextMenu];
-
-	// Keep our changes from generating notifications to ourselves
-	[_streamTableView setDelegate:nil];
-	
-	while((obj = [enumerator nextObject])) {
-		menuIndex						= 0;
-		
-		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
-			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
-			menuIndex++;
-		}
-		
-		contextMenuItem					= [_streamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
-
-		[contextMenuItem setTarget:self];
-		[contextMenuItem setRepresentedObject:obj];
-		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
-		
-//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
-		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
-		
-		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
-			[_streamTableVisibleColumns addObject:obj];
-		}
-		else {
-			[_streamTableHiddenColumns addObject:obj];
-			[_streamTableView removeTableColumn:obj];
-		}
-	}
-	
-	i									= 0;
-	enumerator							= [orderArray objectEnumerator];
-	while((obj = [enumerator nextObject])) {
-		[_streamTableView moveColumn:[_streamTableView columnWithIdentifier:obj] toColumn:i];
-		++i;
-	}
-	
-	[_streamTableView setDelegate:self];
+	[self setupStreamButtons];
+	[self setupPlaylistButtons];
+	[self setupStreamTableColumns];
+	[self setupPlaylistTable];
 }
 
 - (void) windowWillClose:(NSNotification *)aNotification
@@ -306,7 +246,7 @@
 
 #pragma mark Action Methods
 
-- (IBAction) insertPlaylist:(id)sender
+- (IBAction) insertStaticPlaylist:(id)sender;
 {
 	NSManagedObjectContext		*managedObjectContext;
 	NSManagedObject				*playlistObject;
@@ -317,20 +257,67 @@
 	
 	managedObjectContext		= [self managedObjectContext];
 	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
-//	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self fetchLibraryObject];
 	
 	[playlistObject setValue:libraryObject forKey:@"library"];
 	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
 
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
-	
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
 
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) insertDynamicPlaylist:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	NSManagedObject				*libraryObject;
+	BOOL						selectionChanged;
+	
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) insertFolderPlaylist:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	NSManagedObject				*libraryObject;
+	BOOL						selectionChanged;
+
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self fetchLibraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
 	if(selectionChanged) {
 		// The playlist table has only one column
 		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
@@ -1234,6 +1221,185 @@
 		
 		[self setPlayButtonEnabled:YES];
 	}
+}
+
+- (void) setupStreamButtons
+{
+	// Bind stream addition/removal button actions and state
+	[_addStreamsButton setToolTip:@"Add audio streams to the library"];
+	[_addStreamsButton bind:@"enabled"
+				   toObject:_streamArrayController
+				withKeyPath:@"canInsert"
+					options:nil];
+	[_addStreamsButton setAction:@selector(addFiles:)];
+	[_addStreamsButton setTarget:self];
+	
+	[_removeStreamsButton setToolTip:@"Remove the selected audio streams from the library"];
+	[_removeStreamsButton bind:@"enabled"
+					  toObject:_streamArrayController
+				   withKeyPath:@"canRemove"
+					   options:nil];
+	[_removeStreamsButton setAction:@selector(removeAudioStreams:)];
+	[_removeStreamsButton setTarget:self];
+
+	[_streamInfoButton setToolTip:@"Show information on the selected streams"];
+	[_streamInfoButton bind:@"enabled"
+					 toObject:_streamArrayController
+				  withKeyPath:@"selectedObjects.@count"
+					  options:nil];
+	[_streamInfoButton setAction:@selector(showStreamInformationSheet:)];
+	[_streamInfoButton setTarget:self];
+}
+
+- (void) setupPlaylistButtons
+{
+	NSMenu			*buttonMenu;
+	NSMenuItem		*buttonMenuItem;
+
+	// Bind playlist addition/removal button actions and state
+	[_addPlaylistButton setToolTip:@"Add a new playlist to the library"];
+	[_addPlaylistButton bind:@"enabled"
+					toObject:_playlistArrayController
+				 withKeyPath:@"canInsert"
+					 options:nil];
+	
+	buttonMenu			= [[NSMenu alloc] init];
+	
+	buttonMenuItem		= [[NSMenuItem alloc] init];
+	[buttonMenuItem setTitle:@"New Playlist"];
+	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist"]];
+	[buttonMenuItem setTarget:self];
+	[buttonMenuItem setAction:@selector(insertStaticPlaylist:)];
+	[buttonMenu addItem:buttonMenuItem];
+	[buttonMenuItem bind:@"enabled"
+				toObject:_playlistArrayController
+			 withKeyPath:@"canInsert"
+				 options:nil];
+	[buttonMenuItem release];
+	
+	buttonMenuItem		= [[NSMenuItem alloc] init];
+	[buttonMenuItem setTitle:@"New Playlist with Selection"];
+	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist"]];
+	[buttonMenuItem setTarget:self];
+	[buttonMenuItem setAction:@selector(insertPlaylistWithSelectedStreams:)];
+	[buttonMenu addItem:buttonMenuItem];
+	[buttonMenuItem bind:@"enabled"
+				toObject:_streamArrayController
+			 withKeyPath:@"selectedObjects.@count"
+				 options:nil];
+	[buttonMenuItem release];
+	
+	buttonMenuItem		= [[NSMenuItem alloc] init];
+	[buttonMenuItem setTitle:@"New Dynamic Playlist"];
+	//	[buttonMenuItem setImage:[NSImage imageNamed:@"DynamicPlaylist"]];
+	[buttonMenuItem setTarget:self];
+	[buttonMenuItem setAction:@selector(insertDynamicPlaylist:)];
+	[buttonMenu addItem:buttonMenuItem];
+	[buttonMenuItem release];
+	
+	buttonMenuItem		= [[NSMenuItem alloc] init];
+	[buttonMenuItem setTitle:@"New Folder Playlist"];
+	//	[buttonMenuItem setImage:[NSImage imageNamed:@"FolderPlaylist"]];
+	[buttonMenuItem setTarget:self];
+	[buttonMenuItem setAction:@selector(insertFolderPlaylist:)];
+	[buttonMenu addItem:buttonMenuItem];
+	[buttonMenuItem release];
+	
+	[_addPlaylistButton setMenu:buttonMenu];
+	[buttonMenu release];
+	
+	[_removePlaylistsButton setToolTip:@"Remove the selected playlists from the library"];
+	[_removePlaylistsButton bind:@"enabled"
+						toObject:_playlistArrayController
+					 withKeyPath:@"canRemove"
+						 options:nil];
+	[_removePlaylistsButton setAction:@selector(remove:)];
+	[_removePlaylistsButton setTarget:_playlistArrayController];
+	
+	[_playlistInfoButton setToolTip:@"Show information on the selected playlist"];
+	[_playlistInfoButton bind:@"enabled"
+						toObject:_playlistArrayController
+					 withKeyPath:@"selectedObjects.@count"
+						 options:nil];
+	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
+	[_playlistInfoButton setTarget:self];
+}
+
+- (void) setupStreamTableColumns
+{
+	NSDictionary	*visibleDictionary;
+	NSDictionary	*sizesDictionary;
+	NSArray			*orderArray, *tableColumns;
+	NSEnumerator	*enumerator;
+	id <NSMenuItem> contextMenuItem;	
+	id				obj;
+	int				menuIndex, i;
+
+	// Setup stream table columns
+	visibleDictionary					= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
+	sizesDictionary						= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
+	orderArray							= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
+	
+	tableColumns						= [_streamTableView tableColumns];
+	enumerator							= [tableColumns objectEnumerator];
+	
+	_streamTableVisibleColumns			= [[NSMutableSet alloc] init];
+	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
+	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
+	
+	[[_streamTableView headerView] setMenu:_streamTableHeaderContextMenu];
+	
+	// Keep our changes from generating notifications to ourselves
+	[_streamTableView setDelegate:nil];
+	
+	while((obj = [enumerator nextObject])) {
+		menuIndex						= 0;
+		
+		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+			menuIndex++;
+		}
+		
+		contextMenuItem					= [_streamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
+		
+		[contextMenuItem setTarget:self];
+		[contextMenuItem setRepresentedObject:obj];
+		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
+		
+		//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
+		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
+		
+		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
+			[_streamTableVisibleColumns addObject:obj];
+		}
+		else {
+			[_streamTableHiddenColumns addObject:obj];
+			[_streamTableView removeTableColumn:obj];
+		}
+	}
+	
+	i									= 0;
+	enumerator							= [orderArray objectEnumerator];
+	while((obj = [enumerator nextObject])) {
+		[_streamTableView moveColumn:[_streamTableView columnWithIdentifier:obj] toColumn:i];
+		++i;
+	}
+	
+	[_streamTableView setDelegate:self];
+}
+
+- (void) setupPlaylistTable
+{
+	NSTableColumn	*tableColumn;
+	NSCell			*dataCell;
+	
+	// Setup playlist table
+	tableColumn							= [_playlistTableView tableColumnWithIdentifier:@"name"];
+	dataCell							= [[ImageAndTextCell alloc] init];
+	
+	[tableColumn setDataCell:dataCell];
+	[tableColumn bind:@"value" toObject:_playlistArrayController withKeyPath:@"arrangedObjects.name" options:nil];
+	[dataCell release];	
 }
 
 - (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo

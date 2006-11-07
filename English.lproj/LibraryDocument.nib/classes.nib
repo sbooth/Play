@@ -1,5 +1,9 @@
 {
     IBClasses = (
+        {CLASS = AIPlasticButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {CLASS = AIPlasticInfoButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
             ACTIONS = {openWith = id; openWithFinder = id; revealInFinder = id; }; 
             CLASS = AudioStreamTableView; 
@@ -21,6 +25,7 @@
         {
             ACTIONS = {
                 addFiles = id; 
+                editPlaylist = id; 
                 insertPlaylistWithSelectedStreams = id; 
                 nextStream = id; 
                 play = id; 
@@ -36,18 +41,27 @@
             CLASS = LibraryDocument; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                "_addPlaylistButton" = NSButton; 
+                "_addStreamsButton" = NSButton; 
                 "_albumArtImageView" = NSImageView; 
                 "_playPauseButton" = NSButton; 
                 "_playlistArrayController" = NSArrayController; 
+                "_playlistDrawer" = NSDrawer; 
+                "_playlistInfoButton" = NSButton; 
                 "_playlistTableView" = NSTableView; 
+                "_removePlaylistsButton" = NSButton; 
+                "_removeStreamsButton" = NSButton; 
                 "_streamArrayController" = NSArrayController; 
+                "_streamInfoButton" = NSButton; 
                 "_streamTableView" = NSTableView; 
             }; 
             SUPERCLASS = NSPersistentDocument; 
         }, 
         {CLASS = LibraryDocumentWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
         {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
-        {CLASS = PlaylistTableViewDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+        {CLASS = NSSegmentedControl; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
+        {CLASS = PlaylistTableViewDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = SecondsFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }
     ); 
     IBVersion = 1; 
 }

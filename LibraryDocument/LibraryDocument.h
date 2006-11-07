@@ -30,6 +30,15 @@
 	IBOutlet NSArrayController	*_playlistArrayController;
 
 	IBOutlet NSButton			*_playPauseButton;
+	
+	IBOutlet NSButton			*_addStreamsButton;
+	IBOutlet NSButton			*_removeStreamsButton;
+	IBOutlet NSButton			*_streamInfoButton;
+
+	IBOutlet NSButton			*_addPlaylistButton;
+	IBOutlet NSButton			*_removePlaylistsButton;
+	IBOutlet NSButton			*_playlistInfoButton;
+	
 	IBOutlet NSImageView		*_albumArtImageView;
 	IBOutlet NSDrawer			*_playlistDrawer;
 
@@ -48,7 +57,9 @@
 
 // ========================================
 // Action methods
-- (IBAction)	insertPlaylist:(id)sender;
+- (IBAction)	insertStaticPlaylist:(id)sender;
+- (IBAction)	insertDynamicPlaylist:(id)sender;
+- (IBAction)	insertFolderPlaylist:(id)sender;
 - (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
 
 - (IBAction)	editPlaylist:(id)sender;
