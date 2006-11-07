@@ -1047,6 +1047,27 @@
 			[aCell setImage:[playlistObject valueForKey:@"image"]];
 		}
 	}
+	else if([aTableView isEqual:_streamTableView]) {
+		NSDictionary			*infoForBinding;
+		
+		infoForBinding			= [aTableView infoForBinding:NSContentBinding];
+		
+		if(nil != infoForBinding) {
+			NSArrayController	*arrayController;
+			NSManagedObject		*streamObject;
+			
+			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
+			streamObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+
+			if([[streamObject valueForKey:@"isPlaying"] boolValue]) {
+				[aCell setDrawsBackground:YES];
+				[aCell setBackgroundColor:[NSColor secondarySelectedControlColor]];
+			}
+			else {
+				[aCell setDrawsBackground:NO];
+			}
+		}
+	}
 }
 
 @end
