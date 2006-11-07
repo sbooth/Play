@@ -39,8 +39,11 @@ extern "C" {
 
 	NSArray * getBuiltinExtensions();
 	NSArray * getCoreAudioExtensions();
-	NSArray * getAudioExtensions();
+	NSArray	* getAudioExtensions();
 
+	NSData * getPNGDataForImage(NSImage *image);
+	NSData * getBitmapDataForImage(NSImage *image, NSBitmapImageFileType type);
+		
 #ifdef __cplusplus
 }
 #endif

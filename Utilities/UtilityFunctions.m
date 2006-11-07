@@ -183,3 +183,38 @@ getAudioExtensions()
 	
 	return sAudioExtensions;
 }
+
+NSData *
+getPNGDataForImage(NSImage *image)
+{
+	return getBitmapDataForImage(image, NSPNGFileType); 
+}
+
+NSData *
+getBitmapDataForImage(NSImage					*image,
+					  NSBitmapImageFileType		type)
+{
+	NSCParameterAssert(nil != image);
+	
+	NSEnumerator		*enumerator					= nil;
+	NSImageRep			*currentRepresentation		= nil;
+	NSBitmapImageRep	*bitmapRep					= nil;
+	NSSize				size;
+	
+	enumerator = [[image representations] objectEnumerator];
+	while((currentRepresentation = [enumerator nextObject])) {
+		if([currentRepresentation isKindOfClass:[NSBitmapImageRep class]]) {
+			bitmapRep = (NSBitmapImageRep *)currentRepresentation;
+		}
+	}
+	
+	// Create a bitmap representation if one doesn't exist
+	if(nil == bitmapRep) {
+		size = [image size];
+		[image lockFocus];
+		bitmapRep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0, 0, size.width, size.height)] autorelease];
+		[image unlockFocus];
+	}
+	
+	return [bitmapRep representationUsingType:type properties:nil]; 
+}
