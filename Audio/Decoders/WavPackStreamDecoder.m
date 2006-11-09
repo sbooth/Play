@@ -40,13 +40,15 @@
 	return (result ? frame : -1);
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
-	char					error [80];
+	char					errorBuf [80];
+	
+	[super setupDecoder:error];
 	
 	// Setup converter
-	_wpc = WavpackOpenFileInput([[[self valueForKey:@"url"] path] fileSystemRepresentation], error, 0, 0);
-	NSAssert1(NULL != _wpc, @"Unable to open the input file (%s).", error);
+	_wpc = WavpackOpenFileInput([[[self valueForKey:@"url"] path] fileSystemRepresentation], errorBuf, 0, 0);
+	NSAssert1(NULL != _wpc, @"Unable to open the input file (%s).", errorBuf);
 	
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
@@ -61,12 +63,18 @@
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	[self setTotalFrames:WavpackGetNumSamples(_wpc)];
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	WavpackCloseFile(_wpc);
 	_wpc = NULL;
+
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer

@@ -86,8 +86,8 @@ enum {
 // ========================================
 // Decoder control
 // ========================================
-- (void)							startDecoding:(NSError **)error;
-- (void)							stopDecoding:(NSError **)error;
+- (BOOL)							startDecoding:(NSError **)error;
+- (BOOL)							stopDecoding:(NSError **)error;
 
 
 // ========================================
@@ -101,8 +101,8 @@ enum {
 - (SInt64)			performSeekToFrame:(SInt64)frame;
 
 // The meat & potatoes-
-- (void)			setupDecoder;
-- (void)			cleanupDecoder;
+- (BOOL)			setupDecoder:(NSError **)error;
+- (BOOL)			cleanupDecoder:(NSError **)error;
 - (void)			fillPCMBuffer;
 
 // ========================================

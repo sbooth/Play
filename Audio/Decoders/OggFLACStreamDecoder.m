@@ -173,11 +173,13 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (FLAC)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
 	FLAC__bool					result;
 	OggFLAC__FileDecoderState	state;	
 	
+	[super setupDecoder:error];
+
 	// Create FLAC decoder
 	_flac		= OggFLAC__file_decoder_new();
 	NSAssert(NULL != _flac, @"Unable to create the FLAC decoder.");
@@ -222,9 +224,11 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	
 	// We only handle a subset of the legal bitsPerChannel for FLAC
 	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");	
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	FLAC__bool					result;
 	
@@ -232,6 +236,10 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	NSAssert1(YES == result, @"OggFLAC__file_decoder_finish failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
 	
 	OggFLAC__file_decoder_delete(_flac);		_flac = NULL;
+
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer

@@ -38,12 +38,14 @@
 	return (0 == result ? frame : -1);
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
 	vorbis_info						*ovInfo;
 	FILE							*file;
 	int								result;
 	
+	[super setupDecoder:error];
+
 	file							= fopen([[[self valueForKey:@"url"] path] fileSystemRepresentation], "r");
 	NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
 	
@@ -71,15 +73,21 @@
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	int		result		= ov_clear(&_vf); 
 	
 	if(0 != result) {
 		NSLog(@"ov_clear failed");
 	}
+
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer

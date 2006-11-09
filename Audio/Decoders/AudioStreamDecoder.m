@@ -302,20 +302,28 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 // ========================================
 // Decoder control
 // ========================================
-- (void) startDecoding:(NSError **)error
+- (BOOL) startDecoding:(NSError **)error
 {
-	[self setupDecoder];
+	BOOL		result;
+	
+	result		= [self setupDecoder:error];
+	
+	if(NO == result) {
+		return NO;
+	}
 	
 	[[self pcmBuffer] empty];
 	[self setKeepProcessingFile:YES];
 	
 	[NSThread detachNewThreadSelector:@selector(fillRingBufferInThread:) toTarget:self withObject:self];
+	
+	return YES;
 }
 
-- (void) stopDecoding:(NSError **)error
+- (BOOL) stopDecoding:(NSError **)error
 {
 	[self setKeepProcessingFile:NO];
-	[self cleanupDecoder];
+	return [self cleanupDecoder:error];
 }
 
 // ========================================
@@ -326,8 +334,8 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 - (SInt64)			performSeekToFrame:(SInt64)frame		{ return -1; }
 
 - (void)			fillPCMBuffer							{}
-- (void)			setupDecoder							{}
-- (void)			cleanupDecoder							{}
+- (BOOL)			setupDecoder:(NSError **)error			{ return YES; }
+- (BOOL)			cleanupDecoder:(NSError **)error		{ return YES; }
 
 // ========================================
 // KVC

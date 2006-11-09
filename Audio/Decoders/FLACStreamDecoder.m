@@ -187,11 +187,13 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	return (result ? frame : -1);
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
 	FLAC__bool					result;
 	FLAC__FileDecoderState		state;	
 	
+	[super setupDecoder:error];
+
 	// Create FLAC decoder
 	_flac		= FLAC__file_decoder_new();
 	NSAssert(NULL != _flac, @"Unable to create the FLAC decoder.");
@@ -235,10 +237,12 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	// We only handle a subset of the legal bitsPerChannel for FLAC
-	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");	
+	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	FLAC__bool					result;
 	
@@ -246,6 +250,10 @@ errorCallback(const FLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus s
 	NSAssert1(YES == result, @"FLAC__file_decoder_finish failed: %s", FLAC__FileDecoderStateString[FLAC__file_decoder_get_state(_flac)]);
 	
 	FLAC__file_decoder_delete(_flac);		_flac = NULL;
+
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer

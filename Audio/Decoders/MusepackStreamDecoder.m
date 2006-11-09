@@ -38,12 +38,14 @@
 	return (result ? frame : -1);
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
 	mpc_streaminfo					streaminfo;
 	mpc_int32_t						intResult;
 	mpc_bool_t						boolResult;
 	
+	[super setupDecoder:error];
+
 	_file							= fopen([[[self valueForKey:@"url"] path] fileSystemRepresentation], "r");
 	NSAssert1(NULL != _file, @"Unable to open the input file (%s).", strerror(errno));	
 	
@@ -72,9 +74,11 @@
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	int								result;
 	
@@ -82,6 +86,10 @@
 	_file							= NULL;
 	
 	NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
+
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer

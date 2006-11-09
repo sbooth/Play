@@ -44,10 +44,12 @@
 	return (ERROR_SUCCESS == result ? frame : -1);
 }
 
-- (void) setupDecoder
+- (BOOL) setupDecoder:(NSError **)error
 {
 	str_utf16			*chars;
 	int					result;
+
+	[super setupDecoder:error];
 	
 	// Setup converter
 	chars			= GetUTF16FromANSI([[[self valueForKey:@"url"] path] fileSystemRepresentation]);
@@ -71,12 +73,18 @@
 	[self setTotalFrames:SELF_DECOMPRESSOR->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)];
 
 	delete [] chars;
+	
+	return YES;
 }
 
-- (void) cleanupDecoder
+- (BOOL) cleanupDecoder:(NSError **)error
 {
 	delete SELF_DECOMPRESSOR;
 	_decompressor = NULL;
+	
+	[super cleanupDecoder:error];
+	
+	return YES;
 }
 
 - (void) fillPCMBuffer
