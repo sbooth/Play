@@ -22,6 +22,9 @@
 
 @class AudioStreamInformationSheet;
 @class AudioMetadataEditingSheet;
+@class StaticPlaylistInformationSheet;
+@class DynamicPlaylistInformationSheet;
+@class FolderPlaylistInformationSheet;
 
 @implementation PlayApplication
 
@@ -35,7 +38,10 @@
 	
 	keyWindowDelegate	= [[self keyWindow] delegate];
 	if([keyWindowDelegate isKindOfClass:[AudioStreamInformationSheet class]] 
-	   || [keyWindowDelegate isKindOfClass:[AudioMetadataEditingSheet class]]) {
+	   || [keyWindowDelegate isKindOfClass:[AudioMetadataEditingSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[StaticPlaylistInformationSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[DynamicPlaylistInformationSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[FolderPlaylistInformationSheet class]]) {
 		return keyWindowDelegate;
 	}
 	
@@ -53,7 +59,10 @@
 	
 	keyWindowDelegate	= [[self keyWindow] delegate];
 	if([keyWindowDelegate isKindOfClass:[AudioStreamInformationSheet class]] 
-	   || [keyWindowDelegate isKindOfClass:[AudioMetadataEditingSheet class]]) {
+	   || [keyWindowDelegate isKindOfClass:[AudioMetadataEditingSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[StaticPlaylistInformationSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[DynamicPlaylistInformationSheet class]]
+	   || [keyWindowDelegate isKindOfClass:[FolderPlaylistInformationSheet class]]) {
 		return [super sendAction:anAction to:keyWindowDelegate from:sender];
 	}
 	
