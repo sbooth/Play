@@ -25,7 +25,6 @@
 
 @implementation Library 
 
-
 - (void)addPlaylistsObject:(Playlist *)value 
 {    
     NSSet *changedObjects = [[NSSet alloc] initWithObjects:&value count:1];
@@ -99,5 +98,43 @@
     [self didChangeValueForKey: @"nowPlaying"];
 }
 
+- (AudioStream *) streamObjectForURL:(NSURL *)url error:(NSError **)error
+{
+	NSString					*absoluteURL;
+	NSManagedObjectContext		*managedObjectContext;
+	NSEntityDescription			*streamEntityDescription;
+	NSFetchRequest				*fetchRequest;
+	NSPredicate					*predicate;
+	NSArray						*fetchResult;
+	
+	managedObjectContext		= [self managedObjectContext];
+	
+	// Convert the URL to a string for storage and comparison
+	absoluteURL					= [url absoluteString];
+	
+	// ========================================
+	// Verify that the requested AudioStream does not already exist in this Library, as identified by URL
+	streamEntityDescription		= [NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	predicate					= [NSPredicate predicateWithFormat:@"url == %@", absoluteURL];
+	
+	[fetchRequest setEntity:streamEntityDescription];
+	[fetchRequest setPredicate:predicate];
+	
+	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:error];
+	
+	return (nil != fetchResult && 0 < [fetchResult count] ? [fetchResult lastObject] : nil);
+}
+
+- (void) removeStreamObjectForURL:(NSURL *)url error:(NSError **)error
+{
+	AudioStream					*streamObject;
+	
+	streamObject				= [self streamObjectForURL:url error:error];
+	
+	if(nil != streamObject) {
+		[[self managedObjectContext] deleteObject:streamObject];
+	}
+}
 
 @end

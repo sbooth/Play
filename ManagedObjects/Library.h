@@ -38,4 +38,8 @@
 - (AudioStream *)nowPlaying;
 - (void)setNowPlaying:(AudioStream *)value;
 
+- (AudioStream *) streamObjectForURL:(NSURL *)url error:(NSError **)error;
+
+- (void) removeStreamObjectForURL:(NSURL *)url error:(NSError **)error;
+
 @end
