@@ -20,6 +20,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import "AudioPlayer.h"
+#import "UKKQueue.h"
+
+@class Library;
 
 @interface LibraryDocument : NSPersistentDocument
 {
@@ -53,21 +56,19 @@
 	NSMenu						*_streamTableHeaderContextMenu;
 	
 	NSThread					*_libraryThread;
+	
+	id							_inMemoryStore;
+	
+	UKKQueue					*_kq;
+	
+	Library						*_libraryObject;
 }
 
 // ========================================
 // Action methods
-- (IBAction)	insertStaticPlaylist:(id)sender;
-- (IBAction)	insertDynamicPlaylist:(id)sender;
-- (IBAction)	insertFolderPlaylist:(id)sender;
-- (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
 
-- (IBAction)	editPlaylist:(id)sender;
-
-- (IBAction)	removeAudioStreams:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
-
 
 // ========================================
 // Playback control
@@ -92,6 +93,28 @@
 
 - (void)					addFilesToLibrary:(NSArray *)filenames;
 - (void)					addURLsToLibrary:(NSArray *)URLs;
+
+// ========================================
+// File removal
+- (IBAction)				removeAudioStreams:(id)sender;
+
+- (void)					removeFileFromLibrary:(NSString *)path;
+- (void)					removeURLFromLibrary:(NSURL *)URL;
+
+- (void)					removeFilesFromLibrary:(NSArray *)filenames;
+- (void)					removeURLsFromLibrary:(NSArray *)URLs;
+
+// ========================================
+// Playlists
+- (IBAction)	insertStaticPlaylist:(id)sender;
+- (IBAction)	insertDynamicPlaylist:(id)sender;
+- (IBAction)	insertFolderPlaylist:(id)sender;
+- (IBAction)	insertPlaylistWithSelectedStreams:(id)sender;
+
+- (IBAction)	nextPlaylist:(id)sender;
+- (IBAction)	previousPlaylist:(id)sender;
+
+- (IBAction)	showPlaylistInformationSheet:(id)sender;
 
 // ========================================
 // Properties

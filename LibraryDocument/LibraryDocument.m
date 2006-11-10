@@ -37,14 +37,24 @@
  */
 
 #import "LibraryDocument.h"
+
+#import "Library.h"
+#import "AudioStream.h"
+
 #import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
+
 #import "AudioStreamDecoder.h"
+
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
-#import "UtilityFunctions.h"
+
+#import "StaticPlaylistInformationSheet.h"
+#import "DynamicPlaylistInformationSheet.h"
+#import "FolderPlaylistInformationSheet.h"
 
 #import "ImageAndTextCell.h"
+#import "UtilityFunctions.h"
 
 #include "mt19937ar.h"
 
@@ -55,8 +65,7 @@
 - (AudioPlayer *)			player;
 - (NSThread *)				thread;
 
-- (NSManagedObject *)		fetchLibraryObject;
-- (NSManagedObject *)		fetchStreamObjectForURL:(NSURL *)url error:(NSError **)error;
+- (Library *)				libraryObject;
 
 - (void)					playStream:(NSArray *)streams;
 
@@ -68,8 +77,13 @@
 - (void)					setupPlaylistTable;
 
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
+- (void)					showStaticPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)					showDynamicPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)					showFolderPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
 - (void)					saveStreamTableColumnOrder;
 - (IBAction)				streamTableHeaderContextMenuSelected:(id)sender;
@@ -134,6 +148,8 @@
 - (id) init
 {
 	if((self = [super init])) {
+		NSError *error;
+		
 		_player			= [[AudioPlayer alloc] init];
 		[[self player] setOwner:self];
 		
@@ -142,27 +158,85 @@
 		
 		_libraryThread	= [[NSThread currentThread] retain];
 		
+		_kq = [[UKKQueue alloc] init];
+		[_kq setDelegate:self];
+		
+		error = nil;
+		_inMemoryStore = [[[self managedObjectContext] persistentStoreCoordinator] addPersistentStoreWithType:NSInMemoryStoreType 
+																								configuration:nil URL:nil options:nil 
+																										error:&error];
+		
+		if(nil == _inMemoryStore) {
+			[self presentError:error];
+		}
+
+		// Core Data does not populate our data until after init is called
+		[self performSelector:@selector(processFolderPlaylists:) withObject:nil afterDelay:0.0];
+		
 		return self;
 	}
 	
 	return nil;
 }
 
+- (void) processFolderPlaylists:(id)arg
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSEntityDescription			*playlistEntityDescription;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResult;
+	NSError						*error;
+	unsigned					i;
+	NSManagedObject				*playlist;
+	NSURL						*url;
+	
+	managedObjectContext		= [self managedObjectContext];
+	
+	// ========================================
+	// Fetch all folder playlists and start observing their paths
+	error						= nil;
+	playlistEntityDescription	= [NSEntityDescription entityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	
+	[fetchRequest setEntity:playlistEntityDescription];
+	
+	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+
+	if(nil == fetchResult) {
+		if(nil != error) {
+			[self presentError:error];	
+		}
+		
+		return;	
+	}
+	
+	[_kq removeAllPathsFromQueue];
+	
+	for(i = 0; i < [fetchResult count]; ++i) {
+		playlist				= [fetchResult objectAtIndex:i];
+		url						= [NSURL URLWithString:[playlist url]];
+		
+		[self addURLToLibrary:url];
+		[_kq addPath:[url path]];
+	}
+}
+
 - (id) initWithType:(NSString *)type error:(NSError **)error
 {
     if((self = [super initWithType:type error:error])) {
 		NSManagedObjectContext	*managedObjectContext;
-		NSManagedObject			*libraryObject;
 		
 		// Each LibraryDocument instance should contain one (and only one) Library entity
 		managedObjectContext	= [self managedObjectContext];
-        libraryObject			= [NSEntityDescription insertNewObjectForEntityForName:@"Library" inManagedObjectContext:managedObjectContext];
+		_libraryObject			= [NSEntityDescription insertNewObjectForEntityForName:@"Library" inManagedObjectContext:managedObjectContext];
 
 		// Disable undo registration for the create
         [managedObjectContext processPendingChanges];
         [[managedObjectContext undoManager] removeAllActions];
 
         [self updateChangeCount:NSChangeCleared];
+
+		[_libraryObject retain];
 		
 		return self;
     }
@@ -177,6 +251,8 @@
 	[_streamTableHiddenColumns release],		_streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release],	_streamTableHeaderContextMenu = nil;
 	[_libraryThread release],					_libraryThread = nil;
+	[_kq release],								_kq = nil;
+	[_libraryObject release],					_libraryObject = nil;
 	
 	[super dealloc];
 }
@@ -232,6 +308,12 @@
 	else if([anItem action] == @selector(addFiles:)) {
 		return [_streamArrayController canAdd];
 	}
+	else if([anItem action] == @selector(showStreamInformationSheet:)) {
+		return (0 != [[_streamArrayController selectedObjects] count]);
+	}
+	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
+		return (0 != [[_playlistArrayController selectedObjects] count]);
+	}
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
 			|| [anItem action] == @selector(skipToEnd:) 
@@ -244,162 +326,26 @@
 	else if([anItem action] == @selector(playPreviousStream:)) {
 		return [self canPlayPreviousStream];
 	}
+	else if([anItem action] == @selector(nextPlaylist:)) {
+		return [_playlistArrayController canSelectNext];
+	}
+	else if([anItem action] == @selector(previousPlaylist:)) {
+		return [_playlistArrayController canSelectPrevious];
+	}
+	else if([anItem action] == @selector(insertStaticPlaylist:)
+			|| [anItem action] == @selector(insertDynamicPlaylist:)
+			|| [anItem action] == @selector(insertFolderPlaylist:)) {
+		return [_playlistArrayController canInsert];
+	}
+	else if([anItem action] == @selector(insertPlaylistWithSelectedStreams:)) {
+		return (0 != [[_streamArrayController selectedObjects] count]);
+	}
 	else {
 		return [super validateUserInterfaceItem:anItem];
 	}
 }
 
 #pragma mark Action Methods
-
-- (IBAction) insertStaticPlaylist:(id)sender;
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
-	NSManagedObject				*libraryObject;
-	BOOL						selectionChanged;
-	
-//	[_playlistDrawer open];
-	
-	managedObjectContext		= [self managedObjectContext];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
-	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
-
-	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-
-	if(selectionChanged) {
-		// The playlist table has only one column
-		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
-	}
-}
-
-- (IBAction) insertDynamicPlaylist:(id)sender
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
-	NSManagedObject				*libraryObject;
-	BOOL						selectionChanged;
-	
-	//	[_playlistDrawer open];
-	
-	managedObjectContext		= [self managedObjectContext];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
-	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
-	
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
-	
-	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-	
-	if(selectionChanged) {
-		// The playlist table has only one column
-		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
-	}
-}
-
-- (IBAction) insertFolderPlaylist:(id)sender
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
-	NSManagedObject				*libraryObject;
-	BOOL						selectionChanged;
-
-	//	[_playlistDrawer open];
-	
-	managedObjectContext		= [self managedObjectContext];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
-	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
-
-	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-	
-	if(selectionChanged) {
-		// The playlist table has only one column
-		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
-	}
-}
-
-- (IBAction) insertPlaylistWithSelectedStreams:(id)sender
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSArray						*selectedStreams;
-	NSManagedObject				*playlistObject;
-	NSManagedObject				*libraryObject;
-	NSMutableSet				*streamsSet;
-	BOOL						selectionChanged;
-
-//	[_playlistDrawer open];
-
-	managedObjectContext		= [self managedObjectContext];
-	selectedStreams				= [_streamArrayController selectedObjects];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
-	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
-	
-	streamsSet					= [playlistObject mutableSetValueForKey:@"streams"];
-	
-	[streamsSet addObjectsFromArray:selectedStreams];
-	
-	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-
-	if(selectionChanged) {
-		// The playlist table has only one column
-		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
-	}
-}
-
-- (IBAction) editPlaylist:(id)sender
-{
-	NSLog(@"editPlaylist");
-}
-
-- (IBAction) removeAudioStreams:(id)sender
-{
-	NSArray						*selectedStreams;
-	NSArray						*selectedPlaylists;
-	
-	selectedStreams				= [_streamArrayController selectedObjects];
-	selectedPlaylists			= [_playlistArrayController selectedObjects];
-
-//	NSLog(@"stream=%@",[selectedStreams objectAtIndex:0]);
-//	NSLog(@"playlist=%@",[selectedPlaylists objectAtIndex:0]);
-//	[_streamArrayController remove:sender];
-//	NSLog(@"stream=%@",[selectedStreams objectAtIndex:0]);
-//	NSLog(@"playlist=%@",[selectedPlaylists objectAtIndex:0]);
-//	return;
-	
-	if(0 == [selectedPlaylists count]) {
-		[_streamArrayController remove:sender];
-	}
-	else {
-		NSManagedObject			*streamObject;
-		NSManagedObject			*playlistObject;
-		NSMutableSet			*playlistSet;
-		unsigned				i, j;
-
-		for(i = 0; i < [selectedStreams count]; ++i) {
-			streamObject	= [selectedStreams objectAtIndex:i];
-			playlistSet		= [streamObject mutableSetValueForKey:@"playlists"];
-
-			for(j = 0; j < [selectedPlaylists count]; ++j) {
-				playlistObject	= [selectedPlaylists objectAtIndex:j];
-				[playlistSet removeObject:playlistObject];
-			}
-		}
-	}
-}
 
 - (IBAction) showStreamInformationSheet:(id)sender
 {
@@ -453,8 +399,6 @@
 	
 	[panel beginSheetForDirectory:nil file:nil types:getAudioExtensions() modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
 }
-
-
 
 - (void) addFileToLibrary:(NSString *)path
 {
@@ -572,6 +516,134 @@
 	[pool release];
 }
 
+#pragma mark File Removal
+
+- (IBAction) removeAudioStreams:(id)sender
+{
+	NSArray						*selectedStreams;
+	NSArray						*selectedPlaylists;
+	
+	selectedStreams				= [_streamArrayController selectedObjects];
+	selectedPlaylists			= [_playlistArrayController selectedObjects];
+	
+	//	NSLog(@"stream=%@",[selectedStreams objectAtIndex:0]);
+	//	NSLog(@"playlist=%@",[selectedPlaylists objectAtIndex:0]);
+	//	[_streamArrayController remove:sender];
+	//	NSLog(@"stream=%@",[selectedStreams objectAtIndex:0]);
+	//	NSLog(@"playlist=%@",[selectedPlaylists objectAtIndex:0]);
+	//	return;
+	
+	if(0 == [selectedPlaylists count]) {
+		[_streamArrayController remove:sender];
+	}
+	else {
+		NSManagedObject			*streamObject;
+		NSManagedObject			*playlistObject;
+		NSMutableSet			*playlistSet;
+		unsigned				i, j;
+		
+		for(i = 0; i < [selectedStreams count]; ++i) {
+			streamObject	= [selectedStreams objectAtIndex:i];
+			playlistSet		= [streamObject mutableSetValueForKey:@"playlists"];
+			
+			for(j = 0; j < [selectedPlaylists count]; ++j) {
+				playlistObject	= [selectedPlaylists objectAtIndex:j];
+				[playlistSet removeObject:playlistObject];
+			}
+		}
+	}
+}
+
+- (void) removeFileFromLibrary:(NSString *)path
+{
+	[self removeURLsFromLibrary:[NSArray arrayWithObject:[NSURL fileURLWithPath:path]]];	
+}
+
+- (void) removeURLFromLibrary:(NSURL *)URL
+{
+	[self removeURLsFromLibrary:[NSArray arrayWithObject:URL]];
+}
+
+- (void) removeFilesFromLibrary:(NSArray *)filenames
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResults;
+	NSError						*error;
+	unsigned					i;
+	NSMutableArray				*URLs;
+	
+	// Create an array of the string representations of the URLs to remove
+	URLs						= [NSMutableArray array];
+	
+	for(i = 0; i < [filenames count]; ++i) {
+		[URLs addObject:[[NSURL fileURLWithPath:[filenames objectAtIndex:i]] absoluteString]];
+	}
+	
+	// Fetch AudioStreams for the URLs to be removed
+	managedObjectContext		= [self managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	error						= nil;
+	
+	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"url IN %@", URLs]];
+	
+	fetchResults				= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+	
+	if(nil == fetchResults) {
+		if(nil != error) {
+			[self presentError:error];
+		}
+		
+		return;
+	}
+	
+	// Now delete the requested objects
+	for(i = 0; i < [fetchResults count]; ++i) {
+		[managedObjectContext deleteObject:[fetchResults objectAtIndex:i]];
+	}
+}
+
+- (void) removeURLsFromLibrary:(NSArray *)URLs
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResults;
+	NSError						*error;
+	unsigned					i;
+	NSMutableArray				*URLStrings;
+	
+	// Create an array of the string representations of the URLs to remove
+	URLStrings					= [NSMutableArray array];
+	
+	for(i = 0; i < [URLs count]; ++i) {
+		[URLStrings addObject:[[URLs objectAtIndex:i] absoluteString]];
+	}
+	
+	// Fetch AudioStreams for the URLs to be removed
+	managedObjectContext		= [self managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	error						= nil;
+	
+	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"url IN %@", URLStrings]];
+	
+	fetchResults				= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+	
+	if(nil == fetchResults) {
+		if(nil != error) {
+			[self presentError:error];
+		}
+		
+		return;
+	}
+
+	// Now delete the requested objects
+	for(i = 0; i < [fetchResults count]; ++i) {
+		[managedObjectContext deleteObject:[fetchResults objectAtIndex:i]];
+	}
+}
+
 #pragma mark Playback Control
 
 - (IBAction) play:(id)sender
@@ -661,15 +733,15 @@
 - (IBAction) playNextStream:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
-	NSManagedObject				*streamObject;
+	Library						*libraryObject;
+	AudioStream					*streamObject;
 	NSError						*error;
 	NSArray						*streams;
 	unsigned					streamIndex;
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
@@ -721,7 +793,7 @@
 - (IBAction) playPreviousStream:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSError						*error;
 	NSArray						*streams;
@@ -729,7 +801,7 @@
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	
 	[libraryObject setValue:nil forKey:@"nowPlaying"];
@@ -776,6 +848,189 @@
 	}
 }
 
+#pragma mark Playlists
+
+- (IBAction) insertStaticPlaylist:(id)sender;
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	Library						*libraryObject;
+	BOOL						selectionChanged;
+	
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self libraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) insertDynamicPlaylist:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	Library						*libraryObject;
+	BOOL						selectionChanged;
+	
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self libraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
+	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
+	if(selectionChanged) {
+		// The playlist table has only one column
+//		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) insertFolderPlaylist:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSManagedObject				*playlistObject;
+	Library						*libraryObject;
+	BOOL						selectionChanged;
+	
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self libraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
+	if(selectionChanged) {
+		// The playlist table has only one column
+//		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) insertPlaylistWithSelectedStreams:(id)sender
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSArray						*selectedStreams;
+	NSManagedObject				*playlistObject;
+	Library						*libraryObject;
+	NSMutableSet				*streamsSet;
+	BOOL						selectionChanged;
+	
+	//	[_playlistDrawer open];
+	
+	managedObjectContext		= [self managedObjectContext];
+	selectedStreams				= [_streamArrayController selectedObjects];
+	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
+	libraryObject				= [self libraryObject];
+	
+	[playlistObject setValue:libraryObject forKey:@"library"];
+//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	
+	streamsSet					= [playlistObject mutableSetValueForKey:@"streams"];
+	
+	[streamsSet addObjectsFromArray:selectedStreams];
+	
+	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+	
+	if(selectionChanged) {
+		// The playlist table has only one column
+		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+	}
+}
+
+- (IBAction) nextPlaylist:(id)sender
+{
+	[_playlistArrayController selectNext:self];
+}
+
+- (IBAction) previousPlaylist:(id)sender
+{
+	[_playlistArrayController selectPrevious:self];
+}
+
+- (IBAction) showPlaylistInformationSheet:(id)sender
+{
+	NSArray						*playlists;
+	
+	playlists					= [_playlistArrayController selectedObjects];
+	
+	if(0 == [playlists count]) {
+		return;
+	}
+	else if(1 == [playlists count]) {
+		NSManagedObject			*playlist;
+		
+		playlist				= [playlists objectAtIndex:0];
+		
+		if([[[playlist entity] name] isEqualToString:@"StaticPlaylist"]) {
+			StaticPlaylistInformationSheet	*playlistInformationSheet;
+			
+			playlistInformationSheet		= [[StaticPlaylistInformationSheet alloc] init];
+			
+			[playlistInformationSheet setValue:self forKey:@"owner"];
+			
+			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
+			
+			[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+										   modalForWindow:[self windowForSheet] 
+											modalDelegate:self 
+										   didEndSelector:@selector(showStaticPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+											  contextInfo:playlistInformationSheet];
+		}
+		else if([[[playlist entity] name] isEqualToString:@"DynamicPlaylist"]) {
+			DynamicPlaylistInformationSheet	*playlistInformationSheet;
+			
+			playlistInformationSheet		= [[DynamicPlaylistInformationSheet alloc] init];
+			
+			[playlistInformationSheet setValue:self forKey:@"owner"];
+			
+			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
+			
+			[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+										   modalForWindow:[self windowForSheet] 
+											modalDelegate:self 
+										   didEndSelector:@selector(showDynamicPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+											  contextInfo:playlistInformationSheet];
+		}
+		else if([[[playlist entity] name] isEqualToString:@"FolderPlaylist"]) {
+			FolderPlaylistInformationSheet	*playlistInformationSheet;
+			
+			playlistInformationSheet		= [[FolderPlaylistInformationSheet alloc] init];
+			
+			[playlistInformationSheet setValue:self forKey:@"owner"];
+			
+			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
+			
+			[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+										   modalForWindow:[self windowForSheet] 
+											modalDelegate:self 
+										   didEndSelector:@selector(showDynamicPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+											  contextInfo:playlistInformationSheet];
+		}
+	}
+}
+
 #pragma mark Properties
 
 - (BOOL)		randomizePlayback									{ return _randomizePlayback; }
@@ -790,14 +1045,14 @@
 - (BOOL) canPlayNextStream
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSArray						*streams;
 	unsigned					streamIndex;
 	BOOL						result;
 	
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	streams						= [_streamArrayController arrangedObjects];
 	
@@ -821,14 +1076,14 @@
 - (BOOL) canPlayPreviousStream
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSArray						*streams;
 	unsigned					streamIndex;
 	BOOL						result;
 	
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	streams						= [_streamArrayController arrangedObjects];
 	
@@ -854,7 +1109,7 @@
 - (void) streamPlaybackDidStart:(NSURL *)url
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSError						*error;
 	NSNumber					*playCount;
@@ -862,7 +1117,7 @@
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	playCount					= [streamObject valueForKey:@"playCount"];
 	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
@@ -875,7 +1130,7 @@
 		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
 
-	streamObject				= [self fetchStreamObjectForURL:url error:&error];
+	streamObject				= [libraryObject streamObjectForURL:url error:&error];
 
 	if(nil != streamObject) {
 		[libraryObject setValue:streamObject forKey:@"nowPlaying"];		
@@ -886,7 +1141,7 @@
 - (void) streamPlaybackDidComplete
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSError						*error;
 	NSNumber					*playCount;
@@ -894,7 +1149,7 @@
 		
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	playCount					= [streamObject valueForKey:@"playCount"];
 	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
@@ -913,7 +1168,7 @@
 - (void) requestNextStream
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSError						*error;
 	NSArray						*streams;
@@ -923,7 +1178,7 @@
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 		
 	streams						= [_streamArrayController arrangedObjects];
@@ -987,8 +1242,8 @@
 		[_streamArrayController unbind:@"contentSet"];
 		[_streamArrayController setContent:nil];
 		
-		if(0 == [[[_playlistArrayController selection] valueForKey:@"@count"] intValue]) {
-			bindingTarget			= [self fetchLibraryObject];
+		if(0 == [[_playlistArrayController selectedObjects] count]) {
+			bindingTarget			= [self libraryObject];
 			keyPath					= @"streams";
 			bindingOptions			= [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:NSDeletesObjectsOnRemoveBindingsOption];
 		}
@@ -1077,6 +1332,98 @@
 
 @end
 
+@implementation LibraryDocument (UKKQueueDelegateMethods)
+
+-(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResults;
+	NSError						*error;
+	NSMutableSet				*libraryStreams;
+	NSMutableSet				*physicalStreams;
+	NSMutableSet				*removedStreams;
+	NSMutableSet				*addedStreams;
+	NSFileManager				*manager;
+	NSArray						*allowedTypes;
+	NSURL						*URL;
+	NSMutableArray				*URLs;
+	NSString					*path;
+	NSDirectoryEnumerator		*directoryEnumerator;
+	NSEnumerator				*enumerator;
+	AudioStream					*stream;
+	NSString					*filename;
+	BOOL						result, isDir;
+	
+	if(UKFileWatcherRenameNotification != nm
+	   && UKFileWatcherWriteNotification != nm
+	   && UKFileWatcherDeleteNotification != nm) {
+		return;
+	}
+	
+	// First fetch all AudioStreams that are in the directory that changed
+	managedObjectContext		= [self managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	URL							= [NSURL fileURLWithPath:fpath];
+	error						= nil;
+	
+	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"url BEGINSWITH %@", [URL absoluteString]]];
+
+	fetchResults				= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+
+	if(nil == fetchResults) {
+		if(nil != error) {
+			[self presentError:error];
+		}
+		
+		return;
+	}
+
+	libraryStreams				= [NSMutableSet set];
+
+	enumerator = [fetchResults objectEnumerator];
+	while((stream = [enumerator nextObject])) {
+		[libraryStreams addObject:[NSURL URLWithString:[stream url]]];
+	}
+
+	// Now iterate through and see what is actually in the directory
+	URLs						= [NSMutableArray array];
+	manager						= [NSFileManager defaultManager];
+	allowedTypes				= getAudioExtensions();
+	path						= [URL path];
+	
+	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
+	
+	if(NO == result || NO == isDir) {
+		NSLog(@"Unable to locate folder \"%@\" for playlist.", path);
+		return;
+	}
+	
+	directoryEnumerator			= [manager enumeratorAtPath:path];
+	
+	while((filename = [directoryEnumerator nextObject])) {
+		if([allowedTypes containsObject:[filename pathExtension]]) {
+			[URLs addObject:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]]];
+		}
+	}
+
+	physicalStreams				= [NSMutableSet setWithArray:URLs];
+	
+	// Determine if any files were deleted
+	removedStreams				= [NSMutableSet setWithSet:libraryStreams];
+	[removedStreams minusSet:physicalStreams];
+
+	// Determine if any files were added
+	addedStreams				= [NSMutableSet setWithSet:physicalStreams];
+	[addedStreams minusSet:libraryStreams];
+	
+	[self addURLsToLibrary:[addedStreams allObjects]];
+	[self removeURLsFromLibrary:[removedStreams allObjects]];		
+}
+
+@end
+
 @implementation LibraryDocument (Private)
 
 - (AudioPlayer *) player
@@ -1089,74 +1436,49 @@
 	return _libraryThread;
 }
 
-- (NSManagedObject *) fetchLibraryObject
+- (Library *) libraryObject
 {
-	NSManagedObjectContext		*managedObjectContext;
-	NSEntityDescription			*libraryEntityDescription;
-	NSManagedObject				*libraryObject;
-	NSFetchRequest				*fetchRequest;
-	NSError						*error;
-	NSArray						*fetchResult;
-
-	// Fetch the Library entity from the store
-	managedObjectContext		= [self managedObjectContext];
-	libraryEntityDescription	= [NSEntityDescription entityForName:@"Library" inManagedObjectContext:managedObjectContext];
-	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	error						= nil;
-	
-	[fetchRequest setEntity:libraryEntityDescription];
-	
-	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
-	
-	if(nil == fetchResult) {
-		BOOL					errorRecoveryDone;
+	if(nil == _libraryObject) {
+		NSManagedObjectContext		*managedObjectContext;
+		NSEntityDescription			*libraryEntityDescription;
+		NSFetchRequest				*fetchRequest;
+		NSError						*error;
+		NSArray						*fetchResult;
 		
-		errorRecoveryDone		= [self presentError:error];
-		return nil;
+		// Fetch the Library entity from the store
+		managedObjectContext		= [self managedObjectContext];
+		libraryEntityDescription	= [NSEntityDescription entityForName:@"Library" inManagedObjectContext:managedObjectContext];
+		fetchRequest				= [[NSFetchRequest alloc] init];
+		error						= nil;
+		
+		[fetchRequest setEntity:libraryEntityDescription];
+		
+		fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+		
+		[fetchRequest release];
+		
+		if(nil == fetchResult) {
+			BOOL					errorRecoveryDone;
+			
+			errorRecoveryDone		= [self presentError:error];
+			return nil;
+		}
+		
+		// There should always be one (and only one!) Library entity in the store
+		NSAssert(1 == [fetchResult count], @"More than one Library entity returned!");
+		
+		_libraryObject				= [[fetchResult lastObject] retain];		
 	}
 	
-	// There should always be one (and only one!) Library entity in the store
-	NSAssert(1 == [fetchResult count], @"More than one Library entity returned!");
-	
-	libraryObject				= [fetchResult objectAtIndex:0];
-
-	return [[libraryObject retain] autorelease];
-}
-
-- (NSManagedObject *) fetchStreamObjectForURL:(NSURL *)url error:(NSError **)error
-{
-	NSString					*absoluteURL;
-	NSManagedObjectContext		*managedObjectContext;
-	NSEntityDescription			*streamEntityDescription;
-	NSFetchRequest				*fetchRequest;
-	NSPredicate					*predicate;
-	NSArray						*fetchResult;
-	
-	managedObjectContext		= [self managedObjectContext];
-	
-	// Convert the URL to a string for storage and comparison
-	absoluteURL					= [url absoluteString];
-	
-	// ========================================
-	// Verify that the requested AudioStream does not already exist in this Library, as identified by URL
-	streamEntityDescription		= [NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
-	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	predicate					= [NSPredicate predicateWithFormat:@"url = %@", absoluteURL];
-	
-	[fetchRequest setEntity:streamEntityDescription];
-	[fetchRequest setPredicate:predicate];
-	
-	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:error];
-	
-	return (nil != fetchResult && 0 < [fetchResult count] ? [fetchResult objectAtIndex:0] : nil);
+	return _libraryObject;
 }
 
 - (void) playStream:(NSArray *)streams
 {
 	NSParameterAssert(nil != streams);
-	
+
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*streamObject;
 	NSURL						*url;
 	BOOL						result;
@@ -1170,7 +1492,7 @@
 	
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
 	
 	if(nil != streamObject) {
@@ -1474,6 +1796,57 @@
 	[metadataEditingSheet release];
 }
 
+- (void) showStaticPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	StaticPlaylistInformationSheet	*playlistInformationSheet;
+	
+	playlistInformationSheet		= (StaticPlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[_playlistArrayController rearrangeObjects];			
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[playlistInformationSheet release];
+}
+
+- (void) showDynamicPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	DynamicPlaylistInformationSheet	*playlistInformationSheet;
+	
+	playlistInformationSheet		= (DynamicPlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[_playlistArrayController rearrangeObjects];			
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[playlistInformationSheet release];
+}
+
+- (void) showFolderPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	FolderPlaylistInformationSheet	*playlistInformationSheet;
+	
+	playlistInformationSheet		= (FolderPlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[_playlistArrayController rearrangeObjects];			
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[playlistInformationSheet release];
+}
+
 #pragma mark Stream Table Management
 
 - (void) saveStreamTableColumnOrder
@@ -1589,7 +1962,7 @@
 	NSString					*absoluteURL;
 	NSManagedObject				*streamObject;
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*libraryObject;
+	Library						*libraryObject;
 	NSManagedObject				*propertiesObject;
 	NSManagedObject				*metadataObject;
 	NSError						*error;
@@ -1607,7 +1980,7 @@
 	// ========================================
 	// Verify that the requested AudioStream does not already exist in this Library
 	error						= nil;
-	streamObject				= [self fetchStreamObjectForURL:URL error:&error];
+	streamObject				= [[self libraryObject] streamObjectForURL:URL error:&error];
 	
 	if(nil == streamObject && nil != error) {
 		result					= [self presentError:error];
@@ -1628,13 +2001,13 @@
 	streamObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioStream" inManagedObjectContext:managedObjectContext];
 	
 	// Fetch the Library entity from the store
-	libraryObject				= [self fetchLibraryObject];
+	libraryObject				= [self libraryObject];
 	
 	// ========================================
 	// Fill in properties and relationships
 	[streamObject setValue:absoluteURL forKey:@"url"];
 	[streamObject setValue:libraryObject forKey:@"library"];
-	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
+//	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
 	
 	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
 	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];

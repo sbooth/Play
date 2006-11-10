@@ -25,6 +25,9 @@
 {
 	@private
 	
+	NSFetchRequest	*_fetchRequest;       
+	NSPredicate		*_predicate;          
+	
 	NSSet			*_streams;
 }
 
@@ -32,5 +35,9 @@
 - (void)			setUrl:(NSString *)value;
 
 - (NSSet *)			streams;
+
+- (NSFetchRequest *)	fetchRequest;
+
+- (void)			refresh;
 
 @end
