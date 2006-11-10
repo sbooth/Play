@@ -14,6 +14,12 @@
 
 @implementation AudioStream 
 
+- (void) awakeFromInsert
+{
+	[super awakeFromInsert];
+	[self setDateAdded:[NSDate date]];
+}
+
 - (NSString *)url 
 {
     NSString * tmpValue;

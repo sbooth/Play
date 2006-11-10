@@ -12,6 +12,12 @@
 
 @implementation Playlist 
 
+- (void) awakeFromInsert
+{
+	[super awakeFromInsert];
+	[self setDateCreated:[NSDate date]];
+}
+
 - (NSDate *)lastPlayed 
 {
     NSDate * tmpValue;
