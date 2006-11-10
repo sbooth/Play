@@ -3,9 +3,17 @@
         {
             ACTIONS = {
                 addFiles = id; 
+                insertDynamicPlaylist = id; 
+                insertFolderPlaylist = id; 
+                insertPlaylistWithSelectedStreams = id; 
+                insertStaticPlaylist = id; 
+                nextPlaylist = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
+                previousPlaylist = id; 
+                showPlaylistInformationSheet = id; 
+                showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
