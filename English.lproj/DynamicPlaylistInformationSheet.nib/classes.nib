@@ -1,0 +1,16 @@
+{
+    IBClasses = (
+        {CLASS = AIPlasticButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {
+            ACTIONS = {cancel = id; ok = id; redo = id; undo = id; }; 
+            CLASS = DynamicPlaylistInformationSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_playlistObjectController" = NSObjectController; "_sheet" = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

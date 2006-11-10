@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {cancel = id; ok = id; redo = id; undo = id; }; 
+            CLASS = StaticPlaylistInformationSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_playlistObjectController" = NSObjectController; "_sheet" = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
