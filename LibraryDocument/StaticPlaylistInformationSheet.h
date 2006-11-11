@@ -29,7 +29,10 @@
 	NSPersistentDocument		*_owner;
 }
 
+- (id)					initWithOwner:(NSPersistentDocument *)owner;
+
 - (NSWindow *)			sheet;
+
 - (NSManagedObjectContext *) managedObjectContext;
 
 - (IBAction)			ok:(id)sender;

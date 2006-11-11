@@ -29,7 +29,10 @@
 	NSPersistentDocument		*_owner;
 }
 
+- (id)					initWithOwner:(NSPersistentDocument *)owner;
+
 - (NSWindow *)			sheet;
+
 - (NSManagedObjectContext *) managedObjectContext;
 
 - (IBAction)			ok:(id)sender;
@@ -37,7 +40,5 @@
 
 - (IBAction)			undo:(id)sender;
 - (IBAction)			redo:(id)sender;
-
-- (IBAction)			chooseFolder:(id)sender;
 
 @end

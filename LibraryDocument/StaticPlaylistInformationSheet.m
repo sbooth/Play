@@ -28,10 +28,12 @@
 	[self setKeys:[NSArray arrayWithObject:@"owner"] triggerChangeNotificationsForDependentKey:@"managedObjectContext"];
 }
 
-- (id) init
+- (id) initWithOwner:(NSPersistentDocument *)owner
 {
 	if((self = [super init])) {
 		BOOL		result;
+		
+		_owner		= [owner retain];
 		
 		result		= [NSBundle loadNibNamed:@"StaticPlaylistInformationSheet" owner:self];
 		if(NO == result) {
@@ -44,6 +46,13 @@
 	}
 	
 	return nil;
+}
+
+- (void) dealloc
+{
+	[_owner release],					_owner = nil;
+	
+	[super dealloc];
 }
 
 - (NSWindow *) sheet

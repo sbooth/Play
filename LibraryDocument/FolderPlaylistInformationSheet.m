@@ -28,10 +28,12 @@
 	[self setKeys:[NSArray arrayWithObject:@"owner"] triggerChangeNotificationsForDependentKey:@"managedObjectContext"];
 }
 
-- (id) init
+- (id) initWithOwner:(NSPersistentDocument *)owner
 {
 	if((self = [super init])) {
 		BOOL		result;
+
+		_owner		= [owner retain];
 		
 		result		= [NSBundle loadNibNamed:@"FolderPlaylistInformationSheet" owner:self];
 		if(NO == result) {
@@ -44,6 +46,13 @@
 	}
 	
 	return nil;
+}
+
+- (void) dealloc
+{
+	[_owner release],					_owner = nil;
+	
+	[super dealloc];
 }
 
 - (NSWindow *) sheet
@@ -86,64 +95,6 @@
 	}
 	
 	return YES;
-}
-
-- (IBAction) chooseFolder:(id)sender
-{
-	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
-	
-	[panel setAllowsMultipleSelection:NO];
-	[panel setCanChooseDirectories:YES];
-	[panel setCanChooseFiles:NO];
-	
-	if(NSOKButton == [panel runModalForTypes:nil]) {
-		NSArray		*filenames		= [panel filenames];
-		unsigned	count			= [filenames count];
-		unsigned	i;
-		
-		for(i = 0; i < count; ++i) {
-			[[_playlistObjectController selection] setValue:[filenames objectAtIndex:i] forKeyPath:@"url"];
-		}
-	}		
-}
-
-- (void) controlTextDidChange:(NSNotification *)aNotification
-{
-	unsigned	matchCount;
-	NSArray		*matches;
-	id			sender;
-	NSString	*path, *longestMatch;
-	NSText		*editor;
-	
-	
-	sender		= [aNotification object];
-	editor		= [sender currentEditor];
-	path		= [sender stringValue];
-
-	if(nil == path || [path isEqualToString:@""]) {
-		return;
-	}
-	
-	path		= [path stringByExpandingTildeInPath];
-	matchCount	= [path completePathIntoString:&longestMatch caseSensitive:NO matchesIntoArray:&matches filterTypes:nil];
-	
-	if(1 <= matchCount) {
-		if(nil == editor) {
-			[editor setString:longestMatch];
-		}
-		else if([sender textShouldBeginEditing:editor]) {
-			NSRange		range		= [editor selectedRange];
-			NSString	*string		= [editor string];
-			unsigned	length		= [string length];
-			
-			if(0 == range.length && length == range.location) {
-				[editor setString:longestMatch];
-				[editor setSelectedRange:NSMakeRange(length, NSNotFound)];
-			}
-
-			[sender textShouldEndEditing:editor];
-		}
-	}
 }
 
 @end

@@ -28,11 +28,13 @@
 	[self setKeys:[NSArray arrayWithObject:@"owner"] triggerChangeNotificationsForDependentKey:@"managedObjectContext"];
 }
 
-- (id) init
+- (id) initWithOwner:(NSPersistentDocument *)owner
 {
 	if((self = [super init])) {
 		BOOL		result;
-		
+
+		_owner		= [owner retain];
+
 		result		= [NSBundle loadNibNamed:@"DynamicPlaylistInformationSheet" owner:self];
 		if(NO == result) {
 			NSLog(@"Missing resource: \"DynamicPlaylistInformationSheet.nib\".");
@@ -44,6 +46,13 @@
 	}
 	
 	return nil;
+}
+
+- (void) dealloc
+{
+	[_owner release],					_owner = nil;
+	
+	[super dealloc];
 }
 
 - (NSWindow *) sheet
