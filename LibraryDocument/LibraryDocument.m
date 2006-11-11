@@ -41,6 +41,10 @@
 #import "Library.h"
 #import "AudioStream.h"
 
+#import "AudioMetadata.h"
+
+#import "StaticPlaylist.h"
+#import "DynamicPlaylist.h"
 #import "FolderPlaylist.h"
 
 #import "AudioPropertiesReader.h"
@@ -54,6 +58,8 @@
 #import "StaticPlaylistInformationSheet.h"
 #import "DynamicPlaylistInformationSheet.h"
 #import "FolderPlaylistInformationSheet.h"
+
+#import "NewFolderPlaylistSheet.h"
 
 #import "ImageAndTextCell.h"
 #import "UtilityFunctions.h"
@@ -88,11 +94,15 @@
 - (void)					showDynamicPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)					showFolderPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
+- (void)					showNewFolderPlaylistSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
 - (void)					saveStreamTableColumnOrder;
 - (IBAction)				streamTableHeaderContextMenuSelected:(id)sender;
 
 - (void)					scheduleURLForAddition:(NSURL *)URL;
 - (void)					insertEntityForURL:(NSDictionary *)arguments;
+
+-(void)						updateStreamsUnderURL:(NSURL *)URL;
 
 @end
 
@@ -854,7 +864,7 @@
 - (IBAction) insertStaticPlaylist:(id)sender;
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
+	StaticPlaylist				*playlistObject;
 	Library						*libraryObject;
 	BOOL						selectionChanged;
 	
@@ -864,8 +874,7 @@
 	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self libraryObject];
 	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	[playlistObject setLibrary:libraryObject];
 	
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
 	
@@ -878,27 +887,26 @@
 - (IBAction) insertDynamicPlaylist:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
+	DynamicPlaylist				*playlistObject;
 	Library						*libraryObject;
 	BOOL						selectionChanged;
-	
-	//	[_playlistDrawer open];
-	
+
+//	[_playlistDrawer open];
+
 	managedObjectContext		= [self managedObjectContext];
 	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"DynamicPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self libraryObject];
-	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
-	
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
-	//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
-	
+
+	[playlistObject setLibrary:libraryObject];
+
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
+//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
+
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-	
+
 	if(selectionChanged) {
 		// The playlist table has only one column
 //		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
@@ -907,33 +915,22 @@
 
 - (IBAction) insertFolderPlaylist:(id)sender
 {
-	NSManagedObjectContext		*managedObjectContext;
-	FolderPlaylist				*playlistObject;
-	Library						*libraryObject;
-	BOOL						selectionChanged;
+	NewFolderPlaylistSheet		*newPlaylistSheet;
 	
-	//	[_playlistDrawer open];
-	
-	managedObjectContext		= [self managedObjectContext];
-	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
-	libraryObject				= [self libraryObject];
-	
-	[playlistObject setLibrary:libraryObject];
-	[playlistObject setKq:[self kq]];
-	
-	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
-	
-	if(selectionChanged) {
-		// The playlist table has only one column
-//		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
-	}
+	newPlaylistSheet			= [[NewFolderPlaylistSheet alloc] initWithOwner:self];
+		
+	[[NSApplication sharedApplication] beginSheet:[newPlaylistSheet sheet] 
+								   modalForWindow:[self windowForSheet] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showNewFolderPlaylistSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:newPlaylistSheet];
 }
 
 - (IBAction) insertPlaylistWithSelectedStreams:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
 	NSArray						*selectedStreams;
-	NSManagedObject				*playlistObject;
+	StaticPlaylist				*playlistObject;
 	Library						*libraryObject;
 	NSMutableSet				*streamsSet;
 	BOOL						selectionChanged;
@@ -945,8 +942,7 @@
 	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"StaticPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self libraryObject];
 	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	[playlistObject setLibrary:libraryObject];
 	
 	streamsSet					= [playlistObject mutableSetValueForKey:@"streams"];
 	
@@ -987,9 +983,7 @@
 		if([[[playlist entity] name] isEqualToString:@"StaticPlaylist"]) {
 			StaticPlaylistInformationSheet	*playlistInformationSheet;
 			
-			playlistInformationSheet		= [[StaticPlaylistInformationSheet alloc] init];
-			
-			[playlistInformationSheet setValue:self forKey:@"owner"];
+			playlistInformationSheet		= [[StaticPlaylistInformationSheet alloc] initWithOwner:self];
 			
 			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
 			
@@ -1002,9 +996,7 @@
 		else if([[[playlist entity] name] isEqualToString:@"DynamicPlaylist"]) {
 			DynamicPlaylistInformationSheet	*playlistInformationSheet;
 			
-			playlistInformationSheet		= [[DynamicPlaylistInformationSheet alloc] init];
-			
-			[playlistInformationSheet setValue:self forKey:@"owner"];
+			playlistInformationSheet		= [[DynamicPlaylistInformationSheet alloc] initWithOwner:self];
 			
 			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
 			
@@ -1017,7 +1009,7 @@
 		else if([[[playlist entity] name] isEqualToString:@"FolderPlaylist"]) {
 			FolderPlaylistInformationSheet	*playlistInformationSheet;
 			
-			playlistInformationSheet		= [[FolderPlaylistInformationSheet alloc] init];
+			playlistInformationSheet		= [[FolderPlaylistInformationSheet alloc] initWithOwner:self];
 			
 			[playlistInformationSheet setValue:self forKey:@"owner"];
 			
@@ -1047,14 +1039,14 @@
 {
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSArray						*streams;
 	unsigned					streamIndex;
 	BOOL						result;
 	
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streamObject				= [libraryObject nowPlaying];
 	streams						= [_streamArrayController arrangedObjects];
 	
 	if(nil == streamObject || 0 == [streams count]) {
@@ -1078,14 +1070,14 @@
 {
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSArray						*streams;
 	unsigned					streamIndex;
 	BOOL						result;
 	
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streamObject				= [libraryObject nowPlaying];
 	streams						= [_streamArrayController arrangedObjects];
 	
 	if(nil == streamObject || 0 == [streams count]) {
@@ -1111,7 +1103,7 @@
 {
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSError						*error;
 	NSNumber					*playCount;
 	NSNumber					*newPlayCount;
@@ -1119,23 +1111,23 @@
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
-	playCount					= [streamObject valueForKey:@"playCount"];
+	streamObject				= [libraryObject nowPlaying];
+	playCount					= [streamObject playCount];
 	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
-	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
-	[streamObject setValue:newPlayCount forKey:@"playCount"];
+	[streamObject setIsPlaying:[NSNumber numberWithBool:NO]];
+	[streamObject setLastPlayed:[NSDate date]];
+	[streamObject setPlayCount:newPlayCount];
 	
-	if(nil == [streamObject valueForKey:@"firstPlayed"]) {
-		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
+	if(nil == [streamObject firstPlayed]) {
+		[streamObject setFirstPlayed:[NSDate date]];
 	}
 
 	streamObject				= [libraryObject streamObjectForURL:url error:&error];
 
 	if(nil != streamObject) {
-		[libraryObject setValue:streamObject forKey:@"nowPlaying"];		
-		[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
+		[libraryObject setNowPlaying:streamObject];
+		[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
 	}
 }
 
@@ -1143,7 +1135,7 @@
 {
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSError						*error;
 	NSNumber					*playCount;
 	NSNumber					*newPlayCount;
@@ -1151,16 +1143,16 @@
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
-	playCount					= [streamObject valueForKey:@"playCount"];
+	streamObject				= [libraryObject nowPlaying];
+	playCount					= [streamObject playCount];
 	newPlayCount				= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
-	[streamObject setValue:[NSDate date] forKey:@"lastPlayed"];
-	[streamObject setValue:newPlayCount forKey:@"playCount"];
+	[streamObject setIsPlaying:[NSNumber numberWithBool:NO]];
+	[streamObject setLastPlayed:[NSDate date]];
+	[streamObject setPlayCount:newPlayCount];
 
-	if(nil == [streamObject valueForKey:@"firstPlayed"]) {
-		[streamObject setValue:[NSDate date] forKey:@"firstPlayed"];
+	if(nil == [streamObject firstPlayed]) {
+		[streamObject setFirstPlayed:[NSDate date]];
 	}
 	
 	[self playNextStream:self];
@@ -1170,7 +1162,7 @@
 {
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSError						*error;
 	NSArray						*streams;
 	unsigned					streamIndex;
@@ -1180,7 +1172,7 @@
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streamObject				= [libraryObject nowPlaying];
 		
 	streams						= [_streamArrayController arrangedObjects];
 	
@@ -1217,7 +1209,7 @@
 	}
 	
 	if(nil != streamObject) {
-		url									= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
+		url									= [NSURL URLWithString:[streamObject url]];
 		result								= [[self player] setNextStreamURL:url error:&error];
 		
 		if(NO == result) {
@@ -1295,12 +1287,12 @@
 		
 		if(nil != infoForBinding) {
 			NSArrayController	*arrayController;
-			NSManagedObject		*playlistObject;
+			Playlist			*playlistObject;
 			
 			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
 			playlistObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 			
-			[aCell setImage:[playlistObject valueForKey:@"image"]];
+			[aCell setImage:[playlistObject image]];
 		}
 	}
 	else if([aTableView isEqual:_streamTableView]) {
@@ -1310,13 +1302,13 @@
 		
 		if(nil != infoForBinding) {
 			NSArrayController	*arrayController;
-			NSManagedObject		*streamObject;
+			AudioStream			*streamObject;
 			
 			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
 			streamObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 
 			// Highlight the currently playing stream
-			if([[streamObject valueForKey:@"isPlaying"] boolValue]) {
+			if([[streamObject isPlaying] boolValue]) {
 				[aCell setDrawsBackground:YES];
 
 				// Emacs "NavajoWhite" -> 255, 222, 173
@@ -1344,86 +1336,6 @@
 	}
 	
 	[self updateStreamsUnderURL:[NSURL fileURLWithPath:fpath]];
-}
-
--(void) updateStreamsUnderURL:(NSURL *)URL
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSFetchRequest				*fetchRequest;
-	NSArray						*fetchResults;
-	NSError						*error;
-	NSMutableSet				*libraryStreams;
-	NSMutableSet				*physicalStreams;
-	NSMutableSet				*removedStreams;
-	NSMutableSet				*addedStreams;
-	NSFileManager				*manager;
-	NSArray						*allowedTypes;
-	NSMutableArray				*URLs;
-	NSString					*path;
-	NSDirectoryEnumerator		*directoryEnumerator;
-	NSEnumerator				*enumerator;
-	AudioStream					*stream;
-	NSString					*filename;
-	BOOL						result, isDir;
-	
-	// First fetch all AudioStreams that are in the directory that changed
-	managedObjectContext		= [self managedObjectContext];
-	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	error						= nil;
-	
-	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
-	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"url BEGINSWITH %@", [URL absoluteString]]];
-
-	fetchResults				= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
-
-	if(nil == fetchResults) {
-		if(nil != error) {
-			[self presentError:error];
-		}
-		
-		return;
-	}
-
-	libraryStreams				= [NSMutableSet set];
-
-	enumerator = [fetchResults objectEnumerator];
-	while((stream = [enumerator nextObject])) {
-		[libraryStreams addObject:[NSURL URLWithString:[stream url]]];
-	}
-
-	// Now iterate through and see what is actually in the directory
-	URLs						= [NSMutableArray array];
-	manager						= [NSFileManager defaultManager];
-	allowedTypes				= getAudioExtensions();
-	path						= [URL path];
-	
-	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
-	
-	if(NO == result || NO == isDir) {
-		NSLog(@"Unable to locate folder \"%@\".", path);
-		return;
-	}
-	
-	directoryEnumerator			= [manager enumeratorAtPath:path];
-	
-	while((filename = [directoryEnumerator nextObject])) {
-		if([allowedTypes containsObject:[filename pathExtension]]) {
-			[URLs addObject:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]]];
-		}
-	}
-
-	physicalStreams				= [NSMutableSet setWithArray:URLs];
-	
-	// Determine if any files were deleted
-	removedStreams				= [NSMutableSet setWithSet:libraryStreams];
-	[removedStreams minusSet:physicalStreams];
-
-	// Determine if any files were added
-	addedStreams				= [NSMutableSet setWithSet:physicalStreams];
-	[addedStreams minusSet:libraryStreams];
-	
-	[self addURLsToLibrary:[addedStreams allObjects]];
-	[self removeURLsFromLibrary:[removedStreams allObjects]];		
 }
 
 @end
@@ -1488,7 +1400,7 @@
 
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSURL						*url;
 	BOOL						result;
 	NSError						*error;
@@ -1502,12 +1414,12 @@
 	error						= nil;
 	managedObjectContext		= [self managedObjectContext];
 	libraryObject				= [self libraryObject];
-	streamObject				= [libraryObject valueForKey:@"nowPlaying"];
+	streamObject				= [libraryObject nowPlaying];
 	
 	if(nil != streamObject) {
-		[streamObject setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+		[streamObject setIsPlaying:[NSNumber numberWithBool:NO]];
 		
-		[libraryObject setValue:nil forKey:@"nowPlaying"];
+		[libraryObject setNowPlaying:nil];
 	}
 	
 	streamObject				= [streams objectAtIndex:0];
@@ -1521,19 +1433,19 @@
 		return;
 	}
 	
-	[streamObject setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
-	
-	[libraryObject setValue:streamObject forKey:@"nowPlaying"];
-	
-	[GrowlApplicationBridge notifyWithTitle:[streamObject valueForKeyPath:@"metadata.title"]
-								description:[streamObject valueForKeyPath:@"metadata.artist"]
+	[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
+
+	[libraryObject setNowPlaying:streamObject];
+
+	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
+								description:[[streamObject metadata] artist]
 						   notificationName:@"Stream Playback Started" 
-								   iconData:[streamObject valueForKeyPath:@"metadata.albumArt"] 
+								   iconData:[[streamObject metadata] albumArt] 
 								   priority:0 
 								   isSticky:NO 
 							   clickContext:nil];
 	
-	if(nil == [streamObject valueForKeyPath:@"metadata.albumArt"]) {
+	if(nil == [[streamObject metadata] albumArt]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
 	}
 	
@@ -1856,6 +1768,47 @@
 	[playlistInformationSheet release];
 }
 
+- (void) showNewFolderPlaylistSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	NewFolderPlaylistSheet			*newPlaylistSheet;
+	
+	newPlaylistSheet				= (NewFolderPlaylistSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {		
+		id							newPlaylist;
+		NSManagedObjectContext		*managedObjectContext;
+		FolderPlaylist				*playlistObject;
+		Library						*libraryObject;
+		BOOL						selectionChanged;
+		
+		newPlaylist					= [[newPlaylistSheet valueForKey:@"playlistObjectController"] selection];
+		managedObjectContext		= [self managedObjectContext];
+		playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
+		libraryObject				= [self libraryObject];
+		
+		[playlistObject setLibrary:libraryObject];
+		
+		[playlistObject setName:[newPlaylist valueForKey:@"name"]];
+		[playlistObject setUrl:[newPlaylist valueForKey:@"url"]];
+
+		[self updateStreamsUnderURL:[NSURL URLWithString:[newPlaylist valueForKey:@"url"]]];
+
+		[playlistObject setKq:[self kq]];
+		
+		selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
+		
+		if(selectionChanged) {
+			[_playlistArrayController rearrangeObjects];
+		}
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[newPlaylistSheet release];
+}
+
 #pragma mark Stream Table Management
 
 - (void) saveStreamTableColumnOrder
@@ -1969,11 +1922,11 @@
 	NSDictionary				*properties;
 	NSDictionary				*metadata;
 	NSString					*absoluteURL;
-	NSManagedObject				*streamObject;
+	AudioStream					*streamObject;
 	NSManagedObjectContext		*managedObjectContext;
 	Library						*libraryObject;
 	NSManagedObject				*propertiesObject;
-	NSManagedObject				*metadataObject;
+	AudioMetadata				*metadataObject;
 	NSError						*error;
 	NSMutableSet				*playlistSet;
 	BOOL						result;
@@ -2014,9 +1967,8 @@
 	
 	// ========================================
 	// Fill in properties and relationships
-	[streamObject setValue:absoluteURL forKey:@"url"];
-	[streamObject setValue:libraryObject forKey:@"library"];
-//	[streamObject setValue:[NSDate date] forKey:@"dateAdded"];
+	[streamObject setUrl:absoluteURL];
+	[streamObject setLibrary:libraryObject];
 	
 	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
 	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
@@ -2041,28 +1993,108 @@
 	metadataObject				= [NSEntityDescription insertNewObjectForEntityForName:@"AudioMetadata" inManagedObjectContext:managedObjectContext];
 	
 	[metadataObject setValue:[metadata valueForKey:@"albumArt"] forKey:@"albumArt"];
-	[metadataObject setValue:[metadata valueForKey:@"albumArtist"] forKey:@"albumArtist"];
-	[metadataObject setValue:[metadata valueForKey:@"albumTitle"] forKey:@"albumTitle"];
-	[metadataObject setValue:[metadata valueForKey:@"artist"] forKey:@"artist"];
-	[metadataObject setValue:[metadata valueForKey:@"comment"] forKey:@"comment"];
-	[metadataObject setValue:[metadata valueForKey:@"composer"] forKey:@"composer"];
-	[metadataObject setValue:[metadata valueForKey:@"date"] forKey:@"date"];
-	[metadataObject setValue:[metadata valueForKey:@"discNumber"] forKey:@"discNumber"];
-	[metadataObject setValue:[metadata valueForKey:@"discTotal"] forKey:@"discTotal"];
-	[metadataObject setValue:[metadata valueForKey:@"genre"] forKey:@"genre"];
-	[metadataObject setValue:[metadata valueForKey:@"isrc"] forKey:@"isrc"];
-	[metadataObject setValue:[metadata valueForKey:@"mcn"] forKey:@"mcn"];
-	[metadataObject setValue:[metadata valueForKey:@"partOfCompilation"] forKey:@"partOfCompilation"];
-	[metadataObject setValue:[metadata valueForKey:@"title"] forKey:@"title"];
-	[metadataObject setValue:[metadata valueForKey:@"trackNumber"] forKey:@"trackNumber"];
-	[metadataObject setValue:[metadata valueForKey:@"trackTotal"] forKey:@"trackTotal"];
+	[metadataObject setAlbumArtist:[metadata valueForKey:@"albumArtist"]];
+	[metadataObject setAlbumTitle:[metadata valueForKey:@"albumTitle"]];
+	[metadataObject setArtist:[metadata valueForKey:@"artist"]];
+	[metadataObject setComment:[metadata valueForKey:@"comment"]];
+	[metadataObject setComposer:[metadata valueForKey:@"composer"]];
+	[metadataObject setDate:[metadata valueForKey:@"date"]];
+	[metadataObject setDiscNumber:[metadata valueForKey:@"discNumber"]];
+	[metadataObject setDiscTotal:[metadata valueForKey:@"discTotal"]];
+	[metadataObject setGenre:[metadata valueForKey:@"genre"]];
+	[metadataObject setIsrc:[metadata valueForKey:@"isrc"]];
+	[metadataObject setMcn:[metadata valueForKey:@"mcn"]];
+	[metadataObject setPartOfCompilation:[metadata valueForKey:@"partOfCompilation"]];
+	[metadataObject setTitle:[metadata valueForKey:@"title"]];
+	[metadataObject setTrackNumber:[metadata valueForKey:@"trackNumber"]];
+	[metadataObject setTrackTotal:[metadata valueForKey:@"trackTotal"]];
 	
-	[streamObject setValue:metadataObject forKey:@"metadata"];
+	[streamObject setMetadata:metadataObject];
 	
 	// If no metadata was found, set the title to the filename
 	if(0 == [[metadata valueForKey:@"@count"] unsignedIntValue]) {
 		[metadataObject setValue:[[[URL path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
 	}
+}
+
+-(void) updateStreamsUnderURL:(NSURL *)URL
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResults;
+	NSError						*error;
+	NSMutableSet				*libraryStreams;
+	NSMutableSet				*physicalStreams;
+	NSMutableSet				*removedStreams;
+	NSMutableSet				*addedStreams;
+	NSFileManager				*manager;
+	NSArray						*allowedTypes;
+	NSMutableArray				*URLs;
+	NSString					*path;
+	NSDirectoryEnumerator		*directoryEnumerator;
+	NSEnumerator				*enumerator;
+	AudioStream					*stream;
+	NSString					*filename;
+	BOOL						result, isDir;
+	
+	// First fetch all AudioStreams that are in the directory that changed
+	managedObjectContext		= [self managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	error						= nil;
+	
+	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
+	[fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"url BEGINSWITH %@", [URL absoluteString]]];
+	
+	fetchResults				= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+	
+	if(nil == fetchResults) {
+		if(nil != error) {
+			[self presentError:error];
+		}
+		
+		return;
+	}
+	
+	libraryStreams				= [NSMutableSet set];
+	
+	enumerator = [fetchResults objectEnumerator];
+	while((stream = [enumerator nextObject])) {
+		[libraryStreams addObject:[NSURL URLWithString:[stream url]]];
+	}
+	
+	// Now iterate through and see what is actually in the directory
+	URLs						= [NSMutableArray array];
+	manager						= [NSFileManager defaultManager];
+	allowedTypes				= getAudioExtensions();
+	path						= [URL path];
+	
+	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
+	
+	if(NO == result || NO == isDir) {
+		NSLog(@"Unable to locate folder \"%@\".", path);
+		return;
+	}
+	
+	directoryEnumerator			= [manager enumeratorAtPath:path];
+	
+	while((filename = [directoryEnumerator nextObject])) {
+		if([allowedTypes containsObject:[filename pathExtension]]) {
+			[URLs addObject:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]]];
+		}
+	}
+	
+	physicalStreams				= [NSMutableSet setWithArray:URLs];
+	
+	// Determine if any files were deleted
+	removedStreams				= [NSMutableSet setWithSet:libraryStreams];
+	[removedStreams minusSet:physicalStreams];
+	
+	// Determine if any files were added
+	addedStreams				= [NSMutableSet setWithSet:physicalStreams];
+	[addedStreams minusSet:libraryStreams];
+	
+	[self addURLsToLibrary:[addedStreams allObjects]];
+	[self removeURLsFromLibrary:[removedStreams allObjects]];		
 }
 
 @end
