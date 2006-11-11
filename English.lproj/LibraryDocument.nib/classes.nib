@@ -25,13 +25,13 @@
         {
             ACTIONS = {
                 addFiles = id; 
-                editPlaylist = id; 
                 insertPlaylistWithSelectedStreams = id; 
                 nextStream = id; 
                 play = id; 
                 playPause = id; 
                 previousStream = id; 
                 removeAudioStreams = id; 
+                showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
