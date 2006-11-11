@@ -42,6 +42,8 @@
 		8C3A86BA0B005C7300A03FEB /* FolderPlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A86B60B005C7300A03FEB /* FolderPlaylistInformationSheet.m */; };
 		8C3A86C90B005CC100A03FEB /* DynamicPlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A86C70B005CC100A03FEB /* DynamicPlaylistInformationSheet.nib */; };
 		8C3A86D00B005D0500A03FEB /* FolderPlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A86CE0B005D0500A03FEB /* FolderPlaylistInformationSheet.nib */; };
+		8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A8C3B0B0553D100A03FEB /* NewFolderPlaylistSheet.m */; };
+		8C3A8C6C0B05572600A03FEB /* NewFolderPlaylistSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A8C6A0B05572600A03FEB /* NewFolderPlaylistSheet.nib */; };
 		8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */; };
 		8C5C87E30AFC588000D1E17A /* StaticPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */; };
 		8C5C87E40AFC588000D1E17A /* FolderPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */; };
@@ -233,6 +235,9 @@
 		8C3A86B60B005C7300A03FEB /* FolderPlaylistInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FolderPlaylistInformationSheet.m; path = LibraryDocument/FolderPlaylistInformationSheet.m; sourceTree = "<group>"; };
 		8C3A86C80B005CC100A03FEB /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DynamicPlaylistInformationSheet.nib; sourceTree = "<group>"; };
 		8C3A86CF0B005D0500A03FEB /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FolderPlaylistInformationSheet.nib; sourceTree = "<group>"; };
+		8C3A8C3A0B0553D100A03FEB /* NewFolderPlaylistSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NewFolderPlaylistSheet.h; path = LibraryDocument/NewFolderPlaylistSheet.h; sourceTree = "<group>"; };
+		8C3A8C3B0B0553D100A03FEB /* NewFolderPlaylistSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NewFolderPlaylistSheet.m; path = LibraryDocument/NewFolderPlaylistSheet.m; sourceTree = "<group>"; };
+		8C3A8C6B0B05572600A03FEB /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewFolderPlaylistSheet.nib; sourceTree = "<group>"; };
 		8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
 		8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = StaticPlaylist.png; path = Images/StaticPlaylist.png; sourceTree = "<group>"; };
@@ -472,6 +477,8 @@
 				8CC30C8E0AEF45FC00B443A3 /* AudioMetadataEditingSheet.m */,
 				8C3A86940B00590100A03FEB /* StaticPlaylistInformationSheet.h */,
 				8C3A86950B00590100A03FEB /* StaticPlaylistInformationSheet.m */,
+				8C3A8C3A0B0553D100A03FEB /* NewFolderPlaylistSheet.h */,
+				8C3A8C3B0B0553D100A03FEB /* NewFolderPlaylistSheet.m */,
 			);
 			name = "Library Document";
 			sourceTree = "<group>";
@@ -502,6 +509,7 @@
 				8C3A86860B00575400A03FEB /* StaticPlaylistInformationSheet.nib */,
 				8C3A86C70B005CC100A03FEB /* DynamicPlaylistInformationSheet.nib */,
 				8C3A86CE0B005D0500A03FEB /* FolderPlaylistInformationSheet.nib */,
+				8C3A8C6A0B05572600A03FEB /* NewFolderPlaylistSheet.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -877,6 +885,7 @@
 				8C3A86880B00575400A03FEB /* StaticPlaylistInformationSheet.nib in Resources */,
 				8C3A86C90B005CC100A03FEB /* DynamicPlaylistInformationSheet.nib in Resources */,
 				8C3A86D00B005D0500A03FEB /* FolderPlaylistInformationSheet.nib in Resources */,
+				8C3A8C6C0B05572600A03FEB /* NewFolderPlaylistSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -955,6 +964,7 @@
 				8C3A86970B00590100A03FEB /* StaticPlaylistInformationSheet.m in Sources */,
 				8C3A86B80B005C7300A03FEB /* DynamicPlaylistInformationSheet.m in Sources */,
 				8C3A86BA0B005C7300A03FEB /* FolderPlaylistInformationSheet.m in Sources */,
+				8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1007,6 +1017,14 @@
 				8C3A86CF0B005D0500A03FEB /* English */,
 			);
 			name = FolderPlaylistInformationSheet.nib;
+			sourceTree = "<group>";
+		};
+		8C3A8C6A0B05572600A03FEB /* NewFolderPlaylistSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C3A8C6B0B05572600A03FEB /* English */,
+			);
+			name = NewFolderPlaylistSheet.nib;
 			sourceTree = "<group>";
 		};
 		8CC30CAE0AEF477200B443A3 /* AudioMetadataEditingSheet.nib */ = {
