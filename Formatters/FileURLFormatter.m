@@ -33,7 +33,7 @@
 
 - (BOOL) getObjectValue:(id *)object forString:(NSString *)string errorDescription:(NSString  **)error
 {
-	*object = [[NSURL URLWithString:[string stringByExpandingTildeInPath]] absoluteString];
+	*object = (nil == string ? nil : [[NSURL URLWithString:[string stringByExpandingTildeInPath]] absoluteString]);
 	return YES;
 }
 
