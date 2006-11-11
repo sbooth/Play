@@ -41,6 +41,8 @@
 #import "Library.h"
 #import "AudioStream.h"
 
+#import "FolderPlaylist.h"
+
 #import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
 
@@ -64,6 +66,7 @@
 
 - (AudioPlayer *)			player;
 - (NSThread *)				thread;
+- (UKKQueue *)				kq;
 
 - (Library *)				libraryObject;
 
@@ -187,8 +190,7 @@
 	NSArray						*fetchResult;
 	NSError						*error;
 	unsigned					i;
-	NSManagedObject				*playlist;
-	NSURL						*url;
+	FolderPlaylist				*playlist;
 	
 	managedObjectContext		= [self managedObjectContext];
 	
@@ -210,14 +212,13 @@
 		return;	
 	}
 	
-	[_kq removeAllPathsFromQueue];
-	
 	for(i = 0; i < [fetchResult count]; ++i) {
 		playlist				= [fetchResult objectAtIndex:i];
-		url						= [NSURL URLWithString:[playlist url]];
+
+		// Sync the library's streams with those actually on disk
+		[self updateStreamsUnderURL:[NSURL URLWithString:[playlist url]]];
 		
-		[self addURLToLibrary:url];
-		[_kq addPath:[url path]];
+		[playlist setKq:[self kq]];
 	}
 }
 
@@ -907,7 +908,7 @@
 - (IBAction) insertFolderPlaylist:(id)sender
 {
 	NSManagedObjectContext		*managedObjectContext;
-	NSManagedObject				*playlistObject;
+	FolderPlaylist				*playlistObject;
 	Library						*libraryObject;
 	BOOL						selectionChanged;
 	
@@ -917,8 +918,8 @@
 	playlistObject				= [NSEntityDescription insertNewObjectForEntityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
 	libraryObject				= [self libraryObject];
 	
-	[playlistObject setValue:libraryObject forKey:@"library"];
-//	[playlistObject setValue:[NSDate date] forKey:@"dateCreated"];
+	[playlistObject setLibrary:libraryObject];
+	[playlistObject setKq:[self kq]];
 	
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
 	
@@ -1336,6 +1337,17 @@
 
 -(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath
 {
+	if(UKFileWatcherRenameNotification != nm
+	   && UKFileWatcherWriteNotification != nm
+	   && UKFileWatcherDeleteNotification != nm) {
+		return;
+	}
+	
+	[self updateStreamsUnderURL:[NSURL fileURLWithPath:fpath]];
+}
+
+-(void) updateStreamsUnderURL:(NSURL *)URL
+{
 	NSManagedObjectContext		*managedObjectContext;
 	NSFetchRequest				*fetchRequest;
 	NSArray						*fetchResults;
@@ -1346,7 +1358,6 @@
 	NSMutableSet				*addedStreams;
 	NSFileManager				*manager;
 	NSArray						*allowedTypes;
-	NSURL						*URL;
 	NSMutableArray				*URLs;
 	NSString					*path;
 	NSDirectoryEnumerator		*directoryEnumerator;
@@ -1355,16 +1366,9 @@
 	NSString					*filename;
 	BOOL						result, isDir;
 	
-	if(UKFileWatcherRenameNotification != nm
-	   && UKFileWatcherWriteNotification != nm
-	   && UKFileWatcherDeleteNotification != nm) {
-		return;
-	}
-	
 	// First fetch all AudioStreams that are in the directory that changed
 	managedObjectContext		= [self managedObjectContext];
 	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	URL							= [NSURL fileURLWithPath:fpath];
 	error						= nil;
 	
 	[fetchRequest setEntity:[NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:managedObjectContext]];
@@ -1396,7 +1400,7 @@
 	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
 	
 	if(NO == result || NO == isDir) {
-		NSLog(@"Unable to locate folder \"%@\" for playlist.", path);
+		NSLog(@"Unable to locate folder \"%@\".", path);
 		return;
 	}
 	
@@ -1434,6 +1438,11 @@
 - (NSThread *) thread
 {
 	return _libraryThread;
+}
+
+- (UKKQueue *) kq
+{
+	return _kq;
 }
 
 - (Library *) libraryObject

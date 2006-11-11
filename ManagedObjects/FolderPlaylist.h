@@ -21,6 +21,8 @@
 #import <CoreData/CoreData.h>
 #import "Playlist.h"
 
+@class UKKQueue;
+
 @interface FolderPlaylist :  Playlist  
 {
 	@private
@@ -29,6 +31,8 @@
 	NSPredicate		*_predicate;          
 	
 	NSSet			*_streams;
+	
+	UKKQueue		*_kq;
 }
 
 - (NSString *)		url;
@@ -39,5 +43,8 @@
 - (NSFetchRequest *)	fetchRequest;
 
 - (void)			refresh;
+
+- (UKKQueue *)		kq;
+- (void)			setKq:(UKKQueue *)kq;
 
 @end

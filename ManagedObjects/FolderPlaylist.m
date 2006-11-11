@@ -20,6 +20,14 @@
 
 #import "FolderPlaylist.h"
 #import "AudioStream.h"
+#import "UKKQueue.h"
+#import "UtilityFunctions.h"
+
+@interface FolderPlaylist (Private)
+
+- (NSArray *)		URLStringArray;
+
+@end
 
 @implementation FolderPlaylist 
 
@@ -36,21 +44,26 @@
 
 - (void)setUrl:(NSString *)value 
 {
+	if(nil != [self kq] && nil != [self url]) {
+		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+	}
+	
     [self willChangeValueForKey: @"url"];
     [self setPrimitiveValue: value forKey: @"url"];
     [self didChangeValueForKey: @"url"];
 	
+	if(nil != [self kq] && nil != [self url]) {
+		[[self kq] addPath:[[NSURL URLWithString:[self url]] path]];
+	}
+	
 	[self refresh];
 }
 
-- (void)commonAwake {
-	
+- (void) commonAwake
+{
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh:) 
-												 name:NSManagedObjectContextObjectsDidChangeNotification object:[self managedObjectContext]];        
-	
-	//    [self willAccessValueForKey:@"priority"];
-	//  [self setValue:[NSNumber numberWithInt:2] forKeyPath:@"priority"];
-	//   [self didAccessValueForKey:@"priority"];
+												 name:NSManagedObjectContextObjectsDidChangeNotification 
+											   object:[self managedObjectContext]];        
 }
 
 - (void) awakeFromInsert
@@ -65,24 +78,28 @@
 	[self commonAwake];
 }
 
-- (void)didTurnIntoFault {
-	
+- (void) didTurnIntoFault
+{
     [[NSNotificationCenter defaultCenter] removeObserver: self 
-													name:NSManagedObjectContextObjectsDidChangeNotification object:[self managedObjectContext]];
+													name:NSManagedObjectContextObjectsDidChangeNotification 
+												  object:[self managedObjectContext]];
+	
+	if(nil != [self kq] && nil != [self url]) {
+		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+	}
 	
     [_streams release],				_streams = nil;
     [_fetchRequest release],		_fetchRequest = nil;
+    [_kq release],					_kq = nil;
     
     [super didTurnIntoFault];
 }
 
-- (void)refresh {
-	
-	//	[self willChangeValueForKey:@"summaryString"];
+- (void) refresh
+{
 	[self willChangeValueForKey:@"streams"];
 	[_streams release], _streams = nil;    
 	[self didChangeValueForKey:@"streams"];
-	//	[self didChangeValueForKey:@"summaryString"];
 }
 
 - (void)refresh:(NSNotification *)notification {
@@ -92,37 +109,37 @@
     // [self fetchRequest]) We don't want to re-fetch recipes if unrelated 
     // objects (for example, other smart groups) change.
 	
-	NSEnumerator *enumerator;
-	id object;
-	BOOL refresh = NO;
+	NSEnumerator			*enumerator;
+	id						object;
+	BOOL					refresh		= NO;
 	
-	NSEntityDescription *entity = [[self fetchRequest] entity];
-	NSSet *updated = [[notification userInfo] objectForKey:NSUpdatedObjectsKey];
-	NSSet *inserted = [[notification userInfo] objectForKey:NSInsertedObjectsKey];
-	NSSet *deleted = [[notification userInfo] objectForKey:NSDeletedObjectsKey];
+	NSEntityDescription		*entity		= [[self fetchRequest] entity];
+	NSSet					*updated	= [[notification userInfo] objectForKey:NSUpdatedObjectsKey];
+	NSSet					*inserted	= [[notification userInfo] objectForKey:NSInsertedObjectsKey];
+	NSSet					*deleted	= [[notification userInfo] objectForKey:NSDeletedObjectsKey];
 	
 	enumerator = [updated objectEnumerator];	
-	while ((refresh == NO) && (object = [enumerator nextObject])) {
-		if ([object entity] == entity) {
+	while((NO == refresh) && (object = [enumerator nextObject])) {
+		if([object entity] == entity) {
 			refresh = YES;	
 		}
 	}
 	
 	enumerator = [inserted objectEnumerator];	
-	while ((refresh == NO) && (object = [enumerator nextObject])) {
-		if ([object entity] == entity) {
+	while((NO == refresh) && (object = [enumerator nextObject])) {
+		if([object entity] == entity) {
 			refresh = YES;	
 		}
 	}
 	
 	enumerator = [deleted objectEnumerator];	
-	while ((refresh == NO) && (object = [enumerator nextObject])) {
-		if ([object entity] == entity) {
+	while((NO == refresh) && (object = [enumerator nextObject])) {
+		if([object entity] == entity) {
 			refresh = YES;	
 		}
 	}
 	
-    if ( (refresh == NO) && (([updated count] == 0) && ([inserted count] == 0) && ([deleted count]==0))) {
+    if(NO == refresh && (0 == [updated count] && 0 == [inserted count] && 0 == [deleted count])) {
         refresh = YES;
     }
     
@@ -135,16 +152,17 @@
 	// OPTIMIZATION TIP: We could remove the objects of the deleted set 
     // directly from our recipes set ([recipes minusSet:deleted]).
 	
-    if (refresh) {
+    if(refresh) {
 		[self refresh];
     }
 }
 
-- (NSFetchRequest *)fetchRequest  {
-    if ( _fetchRequest == nil ) {
+- (NSFetchRequest *) fetchRequest
+{
+    if(nil == _fetchRequest) {
 		
-        // create the fetch request for the recipes
-        _fetchRequest = [[NSFetchRequest alloc] init];
+        _fetchRequest	= [[NSFetchRequest alloc] init];
+
         [_fetchRequest setEntity: [NSEntityDescription entityForName:@"AudioStream" inManagedObjectContext:[self managedObjectContext]]];
 		
         // set the affected stores
@@ -162,70 +180,53 @@
 
 - (NSSet *) streams
 {	
-    if ( _streams == nil )  {
-        // variables
-        NSError *error = nil;
-        NSArray *results = nil;
+    if(nil ==  _streams)  {
+        NSError		*error;
+        NSArray		*results;
 		
-        // in case the predicate is bad
         @try {
-			NSURL *url = [NSURL fileURLWithPath:[self url]];
-//			[[self fetchRequest] setPredicate:[NSPredicate predicateWithFormat:@"url BEGINSWITH %@", [url absoluteString]]];
 			[[self fetchRequest] setPredicate:[NSPredicate predicateWithFormat:@"url IN %@", [self URLStringArray]]];
-//			NSLog(@"FolderPlaylist fetchRequest: %@", [self fetchRequest]);
-			results = [[self managedObjectContext] executeFetchRequest:[self fetchRequest] error:&error];
+			
+			error		= nil;
+			results		= [[self managedObjectContext] executeFetchRequest:[self fetchRequest] error:&error];
 		}
-        @catch ( NSException *e ) {  NSLog(@"Caught an exception: %@", e); /* no-op */ }
+		
+        @catch(NSException *e) {
+			NSLog(@"Caught an exception: %@", e); 
+		}
 		
 		if(nil == results) {
-			NSLog(@"Error fetching streams for FolderPlaylist: %@", error);
+			NSLog(@"Error fetching streams for FolderPlaylist \"%@\": %@", [self name], error);
 		}
 		
         // use an empty set in the case where something went awry
-        _streams = ( error != nil || results == nil) ? [[NSSet alloc] init] : [[NSSet alloc] initWithArray:results];
+        _streams = (nil != error || nil == results) ? [[NSSet alloc] init] : [[NSSet alloc] initWithArray:results];
     }
 	
     return _streams;
 }
 
-- (NSArray *) URLStringArray
+- (void) setStreams:(NSSet *)streams
 {
-	NSFileManager				*manager;
-	NSArray						*allowedTypes;
-	NSURL						*URL;
-	NSMutableArray				*URLs;
-	NSString					*path;
-	NSDirectoryEnumerator		*directoryEnumerator;
-	NSString					*filename;
-	BOOL						result, isDir;
-	
-	URLs						= [NSMutableArray array];
-	URL							= [NSURL URLWithString:[self url]];
-	manager						= [NSFileManager defaultManager];
-	allowedTypes				= getAudioExtensions();
-	path						= [URL path];
-		
-	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
-	
-	if(NO == result || NO == isDir) {
-		NSLog(@"Unable to locate folder \"%@\" for playlist.", path);
-		return [NSArray array];
-	}
-		
-	directoryEnumerator		= [manager enumeratorAtPath:path];
-		
-	while((filename = [directoryEnumerator nextObject])) {
-		if([allowedTypes containsObject:[filename pathExtension]]) {
-			[URLs addObject:[[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]] absoluteString]];
-		}
-	}
-
-	return URLs;
 }
 
-- (void) setStreams:(NSSet *)newStreams
+- (UKKQueue *) kq
 {
-    // No-op   
+	return _kq;
+}
+
+- (void) setKq:(UKKQueue *)kq
+{
+	if(nil != [self url]) {
+		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+	}
+	
+	[_kq release];
+	_kq = [kq retain];
+	
+	if(nil != [self url]) {
+		[[self kq] addPath:[[NSURL URLWithString:[self url]] path]];
+	}
 }
 
 - (NSImage *) image
@@ -246,6 +247,45 @@
 	}
 	
 	return result;
+}
+
+@end
+
+@implementation FolderPlaylist (Private)
+
+- (NSArray *) URLStringArray
+{
+	NSFileManager				*manager;
+	NSArray						*allowedTypes;
+	NSURL						*URL;
+	NSMutableArray				*URLs;
+	NSString					*path;
+	NSDirectoryEnumerator		*directoryEnumerator;
+	NSString					*filename;
+	BOOL						result, isDir;
+	
+	URLs						= [NSMutableArray array];
+	URL							= [NSURL URLWithString:[self url]];
+	manager						= [NSFileManager defaultManager];
+	allowedTypes				= getAudioExtensions();
+	path						= [URL path];
+	
+	result						= [manager fileExistsAtPath:path isDirectory:&isDir];
+	
+	if(NO == result || NO == isDir) {
+		NSLog(@"Unable to locate folder \"%@\" for playlist \"%@\".", path, [self name]);
+		return [NSArray array];
+	}
+	
+	directoryEnumerator		= [manager enumeratorAtPath:path];
+	
+	while((filename = [directoryEnumerator nextObject])) {
+		if([allowedTypes containsObject:[filename pathExtension]]) {
+			[URLs addObject:[[NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]] absoluteString]];
+		}
+	}
+
+	return URLs;
 }
 
 @end
