@@ -3,7 +3,7 @@
         {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {cancel = id; chooseFolder = id; ok = id; redo = id; undo = id; }; 
+            ACTIONS = {cancel = id; ok = id; redo = id; undo = id; }; 
             CLASS = FolderPlaylistInformationSheet; 
             LANGUAGE = ObjC; 
             OUTLETS = {"_playlistObjectController" = NSObjectController; "_sheet" = NSWindow; }; 
