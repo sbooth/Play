@@ -248,7 +248,7 @@
 	
 	// Default window state
 	[self updatePlayButtonState];
-	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+	[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	
 	[self setupStreamButtons];
 	[self setupPlaylistButtons];
@@ -1274,6 +1274,17 @@
 	}
 }
 
+- (NSString *) tableView:(NSTableView *)aTableView toolTipForCell:(NSCell *)aCell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
+{
+    if([aCell isKindOfClass:[NSTextFieldCell class]]) {
+        if([[aCell attributedStringValue] size].width > rect->size.width) {
+            return [aCell stringValue];
+        }
+    }
+	
+    return nil;
+}
+
 @end
 
 @implementation LibraryDocument (UKKQueueDelegateMethods)
@@ -1397,7 +1408,7 @@
 							   clickContext:nil];
 	
 	if(nil == [[streamObject metadata] albumArt]) {
-		[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
+		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	}
 	
 	[[self player] play];
@@ -1532,7 +1543,7 @@
 	
 	buttonMenuItem		= [[NSMenuItem alloc] init];
 	[buttonMenuItem setTitle:@"New Playlist"];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist"]];
+//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
 	[buttonMenuItem setAction:@selector(insertStaticPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
@@ -1544,7 +1555,7 @@
 	
 	buttonMenuItem		= [[NSMenuItem alloc] init];
 	[buttonMenuItem setTitle:@"New Playlist with Selection"];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist"]];
+//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
 	[buttonMenuItem setAction:@selector(insertPlaylistWithSelectedStreams:)];
 	[buttonMenu addItem:buttonMenuItem];
@@ -1556,7 +1567,7 @@
 	
 	buttonMenuItem		= [[NSMenuItem alloc] init];
 	[buttonMenuItem setTitle:@"New Dynamic Playlist"];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"DynamicPlaylist"]];
+//	[buttonMenuItem setImage:[NSImage imageNamed:@"DynamicPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
 	[buttonMenuItem setAction:@selector(insertDynamicPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
@@ -1564,7 +1575,7 @@
 	
 	buttonMenuItem		= [[NSMenuItem alloc] init];
 	[buttonMenuItem setTitle:@"New Folder Playlist"];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"FolderPlaylist"]];
+//	[buttonMenuItem setImage:[NSImage imageNamed:@"FolderPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
 	[buttonMenuItem setAction:@selector(insertFolderPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
