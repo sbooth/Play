@@ -238,7 +238,7 @@
 
 - (NSImage *) image
 {
-	return (nil == [self url] ? [NSImage imageNamed:@"FolderPlaylist"] : [[NSWorkspace sharedWorkspace] iconForFile:[self path]]);
+	return (nil == [self url] ? [NSImage imageNamed:@"FolderPlaylist.png"] : [[NSWorkspace sharedWorkspace] iconForFile:[self path]]);
 }
 
 @end
