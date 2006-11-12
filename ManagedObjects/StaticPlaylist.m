@@ -51,7 +51,7 @@
 
 - (NSImage *) image
 {
-	return [NSImage imageNamed:@"StaticPlaylist"];
+	return [NSImage imageNamed:@"StaticPlaylist.png"];
 }
 
 @end
