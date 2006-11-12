@@ -57,8 +57,6 @@
 	
 	NSThread					*_libraryThread;
 	
-	id							_inMemoryStore;
-	
 	UKKQueue					*_kq;
 	
 	Library						*_libraryObject;
@@ -86,23 +84,23 @@
 
 // ========================================
 // File addition
-- (IBAction)				addFiles:(id)sender;
+- (IBAction)	addFiles:(id)sender;
 
-- (void)					addFileToLibrary:(NSString *)path;
-- (void)					addURLToLibrary:(NSURL *)URL;
+- (void)		addFileToLibrary:(NSString *)path;
+- (void)		addURLToLibrary:(NSURL *)URL;
 
-- (void)					addFilesToLibrary:(NSArray *)filenames;
-- (void)					addURLsToLibrary:(NSArray *)URLs;
+- (void)		addFilesToLibrary:(NSArray *)filenames;
+- (void)		addURLsToLibrary:(NSArray *)URLs;
 
 // ========================================
 // File removal
-- (IBAction)				removeAudioStreams:(id)sender;
+- (IBAction)	removeAudioStreams:(id)sender;
 
-- (void)					removeFileFromLibrary:(NSString *)path;
-- (void)					removeURLFromLibrary:(NSURL *)URL;
+- (void)		removeFileFromLibrary:(NSString *)path;
+- (void)		removeURLFromLibrary:(NSURL *)URL;
 
-- (void)					removeFilesFromLibrary:(NSArray *)filenames;
-- (void)					removeURLsFromLibrary:(NSArray *)URLs;
+- (void)		removeFilesFromLibrary:(NSArray *)filenames;
+- (void)		removeURLsFromLibrary:(NSArray *)URLs;
 
 // ========================================
 // Playlists

@@ -161,8 +161,6 @@
 - (id) init
 {
 	if((self = [super init])) {
-		NSError *error;
-		
 		_player			= [[AudioPlayer alloc] init];
 		[[self player] setOwner:self];
 		
@@ -174,15 +172,6 @@
 		_kq = [[UKKQueue alloc] init];
 		[_kq setDelegate:self];
 		
-		error = nil;
-		_inMemoryStore = [[[self managedObjectContext] persistentStoreCoordinator] addPersistentStoreWithType:NSInMemoryStoreType 
-																								configuration:nil URL:nil options:nil 
-																										error:&error];
-		
-		if(nil == _inMemoryStore) {
-			[self presentError:error];
-		}
-
 		// Core Data does not populate our data until after init is called
 		[self performSelector:@selector(processFolderPlaylists:) withObject:nil afterDelay:0.0];
 		
@@ -354,6 +343,60 @@
 	else {
 		return [super validateUserInterfaceItem:anItem];
 	}
+}
+
+- (NSError *)willPresentError:(NSError *)inError
+{	
+    // The error is a Core Data validation error if its domain is
+    // NSCocoaErrorDomain and it is between the minimum and maximum
+    // for Core Data validation error codes.
+	
+    if (!([[inError domain] isEqualToString:NSCocoaErrorDomain])) {
+        return inError;
+    }
+	
+    int errorCode = [inError code];
+    if ((errorCode < NSValidationErrorMinimum) ||
+		(errorCode > NSValidationErrorMaximum)) {
+        return inError;
+    }
+	
+    // If there are multiple validation errors, inError is an 
+    // NSValidationMultipleErrorsError. If it's not, return it
+	
+    if (errorCode != NSValidationMultipleErrorsError) {
+        return inError;
+    }
+	
+    // For an NSValidationMultipleErrorsError, the original errors
+    // are in an array in the userInfo dictionary for key NSDetailedErrorsKey
+    NSArray *detailedErrors = [[inError userInfo] objectForKey:NSDetailedErrorsKey];
+	
+	
+    // For this example, only present error messages for up to 3 validation errors at a time.
+	
+    unsigned numErrors = [detailedErrors count];
+    NSMutableString *errorString = [NSMutableString stringWithFormat:@"%u validation errors have occurred", numErrors];
+	
+    if (numErrors > 3) {
+        [errorString appendFormat:@".\nThe first 3 are:\n"];
+    } else {
+        [errorString appendFormat:@":\n"];
+    }
+    unsigned i, displayErrors = numErrors > 3 ? 3 : numErrors;
+    for (i = 0; i < displayErrors; i++) {
+        [errorString appendFormat:@"%@\n",
+            [[detailedErrors objectAtIndex:i] localizedDescription]];
+    }
+	
+    // Create a new error with the new userInfo
+    NSMutableDictionary *newUserInfo = [NSMutableDictionary
+                dictionaryWithDictionary:[inError userInfo]];
+    [newUserInfo setObject:errorString forKey:NSLocalizedDescriptionKey];
+	
+    NSError *newError = [NSError errorWithDomain:[inError domain] code:[inError code] userInfo:newUserInfo];  
+	
+    return newError;
 }
 
 #pragma mark Action Methods
@@ -1386,7 +1429,7 @@
 		}
 		
 		// There should always be one (and only one!) Library entity in the store
-		NSAssert(1 == [fetchResult count], @"More than one Library entity returned!");
+		NSAssert1(1 == [fetchResult count], @"Found %i Library entities!", [fetchResult count]);
 		
 		_libraryObject				= [[fetchResult lastObject] retain];		
 	}
@@ -1676,6 +1719,8 @@
 	[dataCell release];	
 }
 
+#pragma mark Sheet Callbacks
+
 - (void) addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	if(NSOKButton == returnCode) {
@@ -1771,16 +1816,16 @@
 - (void) showNewFolderPlaylistSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	NewFolderPlaylistSheet			*newPlaylistSheet;
-	
+
 	newPlaylistSheet				= (NewFolderPlaylistSheet *)contextInfo;
-	
+
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {		
 		id							newPlaylist;
 		NSManagedObjectContext		*managedObjectContext;
-		FolderPlaylist				*playlistObject;
 		Library						*libraryObject;
+		FolderPlaylist				*playlistObject;
 		BOOL						selectionChanged;
 		
 		newPlaylist					= [[newPlaylistSheet valueForKey:@"playlistObjectController"] selection];
@@ -1806,6 +1851,9 @@
 	else if(NSCancelButton == returnCode) {
 	}
 	
+	[[newPlaylistSheet valueForKey:@"playlistObjectController"] setContent:nil];
+	[[newPlaylistSheet managedObjectContext] reset];
+
 	[newPlaylistSheet release];
 }
 
@@ -1927,8 +1975,10 @@
 	Library						*libraryObject;
 	NSManagedObject				*propertiesObject;
 	AudioMetadata				*metadataObject;
+	unsigned					i;
+	NSArray						*selectedPlaylists;
+	Playlist					*playlistObject;
 	NSError						*error;
-	NSMutableSet				*playlistSet;
 	BOOL						result;
 	
 	managedObjectContext		= [self managedObjectContext];
@@ -1952,8 +2002,15 @@
 	// ========================================
 	// If the AudioStream does exist in the Library, just add it to any playlists that are selected
 	if(nil != streamObject) {
-		playlistSet			= [streamObject mutableSetValueForKey:@"playlists"];
-		[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
+		selectedPlaylists		= [_playlistArrayController selectedObjects];
+
+		for(i = 0; i < [selectedPlaylists count]; ++i) {
+			playlistObject		= [selectedPlaylists objectAtIndex:i];
+			
+			if([[[playlistObject entity] name] isEqualToString:@"StaticPlaylist"]) {
+				[streamObject addPlaylistsObject:(StaticPlaylist *)playlistObject];
+			}
+		}
 		
 		return;
 	}
@@ -1970,8 +2027,15 @@
 	[streamObject setUrl:absoluteURL];
 	[streamObject setLibrary:libraryObject];
 	
-	playlistSet					= [streamObject mutableSetValueForKey:@"playlists"];
-	[playlistSet addObjectsFromArray:[_playlistArrayController selectedObjects]];
+	selectedPlaylists			= [_playlistArrayController selectedObjects];
+	
+	for(i = 0; i < [selectedPlaylists count]; ++i) {
+		playlistObject			= [selectedPlaylists objectAtIndex:i];
+		
+		if([[[playlistObject entity] name] isEqualToString:@"StaticPlaylist"]) {
+			[streamObject addPlaylistsObject:(StaticPlaylist *)playlistObject];
+		}
+	}
 	
 	// ========================================
 	// Set properties	
