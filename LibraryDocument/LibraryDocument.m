@@ -78,6 +78,8 @@
 
 - (void)					playStream:(NSArray *)streams;
 
+- (void)					processFolderPlaylists:(id)arg;
+
 - (void)					updatePlayButtonState;
 
 - (void)					setupStreamButtons;
@@ -179,46 +181,6 @@
 	}
 	
 	return nil;
-}
-
-- (void) processFolderPlaylists:(id)arg
-{
-	NSManagedObjectContext		*managedObjectContext;
-	NSEntityDescription			*playlistEntityDescription;
-	NSFetchRequest				*fetchRequest;
-	NSArray						*fetchResult;
-	NSError						*error;
-	unsigned					i;
-	FolderPlaylist				*playlist;
-	
-	managedObjectContext		= [self managedObjectContext];
-	
-	// ========================================
-	// Fetch all folder playlists and start observing their paths
-	error						= nil;
-	playlistEntityDescription	= [NSEntityDescription entityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
-	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
-	
-	[fetchRequest setEntity:playlistEntityDescription];
-	
-	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
-
-	if(nil == fetchResult) {
-		if(nil != error) {
-			[self presentError:error];	
-		}
-		
-		return;	
-	}
-	
-	for(i = 0; i < [fetchResult count]; ++i) {
-		playlist				= [fetchResult objectAtIndex:i];
-
-		// Sync the library's streams with those actually on disk
-		[self updateStreamsUnderURL:[NSURL URLWithString:[playlist url]]];
-		
-		[playlist setKq:[self kq]];
-	}
 }
 
 - (id) initWithType:(NSString *)type error:(NSError **)error
@@ -343,60 +305,6 @@
 	else {
 		return [super validateUserInterfaceItem:anItem];
 	}
-}
-
-- (NSError *)willPresentError:(NSError *)inError
-{	
-    // The error is a Core Data validation error if its domain is
-    // NSCocoaErrorDomain and it is between the minimum and maximum
-    // for Core Data validation error codes.
-	
-    if (!([[inError domain] isEqualToString:NSCocoaErrorDomain])) {
-        return inError;
-    }
-	
-    int errorCode = [inError code];
-    if ((errorCode < NSValidationErrorMinimum) ||
-		(errorCode > NSValidationErrorMaximum)) {
-        return inError;
-    }
-	
-    // If there are multiple validation errors, inError is an 
-    // NSValidationMultipleErrorsError. If it's not, return it
-	
-    if (errorCode != NSValidationMultipleErrorsError) {
-        return inError;
-    }
-	
-    // For an NSValidationMultipleErrorsError, the original errors
-    // are in an array in the userInfo dictionary for key NSDetailedErrorsKey
-    NSArray *detailedErrors = [[inError userInfo] objectForKey:NSDetailedErrorsKey];
-	
-	
-    // For this example, only present error messages for up to 3 validation errors at a time.
-	
-    unsigned numErrors = [detailedErrors count];
-    NSMutableString *errorString = [NSMutableString stringWithFormat:@"%u validation errors have occurred", numErrors];
-	
-    if (numErrors > 3) {
-        [errorString appendFormat:@".\nThe first 3 are:\n"];
-    } else {
-        [errorString appendFormat:@":\n"];
-    }
-    unsigned i, displayErrors = numErrors > 3 ? 3 : numErrors;
-    for (i = 0; i < displayErrors; i++) {
-        [errorString appendFormat:@"%@\n",
-            [[detailedErrors objectAtIndex:i] localizedDescription]];
-    }
-	
-    // Create a new error with the new userInfo
-    NSMutableDictionary *newUserInfo = [NSMutableDictionary
-                dictionaryWithDictionary:[inError userInfo]];
-    [newUserInfo setObject:errorString forKey:NSLocalizedDescriptionKey];
-	
-    NSError *newError = [NSError errorWithDomain:[inError domain] code:[inError code] userInfo:newUserInfo];  
-	
-    return newError;
 }
 
 #pragma mark Action Methods
@@ -1495,6 +1403,46 @@
 	[[self player] play];
 	
 	[self updatePlayButtonState];
+}
+
+- (void) processFolderPlaylists:(id)arg
+{
+	NSManagedObjectContext		*managedObjectContext;
+	NSEntityDescription			*playlistEntityDescription;
+	NSFetchRequest				*fetchRequest;
+	NSArray						*fetchResult;
+	NSError						*error;
+	unsigned					i;
+	FolderPlaylist				*playlist;
+	
+	managedObjectContext		= [self managedObjectContext];
+	
+	// ========================================
+	// Fetch all folder playlists and start observing their paths
+	error						= nil;
+	playlistEntityDescription	= [NSEntityDescription entityForName:@"FolderPlaylist" inManagedObjectContext:managedObjectContext];
+	fetchRequest				= [[[NSFetchRequest alloc] init] autorelease];
+	
+	[fetchRequest setEntity:playlistEntityDescription];
+	
+	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:&error];
+	
+	if(nil == fetchResult) {
+		if(nil != error) {
+			[self presentError:error];	
+		}
+		
+		return;	
+	}
+	
+	for(i = 0; i < [fetchResult count]; ++i) {
+		playlist				= [fetchResult objectAtIndex:i];
+		
+		// Sync the library's streams with those actually on disk
+		[self updateStreamsUnderURL:[NSURL URLWithString:[playlist url]]];
+		
+		[playlist setKq:[self kq]];
+	}
 }
 
 - (void) updatePlayButtonState
