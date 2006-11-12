@@ -58,7 +58,7 @@
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->channels()] forKey:@"channelsPerFrame"];
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->sampleRate()] forKey:@"sampleRate"];
 
-		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->bitrate()] forKey:@"bitrate"];
+		[propertiesDictionary setValue:[NSNumber numberWithInt:(audioProperties->bitrate() * 1000)] forKey:@"bitrate"];
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->length()] forKey:@"duration"];
 
 		xingHeader							= audioProperties->xingHeader();
