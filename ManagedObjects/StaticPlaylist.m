@@ -51,22 +51,7 @@
 
 - (NSImage *) image
 {
-	NSImage		*result;
-	NSImage		*resizedImage;
-	NSSize		iconSize = { 16.0, 16.0 };
-	
-	result		= [NSImage imageNamed:@"StaticPlaylist"];
-	
-	if(nil != result) {
-		resizedImage = [[NSImage alloc] initWithSize:iconSize];
-		[resizedImage lockFocus];
-		[[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
-		[result drawInRect:NSMakeRect(0, 0, iconSize.width, iconSize.height) fromRect:NSMakeRect(0, 0, [result size].width, [result size].height) operation:NSCompositeCopy fraction:1.0];
-		[resizedImage unlockFocus];
-		result = [resizedImage autorelease];
-	}
-	
-	return result;
+	return [NSImage imageNamed:@"StaticPlaylist"];
 }
 
 @end

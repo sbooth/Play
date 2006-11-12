@@ -1243,7 +1243,7 @@
 			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
 			playlistObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 			
-			[aCell setImage:[playlistObject image]];
+			[aCell setImage:[playlistObject imageScaledToSize:NSMakeSize(16.0, 16.0)]];
 		}
 	}
 	else if([aTableView isEqual:_streamTableView]) {

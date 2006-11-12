@@ -138,4 +138,23 @@
 	// no-op
 }
 
+- (NSImage *) imageScaledToSize:(NSSize)size
+{
+	NSImage		*result;
+	NSImage		*resizedImage;
+	
+	result		= [self image];
+	
+	if(nil != result) {
+		resizedImage = [[NSImage alloc] initWithSize:size];
+		[resizedImage lockFocus];
+		[[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
+		[result drawInRect:NSMakeRect(0, 0, size.width, size.height) fromRect:NSMakeRect(0, 0, [result size].width, [result size].height) operation:NSCompositeCopy fraction:1.0];
+		[resizedImage unlockFocus];
+		result = [resizedImage autorelease];
+	}
+	
+	return result;
+}
+
 @end

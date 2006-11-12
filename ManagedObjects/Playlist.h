@@ -35,4 +35,6 @@
 - (NSImage *)image;
 - (void)setImage:(NSImage *)image;
 
+- (NSImage *) imageScaledToSize:(NSSize)size;
+
 @end
