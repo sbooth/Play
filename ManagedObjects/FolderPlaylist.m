@@ -25,11 +25,17 @@
 
 @interface FolderPlaylist (Private)
 
+- (NSString *)		path;
 - (NSArray *)		URLStringArray;
 
 @end
 
 @implementation FolderPlaylist 
+
++ (void) initialize
+{
+	[self setKeys:[NSArray arrayWithObject:@"url"] triggerChangeNotificationsForDependentKey:@"image"];
+}
 
 - (NSString *)url 
 {
@@ -45,7 +51,7 @@
 - (void)setUrl:(NSString *)value 
 {
 	if(nil != [self kq] && nil != [self url]) {
-		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+		[[self kq] removePath:[self path]];
 	}
 	
     [self willChangeValueForKey: @"url"];
@@ -53,7 +59,7 @@
     [self didChangeValueForKey: @"url"];
 	
 	if(nil != [self kq] && nil != [self url]) {
-		[[self kq] addPath:[[NSURL URLWithString:[self url]] path]];
+		[[self kq] addPath:[self path]];
 	}
 	
 	[self refresh];
@@ -86,7 +92,7 @@
 												  object:[self managedObjectContext]];
 	
 	if(nil != [self kq] && nil != [self url]) {
-		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+		[[self kq] removePath:[self path]];
 	}
 	
     [_streams release],				_streams = nil;
@@ -219,14 +225,14 @@
 - (void) setKq:(UKKQueue *)kq
 {
 	if(nil != [self url]) {
-		[[self kq] removePath:[[NSURL URLWithString:[self url]] path]];
+		[[self kq] removePath:[self path]];
 	}
 	
 	[_kq release];
 	_kq = [kq retain];
 	
 	if(nil != [self url]) {
-		[[self kq] addPath:[[NSURL URLWithString:[self url]] path]];
+		[[self kq] addPath:[self path]];
 	}
 }
 
@@ -236,23 +242,33 @@
 	NSImage		*resizedImage;
 	NSSize		iconSize = { 16.0, 16.0 };
 	
-	result		= [NSImage imageNamed:@"FolderPlaylist"];
-	
-	if(nil != result) {
-		resizedImage = [[NSImage alloc] initWithSize:iconSize];
-		[resizedImage lockFocus];
-		[[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
-		[result drawInRect:NSMakeRect(0, 0, iconSize.width, iconSize.height) fromRect:NSMakeRect(0, 0, [result size].width, [result size].height) operation:NSCompositeCopy fraction:1.0];
-		[resizedImage unlockFocus];
-		result = [resizedImage autorelease];
+	if(nil == [self url]) {
+		result		= [NSImage imageNamed:@"FolderPlaylist"];
+		
+		if(nil != result) {
+			resizedImage = [[NSImage alloc] initWithSize:iconSize];
+			[resizedImage lockFocus];
+			[[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
+			[result drawInRect:NSMakeRect(0, 0, iconSize.width, iconSize.height) fromRect:NSMakeRect(0, 0, [result size].width, [result size].height) operation:NSCompositeCopy fraction:1.0];
+			[resizedImage unlockFocus];
+			result = [resizedImage autorelease];
+		}
+		
+		return result;
 	}
-	
-	return result;
+	else {
+		return getIconForFile([self path], iconSize);
+	}
 }
 
 @end
 
 @implementation FolderPlaylist (Private)
+
+- (NSString *) path
+{
+	return [[NSURL URLWithString:[self url]] path];
+}
 
 - (NSArray *) URLStringArray
 {
