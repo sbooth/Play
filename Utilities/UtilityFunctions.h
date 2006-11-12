@@ -44,8 +44,6 @@ extern "C" {
 	NSData * getPNGDataForImage(NSImage *image);
 	NSData * getBitmapDataForImage(NSImage *image, NSBitmapImageFileType type);
 
-	NSImage * getIconForFile(NSString *filename, NSSize iconSize);
-	
 #ifdef __cplusplus
 }
 #endif
