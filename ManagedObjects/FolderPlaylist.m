@@ -61,7 +61,8 @@
 
 - (void) commonAwake
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh:) 
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(refresh:) 
 												 name:NSManagedObjectContextObjectsDidChangeNotification 
 											   object:[self managedObjectContext]];        
 }
