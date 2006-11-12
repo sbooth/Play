@@ -23,10 +23,16 @@
 @interface DynamicPlaylistInformationSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSView				*_criteriaView;
+	IBOutlet NSButton			*_removeCriterionButton;
+	IBOutlet NSPopUpButton		*_predicateTypePopUpButton;
 	
+	IBOutlet NSView				*_stringCriterionViewPrototype;
+
 	IBOutlet NSObjectController	*_playlistObjectController;
 	
 	NSPersistentDocument		*_owner;
+	NSMutableArray				*_criterionViews;
 }
 
 - (id)					initWithOwner:(NSPersistentDocument *)owner;
@@ -40,5 +46,8 @@
 
 - (IBAction)			undo:(id)sender;
 - (IBAction)			redo:(id)sender;
+
+- (IBAction)			addCriterion:(id)sender;
+- (IBAction)			removeCriterion:(id)sender;
 
 @end

@@ -21,6 +21,12 @@
 #import "DynamicPlaylistInformationSheet.h"
 #import "LibraryDocument.h"
 
+@interface DynamicPlaylistInformationSheet (Private)
+
+- (NSMutableArray *)	criterionViews;
+
+@end
+
 @implementation DynamicPlaylistInformationSheet
 
 + (void) initialize
@@ -41,7 +47,7 @@
 			[self release];
 			return nil;
 		}
-		
+				
 		return self;
 	}
 	
@@ -51,8 +57,14 @@
 - (void) dealloc
 {
 	[_owner release],					_owner = nil;
+	[_criterionViews release],			_criterionViews = nil;
 	
 	[super dealloc];
+}
+
+- (void) awakeFromNib
+{
+	[self addCriterion:self];
 }
 
 - (NSWindow *) sheet
@@ -95,6 +107,100 @@
 	}
 	
 	return YES;
+}
+
+- (IBAction) addCriterion:(id)sender
+{
+	NSData		*tempData;
+	NSView		*criterionView;
+	float		viewHeight;
+
+	// Since NSView doesn't implement NSCopying, hack around it
+//	criterionView	= [_stringCriterionViewPrototype copy];
+	tempData		= [NSKeyedArchiver archivedDataWithRootObject:_stringCriterionViewPrototype];
+	criterionView	= [NSKeyedUnarchiver unarchiveObjectWithData:tempData];
+	
+	viewHeight		= [criterionView bounds].size.height;
+	
+	if(0 < [[self criterionViews] count]) {
+		NSRect			windowFrame;
+		NSEnumerator	*enumerator;
+		NSView			*subview;
+		NSRect			subviewFrame;
+
+		windowFrame					= [_sheet frame];
+		windowFrame.size.height		+= viewHeight;
+		windowFrame.origin.y		-= viewHeight;
+		enumerator					= [[_criteriaView subviews] objectEnumerator];
+		
+		while((subview = [enumerator nextObject])) {
+			subviewFrame			= [subview frame];
+			subviewFrame.origin.y	+= viewHeight;
+
+			[subview setFrame:subviewFrame];
+		}
+		
+		[_sheet setFrame:windowFrame display:YES animate:YES];
+	}
+
+	[[self criterionViews] addObject:criterionView];
+	[_criteriaView addSubview:criterionView];
+
+	[_removeCriterionButton setEnabled:(1 < [[self criterionViews] count])];
+	[_predicateTypePopUpButton setEnabled:(1 < [[self criterionViews] count])];
+}
+
+- (IBAction) removeCriterion:(id)sender
+{
+	NSView		*criterionView;
+	float		viewHeight;
+
+	if(0 == [[self criterionViews] count]) {
+		return;
+	}
+	
+	criterionView	= [[self criterionViews] lastObject];
+	viewHeight		= [criterionView bounds].size.height;
+	
+	[[self criterionViews] removeLastObject];
+	[criterionView removeFromSuperview];
+	
+	if(0 < [[self criterionViews] count]) {
+		NSRect			windowFrame;
+		NSEnumerator	*enumerator;
+		NSView			*subview;
+		NSRect			subviewFrame;
+		
+		windowFrame					= [_sheet frame];
+		windowFrame.size.height		-= viewHeight;
+		windowFrame.origin.y		+= viewHeight;
+		enumerator					= [[_criteriaView subviews] objectEnumerator];
+		
+		while((subview = [enumerator nextObject])) {
+			subviewFrame			= [subview frame];
+			subviewFrame.origin.y	-= viewHeight;
+			
+			[subview setFrame:subviewFrame];
+		}
+
+		[_sheet setFrame:windowFrame display:YES animate:YES];
+	}
+
+	[_removeCriterionButton setEnabled:(1 < [[self criterionViews] count])];
+	[_predicateTypePopUpButton setEnabled:(1 < [[self criterionViews] count])];
+}
+
+@end
+
+@implementation DynamicPlaylistInformationSheet (Private)
+
+- (NSMutableArray *) criterionViews
+{
+	if(nil == _criterionViews) {
+		_criterionViews = [[NSMutableArray alloc] init];
+	}
+
+	return _criterionViews;
 }
 
 @end

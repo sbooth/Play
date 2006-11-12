@@ -162,18 +162,12 @@
 
 - (id) init
 {
-	if((self = [super init])) {
-		_player			= [[AudioPlayer alloc] init];
-		[[self player] setOwner:self];
-		
+	if((self = [super init])) {		
 		// Seed random number generator
 		init_genrand(time(NULL));
 		
 		_libraryThread	= [[NSThread currentThread] retain];
-		
-		_kq = [[UKKQueue alloc] init];
-		[_kq setDelegate:self];
-		
+				
 		// Core Data does not populate our data until after init is called
 		[self performSelector:@selector(processFolderPlaylists:) withObject:nil afterDelay:0.0];
 		
@@ -850,17 +844,10 @@
 
 	[playlistObject setLibrary:libraryObject];
 
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"metadata.title LIKE[c] %@", @"*nat*"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"%K CONTAINS[c] %@", @"metadata.title", @"nat"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url LIKE[c] %@", @"*nat*"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"url CONTAINS[c] %@", @"nat"]];
-//	[playlistObject setPredicate:[NSPredicate predicateWithFormat:@"playCount > 0"]];
-
 	selectionChanged			= [_playlistArrayController setSelectedObjects:[NSArray arrayWithObject:playlistObject]];
 
 	if(selectionChanged) {
-		// The playlist table has only one column
-//		[_playlistTableView editColumn:0 row:[_playlistTableView selectedRow] withEvent:nil select:YES];	
+		[self showPlaylistInformationSheet:self];
 	}
 }
 
@@ -1291,13 +1278,9 @@
 
 -(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath
 {
-	if(UKFileWatcherRenameNotification != nm
-	   && UKFileWatcherWriteNotification != nm
-	   && UKFileWatcherDeleteNotification != nm) {
-		return;
-	}
-	
-	[self updateStreamsUnderURL:[NSURL fileURLWithPath:fpath]];
+	if(UKFileWatcherRenameNotification == nm || UKFileWatcherWriteNotification == nm || UKFileWatcherDeleteNotification == nm) {
+		[self updateStreamsUnderURL:[NSURL fileURLWithPath:fpath]];
+	}	
 }
 
 @end
@@ -1306,6 +1289,10 @@
 
 - (AudioPlayer *) player
 {
+	if(nil == _player) {
+		_player = [[AudioPlayer alloc] init];
+		[[self player] setOwner:self];
+	}
 	return _player;
 }
 
@@ -1316,6 +1303,10 @@
 
 - (UKKQueue *) kq
 {
+	if(nil == _kq) {
+		_kq = [[UKKQueue alloc] init];
+		[_kq setDelegate:self];
+	}
 	return _kq;
 }
 
