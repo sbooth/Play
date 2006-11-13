@@ -21,6 +21,23 @@
 #import "DynamicPlaylistCriterion.h"
 #import "DynamicPlaylistInformationSheet.h"
 
+enum {
+	KeyPathPopupButtonTag			= 1,
+	PredicateTypePopupButtonTag		= 2
+};
+
+@interface DynamicPlaylistCriterion (Private)
+
+- (void)				setupKeyPathPopUpButton;
+- (void)				setupPredicateTypePopUpButton;
+
+- (NSAttributeType)		attributeTypeForKeyPath:(NSString *)keyPath;
+- (NSString *)			displayNameForKeyPath:(NSString *)keyPath;
+
+- (NSDictionary *)		propertiesDictionaryForKeyPath:(NSString *)keyPath;
+
+@end
+
 @implementation DynamicPlaylistCriterion
 
 - (id) init
@@ -28,8 +45,10 @@
 	if((self = [super init])) {
 		BOOL			result;
 		
+		// Reasonable defaults
 		_predicateType	= NSEqualToPredicateOperatorType;
-		
+		_attributeType	= NSStringAttributeType;
+
 		result			= [NSBundle loadNibNamed:@"DynamicPlaylistCriterion" owner:self];
 		if(NO == result) {
 			NSLog(@"Missing resource: \"DynamicPlaylistCriterion.nib\".");
@@ -51,9 +70,63 @@
 	[super dealloc];
 }
 
+- (void) awakeFromNib
+{
+	NSPopUpButton		*popUpButton;
+	NSString			*keyPath;
+
+	[self setupKeyPathPopUpButton];
+	[self setupPredicateTypePopUpButton];
+
+	popUpButton			= [[self view] viewWithTag:KeyPathPopupButtonTag];
+	keyPath				= [[[popUpButton selectedItem] representedObject] valueForKey:@"keyPath"];
+
+	[self setKeyPath:keyPath];
+}
+
+- (IBAction) didSelectKeyPath:(id)sender
+{
+	NSDictionary		*representedObject		= [[sender selectedItem] representedObject];
+	NSString			*keyPath				= [representedObject valueForKey:@"keyPath"];
+	NSNumber			*attributeType			= [representedObject valueForKey:@"attributeType"];
+	
+	[self setKeyPath:keyPath];
+	[self setAttributeType:[attributeType intValue]];
+}
+
 - (NSView *) view
 {
-	return _stringCriterionViewPrototype;
+	switch([self attributeType]) {
+		case NSUndefinedAttributeType:		return nil;
+
+		case NSInteger16AttributeType:		return _integer16CriterionViewPrototype;
+		case NSInteger32AttributeType:		return _integer32CriterionViewPrototype;
+		case NSInteger64AttributeType:		return _integer64CriterionViewPrototype;
+		
+		case NSDecimalAttributeType:		return _decimalCriterionViewPrototype;
+		case NSDoubleAttributeType:			return _doubleCriterionViewPrototype;
+		case NSFloatAttributeType:			return _floatCriterionViewPrototype;
+		
+		case NSStringAttributeType:			return _stringCriterionViewPrototype;
+		
+		case NSBooleanAttributeType:		return _booleanCriterionViewPrototype;
+		
+		case NSDateAttributeType:			return _dateCriterionViewPrototype;
+		
+		case NSBinaryDataAttributeType:		return nil;
+			
+		default:							return nil;
+	}
+}
+
+- (NSAttributeType) attributeType
+{
+	return _attributeType;
+}
+
+- (void) setAttributeType:(NSAttributeType)attributeType
+{
+	_attributeType = attributeType;
 }
 
 - (NSString *) keyPath
@@ -63,8 +136,18 @@
 
 - (void) setKeyPath:(NSString *)keyPath
 {
+	NSPopUpButton				*popUpButton;
+	id							representedObject;
+	
 	[_keyPath release];
 	_keyPath = [keyPath retain];
+	
+	// Set our internals appropriately	
+	popUpButton					= [[self view] viewWithTag:KeyPathPopupButtonTag];
+	representedObject			= [self propertiesDictionaryForKeyPath:[self keyPath]];
+	
+	[popUpButton selectItemWithTitle:[representedObject valueForKey:@"displayName"]];
+	[self setAttributeType:[[representedObject valueForKey:@"attributeType"] intValue]];
 }
 
 - (NSPredicateOperatorType) predicateType
@@ -105,6 +188,227 @@
 														 type:[self predicateType]
 													  options:NSCaseInsensitivePredicateOption/*NSDiacriticInsensitivePredicateOption*/];
 	
+}
+
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"DynamicPlaylistCriterion: %@", [self predicate]];
+}
+
+@end
+
+@implementation DynamicPlaylistCriterion (Private)
+
+- (void) setupKeyPathPopUpButton
+{
+	NSPopUpButton				*keyPathPopUpButton;
+	NSMenu						*buttonMenu;
+	NSMenuItem					*menuItem;
+	NSArray						*keyPaths;
+	NSEnumerator				*enumerator;
+	NSString					*keyPath;
+	
+	keyPathPopUpButton			= [[self view] viewWithTag:KeyPathPopupButtonTag];
+	
+	[keyPathPopUpButton removeAllItems];
+	
+	buttonMenu					= [keyPathPopUpButton menu];
+	
+	keyPaths					= [NSArray arrayWithObjects:@"metadata.title", @"metadata.artist", @"metadata.album", 
+		@"metadata.composer", @"metadata.genre", @"metadata.date", @"properties.formatName", nil];
+	enumerator					= [keyPaths objectEnumerator];
+	
+	while((keyPath = [enumerator nextObject])) {
+		menuItem					= [[NSMenuItem alloc] init];
+		[menuItem setTitle:[self displayNameForKeyPath:keyPath]];
+		[menuItem setRepresentedObject:[self propertiesDictionaryForKeyPath:keyPath]];
+		[buttonMenu addItem:menuItem];
+	}
+}
+
+- (void) setupPredicateTypePopUpButton
+{
+	NSPopUpButton				*predicateTypePopUpButton;
+	NSMenu						*buttonMenu;
+	NSMenuItem					*menuItem;
+
+	predicateTypePopUpButton	= [[self view] viewWithTag:PredicateTypePopupButtonTag];
+
+	[predicateTypePopUpButton removeAllItems];
+	
+	buttonMenu					= [predicateTypePopUpButton menu];
+	
+	switch([self attributeType]) {
+		case NSInteger16AttributeType:
+		case NSInteger32AttributeType:
+		case NSInteger64AttributeType:
+		case NSDecimalAttributeType:
+		case NSDoubleAttributeType:
+		case NSFloatAttributeType:
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is equal to"];
+			[menuItem setTag:NSEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is not equal to"];
+			[menuItem setTag:NSNotEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is less than"];
+			[menuItem setTag:NSLessThanPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is less than or equal to"];
+			[menuItem setTag:NSLessThanOrEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is greater than"];
+			[menuItem setTag:NSGreaterThanPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is greater than or equal to"];
+			[menuItem setTag:NSGreaterThanOrEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			break;
+			
+		case NSStringAttributeType:
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is"];
+			[menuItem setTag:NSEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is not"];
+			[menuItem setTag:NSNotEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"contains"];
+			[menuItem setTag:NSLikePredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"starts with"];
+			[menuItem setTag:NSBeginsWithPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"ends with"];
+			[menuItem setTag:NSEndsWithPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			break;
+			
+		case NSBooleanAttributeType:
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is"];
+			[menuItem setTag:NSEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is not"];
+			[menuItem setTag:NSNotEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			break;
+			
+		case NSDateAttributeType:
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is"];
+			[menuItem setTag:NSEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is not"];
+			[menuItem setTag:NSNotEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is before"];
+			[menuItem setTag:NSLessThanPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is or is before"];
+			[menuItem setTag:NSLessThanOrEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is after"];
+			[menuItem setTag:NSGreaterThanPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+			
+			menuItem		= [[NSMenuItem alloc] init];
+			[menuItem setTitle:@"is or is after"];
+			[menuItem setTag:NSGreaterThanOrEqualToPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			break;
+			
+		case NSUndefinedAttributeType:
+		case NSBinaryDataAttributeType:
+			// Nothing for now
+			break;
+	}
+	
+	[predicateTypePopUpButton selectItemWithTag:[self predicateType]];
+}
+
+- (NSAttributeType) attributeTypeForKeyPath:(NSString *)keyPath
+{
+	return [[[self propertiesDictionaryForKeyPath:keyPath] valueForKey:@"attributeType"] intValue];
+}
+
+- (NSString *) displayNameForKeyPath:(NSString *)keyPath
+{
+	return [[self propertiesDictionaryForKeyPath:keyPath] valueForKey:@"displayName"];
+}
+
+- (NSDictionary *) propertiesDictionaryForKeyPath:(NSString *)keyPath
+{
+	NSString			*displayName		= nil;
+	NSAttributeType		attributeType		= NSUndefinedAttributeType;
+	
+	if([keyPath isEqualToString:@"metadata.title"]) {
+		displayName		= @"Title";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.artist"]) {
+		displayName		= @"Artist";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.album"]) {
+		displayName		= @"Album";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.composer"]) {
+		displayName		= @"Composer";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.genre"]) {
+		displayName		= @"Genre";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.date"]) {
+		displayName		= @"Date";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.formatName"]) {
+		displayName		= @"Format";
+		attributeType	= NSStringAttributeType;
+	}
+	
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+		keyPath,									@"keyPath",
+		displayName,								@"displayName",
+		[NSNumber numberWithInt:attributeType],		@"attributeType",
+		nil];
 }
 
 @end

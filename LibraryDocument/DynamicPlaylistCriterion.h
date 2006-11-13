@@ -20,11 +20,20 @@
 
 #import <Cocoa/Cocoa.h>
 
+enum {
+	DynamicPlaylistCriterion_TitleMenuItemTag		= 1,
+	DynamicPlaylistCriterion_ArtistMenuItemTag		= 2,
+	DynamicPlaylistCriterion_AlbumMenuItemTag		= 3,
+	DynamicPlaylistCriterion_ComposerMenuItemTag	= 4,
+	DynamicPlaylistCriterion_GenreMenuItemTag		= 5,
+	DynamicPlaylistCriterion_DateMenuItemTag		= 6,
+	DynamicPlaylistCriterion_FormatMenuItemTag		= 7
+
+};
+
 @interface DynamicPlaylistCriterion : NSObject
 {
 	// View prototypes
-	IBOutlet NSView				*_stringCriterionViewPrototype;
-
 	IBOutlet NSView				*_integer16CriterionViewPrototype;
 	IBOutlet NSView				*_integer32CriterionViewPrototype;
 	IBOutlet NSView				*_integer64CriterionViewPrototype;
@@ -33,10 +42,14 @@
 	IBOutlet NSView				*_doubleCriterionViewPrototype;
 	IBOutlet NSView				*_floatCriterionViewPrototype;
 	
-	IBOutlet NSView				*_dateCriterionViewPrototype;
+	IBOutlet NSView				*_stringCriterionViewPrototype;
 	
 	IBOutlet NSView				*_booleanCriterionViewPrototype;
+	
+	IBOutlet NSView				*_dateCriterionViewPrototype;
 
+@private
+		
 	// The type of attribute being represented
 	NSAttributeType				_attributeType;
 
@@ -44,6 +57,8 @@
 	NSPredicateOperatorType		_predicateType;
 	id							_searchTerm;
 }
+
+- (IBAction)					didSelectKeyPath:(id)sender;
 
 - (NSView *)					view;
 

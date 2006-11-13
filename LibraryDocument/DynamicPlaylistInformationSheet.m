@@ -99,21 +99,17 @@
 			enumerator						= [[compoundPredicate subpredicates] objectEnumerator];
 			
 			while((playlistPredicate = [enumerator nextObject])) {
-				if(NO == [playlistPredicate isKindOfClass:[NSComparisonPredicate class]]) {
-					NSLog(@"DynamicPlaylist subpredicate was not NSComparisonPredicate");
-					
-					// Skip this predicate
-					continue;
-				}
-				
 				criterion					= [[DynamicPlaylistCriterion alloc] init];
-				comparisonPredicate			= (NSComparisonPredicate *)playlistPredicate;
-				left						= [comparisonPredicate leftExpression];
-				right						= [comparisonPredicate rightExpression];
-				
-				[criterion setKeyPath:[left keyPath]];
-				[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
-				[criterion setSearchTerm:[right constantValue]];
+
+				if([playlistPredicate isKindOfClass:[NSComparisonPredicate class]]) {
+					comparisonPredicate		= (NSComparisonPredicate *)playlistPredicate;
+					left					= [comparisonPredicate leftExpression];
+					right					= [comparisonPredicate rightExpression];
+					
+					[criterion setKeyPath:[left keyPath]];
+					[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+					[criterion setSearchTerm:[right constantValue]];					
+				}
 				
 				[self addCriterion:[criterion autorelease]];
 			}
@@ -121,7 +117,6 @@
 		
 	}
 }
-
 
 - (IBAction) ok:(id)sender
 {
@@ -132,7 +127,7 @@
 	
 	if(0 < [predicates count]) {
 		playlistPredicate		= [[NSCompoundPredicate alloc] initWithType:[self predicateType] subpredicates:predicates];
-		
+
 		[[_playlistObjectController selection] setValue:[playlistPredicate autorelease] forKey:@"predicate"];
 	}
 	else {
