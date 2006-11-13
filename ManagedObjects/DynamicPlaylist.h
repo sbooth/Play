@@ -34,19 +34,13 @@
 - (NSData *)	predicateData;
 - (void)		setPredicateData:(NSData *)value;
 
-	// Accessor for the predicate used by the SmartGroup to return matching Recipes
 - (NSPredicate *)	predicate;
-
-	// Mutator for the predicate used by the SmartGroup to return matching Recipes
 - (void)			setPredicate:(NSPredicate *)predicate;
 
-	// Accessor for the array of recipes for the SmartGroup
 - (NSSet *)			streams;
 
-	// Accessor for the fetch request for the SmartGroup
 - (NSFetchRequest *)	fetchRequest;
 
-	// Triggers the smart group to refresh its recipes. 
 - (void)			refresh;
 
 @end
