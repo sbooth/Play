@@ -936,7 +936,7 @@
 			
 			playlistInformationSheet		= [[DynamicPlaylistInformationSheet alloc] initWithOwner:self];
 			
-			[[playlistInformationSheet valueForKey:@"playlistObjectController"] setContent:playlist];
+			[playlistInformationSheet setPlaylist:playlist];
 			
 			[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
 										   modalForWindow:[self windowForSheet] 

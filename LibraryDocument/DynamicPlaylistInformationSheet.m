@@ -19,11 +19,11 @@
  */
 
 #import "DynamicPlaylistInformationSheet.h"
-#import "LibraryDocument.h"
+#import "DynamicPlaylistCriterion.h"
 
 @interface DynamicPlaylistInformationSheet (Private)
 
-- (NSMutableArray *)	criterionViews;
+- (NSMutableArray *)	criteria;
 
 @end
 
@@ -37,11 +37,12 @@
 - (id) initWithOwner:(NSPersistentDocument *)owner
 {
 	if((self = [super init])) {
-		BOOL		result;
+		BOOL			result;
 
-		_owner		= [owner retain];
+		_owner			= [owner retain];
+		_predicateType	= NSOrPredicateType;
 
-		result		= [NSBundle loadNibNamed:@"DynamicPlaylistInformationSheet" owner:self];
+		result			= [NSBundle loadNibNamed:@"DynamicPlaylistInformationSheet" owner:self];
 		if(NO == result) {
 			NSLog(@"Missing resource: \"DynamicPlaylistInformationSheet.nib\".");
 			[self release];
@@ -56,15 +57,16 @@
 
 - (void) dealloc
 {
-	[_owner release],					_owner = nil;
-	[_criterionViews release],			_criterionViews = nil;
+	[_owner release],				_owner = nil;
+	[_criteria release],			_criteria = nil;
 	
 	[super dealloc];
 }
 
 - (void) awakeFromNib
 {
-	[self addCriterion:self];
+	[_removeCriterionButton setEnabled:(1 < [[self criteria] count])];
+	[_predicateTypePopUpButton setEnabled:(1 < [[self criteria] count])];
 }
 
 - (NSWindow *) sheet
@@ -77,8 +79,66 @@
 	return [_owner managedObjectContext];
 }
 
+- (void) setPlaylist:(NSManagedObject *)playlist
+{
+	NSPredicate				*playlistPredicate;
+	
+	[_playlistObjectController setContent:playlist];
+	
+	playlistPredicate		= [playlist valueForKey:@"predicate"];
+	
+	if(nil != playlistPredicate) {
+		if([playlistPredicate isKindOfClass:[NSCompoundPredicate class]]) {
+			NSCompoundPredicate				*compoundPredicate;
+			NSComparisonPredicate			*comparisonPredicate;
+			NSExpression					*left, *right;
+			DynamicPlaylistCriterion		*criterion;
+			NSEnumerator					*enumerator;
+			
+			compoundPredicate				= (NSCompoundPredicate *)playlistPredicate;
+			enumerator						= [[compoundPredicate subpredicates] objectEnumerator];
+			
+			while((playlistPredicate = [enumerator nextObject])) {
+				if(NO == [playlistPredicate isKindOfClass:[NSComparisonPredicate class]]) {
+					NSLog(@"DynamicPlaylist subpredicate was not NSComparisonPredicate");
+					
+					// Skip this predicate
+					continue;
+				}
+				
+				criterion					= [[DynamicPlaylistCriterion alloc] init];
+				comparisonPredicate			= (NSComparisonPredicate *)playlistPredicate;
+				left						= [comparisonPredicate leftExpression];
+				right						= [comparisonPredicate rightExpression];
+				
+				[criterion setKeyPath:[left keyPath]];
+				[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+				[criterion setSearchTerm:[right constantValue]];
+				
+				[self addCriterion:[criterion autorelease]];
+			}
+		}
+		
+	}
+}
+
+
 - (IBAction) ok:(id)sender
 {
+	NSArray					*predicates;
+	NSCompoundPredicate		*playlistPredicate;
+
+	predicates				= [[self criteria] valueForKey:@"predicate"];
+	
+	if(0 < [predicates count]) {
+		playlistPredicate		= [[NSCompoundPredicate alloc] initWithType:[self predicateType] subpredicates:predicates];
+		
+		[[_playlistObjectController selection] setValue:[playlistPredicate autorelease] forKey:@"predicate"];
+	}
+	else {
+		[[_playlistObjectController selection] setValue:[NSPredicate predicateWithValue:YES] forKey:@"predicate"];
+	}
+	
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSOKButton];
 }
 
@@ -109,25 +169,32 @@
 	return YES;
 }
 
-- (IBAction) addCriterion:(id)sender
+- (IBAction) add:(id)sender
 {
-	NSData		*tempData;
-	NSView		*criterionView;
-	float		viewHeight;
+	DynamicPlaylistCriterion	*criterion		= [[DynamicPlaylistCriterion alloc] init];
+	
+	[self addCriterion:[criterion autorelease]];
+}
 
-	// Since NSView doesn't implement NSCopying, hack around it
-//	criterionView	= [_stringCriterionViewPrototype copy];
-	tempData		= [NSKeyedArchiver archivedDataWithRootObject:_stringCriterionViewPrototype];
-	criterionView	= [NSKeyedUnarchiver unarchiveObjectWithData:tempData];
+- (IBAction) remove:(id)sender
+{
+	[self removeCriterion:[[self criteria] lastObject]];
+}
+
+- (void) addCriterion:(DynamicPlaylistCriterion *)criterion
+{
+	NSView				*criterionView;
+	float				viewHeight;
 	
-	viewHeight		= [criterionView bounds].size.height;
+	criterionView		= [criterion view];	
+	viewHeight			= [criterionView bounds].size.height;
 	
-	if(0 < [[self criterionViews] count]) {
+	if(0 < [[self criteria] count]) {
 		NSRect			windowFrame;
 		NSEnumerator	*enumerator;
 		NSView			*subview;
 		NSRect			subviewFrame;
-
+		
 		windowFrame					= [_sheet frame];
 		windowFrame.size.height		+= viewHeight;
 		windowFrame.origin.y		-= viewHeight;
@@ -136,36 +203,36 @@
 		while((subview = [enumerator nextObject])) {
 			subviewFrame			= [subview frame];
 			subviewFrame.origin.y	+= viewHeight;
-
+			
 			[subview setFrame:subviewFrame];
 		}
 		
 		[_sheet setFrame:windowFrame display:YES animate:YES];
 	}
-
-	[[self criterionViews] addObject:criterionView];
+	
+	[[self criteria] addObject:criterion];
 	[_criteriaView addSubview:criterionView];
-
-	[_removeCriterionButton setEnabled:(1 < [[self criterionViews] count])];
-	[_predicateTypePopUpButton setEnabled:(1 < [[self criterionViews] count])];
+	
+	[_removeCriterionButton setEnabled:(1 < [[self criteria] count])];
+	[_predicateTypePopUpButton setEnabled:(1 < [[self criteria] count])];
 }
 
-- (IBAction) removeCriterion:(id)sender
+- (void) removeCriterion:(DynamicPlaylistCriterion *)criterion
 {
-	NSView		*criterionView;
-	float		viewHeight;
-
-	if(0 == [[self criterionViews] count]) {
+	NSView						*criterionView;
+	float						viewHeight;
+	
+	if(0 == [[self criteria] count] || NO == [[self criteria] containsObject:criterion]) {
 		return;
 	}
 	
-	criterionView	= [[self criterionViews] lastObject];
+	criterionView	= [criterion view];
 	viewHeight		= [criterionView bounds].size.height;
 	
-	[[self criterionViews] removeLastObject];
+	[[self criteria] removeObject:criterion];
 	[criterionView removeFromSuperview];
 	
-	if(0 < [[self criterionViews] count]) {
+	if(0 < [[self criteria] count]) {
 		NSRect			windowFrame;
 		NSEnumerator	*enumerator;
 		NSView			*subview;
@@ -182,25 +249,35 @@
 			
 			[subview setFrame:subviewFrame];
 		}
-
+		
 		[_sheet setFrame:windowFrame display:YES animate:YES];
 	}
+	
+	[_removeCriterionButton setEnabled:(1 < [[self criteria] count])];
+	[_predicateTypePopUpButton setEnabled:(1 < [[self criteria] count])];
+}
 
-	[_removeCriterionButton setEnabled:(1 < [[self criterionViews] count])];
-	[_predicateTypePopUpButton setEnabled:(1 < [[self criterionViews] count])];
+- (NSCompoundPredicateType) predicateType
+{
+	return _predicateType;
+}
+
+- (void) setPredicateType:(NSCompoundPredicateType)predicateType
+{
+	_predicateType = predicateType;
 }
 
 @end
 
 @implementation DynamicPlaylistInformationSheet (Private)
 
-- (NSMutableArray *) criterionViews
+- (NSMutableArray *) criteria
 {
-	if(nil == _criterionViews) {
-		_criterionViews = [[NSMutableArray alloc] init];
+	if(nil == _criteria) {
+		_criteria = [[NSMutableArray alloc] init];
 	}
 
-	return _criterionViews;
+	return _criteria;
 }
 
 @end

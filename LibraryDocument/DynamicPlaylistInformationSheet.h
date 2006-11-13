@@ -20,6 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class DynamicPlaylistCriterion;
+
 @interface DynamicPlaylistInformationSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
@@ -27,12 +29,13 @@
 	IBOutlet NSButton			*_removeCriterionButton;
 	IBOutlet NSPopUpButton		*_predicateTypePopUpButton;
 	
-	IBOutlet NSView				*_stringCriterionViewPrototype;
-
 	IBOutlet NSObjectController	*_playlistObjectController;
+
+@private
 	
 	NSPersistentDocument		*_owner;
-	NSMutableArray				*_criterionViews;
+	NSMutableArray				*_criteria;
+	NSCompoundPredicateType		_predicateType;
 }
 
 - (id)					initWithOwner:(NSPersistentDocument *)owner;
@@ -41,13 +44,21 @@
 
 - (NSManagedObjectContext *) managedObjectContext;
 
+- (void)				setPlaylist:(NSManagedObject *)playlist;
+
 - (IBAction)			ok:(id)sender;
 - (IBAction)			cancel:(id)sender;
 
 - (IBAction)			undo:(id)sender;
 - (IBAction)			redo:(id)sender;
 
-- (IBAction)			addCriterion:(id)sender;
-- (IBAction)			removeCriterion:(id)sender;
+- (IBAction)			add:(id)sender;
+- (IBAction)			remove:(id)sender;
+
+- (void)				addCriterion:(DynamicPlaylistCriterion *)criterion;
+- (void)				removeCriterion:(DynamicPlaylistCriterion *)criterion;
+
+- (NSCompoundPredicateType)		predicateType;
+- (void)						setPredicateType:(NSCompoundPredicateType)predicateType;
 
 @end

@@ -79,6 +79,7 @@
 		8C6814DB0AFEEB0C00577269 /* PlasticButtonPressed_Caps.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C6814CD0AFEEB0C00577269 /* PlasticButtonPressed_Caps.png */; };
 		8C6814DC0AFEEB0C00577269 /* PlasticButtonPressed_Middle.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C6814CE0AFEEB0C00577269 /* PlasticButtonPressed_Middle.png */; };
 		8C6814DD0AFEEB0C00577269 /* plus.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C6814CF0AFEEB0C00577269 /* plus.png */; };
+		8C73DD3C0B078B6500AECCDA /* DynamicPlaylistCriterion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */; };
 		8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */; };
 		8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8460AE736D5000581D5 /* AudioUnit.framework */; };
 		8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8470AE736D5000581D5 /* CoreAudio.framework */; };
@@ -105,6 +106,7 @@
 		8CD4410B0AE3F92B00B41F4D /* LibraryDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CD441090AE3F92B00B41F4D /* LibraryDocument.nib */; };
 		8CD445890AE3FE8300B41F4D /* LibraryDocument.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8CD445880AE3FE8300B41F4D /* LibraryDocument.icns */; };
 		8CD44FC00AE4BE1D00B41F4D /* LibraryDocumentModel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8CD44FBE0AE4BE1D00B41F4D /* LibraryDocumentModel.strings */; };
+		8CF0DB750B07F9BF0018F871 /* DynamicPlaylistCriterion.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF0DB6F0B07F9BF0018F871 /* DynamicPlaylistCriterion.nib */; };
 		8CF896930AEAB74F00A99441 /* player_end.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8968B0AEAB74F00A99441 /* player_end.png */; };
 		8CF896940AEAB74F00A99441 /* player_fwd.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8968C0AEAB74F00A99441 /* player_fwd.png */; };
 		8CF896950AEAB75000A99441 /* player_pause.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF8968D0AEAB74F00A99441 /* player_pause.png */; };
@@ -298,6 +300,8 @@
 		8C6814CD0AFEEB0C00577269 /* PlasticButtonPressed_Caps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonPressed_Caps.png; path = ThirdParty/AIPlasticButton/PlasticButtonPressed_Caps.png; sourceTree = "<group>"; };
 		8C6814CE0AFEEB0C00577269 /* PlasticButtonPressed_Middle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonPressed_Middle.png; path = ThirdParty/AIPlasticButton/PlasticButtonPressed_Middle.png; sourceTree = "<group>"; };
 		8C6814CF0AFEEB0C00577269 /* plus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = plus.png; path = ThirdParty/AIPlasticButton/plus.png; sourceTree = "<group>"; };
+		8C73DD390B078B6500AECCDA /* DynamicPlaylistCriterion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicPlaylistCriterion.h; path = LibraryDocument/DynamicPlaylistCriterion.h; sourceTree = "<group>"; };
+		8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DynamicPlaylistCriterion.m; path = LibraryDocument/DynamicPlaylistCriterion.m; sourceTree = "<group>"; };
 		8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		8CB8C8460AE736D5000581D5 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
 		8CB8C8470AE736D5000581D5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -324,6 +328,7 @@
 		8CD4410A0AE3F92B00B41F4D /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/LibraryDocument.nib; sourceTree = "<group>"; };
 		8CD445880AE3FE8300B41F4D /* LibraryDocument.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = LibraryDocument.icns; path = Icons/LibraryDocument.icns; sourceTree = "<group>"; };
 		8CD44FBF0AE4BE1D00B41F4D /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/LibraryDocumentModel.strings; sourceTree = "<group>"; };
+		8CF0DB700B07F9BF0018F871 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DynamicPlaylistCriterion.nib; sourceTree = "<group>"; };
 		8CF8968B0AEAB74F00A99441 /* player_end.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = player_end.png; path = Images/player_end.png; sourceTree = "<group>"; };
 		8CF8968C0AEAB74F00A99441 /* player_fwd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = player_fwd.png; path = Images/player_fwd.png; sourceTree = "<group>"; };
 		8CF8968D0AEAB74F00A99441 /* player_pause.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = player_pause.png; path = Images/player_pause.png; sourceTree = "<group>"; };
@@ -457,6 +462,8 @@
 		2A37F4ABFDCFA73011CA2CEA /* Library Document */ = {
 			isa = PBXGroup;
 			children = (
+				8C73DD390B078B6500AECCDA /* DynamicPlaylistCriterion.h */,
+				8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */,
 				8C3A86B30B005C7300A03FEB /* DynamicPlaylistInformationSheet.h */,
 				8C3A86B40B005C7300A03FEB /* DynamicPlaylistInformationSheet.m */,
 				8C3A86B50B005C7300A03FEB /* FolderPlaylistInformationSheet.h */,
@@ -499,6 +506,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CF0DB6F0B07F9BF0018F871 /* DynamicPlaylistCriterion.nib */,
 				8CD441090AE3F92B00B41F4D /* LibraryDocument.nib */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */,
@@ -886,6 +894,7 @@
 				8C3A86C90B005CC100A03FEB /* DynamicPlaylistInformationSheet.nib in Resources */,
 				8C3A86D00B005D0500A03FEB /* FolderPlaylistInformationSheet.nib in Resources */,
 				8C3A8C6C0B05572600A03FEB /* NewFolderPlaylistSheet.nib in Resources */,
+				8CF0DB750B07F9BF0018F871 /* DynamicPlaylistCriterion.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -965,6 +974,7 @@
 				8C3A86B80B005C7300A03FEB /* DynamicPlaylistInformationSheet.m in Sources */,
 				8C3A86BA0B005C7300A03FEB /* FolderPlaylistInformationSheet.m in Sources */,
 				8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */,
+				8C73DD3C0B078B6500AECCDA /* DynamicPlaylistCriterion.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1049,6 +1059,14 @@
 				8CD44FBF0AE4BE1D00B41F4D /* English */,
 			);
 			name = LibraryDocumentModel.strings;
+			sourceTree = "<group>";
+		};
+		8CF0DB6F0B07F9BF0018F871 /* DynamicPlaylistCriterion.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CF0DB700B07F9BF0018F871 /* English */,
+			);
+			name = DynamicPlaylistCriterion.nib;
 			sourceTree = "<group>";
 		};
 		8CF8AA770AEBF09900A99441 /* AudioStreamInformationSheet.nib */ = {
