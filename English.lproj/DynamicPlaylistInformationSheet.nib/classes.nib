@@ -4,14 +4,7 @@
         {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
-            ACTIONS = {
-                addCriterion = id; 
-                cancel = id; 
-                ok = id; 
-                redo = id; 
-                removeCriterion = id; 
-                undo = id; 
-            }; 
+            ACTIONS = {add = id; cancel = id; ok = id; redo = id; remove = id; undo = id; }; 
             CLASS = DynamicPlaylistInformationSheet; 
             LANGUAGE = ObjC; 
             OUTLETS = {
@@ -20,7 +13,6 @@
                 "_predicateTypePopUpButton" = NSPopUpButton; 
                 "_removeCriterionButton" = NSButton; 
                 "_sheet" = NSWindow; 
-                "_stringCriterionViewPrototype" = NSView; 
             }; 
             SUPERCLASS = NSObject; 
         }, 
