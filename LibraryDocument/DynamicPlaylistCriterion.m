@@ -126,7 +126,30 @@ enum {
 
 - (void) setAttributeType:(NSAttributeType)attributeType
 {
-	_attributeType = attributeType;
+	// Silently swap out our views if a different type was selected
+	if([self attributeType] != attributeType) {
+		NSView				*oldView;
+		NSPopUpButton		*popUpButton;
+
+		oldView				= [self view];
+		_attributeType		= attributeType;
+		
+		if(nil != oldView) {
+			[[oldView superview] addSubview:[self view] positioned:NSWindowAbove relativeTo:oldView];
+			[oldView removeFromSuperview];
+		}
+
+		// The same predicate types may not be available, so select the first one
+		popUpButton			= [[self view] viewWithTag:PredicateTypePopupButtonTag];
+
+		// Similarly, the searchTerm may not be valid either
+		[self setSearchTerm:nil];
+
+		[self setupKeyPathPopUpButton];
+		[self setupPredicateTypePopUpButton];
+
+		[popUpButton selectItemAtIndex:0];		
+	}	
 }
 
 - (NSString *) keyPath
@@ -142,12 +165,16 @@ enum {
 	[_keyPath release];
 	_keyPath = [keyPath retain];
 	
-	// Set our internals appropriately	
+	// First determine the object type of the keyPath that was selected
 	popUpButton					= [[self view] viewWithTag:KeyPathPopupButtonTag];
 	representedObject			= [self propertiesDictionaryForKeyPath:[self keyPath]];
 	
-	[popUpButton selectItemWithTitle:[representedObject valueForKey:@"displayName"]];
+	// Update our attribute type, which could swap out the view
 	[self setAttributeType:[[representedObject valueForKey:@"attributeType"] intValue]];
+
+	// Sync the popUpButton's selection (necessary since our view could have changed)
+	popUpButton					= [[self view] viewWithTag:KeyPathPopupButtonTag];
+	[popUpButton selectItemWithTitle:[representedObject valueForKey:@"displayName"]];
 }
 
 - (NSPredicateOperatorType) predicateType
@@ -175,7 +202,7 @@ enum {
 {
 	NSExpression		*left, *right;
 	
-	if(nil == [self keyPath]) {
+	if(nil == [self keyPath] || nil == [self searchTerm]) {
 		return [NSPredicate predicateWithValue:YES];
 	}
 	
@@ -215,14 +242,21 @@ enum {
 	buttonMenu					= [keyPathPopUpButton menu];
 	
 	keyPaths					= [NSArray arrayWithObjects:@"metadata.title", @"metadata.artist", @"metadata.album", 
-		@"metadata.composer", @"metadata.genre", @"metadata.date", @"properties.formatName", nil];
+		@"metadata.composer", @"metadata.genre", @"metadata.partOfCompilation", @"metadata.date", @"-", 
+		@"properties.formatName", @"properties.bitsPerChannel", 
+		nil];
 	enumerator					= [keyPaths objectEnumerator];
 	
 	while((keyPath = [enumerator nextObject])) {
-		menuItem					= [[NSMenuItem alloc] init];
-		[menuItem setTitle:[self displayNameForKeyPath:keyPath]];
-		[menuItem setRepresentedObject:[self propertiesDictionaryForKeyPath:keyPath]];
-		[buttonMenu addItem:menuItem];
+		if([keyPath isEqualToString:@"-"]) {
+			[buttonMenu addItem:[NSMenuItem separatorItem]];
+		}
+		else {
+			menuItem					= [[NSMenuItem alloc] init];
+			[menuItem setTitle:[self displayNameForKeyPath:keyPath]];
+			[menuItem setRepresentedObject:[self propertiesDictionaryForKeyPath:keyPath]];
+			[buttonMenu addItem:[menuItem autorelease]];
+		}
 	}
 }
 
@@ -399,9 +433,17 @@ enum {
 		displayName		= @"Date";
 		attributeType	= NSStringAttributeType;
 	}
+	else if([keyPath isEqualToString:@"metadata.partOfCompilation"]) {
+		displayName		= @"Compilation";
+		attributeType	= NSBooleanAttributeType;
+	}
 	else if([keyPath isEqualToString:@"properties.formatName"]) {
 		displayName		= @"Format";
 		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.bitsPerChannel"]) {
+		displayName		= @"Sample Size";
+		attributeType	= NSInteger32AttributeType;
 	}
 	
 	return [NSDictionary dictionaryWithObjectsAndKeys:

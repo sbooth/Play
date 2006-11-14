@@ -98,6 +98,8 @@
 			compoundPredicate				= (NSCompoundPredicate *)playlistPredicate;
 			enumerator						= [[compoundPredicate subpredicates] objectEnumerator];
 			
+			[self setPredicateType:[compoundPredicate compoundPredicateType]];
+			
 			while((playlistPredicate = [enumerator nextObject])) {
 				criterion					= [[DynamicPlaylistCriterion alloc] init];
 

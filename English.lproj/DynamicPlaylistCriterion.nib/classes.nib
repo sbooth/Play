@@ -5,6 +5,7 @@
             CLASS = DynamicPlaylistCriterion; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                "_booleanCriterionViewPrototype" = NSView; 
                 "_dateCriterionViewPrototype" = NSView; 
                 "_doubleCriterionViewPrototype" = NSView; 
                 "_floatCriterionViewPrototype" = NSView; 
