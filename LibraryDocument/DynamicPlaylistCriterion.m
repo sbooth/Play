@@ -241,9 +241,16 @@ enum {
 	
 	buttonMenu					= [keyPathPopUpButton menu];
 	
-	keyPaths					= [NSArray arrayWithObjects:@"metadata.title", @"metadata.artist", @"metadata.album", 
-		@"metadata.composer", @"metadata.genre", @"metadata.partOfCompilation", @"metadata.date", @"-", 
-		@"properties.formatName", @"properties.bitsPerChannel", 
+	keyPaths					= [NSArray arrayWithObjects:
+		@"metadata.title", @"metadata.artist", @"metadata.album", 
+		@"metadata.composer", @"metadata.genre", @"metadata.partOfCompilation", @"metadata.date", 
+		@"metadata.trackNumber", @"metadata.trackTotal", @"metadata.discNumber", @"metadata.discTotal", 
+		@"metadata.isrc", @"metadata.mcn",
+		@"-", 
+		@"properties.formatName", @"properties.bitsPerChannel", @"properties.bitrate", @"properties.channelsPerFrame", 
+		@"properties.duration", @"properties.sampleRate", 
+		@"-",
+		@"dateAdded", @"firstPlayed", @"lastPlayed", @"playCount",
 		nil];
 	enumerator					= [keyPaths objectEnumerator];
 	
@@ -444,6 +451,62 @@ enum {
 	else if([keyPath isEqualToString:@"properties.bitsPerChannel"]) {
 		displayName		= @"Sample Size";
 		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.bitrate"]) {
+		displayName		= @"Bitrate";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.channelsPerFrame"]) {
+		displayName		= @"Channels";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.duration"]) {
+		displayName		= @"Length";
+		attributeType	= NSDoubleAttributeType;
+	}
+	else if([keyPath isEqualToString:@"properties.sampleRate"]) {
+		displayName		= @"Sample Rate";
+		attributeType	= NSDoubleAttributeType;
+	}
+	else if([keyPath isEqualToString:@"dateAdded"]) {
+		displayName		= @"Date Added";
+		attributeType	= NSDateAttributeType;
+	}
+	else if([keyPath isEqualToString:@"firstPlayed"]) {
+		displayName		= @"First Played";
+		attributeType	= NSDateAttributeType;
+	}
+	else if([keyPath isEqualToString:@"lastPlayed"]) {
+		displayName		= @"Last Played";
+		attributeType	= NSDateAttributeType;
+	}
+	else if([keyPath isEqualToString:@"playCount"]) {
+		displayName		= @"Play Count";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.discNumber"]) {
+		displayName		= @"Disc Number";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.discTotal"]) {
+		displayName		= @"Total Discs";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.trackNumber"]) {
+		displayName		= @"Track Number";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.trackTotal"]) {
+		displayName		= @"Total Tracks";
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.isrc"]) {
+		displayName		= @"ISRC";
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:@"metadata.mcn"]) {
+		displayName		= @"MCN";
+		attributeType	= NSStringAttributeType;
 	}
 	
 	return [NSDictionary dictionaryWithObjectsAndKeys:
