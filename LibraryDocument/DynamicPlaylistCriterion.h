@@ -50,6 +50,8 @@ enum {
 
 @private
 		
+	NSView						*_view;
+
 	// The type of attribute being represented
 	NSAttributeType				_attributeType;
 
