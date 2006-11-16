@@ -87,7 +87,7 @@ writeCallback(const FLAC__FileDecoder *decoder, const FLAC__Frame *frame, const 
 			
 		case 24:				
 			
-			// Interleave the audio (no need for byte swapping?)
+			// Interleave the audio (no need for byte swapping)
 			alias8 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
