@@ -213,7 +213,7 @@ enum {
 {
 	NSExpression		*left, *right;
 	
-	if(nil == [self keyPath] || nil == [self searchTerm]) {
+	if(nil == [self keyPath]/* || nil == [self searchTerm]*/) {
 		return [NSPredicate predicateWithValue:YES];
 	}
 	
