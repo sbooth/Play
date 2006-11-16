@@ -28,6 +28,8 @@ enum {
 
 @interface DynamicPlaylistCriterion (Private)
 
+- (void)				setView:(NSView *)view;
+
 - (void)				setupKeyPathPopUpButton;
 - (void)				setupPredicateTypePopUpButton;
 
@@ -45,10 +47,6 @@ enum {
 	if((self = [super init])) {
 		BOOL			result;
 		
-		// Reasonable defaults
-		_predicateType	= NSEqualToPredicateOperatorType;
-		_attributeType	= NSStringAttributeType;
-
 		result			= [NSBundle loadNibNamed:@"DynamicPlaylistCriterion" owner:self];
 		if(NO == result) {
 			NSLog(@"Missing resource: \"DynamicPlaylistCriterion.nib\".");
@@ -64,6 +62,7 @@ enum {
 
 - (void) dealloc
 {
+	[_view release],			_view = nil;
 	[_keyPath release],			_keyPath = nil;
 	[_searchTerm release],		_searchTerm = nil;
 	
@@ -75,8 +74,12 @@ enum {
 	NSPopUpButton		*popUpButton;
 	NSString			*keyPath;
 
-	[self setupKeyPathPopUpButton];
-	[self setupPredicateTypePopUpButton];
+	// Reasonable defaults
+	_predicateType	= NSEqualToPredicateOperatorType;
+	[self setAttributeType:NSStringAttributeType];
+	
+	//	[self setupKeyPathPopUpButton];
+//	[self setupPredicateTypePopUpButton];
 
 	popUpButton			= [[self view] viewWithTag:KeyPathPopupButtonTag];
 	keyPath				= [[[popUpButton selectedItem] representedObject] valueForKey:@"keyPath"];
@@ -96,27 +99,7 @@ enum {
 
 - (NSView *) view
 {
-	switch([self attributeType]) {
-		case NSUndefinedAttributeType:		return nil;
-
-		case NSInteger16AttributeType:		return _integer16CriterionViewPrototype;
-		case NSInteger32AttributeType:		return _integer32CriterionViewPrototype;
-		case NSInteger64AttributeType:		return _integer64CriterionViewPrototype;
-		
-		case NSDecimalAttributeType:		return _decimalCriterionViewPrototype;
-		case NSDoubleAttributeType:			return _doubleCriterionViewPrototype;
-		case NSFloatAttributeType:			return _floatCriterionViewPrototype;
-		
-		case NSStringAttributeType:			return _stringCriterionViewPrototype;
-		
-		case NSBooleanAttributeType:		return _booleanCriterionViewPrototype;
-		
-		case NSDateAttributeType:			return _dateCriterionViewPrototype;
-		
-		case NSBinaryDataAttributeType:		return nil;
-			
-		default:							return nil;
-	}
+	return _view;	
 }
 
 - (NSAttributeType) attributeType
@@ -126,7 +109,7 @@ enum {
 
 - (void) setAttributeType:(NSAttributeType)attributeType
 {
-	// Silently swap out our views if a different type was selected
+	// Swap out views if a different attributeType was selected
 	if([self attributeType] != attributeType) {
 		NSView				*oldView;
 		NSPopUpButton		*popUpButton;
@@ -134,21 +117,49 @@ enum {
 		oldView				= [self view];
 		_attributeType		= attributeType;
 		
+		// Determine the view that matches our new attributeType
+		switch([self attributeType]) {
+			case NSUndefinedAttributeType:		[self setView:nil];									break;
+				
+			case NSInteger16AttributeType:		[self setView:_integer16CriterionViewPrototype];	break;
+			case NSInteger32AttributeType:		[self setView:_integer32CriterionViewPrototype];	break;
+			case NSInteger64AttributeType:		[self setView:_integer64CriterionViewPrototype];	break;
+				
+			case NSDecimalAttributeType:		[self setView:_decimalCriterionViewPrototype];		break;
+			case NSDoubleAttributeType:			[self setView:_doubleCriterionViewPrototype];		break;
+			case NSFloatAttributeType:			[self setView:_floatCriterionViewPrototype];		break;
+				
+			case NSStringAttributeType:			[self setView:_stringCriterionViewPrototype];		break;
+				
+			case NSBooleanAttributeType:		[self setView:_booleanCriterionViewPrototype];		break;
+				
+			case NSDateAttributeType:			[self setView:_dateCriterionViewPrototype];			break;
+				
+			case NSBinaryDataAttributeType:		[self setView:nil];									break;
+				
+			default:							[self setView:nil];									break;
+		}
+		
 		if(nil != oldView) {
-			[[oldView superview] addSubview:[self view] positioned:NSWindowAbove relativeTo:oldView];
+			NSView			*superview			= [oldView superview];
+			
+			[[self view] setFrame:[oldView frame]];
 			[oldView removeFromSuperview];
+			[superview addSubview:[self view]];
 		}
 
+		[self setupKeyPathPopUpButton];
+		[self setupPredicateTypePopUpButton];
+		
 		// The same predicate types may not be available, so select the first one
 		popUpButton			= [[self view] viewWithTag:PredicateTypePopupButtonTag];
+
+		[popUpButton selectItemAtIndex:0];
+		[self setPredicateType:[[popUpButton selectedItem] tag]];
 
 		// Similarly, the searchTerm may not be valid either
 		[self setSearchTerm:nil];
 
-		[self setupKeyPathPopUpButton];
-		[self setupPredicateTypePopUpButton];
-
-		[popUpButton selectItemAtIndex:0];		
 	}	
 }
 
@@ -225,6 +236,12 @@ enum {
 @end
 
 @implementation DynamicPlaylistCriterion (Private)
+
+- (void) setView:(NSView *)view
+{
+	[_view release];
+	_view = [view retain];
+}
 
 - (void) setupKeyPathPopUpButton
 {
