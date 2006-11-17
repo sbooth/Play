@@ -80,6 +80,7 @@
 		8C6814DC0AFEEB0C00577269 /* PlasticButtonPressed_Middle.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C6814CE0AFEEB0C00577269 /* PlasticButtonPressed_Middle.png */; };
 		8C6814DD0AFEEB0C00577269 /* plus.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C6814CF0AFEEB0C00577269 /* plus.png */; };
 		8C73DD3C0B078B6500AECCDA /* DynamicPlaylistCriterion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */; };
+		8C763B670B0D617000DE5B05 /* MusepackMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C763B660B0D617000DE5B05 /* MusepackMetadataWriter.mm */; };
 		8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */; };
 		8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8460AE736D5000581D5 /* AudioUnit.framework */; };
 		8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8470AE736D5000581D5 /* CoreAudio.framework */; };
@@ -302,6 +303,8 @@
 		8C6814CF0AFEEB0C00577269 /* plus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = plus.png; path = ThirdParty/AIPlasticButton/plus.png; sourceTree = "<group>"; };
 		8C73DD390B078B6500AECCDA /* DynamicPlaylistCriterion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicPlaylistCriterion.h; path = LibraryDocument/DynamicPlaylistCriterion.h; sourceTree = "<group>"; };
 		8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DynamicPlaylistCriterion.m; path = LibraryDocument/DynamicPlaylistCriterion.m; sourceTree = "<group>"; };
+		8C7636E60B0D609D00DE5B05 /* MusepackMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusepackMetadataWriter.h; path = Audio/Metadata/Writers/MusepackMetadataWriter.h; sourceTree = "<group>"; };
+		8C763B660B0D617000DE5B05 /* MusepackMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MusepackMetadataWriter.mm; path = Audio/Metadata/Writers/MusepackMetadataWriter.mm; sourceTree = "<group>"; };
 		8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		8CB8C8460AE736D5000581D5 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
 		8CB8C8470AE736D5000581D5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -588,6 +591,7 @@
 		8C5C90250AFD1BFE00D1E17A /* Metadata Writers */ = {
 			isa = PBXGroup;
 			children = (
+				8C763B660B0D617000DE5B05 /* MusepackMetadataWriter.mm */,
 				8C3A852A0AFFE46C00A03FEB /* MP3MetadataWriter.h */,
 				8C3A852B0AFFE46C00A03FEB /* MP3MetadataWriter.mm */,
 				8C3A85060AFFDFBD00A03FEB /* OggFLACMetadataWriter.h */,
@@ -598,6 +602,7 @@
 				8C5C902F0AFD1C2600D1E17A /* AudioMetadataWriter.h */,
 				8C5C90300AFD1C2600D1E17A /* AudioMetadataWriter.m */,
 				8C3A80730AFFDC9000A03FEB /* OggVorbisMetadataWriter.h */,
+				8C7636E60B0D609D00DE5B05 /* MusepackMetadataWriter.h */,
 			);
 			name = "Metadata Writers";
 			sourceTree = "<group>";
@@ -975,6 +980,7 @@
 				8C3A86BA0B005C7300A03FEB /* FolderPlaylistInformationSheet.m in Sources */,
 				8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */,
 				8C73DD3C0B078B6500AECCDA /* DynamicPlaylistCriterion.m in Sources */,
+				8C763B670B0D617000DE5B05 /* MusepackMetadataWriter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

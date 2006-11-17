@@ -22,7 +22,7 @@
 #import "FLACMetadataWriter.h"
 #import "OggFLACMetadataWriter.h"
 #import "OggVorbisMetadataWriter.h"
-//#import "MusepackMetadataWriter.h"
+#import "MusepackMetadataWriter.h"
 #import "MP3MetadataWriter.h"
 //#import "MP4MetadataWriter.h"
 //#import "WavPackMetadataWriter.h"
@@ -96,12 +96,12 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		}
 
 		[result setValue:url forKey:@"url"];
-	}/*
+	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackMetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}*/
+	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
 		result						= [[MP3MetadataWriter alloc] init];
 		
