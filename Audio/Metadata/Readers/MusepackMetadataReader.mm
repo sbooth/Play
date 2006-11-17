@@ -20,7 +20,8 @@
 
 #import "MusepackMetadataReader.h"
 #include <taglib/mpcfile.h>
-#include <taglib/xiphcomment.h>
+#include <taglib/tstring.h>
+#include <taglib/tag.h>
 
 @implementation MusepackMetadataReader
 
