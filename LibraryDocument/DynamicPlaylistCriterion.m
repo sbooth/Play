@@ -478,7 +478,7 @@ enum {
 		attributeType	= NSInteger32AttributeType;
 	}
 	else if([keyPath isEqualToString:@"properties.duration"]) {
-		displayName		= @"Length";
+		displayName		= @"Duration";
 		attributeType	= NSDoubleAttributeType;
 	}
 	else if([keyPath isEqualToString:@"properties.sampleRate"]) {
