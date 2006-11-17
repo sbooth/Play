@@ -24,7 +24,7 @@
 #import "OggVorbisMetadataWriter.h"
 #import "MusepackMetadataWriter.h"
 #import "MP3MetadataWriter.h"
-//#import "MP4MetadataWriter.h"
+#import "MP4MetadataWriter.h"
 //#import "WavPackMetadataWriter.h"
 //#import "MonkeysAudioMetadataWriter.h"
 
@@ -106,12 +106,12 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		result						= [[MP3MetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}/*
+	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
 		result						= [[MP4MetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}
+	}/*
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackMetadataWriter alloc] init];
 		
