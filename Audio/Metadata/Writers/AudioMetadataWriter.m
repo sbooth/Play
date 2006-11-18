@@ -26,7 +26,7 @@
 #import "MP3MetadataWriter.h"
 #import "MP4MetadataWriter.h"
 #import "WavPackMetadataWriter.h"
-//#import "MonkeysAudioMetadataWriter.h"
+#import "MonkeysAudioMetadataWriter.h"
 
 #import "UtilityFunctions.h"
 
@@ -116,12 +116,12 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		result						= [[WavPackMetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}/*
+	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioMetadataWriter alloc] init];
 		
 		[result setValue:url forKey:@"url"];
-	}*/
+	}
 	else {
 /*		if(nil != error) {
 			NSMutableDictionary		*errorDictionary;

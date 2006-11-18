@@ -83,6 +83,7 @@
 		8C763B670B0D617000DE5B05 /* MusepackMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C763B660B0D617000DE5B05 /* MusepackMetadataWriter.mm */; };
 		8C763BA00B0D643900DE5B05 /* MP4MetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C763B9E0B0D643900DE5B05 /* MP4MetadataWriter.m */; };
 		8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C763C110B0E94E900DE5B05 /* WavPackMetadataWriter.m */; };
+		8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C763CF40B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm */; };
 		8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */; };
 		8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8460AE736D5000581D5 /* AudioUnit.framework */; };
 		8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8470AE736D5000581D5 /* CoreAudio.framework */; };
@@ -311,6 +312,8 @@
 		8C763B9E0B0D643900DE5B05 /* MP4MetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MP4MetadataWriter.m; path = Audio/Metadata/Writers/MP4MetadataWriter.m; sourceTree = "<group>"; };
 		8C763C100B0E94E900DE5B05 /* WavPackMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WavPackMetadataWriter.h; path = Audio/Metadata/Writers/WavPackMetadataWriter.h; sourceTree = "<group>"; };
 		8C763C110B0E94E900DE5B05 /* WavPackMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataWriter.m; path = Audio/Metadata/Writers/WavPackMetadataWriter.m; sourceTree = "<group>"; };
+		8C763CF30B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioMetadataWriter.h; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.h; sourceTree = "<group>"; };
+		8C763CF40B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioMetadataWriter.mm; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.mm; sourceTree = "<group>"; };
 		8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		8CB8C8460AE736D5000581D5 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
 		8CB8C8470AE736D5000581D5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -613,6 +616,8 @@
 				8C763B9E0B0D643900DE5B05 /* MP4MetadataWriter.m */,
 				8C763C100B0E94E900DE5B05 /* WavPackMetadataWriter.h */,
 				8C763C110B0E94E900DE5B05 /* WavPackMetadataWriter.m */,
+				8C763CF30B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.h */,
+				8C763CF40B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm */,
 			);
 			name = "Metadata Writers";
 			sourceTree = "<group>";
@@ -993,6 +998,7 @@
 				8C763B670B0D617000DE5B05 /* MusepackMetadataWriter.mm in Sources */,
 				8C763BA00B0D643900DE5B05 /* MP4MetadataWriter.m in Sources */,
 				8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */,
+				8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
