@@ -193,6 +193,7 @@ MyRenderNotification(void							*inRefCon,
 
 + (void) initialize
 {
+	[self exposeBinding:@"volume"];
 	[self exposeBinding:@"currentFrame"];
 	[self exposeBinding:@"totalFrames"];
 	[self exposeBinding:@"hasValidStream"];
@@ -309,6 +310,8 @@ MyRenderNotification(void							*inRefCon,
 
 - (LibraryDocument *)	owner									{ return [[_owner retain] autorelease]; }
 - (void)				setOwner:(LibraryDocument *)owner		{ [_owner release], _owner = [owner retain]; }
+
+#pragma mark Stream Management
 
 - (BOOL) setStreamURL:(NSURL *)url error:(NSError **)error
 {
@@ -431,6 +434,8 @@ MyRenderNotification(void							*inRefCon,
 	return ([self hasValidStream] && [[self streamDecoder] supportsSeeking]);
 }
 
+#pragma mark Playback Control
+
 - (void) play
 {
 	ComponentResult				result;
@@ -547,6 +552,42 @@ MyRenderNotification(void							*inRefCon,
 - (BOOL) isPlaying
 {
 	return _isPlaying;
+}
+
+#pragma mark Bindings
+
+- (Float32) volume
+{
+	ComponentResult					result;
+	Float32							volume;
+	
+	result							= AudioUnitGetParameter([self audioUnit],
+															kHALOutputParam_Volume,
+															kAudioUnitScope_Global,
+															0,
+															&volume);
+	
+	if(noErr != result) {
+		NSLog(@"Unable to determine volume: %i", result);
+	}
+	
+	return volume;
+}
+
+- (void) setVolume:(Float32)volume
+{
+	ComponentResult					result;
+	
+	result							= AudioUnitSetParameter([self audioUnit],
+															kHALOutputParam_Volume,
+															kAudioUnitScope_Global,
+															0,
+															volume,
+															0);
+
+	if(noErr != result) {
+		NSLog(@"Unable to set volume: %i", result);
+	}
 }
 
 - (SInt64) totalFrames
