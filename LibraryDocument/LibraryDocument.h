@@ -72,6 +72,7 @@
 // Playback control
 - (IBAction)	play:(id)sender;
 - (IBAction)	playPause:(id)sender;
+- (IBAction)	playSelection:(id)sender;
 
 - (IBAction)	skipForward:(id)sender;
 - (IBAction)	skipBackward:(id)sender;

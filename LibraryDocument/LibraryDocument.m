@@ -666,6 +666,18 @@
 	[self updatePlayButtonState];
 }
 
+- (IBAction) playSelection:(id)sender
+{
+	if(0 == [[_streamArrayController selectedObjects] count]) {
+		[self playStream:[_streamArrayController arrangedObjects]];
+	}
+	else {
+		[self playStream:[_streamArrayController selectedObjects]];
+	}
+
+	[self updatePlayButtonState];
+}
+
 - (IBAction) skipForward:(id)sender
 {
 	[[self player] skipForward];
@@ -1376,7 +1388,7 @@
 	}
 	
 	streamObject				= [streams objectAtIndex:0];
-	url							= [NSURL URLWithString:[streamObject valueForKey:@"url"]];
+	url							= [NSURL URLWithString:[streamObject url]];
 	result						= [[self player] setStreamURL:url error:&error];
 	
 	if(NO == result) {

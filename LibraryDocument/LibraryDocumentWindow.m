@@ -28,8 +28,11 @@
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
 		
-	if((0x0020 == key || NSCarriageReturnCharacter == key ) && 0 == flags) {
+	if(0x0020 == key && 0 == flags) {
 		[(LibraryDocument *)[[self windowController] document] playPause:self];
+	}
+	else if(NSCarriageReturnCharacter == key && 0 == flags) {
+		[(LibraryDocument *)[[self windowController] document] playSelection:self];
 	}
 	else if(0xf702 == key && 0 == flags) {
 		[(LibraryDocument *)[[self windowController] document] skipBackward:self];
