@@ -19,11 +19,11 @@
  */
 
 #import "AudioStreamDecoder.h"
-#include <FLAC/file_decoder.h>
+#include <FLAC/stream_decoder.h>
 
 @interface FLACStreamDecoder : AudioStreamDecoder
 {
-	FLAC__FileDecoder			*_flac;
+	FLAC__StreamDecoder			*_flac;
 }
 
 @end

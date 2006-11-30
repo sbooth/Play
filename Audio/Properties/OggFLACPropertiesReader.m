@@ -19,17 +19,17 @@
  */
 
 #import "OggFLACPropertiesReader.h"
-#include <OggFLAC/file_decoder.h>
+#include <FLAC/stream_decoder.h>
 #include <FLAC/metadata.h>
 
 static FLAC__StreamDecoderWriteStatus 
-writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
+writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
 {
 	return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 }
 
 static void
-metadataCallback(const OggFLAC__FileDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
+metadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
 {
 	OggFLACPropertiesReader	*source				= (OggFLACPropertiesReader *)client_data;
 	//	const FLAC__StreamMetadata_CueSheet		*cueSheet			= NULL;
@@ -67,7 +67,7 @@ metadataCallback(const OggFLAC__FileDecoder *decoder, const FLAC__StreamMetadata
 }
 
 static void
-errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
+errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
 {}
 
 @implementation OggFLACPropertiesReader
@@ -83,7 +83,7 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 
 - (void) dealloc
 {
-	[_localProperties release];		_localProperties = nil;
+	[_localProperties release],		_localProperties = nil;
 	
 	[super dealloc];
 }
@@ -91,16 +91,22 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 - (BOOL) readProperties:(NSError **)error
 {
 	NSString						*path				= [_url path];
-	OggFLAC__FileDecoder			*flac;
+	FLAC__StreamDecoder				*flac;
 	FLAC__bool						result;
-	OggFLAC__FileDecoderState		state;	
+	FLAC__StreamDecoderInitStatus	status;
 	
 	// Create FLAC decoder
-	flac		= OggFLAC__file_decoder_new();
-	NSAssert(NULL != flac, @"Unable to create the FLAC decoder.");
+	flac		= FLAC__stream_decoder_new();
+	NSAssert(NULL != flac, @"Unable to create the Ogg FLAC decoder.");
 	
-	result		= OggFLAC__file_decoder_set_filename(flac, [path fileSystemRepresentation]);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_filename failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
+	// Initialize decoder
+	status		= FLAC__stream_decoder_init_ogg_file(flac, 
+													 [path fileSystemRepresentation],
+													 writeCallback, 
+													 metadataCallback, 
+													 errorCallback,
+													 self);
+	NSAssert1(FLAC__STREAM_DECODER_INIT_STATUS_OK == status, @"FLAC__stream_decoder_init_file failed: %s", FLAC__stream_decoder_get_resolved_state_string(flac));
 	
 	/*
 	 // Process cue sheets
@@ -108,33 +114,16 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	 NSAssert(YES == result, @"%s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
 	 */
 				
-	// Setup callbacks
-	result		= OggFLAC__file_decoder_set_write_callback(flac, writeCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_write_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
-	
-	result		= OggFLAC__file_decoder_set_metadata_callback(flac, metadataCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_metadata_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
-	
-	result		= OggFLAC__file_decoder_set_error_callback(flac, errorCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_error_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
-	
-	result		= OggFLAC__file_decoder_set_client_data(flac, self);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_client_data failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
-	
-	// Initialize decoder
-	state = OggFLAC__file_decoder_init(flac);
-	NSAssert1(OggFLAC__FILE_DECODER_OK == state, @"OggFLAC__file_decoder_init failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
-	
 	// Process metadata
-	result = OggFLAC__file_decoder_process_until_end_of_metadata(flac);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_process_until_end_of_metadata failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
+	result = FLAC__stream_decoder_process_until_end_of_metadata(flac);
+	NSAssert1(YES == result, @"FLAC__file_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(flac));
 	
 	[_localProperties setValue:@"FLAC" forKey:@"formatName"];
 
-	result = OggFLAC__file_decoder_finish(flac);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_finish failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(flac)]);
+	result = FLAC__stream_decoder_finish(flac);
+	NSAssert1(YES == result, @"FLAC__stream_decoder_finish failed: %s", FLAC__stream_decoder_get_resolved_state_string(flac));
 	
-	OggFLAC__file_decoder_delete(flac);
+	FLAC__stream_decoder_delete(flac);
 	
 	[self setValue:_localProperties forKey:@"properties"];
 	

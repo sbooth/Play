@@ -30,9 +30,9 @@
 @end
 
 static FLAC__StreamDecoderWriteStatus 
-writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
+writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data)
 {
-	OggFLACStreamDecoder *streamDecoder			= (OggFLACStreamDecoder *)client_data;
+	OggFLACStreamDecoder	*streamDecoder		= (OggFLACStreamDecoder *)client_data;
 	
 	unsigned			spaceRequired			= 0;
 	
@@ -45,11 +45,11 @@ writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, con
 	
 	UInt32				bytesAvailableToWrite;
 	void				*writePointer;
-
+	
 	// Calculate the number of audio data points contained in the frame (should be one for each channel)
 	spaceRequired		= frame->header.blocksize * frame->header.channels * (frame->header.bits_per_sample / 8);
 	bytesAvailableToWrite = [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-
+	
 	// Increase buffer size as required
 	if(bytesAvailableToWrite < spaceRequired) {
 		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
@@ -67,7 +67,7 @@ writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, con
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
+				[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
@@ -81,24 +81,24 @@ writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, con
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
+				[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
 		case 24:				
 			
-			// Interleave the audio
+			// Interleave the audio (no need for byte swapping)
 			alias8 = writePointer;
 			for(sample = 0; sample < frame->header.blocksize; ++sample) {
 				for(channel = 0; channel < frame->header.channels; ++channel) {
-					audioSample	= OSSwapHostToBigInt32(buffer[channel][sample]);
+					audioSample	= buffer[channel][sample];
 					*alias8++	= (int8_t)(audioSample >> 16);
 					*alias8++	= (int8_t)(audioSample >> 8);
 					*alias8++	= (int8_t)audioSample;
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
+				[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
@@ -112,7 +112,7 @@ writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, con
 				}
 			}
 				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
+				[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
 			
 			break;
 			
@@ -126,7 +126,7 @@ writeCallback(const OggFLAC__FileDecoder *decoder, const FLAC__Frame *frame, con
 }
 
 static void
-metadataCallback(const OggFLAC__FileDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
+metadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data)
 {
 	OggFLACStreamDecoder	*source				= (OggFLACStreamDecoder *)client_data;
 	//	const FLAC__StreamMetadata_CueSheet		*cueSheet			= NULL;
@@ -139,7 +139,7 @@ metadataCallback(const OggFLAC__FileDecoder *decoder, const FLAC__StreamMetadata
 			[source setSampleRate:metadata->data.stream_info.sample_rate];			
 			[source setBitsPerChannel:metadata->data.stream_info.bits_per_sample];
 			[source setChannelsPerFrame:metadata->data.stream_info.channels];
-
+			
 			[source setTotalFrames:metadata->data.stream_info.total_samples];
 			break;
 			
@@ -162,8 +162,11 @@ metadataCallback(const OggFLAC__FileDecoder *decoder, const FLAC__StreamMetadata
 }
 
 static void
-errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
+errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data)
 {
+	//	FLACDecoder		*source		= (FLACDecoder *)client_data;
+	
+	//	@throw [FLACException exceptionWithReason:[NSString stringWithCString:FLAC__StreamDecoderErrorStatusString[status] encoding:NSASCIIStringEncoding] userInfo:nil];
 }
 
 @implementation OggFLACStreamDecoder
@@ -173,57 +176,57 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Ogg (FLAC)", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
+- (BOOL) supportsSeeking
+{
+	return YES;
+}
+
+- (SInt64) performSeekToFrame:(SInt64)frame
+{
+	FLAC__bool		result		= FLAC__stream_decoder_seek_absolute(_flac, frame);
+	return (result ? frame : -1);
+}
+
 - (BOOL) setupDecoder:(NSError **)error
 {
-	FLAC__bool					result;
-	OggFLAC__FileDecoderState	state;	
+	FLAC__bool						result;
+	FLAC__StreamDecoderInitStatus	status;	
 	
 	[super setupDecoder:error];
-
+	
 	// Create FLAC decoder
-	_flac		= OggFLAC__file_decoder_new();
+	_flac		= FLAC__stream_decoder_new();
 	NSAssert(NULL != _flac, @"Unable to create the FLAC decoder.");
 	
-	result		= OggFLAC__file_decoder_set_filename(_flac, [[[self valueForKey:@"url"] path] fileSystemRepresentation]);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_filename failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
+	// Initialize decoder
+	status		= FLAC__stream_decoder_init_ogg_file(_flac, 											
+													 [[[self valueForKey:@"url"] path] fileSystemRepresentation],
+													 writeCallback, 
+													 metadataCallback, 
+													 errorCallback,
+													 self);
+	NSAssert1(FLAC__STREAM_DECODER_INIT_STATUS_OK == status, @"FLAC__stream_decoder_init_file failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 	
 	/*
 	 // Process cue sheets
-	 result = OggFLAC__file_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_CUESHEET);
-	 NSAssert(YES == result, @"%s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
+	 result = FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_CUESHEET);
+	 NSAssert(YES == result, @"%s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 	 */
 				
-	// Setup callbacks
-	result		= OggFLAC__file_decoder_set_write_callback(_flac, writeCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_write_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
-	
-	result		= OggFLAC__file_decoder_set_metadata_callback(_flac, metadataCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_metadata_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
-	
-	result		= OggFLAC__file_decoder_set_error_callback(_flac, errorCallback);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_error_callback failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
-	
-	result		= OggFLAC__file_decoder_set_client_data(_flac, self);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_set_client_data failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
-	
-	// Initialize decoder
-	state = OggFLAC__file_decoder_init(_flac);
-	NSAssert1(OggFLAC__FILE_DECODER_OK == state, @"OggFLAC__file_decoder_init failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
-	
 	// Process metadata
-	result = OggFLAC__file_decoder_process_until_end_of_metadata(_flac);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_process_until_end_of_metadata failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
+	result = FLAC__stream_decoder_process_until_end_of_metadata(_flac);
+	NSAssert1(YES == result, @"FLAC__stream_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 	
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
-		
+	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	// We only handle a subset of the legal bitsPerChannel for FLAC
-	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");	
+	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");
 	
 	return YES;
 }
@@ -232,11 +235,11 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 {
 	FLAC__bool					result;
 	
-	result = OggFLAC__file_decoder_finish(_flac);
-	NSAssert1(YES == result, @"OggFLAC__file_decoder_finish failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
+	result = FLAC__stream_decoder_finish(_flac);
+	NSAssert1(YES == result, @"FLAC__stream_decoder_finish failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 	
-	OggFLAC__file_decoder_delete(_flac);		_flac = NULL;
-
+	FLAC__stream_decoder_delete(_flac),		_flac = NULL;
+	
 	[super cleanupDecoder:error];
 	
 	return YES;
@@ -253,7 +256,7 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 	
 	UInt32						bytesToWrite, bytesAvailableToWrite;
 	void						*dummy;
-
+	
 	for(;;) {
 		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
 		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&dummy];
@@ -266,22 +269,22 @@ errorCallback(const OggFLAC__FileDecoder *decoder, FLAC__StreamDecoderErrorStatu
 		// this could blow up!
 		// It's not feasible to use the maximum possible values, because
 		// maxBlocksize(65535) * maxBitsPerSample(32) * maxChannels(8) = 16,776,960 (No 16 MB buffers here!)
-		blockSize					= OggFLAC__file_decoder_get_blocksize(_flac);
-		channels					= OggFLAC__file_decoder_get_channels(_flac);
-		bitsPerSample				= OggFLAC__file_decoder_get_bits_per_sample(_flac); 
+		blockSize					= FLAC__stream_decoder_get_blocksize(_flac);
+		channels					= FLAC__stream_decoder_get_channels(_flac);
+		bitsPerSample				= FLAC__stream_decoder_get_bits_per_sample(_flac); 
 		
 		blockByteSize				= blockSize * channels * (bitsPerSample / 8);
-
+		
 		// Ensure sufficient space remains in the buffer
 		if(bytesAvailableToWrite < bytesToWrite || bytesAvailableToWrite < blockByteSize) {
 			break;
 		}
-
-		result	= OggFLAC__file_decoder_process_single(_flac);
-		NSAssert1(YES == result, @"OggFLAC__file_decoder_process_single failed: %s", OggFLAC__FileDecoderStateString[OggFLAC__file_decoder_get_state(_flac)]);
 		
-		// EOF?
-		if(OggFLAC__FILE_DECODER_END_OF_FILE == OggFLAC__file_decoder_get_state(_flac)) {
+		result	= FLAC__stream_decoder_process_single(_flac);
+		NSAssert1(YES == result, @"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
+		
+		// EOS?
+		if(FLAC__STREAM_DECODER_END_OF_STREAM == FLAC__stream_decoder_get_state(_flac)) {
 			[self setAtEndOfStream:YES];
 			break;
 		}
