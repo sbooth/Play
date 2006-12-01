@@ -33,6 +33,7 @@
 	NSMutableDictionary				*metadataDictionary;
 	NSString						*commentString, *key, *value;
 	NSRange							range;
+	NSImage							*picture;
 				
 	chain							= FLAC__metadata_chain_new();
 	
@@ -147,7 +148,16 @@
 					
 					[self setValue:metadataDictionary forKey:@"metadata"];
 				}
-					break;
+				break;
+				
+			case FLAC__METADATA_TYPE_PICTURE:
+				picture = [[NSImage alloc] initWithData:[NSData dataWithBytes:block->data.picture.data length:block->data.picture.data_length]];
+				if(nil != picture) {
+					[metadataDictionary setValue:[picture TIFFRepresentation] forKey:@"albumArt"];
+					[picture release];
+				}
+				break;
+				
 				
 			case FLAC__METADATA_TYPE_STREAMINFO:					break;
 			case FLAC__METADATA_TYPE_PADDING:						break;
