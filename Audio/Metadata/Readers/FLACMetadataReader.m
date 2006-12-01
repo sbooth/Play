@@ -144,9 +144,7 @@
 						else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
 							[metadataDictionary setValue:value forKey:@"mcn"];
 						}
-					}
-					
-					[self setValue:metadataDictionary forKey:@"metadata"];
+					}					
 				}
 				break;
 				
@@ -172,6 +170,8 @@
 	FLAC__metadata_iterator_delete(iterator);
 	FLAC__metadata_chain_delete(chain);
 	
+	[self setValue:metadataDictionary forKey:@"metadata"];
+
 	return YES;
 }
 
