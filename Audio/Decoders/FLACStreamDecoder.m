@@ -183,7 +183,13 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	FLAC__bool		result		= FLAC__stream_decoder_seek_absolute(_flac, frame);
+	FLAC__bool		result		= FLAC__stream_decoder_seek_absolute(_flac, frame);	
+	
+	// Attempt to re-sync the stream if necessary
+	if(result && FLAC__STREAM_DECODER_SEEK_ERROR == FLAC__stream_decoder_get_state(_flac)) {
+		result = FLAC__stream_decoder_flush(_flac);
+	}
+	
 	return (result ? frame : -1);
 }
 
@@ -280,9 +286,9 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 			break;
 		}
 
-		result	= FLAC__stream_decoder_process_single(_flac);
+		result	= FLAC__stream_decoder_process_single(_flac);		
 		NSAssert1(YES == result, @"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
-		
+
 		// EOS?
 		if(FLAC__STREAM_DECODER_END_OF_STREAM == FLAC__stream_decoder_get_state(_flac)) {
 			[self setAtEndOfStream:YES];
