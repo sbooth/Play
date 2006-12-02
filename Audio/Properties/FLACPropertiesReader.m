@@ -98,6 +98,7 @@
 				break;
 				
 			case FLAC__METADATA_TYPE_VORBIS_COMMENT:				break;
+			case FLAC__METADATA_TYPE_PICTURE:						break;
 			case FLAC__METADATA_TYPE_PADDING:						break;
 			case FLAC__METADATA_TYPE_APPLICATION:					break;
 			case FLAC__METADATA_TYPE_SEEKTABLE:						break;
