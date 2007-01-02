@@ -158,9 +158,8 @@
 		// Extract compilation if present (iTunes TCMP tag)
 		frameList = id3v2tag->frameListMap()["TCMP"];
 		if(NO == frameList.isEmpty()) {
-			// Is it safe to assume this will only be 0 or 1?  (Probably not, it never is)
-			NSString *value = [NSString stringWithUTF8String:frameList.front()->toString().toCString(true)];
-			[metadataDictionary setValue:[NSNumber numberWithBool:[value intValue]] forKey:@"partOfCompilation"];
+			// It seems that the presence of this frame indicates a compilation
+			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"partOfCompilation"];
 		}			
 	}
 	
