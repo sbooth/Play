@@ -30,9 +30,10 @@
 	FLAC__Metadata_Iterator			*iterator			= NULL;
 	FLAC__StreamMetadata			*block				= NULL;
 	unsigned						i;
+	char							*fieldName			= NULL;
+	char							*fieldValue			= NULL;
 	NSMutableDictionary				*metadataDictionary;
-	NSString						*commentString, *key, *value;
-	NSRange							range;
+	NSString						*key, *value;
 	NSImage							*picture;
 				
 	chain							= FLAC__metadata_chain_new();
@@ -93,63 +94,63 @@
 				
 				for(i = 0; i < block->data.vorbis_comment.num_comments; ++i) {
 					
-					/// Skip over empty comments
-					if(NULL == block->data.vorbis_comment.comments[i].entry || 0 == block->data.vorbis_comment.comments[i].length) {
+					// Let FLAC parse the comment for us
+					if(NO == FLAC__metadata_object_vorbiscomment_entry_to_name_value_pair(block->data.vorbis_comment.comments[i], &fieldName, &fieldValue)) {
+						// Ignore malformed comments
 						continue;
 					}
-
-					// Split the comment at '='
-					commentString	= [NSString stringWithUTF8String:(const char *)block->data.vorbis_comment.comments[i].entry];
-					range			= [commentString rangeOfString:@"=" options:NSLiteralSearch];
 					
-					// Sanity check (comments should be well-formed)
-					if(NSNotFound != range.location && 0 != range.length) {
-						key				= [[commentString substringToIndex:range.location] uppercaseString];
-						value			= [commentString substringFromIndex:range.location + 1];
-						
-						if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUM"]) {
-							[metadataDictionary setValue:value forKey:@"albumTitle"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"]) {
-							[metadataDictionary setValue:value forKey:@"artist"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"]) {
-							[metadataDictionary setValue:value forKey:@"composer"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"GENRE"]) {
-							[metadataDictionary setValue:value forKey:@"genre"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"]) {
-							[metadataDictionary setValue:value forKey:@"date"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"]) {
-							[metadataDictionary setValue:value forKey:@"comment"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"TITLE"]) {
-							[metadataDictionary setValue:value forKey:@"title"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKNUMBER"]) {
-							[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackNumber"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKTOTAL"]) {
-							[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackTotal"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"]) {
-							[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:@"partOfCompilation"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"]) {
-							[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discNumber"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCTOTAL"]) {
-							[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discTotal"];
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"ISRC"]) {
-							[metadataDictionary setValue:value forKey:@"isrc"];;
-						}
-						else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
-							[metadataDictionary setValue:value forKey:@"mcn"];
-						}
-					}					
+					key		= [[NSString alloc] initWithBytesNoCopy:fieldName length:strlen(fieldName) encoding:NSASCIIStringEncoding freeWhenDone:YES];
+					value	= [[NSString alloc] initWithBytesNoCopy:fieldValue length:strlen(fieldValue) encoding:NSUTF8StringEncoding freeWhenDone:YES];
+				
+					if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUM"]) {
+						[metadataDictionary setValue:value forKey:@"albumTitle"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"]) {
+						[metadataDictionary setValue:value forKey:@"artist"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"]) {
+						[metadataDictionary setValue:value forKey:@"composer"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"GENRE"]) {
+						[metadataDictionary setValue:value forKey:@"genre"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"]) {
+						[metadataDictionary setValue:value forKey:@"date"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"]) {
+						[metadataDictionary setValue:value forKey:@"comment"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TITLE"]) {
+						[metadataDictionary setValue:value forKey:@"title"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKNUMBER"]) {
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackNumber"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKTOTAL"]) {
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackTotal"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"]) {
+						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:@"partOfCompilation"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"]) {
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discNumber"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCTOTAL"]) {
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discTotal"];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ISRC"]) {
+						[metadataDictionary setValue:value forKey:@"isrc"];;
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
+						[metadataDictionary setValue:value forKey:@"mcn"];
+					}
+
+					[key release];
+					[value release];
+					
+					fieldName	= NULL;
+					fieldValue	= NULL;
 				}
 				break;
 				
