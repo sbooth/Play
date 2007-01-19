@@ -5,7 +5,12 @@
         {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
-            ACTIONS = {openWith = id; openWithFinder = id; revealInFinder = id; }; 
+            ACTIONS = {
+                convertWithMax = id; 
+                openWith = id; 
+                openWithFinder = id; 
+                revealInFinder = id; 
+            }; 
             CLASS = AudioStreamTableView; 
             LANGUAGE = ObjC; 
             OUTLETS = {"_streamArrayController" = NSArrayController; }; 

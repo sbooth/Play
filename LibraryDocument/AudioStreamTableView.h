@@ -28,6 +28,8 @@
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;
 
+- (IBAction)	convertWithMax:(id)sender;
+
 - (IBAction)	openWith:(id)sender;
 
 @end

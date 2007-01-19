@@ -92,6 +92,14 @@
 	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
 }
 
+- (IBAction) convertWithMax:(id)sender
+{
+	NSURL		*url	= [NSURL URLWithString:[[_streamArrayController selection] valueForKey:@"url"]];
+	NSString	*path	= [url path];
+	
+	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
+}
+
 - (IBAction) openWith:(id)sender
 {
 	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
