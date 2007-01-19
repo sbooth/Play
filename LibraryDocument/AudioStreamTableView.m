@@ -36,6 +36,16 @@
 	[formatter release];
 }
 
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{
+	if([menuItem action] == @selector(convertWithMax:)) {
+		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"]);
+	}
+	else {
+		return YES;
+	}
+}
+
 - (void) keyDown:(NSEvent *)event
 {
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
