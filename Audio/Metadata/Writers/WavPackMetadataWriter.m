@@ -19,7 +19,7 @@
  */
 
 #import "WavPackMetadataWriter.h"
-#include <wavpack/wputils.h>
+#include <wavpack/wavpack.h>
 
 @implementation WavPackMetadataWriter
 

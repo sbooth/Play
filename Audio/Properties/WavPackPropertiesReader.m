@@ -19,7 +19,7 @@
  */
 
 #import "WavPackPropertiesReader.h"
-#include <wavpack/wputils.h>
+#include <wavpack/wavpack.h>
 
 @implementation WavPackPropertiesReader
 

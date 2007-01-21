@@ -19,7 +19,7 @@
  */
 
 #import "AudioStreamDecoder.h"
-#include <wavpack/wputils.h>
+#include <wavpack/wavpack.h>
 
 @interface WavPackStreamDecoder : AudioStreamDecoder
 {
