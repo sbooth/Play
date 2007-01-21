@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -120,6 +120,7 @@
 	
 	[fetchRequest setEntity:streamEntityDescription];
 	[fetchRequest setPredicate:predicate];
+	[fetchRequest setFetchLimit:1];
 	
 	fetchResult					= [managedObjectContext executeFetchRequest:fetchRequest error:error];
 	

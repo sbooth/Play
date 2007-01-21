@@ -14,8 +14,6 @@
 		8C27A4D20AF40C6E002B846D /* MusepackStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF8B7010AED745700A99441 /* MusepackStreamDecoder.m */; };
 		8C27ACBC0AF48FAC002B846D /* Play.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 8C27ACBB0AF48FAC002B846D /* Play.sdef */; };
 		8C27ACF40AF51256002B846D /* SecondsFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27ACF20AF51256002B846D /* SecondsFormatter.m */; };
-		8C27AD340AF5157F002B846D /* OggFLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C27AD280AF5157F002B846D /* OggFLAC.framework */; };
-		8C27AD350AF51588002B846D /* OggFLAC.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C27AD280AF5157F002B846D /* OggFLAC.framework */; };
 		8C27AD4E0AF516E4002B846D /* OggFLACStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */; };
 		8C27AD620AF517CE002B846D /* OggFLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */; };
 		8C27B0480AF567A8002B846D /* PlayApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C27B0460AF567A8002B846D /* PlayApplication.m */; };
@@ -45,6 +43,7 @@
 		8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A8C3B0B0553D100A03FEB /* NewFolderPlaylistSheet.m */; };
 		8C3A8C6C0B05572600A03FEB /* NewFolderPlaylistSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A8C6A0B05572600A03FEB /* NewFolderPlaylistSheet.nib */; };
 		8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */; };
+		8C57F3960B103F2300AA493C /* Timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C57F3940B103F2300AA493C /* Timer.m */; };
 		8C5C87E30AFC588000D1E17A /* StaticPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */; };
 		8C5C87E40AFC588000D1E17A /* FolderPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */; };
 		8C5C88D70AFC694400D1E17A /* DynamicPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C88D60AFC694400D1E17A /* DynamicPlaylist.png */; };
@@ -84,6 +83,7 @@
 		8C763BA00B0D643900DE5B05 /* MP4MetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C763B9E0B0D643900DE5B05 /* MP4MetadataWriter.m */; };
 		8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C763C110B0E94E900DE5B05 /* WavPackMetadataWriter.m */; };
 		8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C763CF40B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm */; };
+		8CB167C80B632F50005738A3 /* AudioScrobbler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB167C60B632F50005738A3 /* AudioScrobbler.m */; };
 		8CB8C8720AE736D6000581D5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */; };
 		8CB8C8730AE736D6000581D5 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8460AE736D5000581D5 /* AudioUnit.framework */; };
 		8CB8C8740AE736D6000581D5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CB8C8470AE736D5000581D5 /* CoreAudio.framework */; };
@@ -160,7 +160,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				8C27AD350AF51588002B846D /* OggFLAC.framework in Copy Frameworks */,
 				8CC308900AEEB15900B443A3 /* mac.framework in Copy Frameworks */,
 				8CC308910AEEB15900B443A3 /* mp4v2.framework in Copy Frameworks */,
 				8CC308920AEEB15900B443A3 /* wavpack.framework in Copy Frameworks */,
@@ -194,7 +193,6 @@
 		8C27ACF20AF51256002B846D /* SecondsFormatter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SecondsFormatter.m; path = Formatters/SecondsFormatter.m; sourceTree = "<group>"; };
 		8C27AD1E0AF51503002B846D /* OggFLACStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACStreamDecoder.h; path = Audio/Decoders/OggFLACStreamDecoder.h; sourceTree = "<group>"; };
 		8C27AD1F0AF51503002B846D /* OggFLACStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OggFLACStreamDecoder.m; path = Audio/Decoders/OggFLACStreamDecoder.m; sourceTree = "<group>"; };
-		8C27AD280AF5157F002B846D /* OggFLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OggFLAC.framework; path = Frameworks/OggFLAC.framework; sourceTree = "<group>"; };
 		8C27AD5F0AF517CE002B846D /* OggFLACPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACPropertiesReader.h; path = Audio/Properties/OggFLACPropertiesReader.h; sourceTree = "<group>"; };
 		8C27AD600AF517CE002B846D /* OggFLACPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OggFLACPropertiesReader.m; path = Audio/Properties/OggFLACPropertiesReader.m; sourceTree = "<group>"; };
 		8C27B0450AF567A8002B846D /* PlayApplication.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PlayApplication.h; sourceTree = "<group>"; };
@@ -246,6 +244,8 @@
 		8C3A8C6B0B05572600A03FEB /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewFolderPlaylistSheet.nib; sourceTree = "<group>"; };
 		8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
 		8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
+		8C57F3930B103F2300AA493C /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = Utilities/Timer.h; sourceTree = "<group>"; };
+		8C57F3940B103F2300AA493C /* Timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Timer.m; path = Utilities/Timer.m; sourceTree = "<group>"; };
 		8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = StaticPlaylist.png; path = Images/StaticPlaylist.png; sourceTree = "<group>"; };
 		8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FolderPlaylist.png; path = Images/FolderPlaylist.png; sourceTree = "<group>"; };
 		8C5C88D60AFC694400D1E17A /* DynamicPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DynamicPlaylist.png; path = Images/DynamicPlaylist.png; sourceTree = "<group>"; };
@@ -314,6 +314,8 @@
 		8C763C110B0E94E900DE5B05 /* WavPackMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataWriter.m; path = Audio/Metadata/Writers/WavPackMetadataWriter.m; sourceTree = "<group>"; };
 		8C763CF30B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioMetadataWriter.h; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.h; sourceTree = "<group>"; };
 		8C763CF40B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioMetadataWriter.mm; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.mm; sourceTree = "<group>"; };
+		8CB167C50B632F50005738A3 /* AudioScrobbler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioScrobbler.h; path = Audio/AudioScrobbler.h; sourceTree = "<group>"; };
+		8CB167C60B632F50005738A3 /* AudioScrobbler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioScrobbler.m; path = Audio/AudioScrobbler.m; sourceTree = "<group>"; };
 		8CB8C8450AE736D5000581D5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
 		8CB8C8460AE736D5000581D5 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = /System/Library/Frameworks/AudioUnit.framework; sourceTree = "<absolute>"; };
 		8CB8C8470AE736D5000581D5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -412,7 +414,6 @@
 				8CC3088D0AEEB14C00B443A3 /* mac.framework in Frameworks */,
 				8CC3088E0AEEB14C00B443A3 /* mp4v2.framework in Frameworks */,
 				8CC3088F0AEEB14C00B443A3 /* wavpack.framework in Frameworks */,
-				8C27AD340AF5157F002B846D /* OggFLAC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -537,7 +538,6 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8C27AD280AF5157F002B846D /* OggFLAC.framework */,
 				8CC308690AEEB14C00B443A3 /* mac.framework */,
 				8CC3086A0AEEB14C00B443A3 /* mp4v2.framework */,
 				8CC3086B0AEEB14C00B443A3 /* wavpack.framework */,
@@ -686,6 +686,8 @@
 			children = (
 				8CB8D4E10AE7E08F000581D5 /* AudioPlayer.h */,
 				8CB8D4E20AE7E08F000581D5 /* AudioPlayer.m */,
+				8CB167C50B632F50005738A3 /* AudioScrobbler.h */,
+				8CB167C60B632F50005738A3 /* AudioScrobbler.m */,
 			);
 			name = "Audio Player";
 			sourceTree = "<group>";
@@ -792,6 +794,8 @@
 				8CF8C3160AEDC76000A99441 /* mt19937ar.c */,
 				8CF8C3E20AEDD7E900A99441 /* UtilityFunctions.h */,
 				8CF8C3E30AEDD7EA00A99441 /* UtilityFunctions.m */,
+				8C57F3930B103F2300AA493C /* Timer.h */,
+				8C57F3940B103F2300AA493C /* Timer.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -999,6 +1003,8 @@
 				8C763BA00B0D643900DE5B05 /* MP4MetadataWriter.m in Sources */,
 				8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */,
 				8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */,
+				8C57F3960B103F2300AA493C /* Timer.m in Sources */,
+				8CB167C80B632F50005738A3 /* AudioScrobbler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

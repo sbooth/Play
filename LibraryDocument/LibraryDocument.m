@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,6 +63,8 @@
 
 #import "ImageAndTextCell.h"
 #import "UtilityFunctions.h"
+
+#import "Timer.h"
 
 #include "mt19937ar.h"
 
@@ -353,7 +355,13 @@
 	[panel setAllowsMultipleSelection:YES];
 	[panel setCanChooseDirectories:YES];
 	
-	[panel beginSheetForDirectory:nil file:nil types:getAudioExtensions() modalForWindow:[self windowForSheet] modalDelegate:self didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+	[panel beginSheetForDirectory:nil 
+							 file:nil 
+							types:getAudioExtensions() 
+				   modalForWindow:[self windowForSheet] 
+					modalDelegate:self 
+				   didEndSelector:@selector(addFilesOpenPanelDidEnd:returnCode:contextInfo:) 
+					  contextInfo:NULL];
 }
 
 - (void) addFileToLibrary:(NSString *)path
@@ -430,14 +438,14 @@
 	BOOL						result, isDir;
 	unsigned					i;
 	
-	pool						= [[NSAutoreleasePool alloc] init];
-
 	// This should never be performed on the main thread to avoid blocking the UI
 	if([self thread] == [NSThread currentThread]) {
 		[NSThread detachNewThreadSelector:@selector(addURLsToLibrary:) toTarget:self withObject:URLs];		
-		[pool release];
+//		[pool release];
 		return;
 	}
+	
+	pool						= [[NSAutoreleasePool alloc] init];
 	
 	// We don't need a high priority for file addition
 	result						= [NSThread setThreadPriority:0.4];
@@ -1465,8 +1473,8 @@
 	NSImage							*buttonImage, *buttonAlternateImage;
 	
 	if([[self player] isPlaying]) {		
-		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
-		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
+		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
+		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
 		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
 		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
 
@@ -1488,8 +1496,8 @@
 		[self setPlayButtonEnabled:(0 != [[_streamArrayController arrangedObjects] count])];
 	}
 	else {
-		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
-		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];		
+		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
+		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];		
 		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
 		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
 		
@@ -1886,7 +1894,10 @@
 	NSDictionary				*callbackArguments;
 	BOOL						result;
 	
+	Timer *timer = [[[Timer alloc] init] autorelease];
+	
 	// First read the properties
+	[timer start];
 	error						= nil;
 	propertiesReader			= [AudioPropertiesReader propertiesReaderForURL:URL error:&error];
 	
@@ -1902,7 +1913,11 @@
 		return;
 	}
 	
+	[timer stop];
+//	NSLog(@"Time to read properties = %f", [timer elapsedTime]);
+	
 	// Now read the metadata
+	[timer start];
 	metadataReader				= [AudioMetadataReader metadataReaderForURL:URL error:&error];
 	
 	if(nil == metadataReader) {		
@@ -1916,7 +1931,10 @@
 		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
 		return;
 	}
-	
+
+	[timer stop];
+//	NSLog(@"Time to read metadata = %f", [timer elapsedTime]);
+
 	callbackArguments		= [NSDictionary dictionaryWithObjectsAndKeys:
 		URL, @"url", 
 		[propertiesReader valueForKey:@"properties"], @"properties", 
@@ -1943,6 +1961,9 @@
 	NSError						*error;
 	BOOL						result;
 	
+	Timer *timer = [[[Timer alloc] init] autorelease];
+
+	[timer start];
 	managedObjectContext		= [self managedObjectContext];
 	URL							= [arguments valueForKey:@"url"];
 	properties					= [arguments valueForKey:@"properties"];
@@ -2041,6 +2062,9 @@
 	if(0 == [[metadata valueForKey:@"@count"] unsignedIntValue]) {
 		[metadataObject setValue:[[[URL path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
 	}
+	
+	[timer stop];
+	NSLog(@"Time to insert object = %f", [timer elapsedTime]);
 }
 
 -(void) updateStreamsUnderURL:(NSURL *)URL
