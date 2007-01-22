@@ -89,6 +89,8 @@
 - (void)					setupStreamTableColumns;
 - (void)					setupPlaylistTable;
 
+- (void)					showPlayNotificationForStream:(AudioStream *)streamObject;
+
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
 - (void)					showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
@@ -1085,6 +1087,7 @@
 
 	if(nil != streamObject) {
 		[libraryObject setNowPlaying:streamObject];
+		[self showPlayNotificationForStream:streamObject];
 		[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
 	}
 }
@@ -1410,13 +1413,7 @@
 
 	[libraryObject setNowPlaying:streamObject];
 
-	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
-								description:[[streamObject metadata] artist]
-						   notificationName:@"Stream Playback Started" 
-								   iconData:[[streamObject metadata] albumArt] 
-								   priority:0 
-								   isSticky:NO 
-							   clickContext:nil];
+	[self showPlayNotificationForStream:streamObject];
 	
 	if(nil == [[streamObject metadata] albumArt]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
@@ -1687,6 +1684,17 @@
 	[tableColumn setDataCell:dataCell];
 	[tableColumn bind:@"value" toObject:_playlistArrayController withKeyPath:@"arrangedObjects.name" options:nil];
 	[dataCell release];	
+}
+
+- (void) showPlayNotificationForStream:(AudioStream *)streamObject
+{
+	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
+								description:[[streamObject metadata] artist]
+						   notificationName:@"Stream Playback Started" 
+								   iconData:[[streamObject metadata] albumArt] 
+								   priority:0 
+								   isSticky:NO 
+							   clickContext:nil];	
 }
 
 #pragma mark Sheet Callbacks
