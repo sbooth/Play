@@ -43,6 +43,8 @@ extern "C" {
 
 	NSData * getPNGDataForImage(NSImage *image);
 	NSData * getBitmapDataForImage(NSImage *image, NSBitmapImageFileType type);
+	
+	NSString * escapeForLastFM(NSString *string);
 
 #ifdef __cplusplus
 }
