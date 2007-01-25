@@ -43,6 +43,8 @@
 
 #import "AudioMetadata.h"
 
+#import "AudioScrobbler.h"
+
 #import "StaticPlaylist.h"
 #import "DynamicPlaylist.h"
 #import "FolderPlaylist.h"
@@ -171,6 +173,7 @@
 		init_genrand(time(NULL));
 		
 		_libraryThread	= [[NSThread currentThread] retain];
+		_scrobbler = [[AudioScrobbler alloc] init];
 				
 		// Core Data does not populate our data until after init is called
 		[self performSelector:@selector(processFolderPlaylists:) withObject:nil afterDelay:0.0];
@@ -207,6 +210,7 @@
 - (void) dealloc
 {
 	[_player release],							_player = nil;
+	[_scrobbler release],						_scrobbler = nil;
 	[_streamTableVisibleColumns release],		_streamTableVisibleColumns = nil;
 	[_streamTableHiddenColumns release],		_streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release],	_streamTableHeaderContextMenu = nil;
@@ -639,6 +643,7 @@
 	}
 	else {
 		[[self player] play];
+		[_scrobbler resume];
 	}
 
 	[self updatePlayButtonState];
@@ -671,6 +676,7 @@
 	}
 	else {
 		[[self player] playPause];
+		[[self player] isPlaying] ? [_scrobbler resume] : [_scrobbler pause];
 	}
 
 	[self updatePlayButtonState];
@@ -685,6 +691,16 @@
 		[self playStream:[_streamArrayController selectedObjects]];
 	}
 
+	[self updatePlayButtonState];
+}
+
+- (IBAction) stop:(id)sender
+{
+	if([[self player] hasValidStream]) {
+		[[self player] stop];
+		[_scrobbler stop];
+	}
+	
 	[self updatePlayButtonState];
 }
 
@@ -1088,6 +1104,7 @@
 	if(nil != streamObject) {
 		[libraryObject setNowPlaying:streamObject];
 		[self showPlayNotificationForStream:streamObject];
+		[_scrobbler audioStreamStart:streamObject];
 		[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
 	}
 }
@@ -1414,6 +1431,7 @@
 	[libraryObject setNowPlaying:streamObject];
 
 	[self showPlayNotificationForStream:streamObject];
+	[_scrobbler audioStreamStart:streamObject];
 	
 	if(nil == [[streamObject metadata] albumArt]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
