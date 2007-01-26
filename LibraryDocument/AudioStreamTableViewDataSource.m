@@ -68,7 +68,7 @@
 	
 	success							= NO;
 	count							= 0;
-	supportedTypes					= [NSArray arrayWithObjects: @"NSURLsPboardType", NSFilenamesPboardType, nil];
+	supportedTypes					= [NSArray arrayWithObject:NSFilenamesPboardType];
 	bestType						= [[info draggingPasteboard] availableTypeFromArray:supportedTypes];
 	document						= [[[tableView window] windowController] document];
 	libraryDocument					= (LibraryDocument *)document;
@@ -83,15 +83,6 @@
 		
 		[libraryDocument addFilesToLibrary:filenames];
 		
-		success						= YES;		
-	}
-	else if([bestType isEqualToString:@"NSURLsPboardType"]) {
-		NSArray						*URLs;
-		
-		URLs						= [[info draggingPasteboard] propertyListForType:@"NSURLsPboardType"];
-		
-		[libraryDocument addURLsToLibrary:URLs];
-
 		success						= YES;		
 	}
 	
@@ -111,7 +102,6 @@
 		NSArray				*objects;
 		NSMutableArray		*objectIDs;
 		NSMutableArray		*filenames;
-		NSMutableArray		*urls;
 		unsigned			i;
 		NSManagedObject		*item;
 		NSManagedObjectID	*objectID;
@@ -122,7 +112,6 @@
 		objects				= [[arrayController arrangedObjects] objectsAtIndexes:rowIndexes];
 		objectIDs			= [NSMutableArray array];
 		filenames			= [NSMutableArray array];
-		urls				= [NSMutableArray array];
 		
 		for(i = 0; i < [objects count]; ++i) {
 			item			= [objects objectAtIndex:i];
@@ -134,16 +123,14 @@
 
 			if([streamURL isFileURL]) {
 				[filenames addObject:[streamURL path]];
-				[urls addObject:streamURL];
 			}
 		}
 		
-		[pboard declareTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", @"NSURLsPboardType", NSFilenamesPboardType, nil] owner:nil];
-		[pboard addTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", @"NSURLsPboardType", NSFilenamesPboardType, nil] owner:nil];
+		[pboard declareTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
+		[pboard addTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
 
 		success				= [pboard setString:[objectIDs componentsJoinedByString:@", "] forType:@"AudioStreamPboardType"];
 		success				&= [pboard setPropertyList:filenames forType:NSFilenamesPboardType];
-		success				&= [pboard setPropertyList:urls forType:@"NSURLsPboardType"];
 	}
 	
 	return success;
