@@ -50,22 +50,22 @@
 	// Register for applicable audio notifications
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidStart:) 
-												 name:@"AudioStreamPlaybackDidStartNotification" 
+												 name:AudioStreamPlaybackDidStartNotification
 											   object:nil];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidStop:) 
-												 name:@"AudioStreamPlaybackDidStopNotification" 
+												 name:AudioStreamPlaybackDidStopNotification
 											   object:nil];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidPause:) 
-												 name:@"AudioStreamPlaybackDidPauseNotification" 
+												 name:AudioStreamPlaybackDidPauseNotification
 											   object:nil];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidResume:) 
-												 name:@"AudioStreamPlaybackDidResumeNotification" 
+												 name:AudioStreamPlaybackDidResumeNotification
 											   object:nil];
 	
 	// Automatically re-open the last document opened
@@ -172,7 +172,7 @@
 
 - (void) playbackDidStart:(NSNotification *)aNotification
 {
-	AudioStream		*streamObject	= [[aNotification userInfo] objectForKey:@"foo"];
+	AudioStream		*streamObject	= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	
 	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
 								description:[[streamObject metadata] artist]

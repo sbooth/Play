@@ -24,6 +24,19 @@
 
 @class Library;
 
+// ========================================
+// Notification names
+// ========================================
+extern NSString * const			AudioStreamPlaybackDidStartNotification;
+extern NSString * const			AudioStreamPlaybackDidStopNotification;
+extern NSString * const			AudioStreamPlaybackDidPauseNotification;
+extern NSString * const			AudioStreamPlaybackDidResumeNotification;
+
+// ========================================
+// Notification keys
+// ========================================
+extern NSString * const			AudioStreamObjectKey;
+
 @interface LibraryDocument : NSPersistentDocument
 {
 	IBOutlet NSTableView		*_streamTableView;

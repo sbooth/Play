@@ -68,6 +68,19 @@
 
 #include "mt19937ar.h"
 
+// ========================================
+// Notification names
+// ========================================
+NSString * const	AudioStreamPlaybackDidStartNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStartNotification";
+NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStopNotification";
+NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidPauseNotification";
+NSString * const	AudioStreamPlaybackDidResumeNotification	= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidResumeNotification";
+
+// ========================================
+// Notification keys
+// ========================================
+NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
+
 @interface LibraryDocument (Private)
 
 - (AudioPlayer *)			player;
@@ -654,7 +667,7 @@
 	}
 	else {
 		[[self player] play];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidResumeNotification" object:self userInfo:nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidResumeNotification object:self userInfo:nil];
 	}
 
 	[self updatePlayButtonState];
@@ -689,10 +702,10 @@
 		[[self player] playPause];
 		
 		if([[self player] isPlaying]) {
-			[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidResumeNotification" object:self userInfo:nil];
+			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidResumeNotification object:self userInfo:nil];
 		}
 		else {
-			[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidPauseNotification" object:self userInfo:nil];
+			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidPauseNotification object:self userInfo:nil];
 		}
 	}
 
@@ -715,7 +728,7 @@
 {
 	if([[self player] hasValidStream]) {
 		[[self player] stop];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStopNotification" object:self userInfo:nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStopNotification object:self userInfo:nil];
 	}
 	
 	[self updatePlayButtonState];
@@ -1121,7 +1134,7 @@
 	if(nil != streamObject) {
 		[libraryObject setNowPlaying:streamObject];
 		[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStartNotification" object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:@"foo"]];
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:AudioStreamObjectKey]];
 	}
 }
 
@@ -1452,7 +1465,7 @@
 	
 	[[self player] play];
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStartNotification" object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:@"foo"]];
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:AudioStreamObjectKey]];
 	
 	[self updatePlayButtonState];
 }
