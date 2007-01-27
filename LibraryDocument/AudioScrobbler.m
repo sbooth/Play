@@ -20,21 +20,38 @@
 
 #import "AudioScrobbler.h"
 
-#import "NetSocket.h"
+#import "AudioScrobblerClient.h"
 #import "AudioStream.h"
 #import "AudioMetadata.h"
 
+static NSString * 
+escapeForLastFM(NSString *string)
+{
+	NSMutableString *result = [string mutableCopy];
+	
+	[result replaceOccurrencesOfString:@"&" 
+							withString:@"&&" 
+							   options:NSLiteralSearch 
+								 range:NSMakeRange(0, [result length])];
+	
+	return (nil == result ? @"" : [result autorelease]);
+}
 
 @interface AudioScrobbler (Private)
 
-- (NetSocket *)				socket;
-- (NSMutableArray *)		queue;
+- (NSMutableArray *)	queue;
 
-- (void)					connect;
+- (void)				sendCommand:(NSString *)command;
 
-- (void)					sendCommand:(NSString *)command;
+- (BOOL)				keepProcessingAudioScrobblerCommands;
+- (void)				setKeepProcessingAudioScrobblerCommands:(BOOL)keepProcessingAudioScrobblerCommands;
 
-- (void)					processQueuedCommands;
+- (BOOL)				audioScrobblerThreadCompleted;
+- (void)				setAudioScrobblerThreadCompleted:(BOOL)audioScrobblerThreadCompleted;
+
+- (semaphore_t)			semaphore;
+
+- (void)				processAudioScrobblerCommands:(AudioScrobbler *)myself;
 
 @end
 
@@ -44,14 +61,29 @@
 {
 	if((self = [super init])) {
 
-//		_pluginID			= @"pla";
-		_pluginID			= @"tst";
-		
+		kern_return_t	result;
+
+//		_pluginID		= @"pla";
+		_pluginID		= @"tst";
+
 //		_clientAvailable	= (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Last.fm.app"]);
 //		if(_clientAvailable && [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
 //			[[NSWorkspace sharedWorkspace] launchApplication:@"Last.fm.app"];
 //		}
 		
+		_keepProcessingAudioScrobblerCommands	= YES;
+
+		result			= semaphore_create(mach_task_self(), &_semaphore, SYNC_POLICY_FIFO, 0);
+		
+		if(KERN_SUCCESS != result) {
+			NSLog(@"Couldn't create semaphore (%s).", mach_error_type(result));
+
+			[self release];
+			return nil;
+		}
+		
+		[NSThread detachNewThreadSelector:@selector(processAudioScrobblerCommands:) toTarget:self withObject:self];
+
 		return self;
 	}
 	return nil;
@@ -59,13 +91,18 @@
 
 - (void) dealloc
 {
-	[_socket release],		_socket = nil;
+	if([self keepProcessingAudioScrobblerCommands] || NO == [self audioScrobblerThreadCompleted]) {
+		[self shutdown];
+	}
+	
 	[_queue release],		_queue = nil;
 	
+	semaphore_destroy(mach_task_self(), _semaphore),	_semaphore = 0;
+
 	[super dealloc];
 }
 
-- (void) audioStreamStart:(AudioStream *)streamObject
+- (void) start:(AudioStream *)streamObject
 {
 	[self sendCommand:[NSString stringWithFormat:@"START c=%@&a=%@&t=%@&b=%@&m=%@&l=%i&p=%@\n", 
 		_pluginID,
@@ -93,47 +130,19 @@
 	[self sendCommand:[NSString stringWithFormat:@"RESUME c=%@\n", _pluginID]];
 }
 
-@end
-
-@implementation AudioScrobbler (NetSocketDelegateMethods)
-
-// Why is this being called even when the port isn't open?!
-- (void) netsocketConnected:(NetSocket*)inNetSocket
+- (void) shutdown
 {
-	[self processQueuedCommands];
-}
-
-- (void) netsocket:(NetSocket*)inNetSocket connectionTimedOut:(NSTimeInterval)inTimeout
-{
-	NSLog( @"netsocket:connectionTimedOut:" );
-}
-
-- (void) netsocketDisconnected:(NetSocket*)inNetSocket
-{
-	[[self socket] close];
-}
-
-- (void) netsocket:(NetSocket*)inNetSocket dataAvailable:(unsigned)inAmount
-{
-	NSString	*response	= [[self socket] readString:NSUTF8StringEncoding];
+	[self stop];
+	[self setKeepProcessingAudioScrobblerCommands:NO];
 	
-	if(NSOrderedSame != [response compare:@"OK" options:NSCaseInsensitiveSearch range:NSMakeRange(0, 2)]) {
-		NSLog(@"Last.fm error: %@", response);
+	while(NO == [self audioScrobblerThreadCompleted]) {		
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
 	}
 }
 
 @end
 
 @implementation AudioScrobbler (Private)
-
-- (NetSocket *) socket
-{
-	if(nil == _socket) {
-		_socket = [[NetSocket alloc] init];
-	}
-	
-	return _socket;
-}
 
 - (NSMutableArray *) queue
 {
@@ -144,50 +153,84 @@
 	return _queue;
 }
 
-- (void) connect
-{
-	BOOL result;
-		
-	result		= [[self socket] open];
-	if(NO == result) {
-		NSLog(@"Unable to open a socket for connecting to Last.fm.");
-		[_socket release], _socket = nil;
-		return;
-	}
-		
-	result = [[self socket] connectToHost:@"localhost" port:33367 timeout:5.0];
-	if(NO == result) {
-		NSLog(@"Unable to connect to localhost:33367");
-		return;
-	}
-
-	[[self socket] setDelegate:self];
-	[[self socket] scheduleOnCurrentRunLoop];	
-}
-
 - (void) sendCommand:(NSString *)command
 {
-	[[self queue] addObject:command];	
-	[self processQueuedCommands];
+	@synchronized([self queue]) {
+		[[self queue] addObject:command];
+	}
+	semaphore_signal([self semaphore]);
 }
 
-- (void) processQueuedCommands
+- (BOOL) keepProcessingAudioScrobblerCommands
 {
-	NSEnumerator	*enumerator		= nil;
-	NSString		*command		= nil;
+	return _keepProcessingAudioScrobblerCommands;
+}
 
-	if(NO == [[self socket] isConnected]) {
-		[self connect];
-		return;
+- (void) setKeepProcessingAudioScrobblerCommands:(BOOL)keepProcessingAudioScrobblerCommands
+{
+	_keepProcessingAudioScrobblerCommands = keepProcessingAudioScrobblerCommands;
+}
+
+- (BOOL) audioScrobblerThreadCompleted
+{
+	return _audioScrobblerThreadCompleted;
+}
+
+- (void) setAudioScrobblerThreadCompleted:(BOOL)audioScrobblerThreadCompleted
+{
+	_audioScrobblerThreadCompleted = audioScrobblerThreadCompleted;
+}
+
+- (semaphore_t) semaphore
+{
+	return _semaphore;
+}
+
+- (void) processAudioScrobblerCommands:(AudioScrobbler *)myself
+{
+	NSAutoreleasePool		*pool				= [[NSAutoreleasePool alloc] init];
+	AudioScrobblerClient			*client				= [[AudioScrobblerClient alloc] init];
+	mach_timespec_t			timeout				= { 5, 0 };
+	NSEnumerator			*enumerator			= nil;
+	NSString				*command			= nil;
+	NSString				*response			= nil;
+	in_port_t				port				= 33367;
+	
+	while([myself keepProcessingAudioScrobblerCommands]) {
+
+		// Get the first command to be sent
+		@synchronized([myself queue]) {
+			
+			enumerator		= [[myself queue] objectEnumerator];
+			command			= [enumerator nextObject];
+		
+			[[myself queue] removeObjectIdenticalTo:command];
+		}
+
+		if(nil != command) {
+			@try {
+				port		= [client connectToHost:@"localhost" port:port];
+				
+				[client send:command];
+				
+				response	= [client receive];
+				
+				[client shutdown];
+			}
+			
+			@catch(NSException *exception) {
+				NSLog(@"Exception: %@",exception);
+				continue;
+			}
+		}
+				
+		semaphore_timedwait([myself semaphore], timeout);
 	}
 	
-	enumerator		= [[self queue] objectEnumerator];
-	command			= [enumerator nextObject];
+	[myself setAudioScrobblerThreadCompleted:YES];
 
-	if(nil != command) {
-		[[self socket] writeString:command encoding:NSUTF8StringEncoding];		
-		[[self queue] removeObjectIdenticalTo:command];
-	}	
+	[client release];
+	[pool release];
 }
 
 @end

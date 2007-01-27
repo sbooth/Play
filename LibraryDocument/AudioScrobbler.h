@@ -20,19 +20,25 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class NetSocket;
+#import <mach/mach.h>
+
 @class AudioStream;
 
 @interface AudioScrobbler : NSObject
 {
-	NetSocket		*_socket;
-	NSString		*_pluginID;
-	NSMutableArray	*_queue;
+	NSString			*_pluginID;
+	NSMutableArray		*_queue;
+
+	BOOL				_audioScrobblerThreadCompleted;
+	BOOL				_keepProcessingAudioScrobblerCommands;
+    semaphore_t			_semaphore;
 }
 
-- (void) audioStreamStart:(AudioStream *)streamObject;
-- (void) stop;
-- (void) pause;
-- (void) resume;
+- (void)	start:(AudioStream *)streamObject;
+- (void)	stop;
+- (void)	pause;
+- (void)	resume;
+
+- (void)	shutdown;
 
 @end
