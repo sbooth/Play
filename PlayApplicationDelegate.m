@@ -22,14 +22,53 @@
 #import "LibraryDocument.h"
 #import "UtilityFunctions.h"
 
+#import "AudioStream.h"
+#import "AudioMetadata.h"
+
+@interface PlayApplicationDelegate (Private)
+- (void) playbackDidStart:(NSNotification *)aNotification;
+- (void) playbackDidStop:(NSNotification *)aNotification;
+- (void) playbackDidPause:(NSNotification *)aNotification;
+- (void) playbackDidResume:(NSNotification *)aNotification;
+@end
+
 @implementation PlayApplicationDelegate
+
+- (AudioScrobbler *) scrobbler
+{
+	if(nil == _scrobbler) {
+		_scrobbler = [[AudioScrobbler alloc] init];
+	}
+	return _scrobbler;
+}
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	// Automatically re-open the last document opened
 	NSDocumentController		*documentController;
 	NSArray						*recentDocumentURLs;
+
+	// Register for applicable audio notifications
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(playbackDidStart:) 
+												 name:@"AudioStreamPlaybackDidStartNotification" 
+											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(playbackDidStop:) 
+												 name:@"AudioStreamPlaybackDidStopNotification" 
+											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(playbackDidPause:) 
+												 name:@"AudioStreamPlaybackDidPauseNotification" 
+											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(playbackDidResume:) 
+												 name:@"AudioStreamPlaybackDidResumeNotification" 
+											   object:nil];
 	
+	// Automatically re-open the last document opened
 	documentController			= [NSDocumentController sharedDocumentController];
 	recentDocumentURLs			= [documentController recentDocumentURLs];
 	
@@ -44,7 +83,7 @@
 		error					= nil;
 		documentURL				= [recentDocumentURLs objectAtIndex:0];
 		document				= [documentController openDocumentWithContentsOfURL:documentURL display:YES error:&error];
-		
+
 		if(nil == document) {
 			BOOL				errorRecoveryDone;
 			
@@ -57,6 +96,20 @@
 {
 	// Don't automatically create an untitled document
 	return NO;
+}
+
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
+{
+	// Make sure AS receives the STOP command
+	[[self scrobbler] shutdown];
+	
+	return NSTerminateNow;	
+}
+
+- (void) applicationWillTerminate:(NSNotification *)aNotification
+{
+	// Just unregister for all notifications
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
@@ -113,6 +166,38 @@
 		nil];
 	
 	return registrationDictionary;
+}
+
+#pragma mark Audio Notification Handling
+
+- (void) playbackDidStart:(NSNotification *)aNotification
+{
+	AudioStream		*streamObject	= [[aNotification userInfo] objectForKey:@"foo"];
+	
+	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
+								description:[[streamObject metadata] artist]
+						   notificationName:@"Stream Playback Started" 
+								   iconData:[[streamObject metadata] albumArt] 
+								   priority:0 
+								   isSticky:NO 
+							   clickContext:nil];
+	
+	[[self scrobbler] start:streamObject];
+}
+
+- (void) playbackDidStop:(NSNotification *)aNotification
+{
+	[[self scrobbler] stop];
+}
+
+- (void) playbackDidPause:(NSNotification *)aNotification
+{
+	[[self scrobbler] pause];
+}
+
+- (void) playbackDidResume:(NSNotification *)aNotification
+{
+	[[self scrobbler] resume];
 }
 
 @end
