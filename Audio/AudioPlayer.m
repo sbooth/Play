@@ -283,6 +283,7 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) dealloc
 {
+	NSLog(@"Player dealloc");
 	ComponentResult				result;
 	
 	[self stop];
@@ -293,12 +294,11 @@ MyRenderNotification(void							*inRefCon,
 		NSLog(@"AudioUnitUninitialize failed: %ld", result);
 	}
 	
-	CloseComponent(_audioUnit);			_audioUnit = NULL;
+	CloseComponent(_audioUnit),			_audioUnit = NULL;
 
-	
 	if(nil != [self streamDecoder]) {
 		[[self streamDecoder] stopDecoding:nil];
-		[_streamDecoder release];		_streamDecoder = nil;
+		[_streamDecoder release],		_streamDecoder = nil;
 	}
 	
 	[_owner release],					_owner = nil;
@@ -308,8 +308,8 @@ MyRenderNotification(void							*inRefCon,
 	[super dealloc];
 }
 
-- (LibraryDocument *)	owner									{ return [[_owner retain] autorelease]; }
-- (void)				setOwner:(LibraryDocument *)owner		{ [_owner release], _owner = [owner retain]; }
+- (LibraryDocument *)	owner									{ return _owner; }
+- (void)				setOwner:(LibraryDocument *)owner		{ _owner = owner; }
 
 #pragma mark Stream Management
 
