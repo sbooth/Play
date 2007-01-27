@@ -218,16 +218,3 @@ getBitmapDataForImage(NSImage					*image,
 	
 	return [bitmapRep representationUsingType:type properties:nil]; 
 }
-
-NSString * 
-escapeForLastFM(NSString *string)
-{
-	NSMutableString *result = [string mutableCopy];
-	
-	[result replaceOccurrencesOfString:@"&" 
-							withString:@"&&" 
-							   options:NSLiteralSearch 
-								 range:NSMakeRange(0, [result length])];
-	
-	return (nil == result ? @"" : [result autorelease]);
-}
