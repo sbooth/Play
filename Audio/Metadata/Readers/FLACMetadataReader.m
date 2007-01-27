@@ -75,6 +75,7 @@
 		return NO;
 	}
 	
+	metadataDictionary			= [NSMutableDictionary dictionary];				
 	iterator					= FLAC__metadata_iterator_new();
 	
 	NSAssert(NULL != iterator, @"Unable to allocate memory.");
@@ -90,8 +91,6 @@
 		
 		switch(block->type) {					
 			case FLAC__METADATA_TYPE_VORBIS_COMMENT:				
-				metadataDictionary			= [NSMutableDictionary dictionary];
-				
 				for(i = 0; i < block->data.vorbis_comment.num_comments; ++i) {
 					
 					// Let FLAC parse the comment for us
