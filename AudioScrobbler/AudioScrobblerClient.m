@@ -23,10 +23,6 @@
 #define kBufferSize		1024
 #define	kPortsToStep	5
 
-@interface AudioScrobblerClient (Private)
-- (void) connectToSocket:(in_addr_t)remoteAddress port:(in_port_t)port;
-@end
-
 static in_addr_t 
 addressForHost(NSString *hostname)
 {
@@ -48,6 +44,9 @@ addressForHost(NSString *hostname)
 	return address;
 }
 
+@interface AudioScrobblerClient (Private)
+- (void) connectToSocket:(in_addr_t)remoteAddress port:(in_port_t)port;
+@end
 
 @implementation AudioScrobblerClient
 
