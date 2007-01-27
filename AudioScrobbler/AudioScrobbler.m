@@ -66,14 +66,13 @@ escapeForLastFM(NSString *string)
 //		_pluginID		= @"pla";
 		_pluginID		= @"tst";
 
-//		_clientAvailable	= (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Last.fm.app"]);
-//		if(_clientAvailable && [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
-//			[[NSWorkspace sharedWorkspace] launchApplication:@"Last.fm.app"];
-//		}
+/*		if(YES || [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
+			[[NSWorkspace sharedWorkspace] launchApplication:@"Last.fm.app"];
+		}*/
 		
 		_keepProcessingAudioScrobblerCommands	= YES;
 
-		result			= semaphore_create(mach_task_self(), &_semaphore, SYNC_POLICY_FIFO, 0);
+		result = semaphore_create(mach_task_self(), &_semaphore, SYNC_POLICY_FIFO, 0);
 		
 		if(KERN_SUCCESS != result) {
 			NSLog(@"Couldn't create semaphore (%s).", mach_error_type(result));
@@ -86,6 +85,7 @@ escapeForLastFM(NSString *string)
 
 		return self;
 	}
+	
 	return nil;
 }
 
@@ -109,7 +109,7 @@ escapeForLastFM(NSString *string)
 		escapeForLastFM([[streamObject metadata] artist]), 
 		escapeForLastFM([[streamObject metadata] title]), 
 		escapeForLastFM([[streamObject metadata] albumTitle]), 
-		@"", 
+		@"", // TODO: MusicBrainz support
 		[[[streamObject properties] valueForKey:@"duration"] intValue], 
 		escapeForLastFM([[NSURL URLWithString:[streamObject url]] path])
 		]];	
@@ -132,9 +132,10 @@ escapeForLastFM(NSString *string)
 
 - (void) shutdown
 {
-	[self stop];
 	[self setKeepProcessingAudioScrobblerCommands:NO];
-	
+
+	semaphore_signal([self semaphore]);
+
 	while(NO == [self audioScrobblerThreadCompleted]) {		
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
 	}
