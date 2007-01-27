@@ -101,8 +101,8 @@
 		8CC30BB30AEF37E100B443A3 /* Genres.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC30BB10AEF37E100B443A3 /* Genres.m */; };
 		8CC30C900AEF45FC00B443A3 /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC30C8E0AEF45FC00B443A3 /* AudioMetadataEditingSheet.m */; };
 		8CC30CB00AEF477200B443A3 /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CC30CAE0AEF477200B443A3 /* AudioMetadataEditingSheet.nib */; };
-		8CCABFCA0B66AEB200F87C63 /* NetSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCABFC80B66AEB200F87C63 /* NetSocket.m */; };
-		8CCAD10E0B68255400F87C63 /* AudioScrobbler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAD10C0B68255400F87C63 /* AudioScrobbler.m */; };
+		8CCAD8D00B6ABEAB00F87C63 /* AudioScrobblerClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAD8CE0B6ABEAB00F87C63 /* AudioScrobblerClient.m */; };
+		8CCAD8DB0B6AC04100F87C63 /* AudioScrobbler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCAD8D90B6AC04100F87C63 /* AudioScrobbler.m */; };
 		8CD43AE90AE345A700B41F4D /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD43AE80AE345A700B41F4D /* PlayApplicationDelegate.m */; };
 		8CD440F90AE3F8B500B41F4D /* Add_Pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CD440F50AE3F8B500B41F4D /* Add_Pressed.png */; };
 		8CD440FA0AE3F8B500B41F4D /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CD440F60AE3F8B500B41F4D /* Add.png */; };
@@ -332,10 +332,10 @@
 		8CC30C8D0AEF45FC00B443A3 /* AudioMetadataEditingSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioMetadataEditingSheet.h; path = LibraryDocument/AudioMetadataEditingSheet.h; sourceTree = "<group>"; };
 		8CC30C8E0AEF45FC00B443A3 /* AudioMetadataEditingSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataEditingSheet.m; path = LibraryDocument/AudioMetadataEditingSheet.m; sourceTree = "<group>"; };
 		8CC30CAF0AEF477200B443A3 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioMetadataEditingSheet.nib; sourceTree = "<group>"; };
-		8CCABFC70B66AEB200F87C63 /* NetSocket.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NetSocket.h; path = ThirdParty/NetSocket/NetSocket.h; sourceTree = "<group>"; };
-		8CCABFC80B66AEB200F87C63 /* NetSocket.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NetSocket.m; path = ThirdParty/NetSocket/NetSocket.m; sourceTree = "<group>"; };
-		8CCAD10B0B68255400F87C63 /* AudioScrobbler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioScrobbler.h; path = LibraryDocument/AudioScrobbler.h; sourceTree = "<group>"; };
-		8CCAD10C0B68255400F87C63 /* AudioScrobbler.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScrobbler.m; path = LibraryDocument/AudioScrobbler.m; sourceTree = "<group>"; };
+		8CCAD8CD0B6ABEAB00F87C63 /* AudioScrobblerClient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioScrobblerClient.h; path = AudioScrobbler/AudioScrobblerClient.h; sourceTree = "<group>"; };
+		8CCAD8CE0B6ABEAB00F87C63 /* AudioScrobblerClient.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScrobblerClient.m; path = AudioScrobbler/AudioScrobblerClient.m; sourceTree = "<group>"; };
+		8CCAD8D80B6AC04100F87C63 /* AudioScrobbler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioScrobbler.h; path = AudioScrobbler/AudioScrobbler.h; sourceTree = "<group>"; };
+		8CCAD8D90B6AC04100F87C63 /* AudioScrobbler.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScrobbler.m; path = AudioScrobbler/AudioScrobbler.m; sourceTree = "<group>"; };
 		8CD43AE70AE345A700B41F4D /* PlayApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayApplicationDelegate.h; sourceTree = "<group>"; };
 		8CD43AE80AE345A700B41F4D /* PlayApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayApplicationDelegate.m; sourceTree = "<group>"; };
 		8CD440F50AE3F8B500B41F4D /* Add_Pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Add_Pressed.png; path = Images/Add_Pressed.png; sourceTree = "<group>"; };
@@ -452,6 +452,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* Play */ = {
 			isa = PBXGroup;
 			children = (
+				8CCAD5100B694E8700F87C63 /* AudioScrobbler */,
 				E1B74B1A0667B4A90069E3BA /* Models */,
 				2A37F4ABFDCFA73011CA2CEA /* Library Document */,
 				8C4A927B0AFAF321005723B2 /* Managed Objects */,
@@ -478,8 +479,6 @@
 		2A37F4ABFDCFA73011CA2CEA /* Library Document */ = {
 			isa = PBXGroup;
 			children = (
-				8CCAD10B0B68255400F87C63 /* AudioScrobbler.h */,
-				8CCAD10C0B68255400F87C63 /* AudioScrobbler.m */,
 				8C73DD390B078B6500AECCDA /* DynamicPlaylistCriterion.h */,
 				8C73DD3A0B078B6500AECCDA /* DynamicPlaylistCriterion.m */,
 				8C3A86B30B005C7300A03FEB /* DynamicPlaylistInformationSheet.h */,
@@ -633,7 +632,6 @@
 				8C6814C10AFEEAFA00577269 /* AIPlasticButton */,
 				8C6814AC0AFEEAD300577269 /* UKKQueue */,
 				8C6814A50AFEEAB600577269 /* ImageAndTextCell */,
-				8CCABFC60B66AE9B00F87C63 /* NetSocket */,
 			);
 			name = "Third Party";
 			sourceTree = "<group>";
@@ -696,13 +694,15 @@
 			name = "Audio Player";
 			sourceTree = "<group>";
 		};
-		8CCABFC60B66AE9B00F87C63 /* NetSocket */ = {
+		8CCAD5100B694E8700F87C63 /* AudioScrobbler */ = {
 			isa = PBXGroup;
 			children = (
-				8CCABFC70B66AEB200F87C63 /* NetSocket.h */,
-				8CCABFC80B66AEB200F87C63 /* NetSocket.m */,
+				8CCAD8D80B6AC04100F87C63 /* AudioScrobbler.h */,
+				8CCAD8D90B6AC04100F87C63 /* AudioScrobbler.m */,
+				8CCAD8CD0B6ABEAB00F87C63 /* AudioScrobblerClient.h */,
+				8CCAD8CE0B6ABEAB00F87C63 /* AudioScrobblerClient.m */,
 			);
-			name = NetSocket;
+			name = AudioScrobbler;
 			sourceTree = "<group>";
 		};
 		8CD43ACC0AE3441000B41F4D /* Images */ = {
@@ -1017,8 +1017,8 @@
 				8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */,
 				8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */,
 				8C57F3960B103F2300AA493C /* Timer.m in Sources */,
-				8CCABFCA0B66AEB200F87C63 /* NetSocket.m in Sources */,
-				8CCAD10E0B68255400F87C63 /* AudioScrobbler.m in Sources */,
+				8CCAD8D00B6ABEAB00F87C63 /* AudioScrobblerClient.m in Sources */,
+				8CCAD8DB0B6AC04100F87C63 /* AudioScrobbler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
