@@ -189,7 +189,7 @@ escapeForLastFM(NSString *string)
 - (void) processAudioScrobblerCommands:(AudioScrobbler *)myself
 {
 	NSAutoreleasePool		*pool				= [[NSAutoreleasePool alloc] init];
-	AudioScrobblerClient			*client				= [[AudioScrobblerClient alloc] init];
+	AudioScrobblerClient	*client				= [[AudioScrobblerClient alloc] init];
 	mach_timespec_t			timeout				= { 5, 0 };
 	NSEnumerator			*enumerator			= nil;
 	NSString				*command			= nil;
@@ -219,7 +219,8 @@ escapeForLastFM(NSString *string)
 			}
 			
 			@catch(NSException *exception) {
-				NSLog(@"Exception: %@",exception);
+				[client shutdown];
+//				NSLog(@"Exception: %@",exception);
 				continue;
 			}
 		}
@@ -227,10 +228,10 @@ escapeForLastFM(NSString *string)
 		semaphore_timedwait([myself semaphore], timeout);
 	}
 	
-	[myself setAudioScrobblerThreadCompleted:YES];
-
 	[client release];
 	[pool release];
+
+	[myself setAudioScrobblerThreadCompleted:YES];
 }
 
 @end

@@ -452,9 +452,9 @@
 		2A37F4AAFDCFA73011CA2CEA /* Play */ = {
 			isa = PBXGroup;
 			children = (
-				8CCAD5100B694E8700F87C63 /* AudioScrobbler */,
 				E1B74B1A0667B4A90069E3BA /* Models */,
 				2A37F4ABFDCFA73011CA2CEA /* Library Document */,
+				8CCAD5100B694E8700F87C63 /* AudioScrobbler */,
 				8C4A927B0AFAF321005723B2 /* Managed Objects */,
 				8CB8C8420AE7369B000581D5 /* Audio Player */,
 				8CFDA4DF0AF32B2300FF7CE5 /* Properties Readers */,

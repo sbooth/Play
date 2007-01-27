@@ -64,15 +64,6 @@ addressForHost(NSString *hostname)
 	return nil;
 }
 
-- (void) dealloc
-{
-	if(-1 != _socket) {
-		[self shutdown];
-	}
-	
-	[super dealloc];
-}
-
 - (in_port_t) connectToHost:(NSString *)hostname port:(in_port_t)port
 {
 	in_addr_t	remoteAddress	= addressForHost(hostname);
@@ -132,11 +123,15 @@ addressForHost(NSString *hostname)
 
 - (void) shutdown
 {
-	NSParameterAssert(-1 != _socket);
+//	NSParameterAssert(-1 != _socket);
 
 	int			result;
 	char		buffer [ kBufferSize ];
 	ssize_t		bytesRead;
+	
+	if(-1 == _socket) {
+		return;
+	}
 	
 	result = shutdown(_socket, SHUT_WR);
 	NSAssert1(-1 != result, @"Socket shutdown failed (%s).", strerror(errno));
@@ -189,6 +184,7 @@ addressForHost(NSString *hostname)
 	if(-1 == result) {
 		_doPortStepping = NO;
 		close(_socket);
+		_socket = -1;
 		NSAssert1(-1 != result, @"Couldn't connect to server (%s).", strerror(errno));
 	}
 }
