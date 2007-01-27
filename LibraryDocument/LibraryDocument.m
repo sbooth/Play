@@ -43,8 +43,6 @@
 
 #import "AudioMetadata.h"
 
-#import "AudioScrobbler.h"
-
 #import "StaticPlaylist.h"
 #import "DynamicPlaylist.h"
 #import "FolderPlaylist.h"
@@ -70,8 +68,6 @@
 
 #include "mt19937ar.h"
 
-#import <Growl/GrowlApplicationBridge.h>
-
 @interface LibraryDocument (Private)
 
 - (AudioPlayer *)			player;
@@ -90,8 +86,6 @@
 - (void)					setupPlaylistButtons;
 - (void)					setupStreamTableColumns;
 - (void)					setupPlaylistTable;
-
-- (void)					showPlayNotificationForStream:(AudioStream *)streamObject;
 
 - (void)					addFilesOpenPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 
@@ -168,12 +162,11 @@
 
 - (id) init
 {
-	if((self = [super init])) {		
+	if((self = [super init])) {	
 		// Seed random number generator
 		init_genrand(time(NULL));
 		
 		_libraryThread	= [[NSThread currentThread] retain];
-		_scrobbler = [[AudioScrobbler alloc] init];
 				
 		// Core Data does not populate our data until after init is called
 		[self performSelector:@selector(processFolderPlaylists:) withObject:nil afterDelay:0.0];
@@ -209,8 +202,8 @@
 
 - (void) dealloc
 {
+	NSLog(@"LibraryDocument dealloc");
 	[_player release],							_player = nil;
-	[_scrobbler release],						_scrobbler = nil;
 	[_streamTableVisibleColumns release],		_streamTableVisibleColumns = nil;
 	[_streamTableHiddenColumns release],		_streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release],	_streamTableHeaderContextMenu = nil;
@@ -220,6 +213,24 @@
 	
 	[super dealloc];
 }
+
+/*- (id) retain
+{
+	NSLog(@"+++ retain %i", [self retainCount] + 1);
+	return [super retain];
+}
+
+- (oneway void) release
+{
+	NSLog(@"--- release %i", [self retainCount] - 1);
+	[super release];
+}
+
+- (id) autorelease
+{
+	NSLog(@"    autorelease");
+	return [super autorelease];
+}*/
 
 #pragma mark NSPersistentDocument Overrides
 
@@ -235,7 +246,7 @@
 //	[windowController setWindowFrameAutosaveName:[NSString stringWithFormat:@"Play Library %@", @""]];	
 
 	// Setup drag and drop
-	[_streamTableView registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, @"NSURLsPboardType", NSURLPboardType, nil]];
+	[_streamTableView registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
 	[_playlistTableView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
 	
 	// Set sort descriptors
@@ -260,7 +271,7 @@
 
 - (void) windowWillClose:(NSNotification *)aNotification
 {
-	[[self player] stop];
+	[self stop:self];
 	[[self player] reset];
 }
 
@@ -643,7 +654,7 @@
 	}
 	else {
 		[[self player] play];
-		[_scrobbler resume];
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidResumeNotification" object:self userInfo:nil];
 	}
 
 	[self updatePlayButtonState];
@@ -676,7 +687,13 @@
 	}
 	else {
 		[[self player] playPause];
-		[[self player] isPlaying] ? [_scrobbler resume] : [_scrobbler pause];
+		
+		if([[self player] isPlaying]) {
+			[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidResumeNotification" object:self userInfo:nil];
+		}
+		else {
+			[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidPauseNotification" object:self userInfo:nil];
+		}
 	}
 
 	[self updatePlayButtonState];
@@ -698,7 +715,7 @@
 {
 	if([[self player] hasValidStream]) {
 		[[self player] stop];
-		[_scrobbler stop];
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStopNotification" object:self userInfo:nil];
 	}
 	
 	[self updatePlayButtonState];
@@ -1103,9 +1120,8 @@
 
 	if(nil != streamObject) {
 		[libraryObject setNowPlaying:streamObject];
-		[self showPlayNotificationForStream:streamObject];
-		[_scrobbler audioStreamStart:streamObject];
 		[streamObject setIsPlaying:[NSNumber numberWithBool:YES]];
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStartNotification" object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:@"foo"]];
 	}
 }
 
@@ -1331,7 +1347,7 @@
 {
 	if(nil == _player) {
 		_player = [[AudioPlayer alloc] init];
-		[[self player] setOwner:self];
+		[_player setOwner:self];
 	}
 	return _player;
 }
@@ -1430,14 +1446,13 @@
 
 	[libraryObject setNowPlaying:streamObject];
 
-	[self showPlayNotificationForStream:streamObject];
-	[_scrobbler audioStreamStart:streamObject];
-	
 	if(nil == [[streamObject metadata] albumArt]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	}
 	
 	[[self player] play];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"AudioStreamPlaybackDidStartNotification" object:self userInfo:[NSDictionary dictionaryWithObject:streamObject forKey:@"foo"]];
 	
 	[self updatePlayButtonState];
 }
@@ -1702,17 +1717,6 @@
 	[tableColumn setDataCell:dataCell];
 	[tableColumn bind:@"value" toObject:_playlistArrayController withKeyPath:@"arrangedObjects.name" options:nil];
 	[dataCell release];	
-}
-
-- (void) showPlayNotificationForStream:(AudioStream *)streamObject
-{
-	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
-								description:[[streamObject metadata] artist]
-						   notificationName:@"Stream Playback Started" 
-								   iconData:[[streamObject metadata] albumArt] 
-								   priority:0 
-								   isSticky:NO 
-							   clickContext:nil];	
 }
 
 #pragma mark Sheet Callbacks

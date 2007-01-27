@@ -23,7 +23,6 @@
 #import "UKKQueue.h"
 
 @class Library;
-@class AudioScrobbler;
 
 @interface LibraryDocument : NSPersistentDocument
 {
@@ -47,7 +46,6 @@
 	IBOutlet NSDrawer			*_playlistDrawer;
 
 	AudioPlayer					*_player;
-	AudioScrobbler				*_scrobbler;
 	
 	BOOL						_randomizePlayback;
 	BOOL						_loopPlayback;
