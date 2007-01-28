@@ -64,8 +64,6 @@
 #import "ImageAndTextCell.h"
 #import "UtilityFunctions.h"
 
-#import "Timer.h"
-
 #include "mt19937ar.h"
 
 // ========================================
@@ -1937,10 +1935,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSDictionary				*callbackArguments;
 	BOOL						result;
 	
-	Timer *timer = [[[Timer alloc] init] autorelease];
-	
 	// First read the properties
-	[timer start];
 	error						= nil;
 	propertiesReader			= [AudioPropertiesReader propertiesReaderForURL:URL error:&error];
 	
@@ -1956,11 +1951,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		return;
 	}
 	
-	[timer stop];
-//	NSLog(@"Time to read properties = %f", [timer elapsedTime]);
 	
 	// Now read the metadata
-	[timer start];
 	metadataReader				= [AudioMetadataReader metadataReaderForURL:URL error:&error];
 	
 	if(nil == metadataReader) {		
@@ -1974,9 +1966,6 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		[self performSelectorOnMainThread:@selector(presentError:) withObject:error waitUntilDone:NO];
 		return;
 	}
-
-	[timer stop];
-//	NSLog(@"Time to read metadata = %f", [timer elapsedTime]);
 
 	callbackArguments		= [NSDictionary dictionaryWithObjectsAndKeys:
 		URL, @"url", 
@@ -2004,9 +1993,6 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSError						*error;
 	BOOL						result;
 	
-	Timer *timer = [[[Timer alloc] init] autorelease];
-
-	[timer start];
 	managedObjectContext		= [self managedObjectContext];
 	URL							= [arguments valueForKey:@"url"];
 	properties					= [arguments valueForKey:@"properties"];
@@ -2104,10 +2090,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	// If no metadata was found, set the title to the filename
 	if(0 == [[metadata valueForKey:@"@count"] unsignedIntValue]) {
 		[metadataObject setValue:[[[URL path] lastPathComponent] stringByDeletingPathExtension] forKey:@"title"];
-	}
-	
-	[timer stop];
-	NSLog(@"Time to insert object = %f", [timer elapsedTime]);
+	}	
 }
 
 -(void) updateStreamsUnderURL:(NSURL *)URL

@@ -43,7 +43,6 @@
 		8C3A8C3D0B0553D100A03FEB /* NewFolderPlaylistSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3A8C3B0B0553D100A03FEB /* NewFolderPlaylistSheet.m */; };
 		8C3A8C6C0B05572600A03FEB /* NewFolderPlaylistSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A8C6A0B05572600A03FEB /* NewFolderPlaylistSheet.nib */; };
 		8C4A7CDB0AF9AE0D005723B2 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */; };
-		8C57F3960B103F2300AA493C /* Timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C57F3940B103F2300AA493C /* Timer.m */; };
 		8C5C87E30AFC588000D1E17A /* StaticPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */; };
 		8C5C87E40AFC588000D1E17A /* FolderPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */; };
 		8C5C88D70AFC694400D1E17A /* DynamicPlaylist.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C5C88D60AFC694400D1E17A /* DynamicPlaylist.png */; };
@@ -245,8 +244,6 @@
 		8C3A8C6B0B05572600A03FEB /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewFolderPlaylistSheet.nib; sourceTree = "<group>"; };
 		8C4A7CCD0AF9ADE5005723B2 /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
 		8C4A7CDA0AF9AE0D005723B2 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
-		8C57F3930B103F2300AA493C /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = Utilities/Timer.h; sourceTree = "<group>"; };
-		8C57F3940B103F2300AA493C /* Timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Timer.m; path = Utilities/Timer.m; sourceTree = "<group>"; };
 		8C5C87E10AFC587F00D1E17A /* StaticPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = StaticPlaylist.png; path = Images/StaticPlaylist.png; sourceTree = "<group>"; };
 		8C5C87E20AFC587F00D1E17A /* FolderPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FolderPlaylist.png; path = Images/FolderPlaylist.png; sourceTree = "<group>"; };
 		8C5C88D60AFC694400D1E17A /* DynamicPlaylist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DynamicPlaylist.png; path = Images/DynamicPlaylist.png; sourceTree = "<group>"; };
@@ -807,8 +804,6 @@
 				8CF8C3160AEDC76000A99441 /* mt19937ar.c */,
 				8CF8C3E20AEDD7E900A99441 /* UtilityFunctions.h */,
 				8CF8C3E30AEDD7EA00A99441 /* UtilityFunctions.m */,
-				8C57F3930B103F2300AA493C /* Timer.h */,
-				8C57F3940B103F2300AA493C /* Timer.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1016,7 +1011,6 @@
 				8C763BA00B0D643900DE5B05 /* MP4MetadataWriter.m in Sources */,
 				8C763C130B0E94EA00DE5B05 /* WavPackMetadataWriter.m in Sources */,
 				8C763CF60B0EB71300DE5B05 /* MonkeysAudioMetadataWriter.mm in Sources */,
-				8C57F3960B103F2300AA493C /* Timer.m in Sources */,
 				8CCAD8D00B6ABEAB00F87C63 /* AudioScrobblerClient.m in Sources */,
 				8CCAD8DB0B6AC04100F87C63 /* AudioScrobbler.m in Sources */,
 			);
