@@ -34,6 +34,17 @@
 
 @implementation PlayApplicationDelegate
 
++ (void) initialize
+{
+	NSDictionary *defaultsDictionary;
+	
+	defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+		[NSNumber numberWithBool:YES], @"enableAudioScrobbler",
+		[NSNumber numberWithBool:YES], @"enableGrowlNotifications",
+		nil];
+	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDictionary];
+}
+
 - (AudioScrobbler *) scrobbler
 {
 	if(nil == _scrobbler) {
@@ -151,6 +162,8 @@
 	[GrowlApplicationBridge setGrowlDelegate:self];
 }
 
+#pragma mark Growl
+
 - (NSDictionary *) registrationDictionaryForGrowl
 {
 	NSDictionary				*registrationDictionary;
@@ -168,36 +181,51 @@
 	return registrationDictionary;
 }
 
+- (void) growlNotificationWasClicked:(id)clickContext
+{
+	NSLog(@"growlNotificationWasClicked:%@", clickContext);
+}
+
 #pragma mark Audio Notification Handling
 
 - (void) playbackDidStart:(NSNotification *)aNotification
 {
 	AudioStream		*streamObject	= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	
-	[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
-								description:[[streamObject metadata] artist]
-						   notificationName:@"Stream Playback Started" 
-								   iconData:[[streamObject metadata] albumArt] 
-								   priority:0 
-								   isSticky:NO 
-							   clickContext:nil];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableGrowlNotifications"]) {
+		[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
+									description:[[streamObject metadata] artist]
+							   notificationName:@"Stream Playback Started" 
+									   iconData:[[streamObject metadata] albumArt] 
+									   priority:0 
+									   isSticky:NO 
+								   clickContext:nil];
+	}
 	
-	[[self scrobbler] start:streamObject];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+		[[self scrobbler] start:streamObject];
+	}
 }
 
 - (void) playbackDidStop:(NSNotification *)aNotification
 {
-	[[self scrobbler] stop];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+		[[self scrobbler] stop];
+	}
 }
 
 - (void) playbackDidPause:(NSNotification *)aNotification
 {
-	[[self scrobbler] pause];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+		[[self scrobbler] pause];
+	}
 }
 
 - (void) playbackDidResume:(NSNotification *)aNotification
 {
-	[[self scrobbler] resume];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+		[[self scrobbler] resume];
+	}
 }
 
 @end
