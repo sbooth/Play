@@ -63,12 +63,11 @@ escapeForLastFM(NSString *string)
 
 		kern_return_t	result;
 
-//		_pluginID		= @"pla";
-		_pluginID		= @"tst";
+		_pluginID		= @"pla";
 
-/*		if(YES || [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
 			[[NSWorkspace sharedWorkspace] launchApplication:@"Last.fm.app"];
-		}*/
+		}
 		
 		_keepProcessingAudioScrobblerCommands	= YES;
 

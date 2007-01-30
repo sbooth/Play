@@ -18,6 +18,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/*
+ * This is a port of the BlockingClient client class from 
+ * the Last.fm ScrobSub library by sharevari
+ */
+
 #import "AudioScrobblerClient.h"
 
 #define kBufferSize		1024
@@ -55,8 +60,8 @@ addressForHost(NSString *hostname)
 	if((self = [super init])) {
 
 		_socket				= -1;
-		_doPortStepping		= YES;
 		_lastPort			= -1;
+		_doPortStepping		= YES;
 		
 		return self;
 	}
