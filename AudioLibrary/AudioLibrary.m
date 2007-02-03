@@ -1963,9 +1963,9 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[stream setIsPlaying:YES];	
 	[self setNowPlaying:stream];
 	
-/*	if(nil == [stream valueForKey:@"albumArt"]) {
+	if(nil == [stream valueForKey:@"albumArt"]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
-	}*/
+	}
 	
 	[[self player] play];
 	

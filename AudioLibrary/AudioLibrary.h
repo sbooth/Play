@@ -114,6 +114,10 @@ extern NSString * const			AudioStreamObjectKey;
 - (void)		playlistDidChange:(Playlist *)playlist;
 
 // ========================================
+// Action methods
+- (IBAction) showStreamInformationSheet:(id)sender;
+
+// ========================================
 // Properties
 - (BOOL)		randomizePlayback;
 - (void)		setRandomizePlayback:(BOOL)randomizePlayback;
