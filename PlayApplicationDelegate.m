@@ -19,11 +19,9 @@
  */
 
 #import "PlayApplicationDelegate.h"
-#import "LibraryDocument.h"
-#import "UtilityFunctions.h"
-
+#import "AudioLibrary.h"
+#import "AudioScrobbler.h"
 #import "AudioStream.h"
-#import "AudioMetadata.h"
 
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
@@ -36,9 +34,7 @@
 
 + (void) initialize
 {
-	NSDictionary *defaultsDictionary;
-	
-	defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:YES], @"enableAudioScrobbler",
 		[NSNumber numberWithBool:YES], @"enableGrowlNotifications",
 		nil];
@@ -53,122 +49,69 @@
 	return _scrobbler;
 }
 
+- (void) awakeFromNib
+{
+	[GrowlApplicationBridge setGrowlDelegate:self];
+}
+
+
+- (void) applicationWillFinishLaunching:(NSNotification *)aNotification
+{
+	[[AudioLibrary defaultLibrary] showWindow:self];
+}
+
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-	NSDocumentController		*documentController;
-	NSArray						*recentDocumentURLs;
-
 	// Register for applicable audio notifications
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidStart:) 
 												 name:AudioStreamPlaybackDidStartNotification
 											   object:nil];
-
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidStop:) 
 												 name:AudioStreamPlaybackDidStopNotification
 											   object:nil];
-
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidPause:) 
 												 name:AudioStreamPlaybackDidPauseNotification
 											   object:nil];
-
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidResume:) 
 												 name:AudioStreamPlaybackDidResumeNotification
 											   object:nil];
-	
-	// Automatically re-open the last document opened
-	documentController			= [NSDocumentController sharedDocumentController];
-	recentDocumentURLs			= [documentController recentDocumentURLs];
-	
-	if(0 == [recentDocumentURLs count]) {
-		[documentController newDocument:self];
-	}
-	else {
-		NSURL					*documentURL;
-		NSDocument				*document;
-		NSError					*error;
-		
-		error					= nil;
-		documentURL				= [recentDocumentURLs objectAtIndex:0];
-		document				= [documentController openDocumentWithContentsOfURL:documentURL display:YES error:&error];
-
-		if(nil == document) {
-			BOOL				errorRecoveryDone;
-			
-			errorRecoveryDone	= [documentController presentError:error];
-		}
-	}
-}
-
-- (BOOL) applicationShouldOpenUntitledFile:(NSApplication *)sender
-{
-	// Don't automatically create an untitled document
-	return NO;
-}
-
-- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
-{
-	// Make sure AS receives the STOP command
-	[[self scrobbler] shutdown];
-	
-	return NSTerminateNow;	
 }
 
 - (void) applicationWillTerminate:(NSNotification *)aNotification
 {
+	// Make sure AS receives the STOP command
+	[[self scrobbler] shutdown];
+
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
-	NSDocument					*document;
-	NSDocumentController		*documentController;
-	NSURL						*fileURL;
-	NSError						*error;
-	
-	// First try to open the file as one of our document types
-	error						= nil;
-	fileURL						= [NSURL fileURLWithPath:filename];
-	documentController			= [NSDocumentController sharedDocumentController];
-	document					= [documentController openDocumentWithContentsOfURL:fileURL display:YES error:&error];
-	
-	if(nil != document) {
-		return YES;
-	}
-	else if([getAudioExtensions() containsObject:[filename pathExtension]]) {
-		document					= [documentController currentDocument];
+	return [[AudioLibrary defaultLibrary] addFile:filename];
 
-		if(nil == document) {
-			[documentController newDocument:self];
-			document				= [documentController currentDocument];
-		}
-
-		if([document isKindOfClass:[LibraryDocument class]]) {
-			[(LibraryDocument *)document addURLsToLibrary:[NSArray arrayWithObject:fileURL]];
-		}
-
-		return YES;
-	}		
-	
-	return NO;
 }
 
-- (void) awakeFromNib
+- (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
-	[GrowlApplicationBridge setGrowlDelegate:self];
+	BOOL success =  [[AudioLibrary defaultLibrary] addFiles:filenames];
+	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
 }
 
 #pragma mark Growl
 
 - (NSDictionary *) registrationDictionaryForGrowl
 {
-	NSDictionary				*registrationDictionary;
-	NSArray						*defaultNotifications;
-	NSArray						*allNotifications;
+	NSDictionary	*registrationDictionary		= nil;
+	NSArray			*defaultNotifications		= nil;
+	NSArray			*allNotifications			= nil;
 	
 	defaultNotifications		= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
 	allNotifications			= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
@@ -190,20 +133,20 @@
 
 - (void) playbackDidStart:(NSNotification *)aNotification
 {
-	AudioStream		*streamObject	= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableGrowlNotifications"]) {
-		[GrowlApplicationBridge notifyWithTitle:[[streamObject metadata] title]
-									description:[[streamObject metadata] artist]
+		[GrowlApplicationBridge notifyWithTitle:[stream valueForKey:@"title"]
+									description:[stream valueForKey:@"artist"]
 							   notificationName:@"Stream Playback Started" 
-									   iconData:[[streamObject metadata] albumArt] 
+									   iconData:[stream valueForKey:@"albumArt"] 
 									   priority:0 
 									   isSticky:NO 
 								   clickContext:nil];
 	}
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
-		[[self scrobbler] start:streamObject];
+		[[self scrobbler] start:stream];
 	}
 }
 
