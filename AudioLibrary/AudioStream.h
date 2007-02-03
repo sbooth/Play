@@ -23,18 +23,22 @@
 // ========================================
 // Key Names
 // ========================================
-/*extern NSString * const			kTitleKey;
-extern NSString * const			kArtistKey;
-extern NSString * const			kAlbumArtistKey;
-extern NSString * const			kTitleKey;*/
+extern NSString * const		kMetadataTitleKey;
+extern NSString * const		kMetadataAlbumTitleKey;
+extern NSString * const		kMetadataArtistKey;
+extern NSString * const		kMetadataAlbumArtistKey;
 
 @interface AudioStream : NSObject
 {
-	@private
-	NSMutableDictionary *_d;
+	NSMutableDictionary *_streamInfo;
+	NSArray				*_databaseKeys;
+	BOOL				_isPlaying;
 }
 
 // Call this with the values retrieved from the database
 - (void) initValue:(id)value forKey:(NSString *)key;
+
+- (BOOL) isPlaying;
+- (void) setIsPlaying:(BOOL)isPlaying;
 
 @end

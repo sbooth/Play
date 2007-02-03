@@ -26,7 +26,41 @@
 - (id) init
 {
 	if((self = [super init])) {
-		_d = [[NSMutableDictionary alloc] init];
+		_streamInfo		= [[NSMutableDictionary alloc] init];
+		_databaseKeys	= [[NSArray alloc] initWithObjects:
+			@"id", 
+			@"url",
+			
+			@"dateAdded",
+			@"firstPlayed",
+			@"lastPlayed",
+			@"playCount",
+			
+			@"title",
+			@"albumTitle",
+			@"artist",
+			@"albumArtist",
+			@"genre",
+			@"composer",
+			@"date",
+			@"compilation",
+			@"trackNumber",
+			@"trackTotal",
+			@"discNumber",
+			@"discTotal",
+			@"comment",
+			@"isrc",
+			@"mcn",
+
+			@"bitsPerChannel",
+			@"channelsPerFrame",
+			@"sampleRate",
+			@"totalFrames",
+			@"duration",
+			@"bitrate",
+			
+			nil];
+		
 		return self;
 	}
 	return nil;
@@ -34,32 +68,41 @@
 
 - (void) dealloc
 {
-	//	NSLog(@"AudioStream (%@) dealloc", [[NSFileManager defaultManager] displayNameAtPath:[_d valueForKey:@"filename"]]);
-	[_d release], _d = nil;
+	//	NSLog(@"AudioStream (%@) dealloc", [[NSFileManager defaultManager] displayNameAtPath:[[_d valueForKey:@"url"] path]]);
+	[_streamInfo release], _streamInfo = nil;
+	[_databaseKeys release], _databaseKeys = nil;
 	[super dealloc];
 }
 
 - (id) valueForKey:(NSString *)key
 {
-	return [_d valueForKey:key];
+	return ([_databaseKeys containsObject:key] ? [_streamInfo valueForKey:key] : [super valueForKey:key]);
 }
 
 - (void) initValue:(id)value forKey:(NSString *)key
 {
-	[_d setValue:value forKey:key];	
+	[_streamInfo setValue:value forKey:key];
 }
 
 - (void) setValue:(id)value forKey:(NSString *)key
 {
-	[_d setValue:value forKey:key];
-	
-	// Propagate changes to database
-	[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+	if([_databaseKeys containsObject:key]) {
+		[_streamInfo setValue:value forKey:key];
+		
+		// Propagate changes to database
+		[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+	}
+	else {
+		[super setValue:value forKey:key];
+	}
 }
+
+- (BOOL) isPlaying							{ return _isPlaying; }
+- (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [_d valueForKey:@"id"], [[NSFileManager defaultManager] displayNameAtPath:[[_d valueForKey:@"url"] path]]];
+	return [NSString stringWithFormat:@"[%@] %@", [_streamInfo valueForKey:@"id"], [[NSFileManager defaultManager] displayNameAtPath:[[_streamInfo valueForKey:@"url"] path]]];
 }
 
 @end
