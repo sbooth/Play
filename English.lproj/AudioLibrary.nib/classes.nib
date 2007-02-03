@@ -57,6 +57,11 @@
             OUTLETS = {"_streamController" = NSArrayController; }; 
             SUPERCLASS = NSTableView; 
         }, 
+        {
+            CLASS = AudioStreamTableViewDataSource; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 

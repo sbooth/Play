@@ -168,6 +168,7 @@
 		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
 		8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */; };
+		8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -445,6 +446,8 @@
 		8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioMetadataEditingSheet.h; path = AudioLibrary/AudioMetadataEditingSheet.h; sourceTree = "<group>"; };
 		8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataEditingSheet.m; path = AudioLibrary/AudioMetadataEditingSheet.m; sourceTree = "<group>"; };
 		8C9C40210B745B4700CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioMetadataEditingSheet.nib; sourceTree = "<group>"; };
+		8C9C406B0B74655B00CE799A /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = AudioLibrary/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
+		8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamTableViewDataSource.m; path = AudioLibrary/AudioStreamTableViewDataSource.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -734,6 +737,8 @@
 		8C9C2DC20B72AEEF00CE799A /* AudioLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				8C9C406B0B74655B00CE799A /* AudioStreamTableViewDataSource.h */,
+				8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */,
 				8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */,
 				8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */,
 				8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */,
@@ -1134,6 +1139,7 @@
 				8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */,
 				8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */,
 				8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */,
+				8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
