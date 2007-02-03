@@ -13,7 +13,7 @@
                 playPause = id; 
                 playPreviousStream = id; 
                 playSelection = id; 
-                removeAudioStreams = id; 
+                showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
