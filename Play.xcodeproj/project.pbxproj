@@ -154,6 +154,18 @@
 		8C9C3DDD0B741F4400CE799A /* insert_stream.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3DD70B741F4300CE799A /* insert_stream.sql */; };
 		8C9C3DDE0B741F4400CE799A /* select_all_streams.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3DD80B741F4300CE799A /* select_all_streams.sql */; };
 		8C9C3DDF0B741F4400CE799A /* update_stream.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3DD90B741F4300CE799A /* update_stream.sql */; };
+		8C9C3EAF0B742FEE00CE799A /* AudioMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3E9D0B742FEE00CE799A /* AudioMetadataWriter.m */; };
+		8C9C3EB10B742FEE00CE799A /* FLACMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3E9F0B742FEE00CE799A /* FLACMetadataWriter.m */; };
+		8C9C3EB30B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA10B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm */; };
+		8C9C3EB50B742FEE00CE799A /* MP3MetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA30B742FEE00CE799A /* MP3MetadataWriter.mm */; };
+		8C9C3EB70B742FEE00CE799A /* MP4MetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA50B742FEE00CE799A /* MP4MetadataWriter.m */; };
+		8C9C3EB90B742FEE00CE799A /* MusepackMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA70B742FEE00CE799A /* MusepackMetadataWriter.mm */; };
+		8C9C3EBB0B742FEE00CE799A /* OggFLACMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA90B742FEE00CE799A /* OggFLACMetadataWriter.mm */; };
+		8C9C3EBD0B742FEE00CE799A /* OggVorbisMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */; };
+		8C9C3EBF0B742FEE00CE799A /* WavPackMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */; };
+		8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */; };
+		8C9C3EFB0B74340A00CE799A /* AudioStreamInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */; };
+		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
@@ -405,6 +417,29 @@
 		8C9C3DD70B741F4300CE799A /* insert_stream.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = insert_stream.sql; path = SQL/insert_stream.sql; sourceTree = "<group>"; };
 		8C9C3DD80B741F4300CE799A /* select_all_streams.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = select_all_streams.sql; path = SQL/select_all_streams.sql; sourceTree = "<group>"; };
 		8C9C3DD90B741F4300CE799A /* update_stream.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = update_stream.sql; path = SQL/update_stream.sql; sourceTree = "<group>"; };
+		8C9C3E9C0B742FEE00CE799A /* AudioMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioMetadataWriter.h; path = Audio/Metadata/Writers/AudioMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3E9D0B742FEE00CE799A /* AudioMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataWriter.m; path = Audio/Metadata/Writers/AudioMetadataWriter.m; sourceTree = "<group>"; };
+		8C9C3E9E0B742FEE00CE799A /* FLACMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FLACMetadataWriter.h; path = Audio/Metadata/Writers/FLACMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3E9F0B742FEE00CE799A /* FLACMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FLACMetadataWriter.m; path = Audio/Metadata/Writers/FLACMetadataWriter.m; sourceTree = "<group>"; };
+		8C9C3EA00B742FEE00CE799A /* MonkeysAudioMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioMetadataWriter.h; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EA10B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioMetadataWriter.mm; path = Audio/Metadata/Writers/MonkeysAudioMetadataWriter.mm; sourceTree = "<group>"; };
+		8C9C3EA20B742FEE00CE799A /* MP3MetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3MetadataWriter.h; path = Audio/Metadata/Writers/MP3MetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EA30B742FEE00CE799A /* MP3MetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3MetadataWriter.mm; path = Audio/Metadata/Writers/MP3MetadataWriter.mm; sourceTree = "<group>"; };
+		8C9C3EA40B742FEE00CE799A /* MP4MetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP4MetadataWriter.h; path = Audio/Metadata/Writers/MP4MetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EA50B742FEE00CE799A /* MP4MetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MP4MetadataWriter.m; path = Audio/Metadata/Writers/MP4MetadataWriter.m; sourceTree = "<group>"; };
+		8C9C3EA60B742FEE00CE799A /* MusepackMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MusepackMetadataWriter.h; path = Audio/Metadata/Writers/MusepackMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EA70B742FEE00CE799A /* MusepackMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MusepackMetadataWriter.mm; path = Audio/Metadata/Writers/MusepackMetadataWriter.mm; sourceTree = "<group>"; };
+		8C9C3EA80B742FEE00CE799A /* OggFLACMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACMetadataWriter.h; path = Audio/Metadata/Writers/OggFLACMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EA90B742FEE00CE799A /* OggFLACMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggFLACMetadataWriter.mm; path = Audio/Metadata/Writers/OggFLACMetadataWriter.mm; sourceTree = "<group>"; };
+		8C9C3EAA0B742FEE00CE799A /* OggVorbisMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggVorbisMetadataWriter.h; path = Audio/Metadata/Writers/OggVorbisMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = OggVorbisMetadataWriter.mm; path = Audio/Metadata/Writers/OggVorbisMetadataWriter.mm; sourceTree = "<group>"; };
+		8C9C3EAC0B742FEE00CE799A /* WavPackMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WavPackMetadataWriter.h; path = Audio/Metadata/Writers/WavPackMetadataWriter.h; sourceTree = "<group>"; };
+		8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataWriter.m; path = Audio/Metadata/Writers/WavPackMetadataWriter.m; sourceTree = "<group>"; };
+		8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamInformationSheet.h; path = AudioLibrary/AudioStreamInformationSheet.h; sourceTree = "<group>"; };
+		8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamInformationSheet.m; path = AudioLibrary/AudioStreamInformationSheet.m; sourceTree = "<group>"; };
+		8C9C3EFA0B74340900CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioStreamInformationSheet.nib; sourceTree = "<group>"; };
+		8C9C3F2F0B74388300CE799A /* FileURLFormatter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FileURLFormatter.h; path = Formatters/FileURLFormatter.h; sourceTree = "<group>"; };
+		8C9C3F300B74388300CE799A /* FileURLFormatter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FileURLFormatter.m; path = Formatters/FileURLFormatter.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -467,6 +502,7 @@
 				8C9C31250B732E5E00CE799A /* Decoders */,
 				8C9C37F40B73AB8F00CE799A /* Properties Readers */,
 				8C9C381F0B73ABEA00CE799A /* Metadata Readers */,
+				8C9C3E9B0B742FCF00CE799A /* Metadata Writers */,
 				8C9C288A0B724D3200CE799A /* AudioScrobbler */,
 				29B97315FDCFA39411CA2CEA /* Application */,
 				8C9C32240B73340700CE799A /* Formatters */,
@@ -497,6 +533,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */,
 				8C9C2EB20B73131900CE799A /* AudioLibrary.nib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
@@ -691,6 +728,8 @@
 		8C9C2DC20B72AEEF00CE799A /* AudioLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */,
+				8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */,
 				8C9C3D830B7418B200CE799A /* AudioLibraryWindow.h */,
 				8C9C3D840B7418B200CE799A /* AudioLibraryWindow.m */,
 				8C9C3D780B74182B00CE799A /* AudioStreamTableView.h */,
@@ -797,6 +836,8 @@
 		8C9C32240B73340700CE799A /* Formatters */ = {
 			isa = PBXGroup;
 			children = (
+				8C9C3F2F0B74388300CE799A /* FileURLFormatter.h */,
+				8C9C3F300B74388300CE799A /* FileURLFormatter.m */,
 				8C9C32250B73341800CE799A /* SecondsFormatter.h */,
 				8C9C32260B73341800CE799A /* SecondsFormatter.m */,
 			);
@@ -864,6 +905,31 @@
 				8C9C38310B73AC0300CE799A /* WavPackMetadataReader.m */,
 			);
 			name = "Metadata Readers";
+			sourceTree = "<group>";
+		};
+		8C9C3E9B0B742FCF00CE799A /* Metadata Writers */ = {
+			isa = PBXGroup;
+			children = (
+				8C9C3E9C0B742FEE00CE799A /* AudioMetadataWriter.h */,
+				8C9C3E9D0B742FEE00CE799A /* AudioMetadataWriter.m */,
+				8C9C3E9E0B742FEE00CE799A /* FLACMetadataWriter.h */,
+				8C9C3E9F0B742FEE00CE799A /* FLACMetadataWriter.m */,
+				8C9C3EA00B742FEE00CE799A /* MonkeysAudioMetadataWriter.h */,
+				8C9C3EA10B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm */,
+				8C9C3EA20B742FEE00CE799A /* MP3MetadataWriter.h */,
+				8C9C3EA30B742FEE00CE799A /* MP3MetadataWriter.mm */,
+				8C9C3EA40B742FEE00CE799A /* MP4MetadataWriter.h */,
+				8C9C3EA50B742FEE00CE799A /* MP4MetadataWriter.m */,
+				8C9C3EA60B742FEE00CE799A /* MusepackMetadataWriter.h */,
+				8C9C3EA70B742FEE00CE799A /* MusepackMetadataWriter.mm */,
+				8C9C3EA80B742FEE00CE799A /* OggFLACMetadataWriter.h */,
+				8C9C3EA90B742FEE00CE799A /* OggFLACMetadataWriter.mm */,
+				8C9C3EAA0B742FEE00CE799A /* OggVorbisMetadataWriter.h */,
+				8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */,
+				8C9C3EAC0B742FEE00CE799A /* WavPackMetadataWriter.h */,
+				8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */,
+			);
+			name = "Metadata Writers";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -947,6 +1013,7 @@
 				8C9C3DDD0B741F4400CE799A /* insert_stream.sql in Resources */,
 				8C9C3DDE0B741F4400CE799A /* select_all_streams.sql in Resources */,
 				8C9C3DDF0B741F4400CE799A /* update_stream.sql in Resources */,
+				8C9C3EFB0B74340A00CE799A /* AudioStreamInformationSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1046,6 +1113,17 @@
 				8C9C38430B73AC0300CE799A /* WavPackMetadataReader.m in Sources */,
 				8C9C3D7B0B74182C00CE799A /* AudioStreamTableView.m in Sources */,
 				8C9C3D860B7418B200CE799A /* AudioLibraryWindow.m in Sources */,
+				8C9C3EAF0B742FEE00CE799A /* AudioMetadataWriter.m in Sources */,
+				8C9C3EB10B742FEE00CE799A /* FLACMetadataWriter.m in Sources */,
+				8C9C3EB30B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm in Sources */,
+				8C9C3EB50B742FEE00CE799A /* MP3MetadataWriter.mm in Sources */,
+				8C9C3EB70B742FEE00CE799A /* MP4MetadataWriter.m in Sources */,
+				8C9C3EB90B742FEE00CE799A /* MusepackMetadataWriter.mm in Sources */,
+				8C9C3EBB0B742FEE00CE799A /* OggFLACMetadataWriter.mm in Sources */,
+				8C9C3EBD0B742FEE00CE799A /* OggVorbisMetadataWriter.mm in Sources */,
+				8C9C3EBF0B742FEE00CE799A /* WavPackMetadataWriter.m in Sources */,
+				8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */,
+				8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1074,6 +1152,14 @@
 				8C9C2EB30B73131900CE799A /* English */,
 			);
 			name = AudioLibrary.nib;
+			sourceTree = "<group>";
+		};
+		8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C9C3EFA0B74340900CE799A /* English */,
+			);
+			name = AudioStreamInformationSheet.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
