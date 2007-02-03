@@ -1556,6 +1556,11 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[stream initValue:[streamInfo valueForKey:@"duration"] forKey:@"duration"];
 	[stream initValue:[streamInfo valueForKey:@"bitrate"] forKey:@"bitrate"];
 
+	// If there is no real metadata set the filename as the title
+	if(nil == [streamInfo valueForKey:@"title"] && nil == [streamInfo valueForKey:@"albumTitle"] && nil == [streamInfo valueForKey:@"artist"]) {
+		[stream initValue:[[NSFileManager defaultManager] displayNameAtPath:[url path]] forKey:@"title"];
+	}
+	
 #if SQL_DEBUG
 	clock_t start = clock();
 #endif
