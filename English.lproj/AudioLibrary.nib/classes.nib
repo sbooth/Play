@@ -1,0 +1,63 @@
+{
+    IBClasses = (
+        {CLASS = AIPlasticButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {CLASS = AIPlasticInfoButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
+        {
+            ACTIONS = {
+                newPlaylist = id; 
+                openDocument = id; 
+                play = id; 
+                playNextStream = id; 
+                playPause = id; 
+                playPreviousStream = id; 
+                playSelection = id; 
+                removeAudioStreams = id; 
+                skipBackward = id; 
+                skipForward = id; 
+                skipToBeginning = id; 
+                skipToEnd = id; 
+                stop = id; 
+            }; 
+            CLASS = AudioLibrary; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_addPlaylistButton" = NSButton; 
+                "_addStreamsButton" = NSButton; 
+                "_albumArtImageView" = NSImageView; 
+                "_playPauseButton" = NSButton; 
+                "_playlistController" = NSArrayController; 
+                "_playlistDrawer" = NSDrawer; 
+                "_playlistInfoButton" = NSButton; 
+                "_playlistTable" = NSTableView; 
+                "_removePlaylistsButton" = NSButton; 
+                "_removeStreamsButton" = NSButton; 
+                "_streamController" = NSArrayController; 
+                "_streamInfoButton" = NSButton; 
+                "_streamTable" = NSTableView; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            CLASS = AudioLibraryWindow; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_library" = AudioLibrary; }; 
+            SUPERCLASS = NSWindow; 
+        }, 
+        {
+            ACTIONS = {
+                convertWithMax = id; 
+                openWith = id; 
+                openWithFinder = id; 
+                revealInFinder = id; 
+            }; 
+            CLASS = AudioStreamTableView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_streamController" = NSArrayController; }; 
+            SUPERCLASS = NSTableView; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}
