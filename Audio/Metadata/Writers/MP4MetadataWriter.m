@@ -115,7 +115,7 @@
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation = [metadata valueForKey:@"compilation"];
 	if(nil != compilation) {
 		MP4SetMetadataCompilation(mp4FileHandle, [compilation boolValue]);
 	}

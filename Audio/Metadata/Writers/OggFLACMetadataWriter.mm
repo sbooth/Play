@@ -102,7 +102,7 @@
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation = [metadata valueForKey:@"compilation"];
 	if(nil != compilation) {
 		f.tag()->addField("COMPILATION", TagLib::String([[compilation stringValue] UTF8String], TagLib::String::UTF8));
 	}

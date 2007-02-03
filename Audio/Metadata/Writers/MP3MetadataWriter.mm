@@ -143,7 +143,7 @@
 		
 	// Compilation
 	// iTunes uses the TCMP frame for this, which isn't in the standard, but we'll use it for compatibility
-	NSNumber *compilation = [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation = [metadata valueForKey:@"compilation"];
 	if(nil != compilation) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TCMP", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");

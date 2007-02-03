@@ -120,7 +120,7 @@ static void setField(CAPETag		*f,
 	setField(f, "DISCTOTAL", [discTotal stringValue]);
 	
 	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation	= [metadata valueForKey:@"compilation"];
 	setField(f, "COMPILATION", [compilation stringValue]);
 	
 	// ISRC

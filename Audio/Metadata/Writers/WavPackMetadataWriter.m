@@ -126,7 +126,7 @@
 	}
 	
 	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation	= [metadata valueForKey:@"compilation"];
 	WavpackDeleteTagItem(wpc, "COMPILATION");
 	if(nil != compilation) {
 		WavpackAppendTagItem(wpc, "COMPILATION", [[compilation stringValue] UTF8String], strlen([[compilation stringValue] UTF8String]));

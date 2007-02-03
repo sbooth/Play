@@ -190,7 +190,7 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"partOfCompilation"];
+	NSNumber *compilation = [metadata valueForKey:@"compilation"];
 	if(nil != compilation) {
 		setVorbisComment(block, @"COMPILATION", [compilation stringValue]);
 	}
