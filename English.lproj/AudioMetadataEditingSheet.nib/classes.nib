@@ -1,15 +1,13 @@
 {
     IBClasses = (
         {
-            ACTIONS = {cancel = id; chooseAlbumArt = id; ok = id; }; 
+            ACTIONS = {cancel = id; ok = id; }; 
             CLASS = AudioMetadataEditingSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_sheet" = NSWindow; "_streamArrayController" = NSArrayController; }; 
+            OUTLETS = {"_sheet" = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = CompilationButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = TagTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }
