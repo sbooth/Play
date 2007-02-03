@@ -24,11 +24,11 @@
 
 - (NSString *) stringForObjectValue:(id)object
 {
-	if(nil == object || NO == [object isKindOfClass:[NSString class]]) {
+	if(nil == object || NO == [object isKindOfClass:[NSURL class]]) {
 		return nil;
 	}
 		
-	return [[[NSURL URLWithString:object] path] stringByAbbreviatingWithTildeInPath];
+	return [[object path] stringByAbbreviatingWithTildeInPath];
 }
 
 - (BOOL) getObjectValue:(id *)object forString:(NSString *)string errorDescription:(NSString  **)error
@@ -39,9 +39,7 @@
 
 - (NSAttributedString *) attributedStringForObjectValue:(id)object withDefaultAttributes:(NSDictionary *)attributes
 {
-	NSAttributedString		*result		= nil;
-	
-	result = [[NSAttributedString alloc] initWithString:[self stringForObjectValue:object] attributes:attributes];
+	NSString *result = [[NSAttributedString alloc] initWithString:[self stringForObjectValue:object] attributes:attributes];
 	return [result autorelease];
 }
 
