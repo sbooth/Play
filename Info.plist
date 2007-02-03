@@ -41,32 +41,6 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>playlibrary</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>LibraryDocument</string>
-			<key>CFBundleTypeMIMETypes</key>
-			<array>
-				<string>application/octet-stream</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Play Library</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>org.sbooth.Play.Library.sql</string>
-			</array>
-			<key>LSTypeIsPackage</key>
-			<false/>
-			<key>NSDocumentClass</key>
-			<string>LibraryDocument</string>
-			<key>NSPersistentStoreTypeKey</key>
-			<string>SQLite</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
 				<string>flac</string>
 			</array>
 			<key>CFBundleTypeName</key>
@@ -243,6 +217,8 @@
 			<string>Binary</string>
 		</dict>
 	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
@@ -268,7 +244,7 @@
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>PlayApplication</string>
+	<string>NSApplication</string>
 	<key>OSAScriptingDefinition</key>
 	<string>Play.sdef</string>
 	<key>SUFeedURL</key>
