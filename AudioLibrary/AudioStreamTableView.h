@@ -22,7 +22,7 @@
 
 @interface AudioStreamTableView : NSTableView 
 {
-	IBOutlet NSArrayController	*_streamController;
+	IBOutlet NSArrayController *_streamController;
 }
 
 - (IBAction)	openWithFinder:(id)sender;
