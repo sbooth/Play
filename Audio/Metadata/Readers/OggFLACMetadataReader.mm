@@ -126,7 +126,7 @@
 		tag = "COMPILATION";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithBool:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"partOfCompilation"];
+			[metadataDictionary setValue:numberValue forKey:@"compilation"];
 		}
 		
 		tag = "ISRC";

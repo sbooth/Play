@@ -118,13 +118,13 @@
 	// Compilation
 	MP4GetMetadataCompilation(mp4FileHandle, &compilation);
 	if(compilation) {
-		[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"partOfCompilation"];
+		[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"compilation"];
 	}
 	
 	// Album art
 	artCount = MP4GetMetadataCoverArtCount(mp4FileHandle);
 	if(0 < artCount) {
-		MP4GetMetadataCoverArt(mp4FileHandle, &bytes, &length);
+		MP4GetMetadataCoverArt(mp4FileHandle, &bytes, &length, 0);
 		NSImage				*image	= [[NSImage alloc] initWithData:[NSData dataWithBytes:bytes length:length]];
 		if(nil != image) {
 			[metadataDictionary setValue:[image TIFFRepresentation] forKey:@"albumArt"];

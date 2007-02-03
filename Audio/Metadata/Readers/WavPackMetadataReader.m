@@ -181,7 +181,7 @@
 		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
 		
 		WavpackGetTagItem(wpc, "COMPILATION", tagValue, len + 1);
-		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"partOfCompilation"];
+		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"compilation"];
 		free(tagValue);
 	}
 	

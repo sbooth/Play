@@ -20,10 +20,10 @@
 
 #import <Cocoa/Cocoa.h>
 #include <AudioUnit/AudioUnit.h>
-#import "AudioStreamDecoder.h"
-#import "SecondsFormatter.h"
 
-@class LibraryDocument;
+@class AudioLibrary;
+@class AudioStreamDecoder;
+@class SecondsFormatter;
 
 @interface AudioPlayer : NSObject
 {
@@ -33,7 +33,7 @@
 	AudioStreamDecoder		*_nextStreamDecoder;
 	BOOL					_requestedNextStream;
 	
-	LibraryDocument			*_owner;
+	AudioLibrary			*_owner;
 	
 	BOOL					_isPlaying;
 
@@ -43,42 +43,42 @@
 	NSRunLoop				*_runLoop;
 }
 
-- (LibraryDocument *)	owner;
-- (void)				setOwner:(LibraryDocument *)owner;
+- (AudioLibrary *)	owner;
+- (void)			setOwner:(AudioLibrary *)owner;
 
-- (BOOL)				setStreamURL:(NSURL *)url error:(NSError **)error;
-- (BOOL)				setNextStreamURL:(NSURL *)url error:(NSError **)error;
+- (BOOL)			setStreamURL:(NSURL *)url error:(NSError **)error;
+- (BOOL)			setNextStreamURL:(NSURL *)url error:(NSError **)error;
 
-- (void)				reset;
+- (void)			reset;
 
-- (BOOL)				hasValidStream;
-- (BOOL)				streamSupportsSeeking;
+- (BOOL)			hasValidStream;
+- (BOOL)			streamSupportsSeeking;
 
-- (void)				play;
-- (void)				playPause;
-- (void)				stop;
+- (void)			play;
+- (void)			playPause;
+- (void)			stop;
 
-- (void)				skipForward;
-- (void)				skipBackward;
-- (void)				skipForward:(UInt32)seconds;
-- (void)				skipBackward:(UInt32)seconds;
+- (void)			skipForward;
+- (void)			skipBackward;
+- (void)			skipForward:(UInt32)seconds;
+- (void)			skipBackward:(UInt32)seconds;
 
-- (void)				skipToEnd;
-- (void)				skipToBeginning;
+- (void)			skipToEnd;
+- (void)			skipToBeginning;
 
-- (BOOL)				isPlaying;
+- (BOOL)			isPlaying;
 
-- (Float32)				volume;
-- (void)				setVolume:(Float32)volume;
+- (Float32)			volume;
+- (void)			setVolume:(Float32)volume;
 
 // UI bindings (updated approximately once per second to avoid excessive CPU loads)
-- (SInt64)				totalFrames;
+- (SInt64)			totalFrames;
 
-- (SInt64)				currentFrame;
-- (void)				setCurrentFrame:(SInt64)currentFrame;
+- (SInt64)			currentFrame;
+- (void)			setCurrentFrame:(SInt64)currentFrame;
 
-- (NSString *)			totalSecondsString;
-- (NSString *)			currentSecondString;
-- (NSString *)			secondsRemainingString;
+- (NSString *)		totalSecondsString;
+- (NSString *)		currentSecondString;
+- (NSString *)		secondsRemainingString;
 
 @end

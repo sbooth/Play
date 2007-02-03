@@ -19,7 +19,8 @@
  */
 
 #import "AudioPlayer.h"
-#import "LibraryDocument.h"
+#import "AudioLibrary.h"
+#import "AudioStreamDecoder.h"
 
 #include <CoreServices/CoreServices.h>
 
@@ -301,15 +302,14 @@ MyRenderNotification(void							*inRefCon,
 		[_streamDecoder release],		_streamDecoder = nil;
 	}
 	
-	[_owner release],					_owner = nil;
 	[_secondsFormatter release],		_secondsFormatter = nil;
 	[_runLoop release],					_runLoop = nil;
 	
 	[super dealloc];
 }
 
-- (LibraryDocument *)	owner									{ return _owner; }
-- (void)				setOwner:(LibraryDocument *)owner		{ _owner = owner; }
+- (AudioLibrary *)		owner									{ return _owner; }
+- (void)				setOwner:(AudioLibrary *)owner			{ _owner = owner; }
 
 #pragma mark Stream Management
 

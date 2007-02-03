@@ -149,7 +149,7 @@
 	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"partOfCompilation"];
+		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"compilation"];
 	}
 	free(tagName);
 	

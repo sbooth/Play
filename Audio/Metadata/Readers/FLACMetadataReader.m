@@ -130,7 +130,7 @@
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackTotal"];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"]) {
-						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:@"partOfCompilation"];
+						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:@"compilation"];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"]) {
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discNumber"];

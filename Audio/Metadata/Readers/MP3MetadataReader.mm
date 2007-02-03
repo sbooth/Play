@@ -159,7 +159,7 @@
 		frameList = id3v2tag->frameListMap()["TCMP"];
 		if(NO == frameList.isEmpty()) {
 			// It seems that the presence of this frame indicates a compilation
-			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"partOfCompilation"];
+			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"compilation"];
 		}			
 	}
 	
