@@ -1530,6 +1530,9 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	// Store metadata and properties
 	[stream initValue:url forKey:@"url"];
 
+	[stream initValue:[NSDate date] forKey:@"dateAdded"];
+	[stream initValue:[NSNumber numberWithUnsignedInt:0] forKey:@"playCount"];
+
 	[stream initValue:[streamInfo valueForKey:@"title"] forKey:@"title"];
 	[stream initValue:[streamInfo valueForKey:@"albumTitle"] forKey:@"albumTitle"];	
 	[stream initValue:[streamInfo valueForKey:@"artist"] forKey:@"artist"];
@@ -1568,9 +1571,13 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		result = sqlite3_bind_text(statement, 1, [[[stream valueForKey:@"url"] absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
 		NSAssert1(SQLITE_OK == result, @"Unable to bind url to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
-		result = sqlite3_bind_double(statement, 2, [NSDate timeIntervalSinceReferenceDate]);
+		// Housekeeping info
+		result = sqlite3_bind_double(statement, 2, [[stream valueForKey:@"dateAdded"] timeIntervalSinceReferenceDate]);
 		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
+
+		result = sqlite3_bind_int(statement, 5, [[stream valueForKey:@"playCount"] intValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
 		// Metadata
 		result = sqlite3_bind_text(statement, 6, [[stream valueForKey:@"title"] UTF8String], -1, SQLITE_TRANSIENT);
 		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
