@@ -33,6 +33,7 @@ extern NSString * const		kMetadataAlbumArtistKey;
 	NSMutableDictionary *_streamInfo;
 	NSArray				*_databaseKeys;
 	BOOL				_isPlaying;
+	id					_albumArt;
 }
 
 // Call this with the values retrieved from the database

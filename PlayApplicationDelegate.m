@@ -139,7 +139,7 @@
 		[GrowlApplicationBridge notifyWithTitle:[stream valueForKey:@"title"]
 									description:[stream valueForKey:@"artist"]
 							   notificationName:@"Stream Playback Started" 
-									   iconData:/*[stream valueForKey:@"albumArt"]*/ nil
+									   iconData:[stream valueForKey:@"albumArt"]
 									   priority:0 
 									   isSticky:NO 
 								   clickContext:nil];
