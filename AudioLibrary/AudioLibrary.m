@@ -43,8 +43,11 @@
 
 #import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
+#import "AudioMetadataWriter.h"
 
-#import "ImageAndTextCell.h"
+#import "AudioStreamInformationSheet.h"
+
+//#import "ImageAndTextCell.h"
 
 #include "sfmt19937.h"
 
@@ -71,6 +74,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 // ========================================
 @interface AudioLibrary (CallbackMethods)
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo;
+- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 // ========================================
@@ -356,6 +360,42 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 					  contextInfo:nil];
 }
 
+- (IBAction) showStreamInformationSheet:(id)sender
+{
+	NSArray *streams = [_streamController selectedObjects];
+	
+	if(0 == [streams count]) {
+		return;
+	}
+	else if(1 == [streams count]) {
+		AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
+		
+		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
+		[streamInformationSheet setValue:self forKey:@"owner"];
+		
+		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
+									   modalForWindow:[self window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:streamInformationSheet];
+	}
+/*	else {
+		AudioMetadataEditingSheet	*metadataEditingSheet;
+		
+		metadataEditingSheet		= [[AudioMetadataEditingSheet alloc] init];
+		
+		[metadataEditingSheet setValue:self forKey:@"owner"];
+		
+		[[metadataEditingSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
+		
+		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
+									   modalForWindow:[self windowForSheet] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:metadataEditingSheet];
+	}*/
+}
+
 - (IBAction) newPlaylist:(id)sender
 {
 /*	Playlist		*playlist			= [[Playlist alloc] init];
@@ -574,7 +614,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	unsigned		streamIndex;
 	
 	[self setNowPlaying:nil];
-	[stream setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[stream setIsPlaying:NO];
 	
 	NSArray *streams = [_streamController arrangedObjects];
 	
@@ -624,7 +664,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	unsigned		streamIndex;
 	
 	[self setNowPlaying:nil];
-	[stream setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[stream setIsPlaying:NO];
 	
 	NSArray *streams = [_streamController arrangedObjects];
 	
@@ -862,7 +902,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	playCount		= [stream valueForKey:@"playCount"];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[stream setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[stream setIsPlaying:NO];
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
 	
@@ -874,8 +914,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	
 	if(0 < [filtered count]) {
 		stream = [filtered objectAtIndex:0];
+		[stream setIsPlaying:YES];
 		[self setNowPlaying:stream];
-		[stream setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 															object:self 
 														  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
@@ -891,7 +931,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	playCount		= [stream valueForKey:@"playCount"];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[stream setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+	[stream setIsPlaying:NO];
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
 	
@@ -959,7 +999,9 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 {
 	[self updateStream:stream];
 	
-	// TODO: Write changes back to file
+	NSError					*error			= nil;
+	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:@"url"] error:&error];
+	BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
 }
 
 - (void) playlistDidChange:(Playlist *)playlist
@@ -999,6 +1041,46 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
     }
 	
     return nil;
+}
+
+- (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+/*	if([aTableView isEqual:_playlistTableView] && [[aTableColumn identifier] isEqualToString:@"name"]) {
+		NSDictionary			*infoForBinding;
+		
+		infoForBinding			= [aTableView infoForBinding:NSContentBinding];
+		
+		if(nil != infoForBinding) {
+			NSArrayController	*arrayController;
+			Playlist			*playlistObject;
+			
+			arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
+			playlistObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+			
+			[aCell setImage:[playlistObject imageScaledToSize:NSMakeSize(16.0, 16.0)]];
+		}
+	}
+	else*/ if([aTableView isEqual:_streamTable]) {
+		NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
+		
+		if(nil != infoForBinding && [aCell respondsToSelector:@selector(setDrawsBackground:)]) {
+			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
+			AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+			
+			// Highlight the currently playing stream (doesn't work for NSButtonCell)
+			if([stream isPlaying]) {
+				[aCell setDrawsBackground:YES];
+				
+				// Emacs "NavajoWhite" -> 255, 222, 173
+				//				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
+				// Emacs "LightSteelBlue" -> 176, 196, 222
+				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
+			}
+			else {
+				[aCell setDrawsBackground:NO];
+			}
+		}
+	}
 }
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
@@ -1042,6 +1124,21 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		NSLog(@"Added files in %f seconds", elapsed);
 #endif
 	}
+}
+
+- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioStreamInformationSheet *streamInformationSheet = (AudioStreamInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[_streamController rearrangeObjects];
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[streamInformationSheet release];
 }
 
 @end
@@ -1851,7 +1948,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[[self player] stop];
 	
 	if(nil != currentStream) {
-		[currentStream setValue:[NSNumber numberWithBool:NO] forKey:@"isPlaying"];
+		[currentStream setIsPlaying:NO];
 		[self setNowPlaying:nil];
 	}
 	
@@ -1863,13 +1960,12 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		return;
 	}
 	
-	[stream setValue:[NSNumber numberWithBool:YES] forKey:@"isPlaying"];
-	
+	[stream setIsPlaying:YES];	
 	[self setNowPlaying:stream];
 	
-	if(nil == [stream valueForKey:@"albumArt"]) {
+/*	if(nil == [stream valueForKey:@"albumArt"]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
-	}
+	}*/
 	
 	[[self player] play];
 	
@@ -2086,13 +2182,13 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 - (void) setupPlaylistTable
 {
-	// Setup playlist table
+/*	// Setup playlist table
 	NSTableColumn	*tableColumn	= [_playlistTable tableColumnWithIdentifier:@"name"];
 	NSCell			*dataCell		= [[ImageAndTextCell alloc] init];
 	
 	[tableColumn setDataCell:dataCell];
 	[tableColumn bind:@"value" toObject:_playlistController withKeyPath:@"arrangedObjects.name" options:nil];
-	[dataCell release];	
+	[dataCell release];	*/
 }
 
 #pragma mark Stream Table Management
