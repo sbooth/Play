@@ -34,7 +34,7 @@
     semaphore_t			_semaphore;
 }
 
-- (void)	start:(AudioStream *)streamObject;
+- (void)	start:(AudioStream *)stream;
 - (void)	stop;
 - (void)	pause;
 - (void)	resume;
