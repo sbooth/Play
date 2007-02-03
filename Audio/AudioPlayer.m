@@ -236,7 +236,7 @@ MyRenderNotification(void							*inRefCon,
 			return nil;
 		}
 		
-		err							= OpenAComponent(comp, &_audioUnit);
+		err = OpenAComponent(comp, &_audioUnit);
 		
 		if(noErr != err || NULL == comp) {
 			printf ("OpenAComponent=%ld\n", err);
@@ -249,12 +249,12 @@ MyRenderNotification(void							*inRefCon,
 		input.inputProc				= MyRenderer;
 		input.inputProcRefCon		= (void *)self;
 		
-		err							= AudioUnitSetProperty(_audioUnit, 
-														   kAudioUnitProperty_SetRenderCallback, 
-														   kAudioUnitScope_Input,
-														   0, 
-														   &input, 
-														   sizeof(input));
+		err = AudioUnitSetProperty(_audioUnit, 
+								   kAudioUnitProperty_SetRenderCallback, 
+								   kAudioUnitScope_Input,
+								   0, 
+								   &input, 
+								   sizeof(input));
 		if(noErr != err) {
 			printf ("AudioUnitSetProperty-CB=%ld\n", err);
 			
@@ -262,8 +262,7 @@ MyRenderNotification(void							*inRefCon,
 			return nil;
 		}
 			
-		s							= AudioUnitInitialize(_audioUnit);
-		
+		s = AudioUnitInitialize(_audioUnit);
 		if(noErr != s) {
 			printf ("AudioUnitInitialize-CB=%ld\n", s);
 			
@@ -284,26 +283,22 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) dealloc
 {
-	NSLog(@"Player dealloc");
-	ComponentResult				result;
-	
 	[self stop];
 	
-	result						= AudioUnitUninitialize(_audioUnit);
-	
+	ComponentResult result = AudioUnitUninitialize(_audioUnit);
 	if(noErr != result) {
 		NSLog(@"AudioUnitUninitialize failed: %ld", result);
 	}
 	
-	CloseComponent(_audioUnit),			_audioUnit = NULL;
+	CloseComponent(_audioUnit), _audioUnit = NULL;
 
 	if(nil != [self streamDecoder]) {
 		[[self streamDecoder] stopDecoding:nil];
 		[_streamDecoder release],		_streamDecoder = nil;
 	}
 	
-	[_secondsFormatter release],		_secondsFormatter = nil;
-	[_runLoop release],					_runLoop = nil;
+	[_secondsFormatter release], _secondsFormatter = nil;
+	[_runLoop release], _runLoop = nil;
 	
 	[super dealloc];
 }
@@ -330,8 +325,7 @@ MyRenderNotification(void							*inRefCon,
 		
 	}
 	
-	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:error];
-	
+	streamDecoder = [AudioStreamDecoder streamDecoderForURL:url error:error];
 	if(nil == streamDecoder) {
 
 		if(nil != error) {
@@ -350,13 +344,13 @@ MyRenderNotification(void							*inRefCon,
 	[self didChangeValueForKey:@"totalFrames"];
 	[self didChangeValueForKey:@"currentFrame"];
 	
-	pcmFormat					= [[self streamDecoder] pcmFormat];
-	result						= AudioUnitSetProperty([self audioUnit],
-													   kAudioUnitProperty_StreamFormat,
-													   kAudioUnitScope_Input,
-													   0,
-													   &pcmFormat,
-													   sizeof(AudioStreamBasicDescription));
+	pcmFormat	= [[self streamDecoder] pcmFormat];
+	result		= AudioUnitSetProperty([self audioUnit],
+									   kAudioUnitProperty_StreamFormat,
+									   kAudioUnitScope_Input,
+									   0,
+									   &pcmFormat,
+									   sizeof(AudioStreamBasicDescription));
 	
 	if(noErr != result) {
 		printf ("AudioUnitSetProperty-SF=%4.4s, %ld\n", (char*)&result, result); 
@@ -374,10 +368,8 @@ MyRenderNotification(void							*inRefCon,
 - (BOOL) setNextStreamURL:(NSURL *)url error:(NSError **)error
 {
 	AudioStreamBasicDescription		pcmFormat, nextPCMFormat;
-	AudioStreamDecoder				*streamDecoder;
 		
-	streamDecoder				= [AudioStreamDecoder streamDecoderForURL:url error:error];
-	
+	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForURL:url error:error];	
 	if(nil == streamDecoder) {
 		
 		if(nil != error) {
@@ -438,10 +430,7 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) play
 {
-	ComponentResult				result;
-	
-	result						= AudioOutputUnitStart([self audioUnit]);
-	
+	ComponentResult result = AudioOutputUnitStart([self audioUnit]);	
 	if(noErr != result) {
 		printf ("AudioOutputUnitStart=%ld\n", result);
 	}
@@ -461,10 +450,7 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) stop
 {
-	ComponentResult				result;
-	
-	result						= AudioOutputUnitStop([self audioUnit]);
-	
+	ComponentResult result = AudioOutputUnitStop([self audioUnit]);	
 	if(noErr != result) {
 		printf ("AudioOutputUnitStop=%ld\n", result);
 	}
@@ -484,17 +470,12 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipForward:(UInt32)seconds
 {
-	SInt64							currentFrame;
-	SInt64							desiredFrame;
-	SInt64							totalFrames;
-	AudioStreamDecoder				*streamDecoder;
-	
-	streamDecoder					= [self streamDecoder];
+	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		totalFrames					= [streamDecoder totalFrames];
-		currentFrame				= [streamDecoder currentFrame];
-		desiredFrame				= currentFrame + (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+		SInt64 totalFrames		= [streamDecoder totalFrames];
+		SInt64 currentFrame		= [streamDecoder currentFrame];
+		SInt64 desiredFrame		= currentFrame + (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
 		
 		if(totalFrames < desiredFrame) {
 			desiredFrame = totalFrames;
@@ -506,15 +487,11 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipBackward:(UInt32)seconds
 {
-	SInt64							currentFrame;
-	SInt64							desiredFrame;
-	AudioStreamDecoder				*streamDecoder;
-	
-	streamDecoder					= [self streamDecoder];
+	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		currentFrame				= [streamDecoder currentFrame];
-		desiredFrame				= currentFrame - (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+		SInt64 currentFrame		= [streamDecoder currentFrame];
+		SInt64 desiredFrame		= currentFrame - (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
 		
 		if(0 > desiredFrame) {
 			desiredFrame = 0;
@@ -526,24 +503,17 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipToEnd
 {
-	SInt64							totalFrames;
-	AudioStreamDecoder				*streamDecoder;
-	
-	streamDecoder					= [self streamDecoder];
+	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		totalFrames					= [streamDecoder totalFrames];		
-		
+		SInt64 totalFrames = [streamDecoder totalFrames];		
 		[self setCurrentFrame:totalFrames - 1];
 	}
 }
 
 - (void) skipToBeginning
 {
-	AudioStreamDecoder				*streamDecoder;
-	
-	streamDecoder					= [self streamDecoder];
-	
+	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
 		[self setCurrentFrame:0];
 	}
@@ -558,10 +528,8 @@ MyRenderNotification(void							*inRefCon,
 
 - (Float32) volume
 {
-	ComponentResult					result;
-	Float32							volume;
-	
-	result							= AudioUnitGetParameter([self audioUnit],
+	Float32				volume;	
+	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
 															kHALOutputParam_Volume,
 															kAudioUnitScope_Global,
 															0,
@@ -576,14 +544,12 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) setVolume:(Float32)volume
 {
-	ComponentResult					result;
-	
-	result							= AudioUnitSetParameter([self audioUnit],
-															kHALOutputParam_Volume,
-															kAudioUnitScope_Global,
-															0,
-															volume,
-															0);
+	ComponentResult result = AudioUnitSetParameter([self audioUnit],
+												   kHALOutputParam_Volume,
+												   kAudioUnitScope_Global,
+												   0,
+												   volume,
+												   0);
 
 	if(noErr != result) {
 		NSLog(@"Unable to set volume: %i", result);
@@ -592,11 +558,8 @@ MyRenderNotification(void							*inRefCon,
 
 - (SInt64) totalFrames
 {
-	SInt64							result;
-	AudioStreamDecoder				*streamDecoder;
-	
-	result							= -1;
-	streamDecoder					= [self streamDecoder];
+	SInt64				result				= -1;
+	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
 		result						= [streamDecoder totalFrames];
@@ -607,11 +570,8 @@ MyRenderNotification(void							*inRefCon,
 
 - (SInt64) currentFrame
 {
-	SInt64							result;
-	AudioStreamDecoder				*streamDecoder;
-	
-	result							= -1;
-	streamDecoder					= [self streamDecoder];
+	SInt64				result				= -1;
+	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
 		result						= [streamDecoder currentFrame];
@@ -622,20 +582,16 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) setCurrentFrame:(SInt64)currentFrame
 {
-	AudioStreamDecoder				*streamDecoder;
-	SInt64							seekedFrame;
-	BOOL							isPlaying;
-	
-	streamDecoder					= [self streamDecoder];
+	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		isPlaying					= [self isPlaying];
+		BOOL isPlaying = [self isPlaying];
 		
 		if(isPlaying) {
 			[self stop];
 		}
 		
-		seekedFrame					= [streamDecoder seekToFrame:currentFrame];
+		SInt64 seekedFrame = [streamDecoder seekToFrame:currentFrame];
 
 #if DEBUG
 		if(seekedFrame != currentFrame) {
@@ -658,12 +614,9 @@ MyRenderNotification(void							*inRefCon,
 
 - (NSString *) totalSecondsString
 {
-	NSString						*result;
-	NSTimeInterval					timeInterval;
-	AudioStreamDecoder				*streamDecoder;
-
-	result							= nil;
-	streamDecoder					= [self streamDecoder];
+	NSString			*result			= nil;
+	NSTimeInterval		timeInterval	= 0.0;
+	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
 		timeInterval				= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);				
@@ -675,12 +628,9 @@ MyRenderNotification(void							*inRefCon,
 
 - (NSString *) currentSecondString
 {
-	NSString						*result;
-	NSTimeInterval					timeInterval;
-	AudioStreamDecoder				*streamDecoder;
-	
-	result							= nil;
-	streamDecoder					= [self streamDecoder];
+	NSString			*result			= nil;
+	NSTimeInterval		timeInterval	= 0.0;
+	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
 		timeInterval				= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);		
@@ -692,12 +642,9 @@ MyRenderNotification(void							*inRefCon,
 
 - (NSString *) secondsRemainingString
 {
-	NSString						*result;
-	NSTimeInterval					timeInterval;
-	AudioStreamDecoder				*streamDecoder;
-	
-	result							= nil;
-	streamDecoder					= [self streamDecoder];
+	NSString			*result			= nil;
+	NSTimeInterval		timeInterval	= 0.0;
+	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
 		timeInterval				= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
