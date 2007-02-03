@@ -23,7 +23,6 @@
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = PlayApplication; LANGUAGE = ObjC; SUPERCLASS = NSApplication; }, 
         {CLASS = PlayApplicationDelegate; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {checkForUpdates = id; }; 

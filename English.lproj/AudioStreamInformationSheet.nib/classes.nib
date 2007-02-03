@@ -4,17 +4,11 @@
             ACTIONS = {cancel = id; chooseAlbumArt = id; ok = id; }; 
             CLASS = AudioStreamInformationSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {
-                "_albumArtImageView" = NSImageView; 
-                "_sheet" = NSWindow; 
-                "_streamObjectController" = NSObjectController; 
-            }; 
+            OUTLETS = {"_albumArtImageView" = NSImageView; "_sheet" = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = CompilationButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
         {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = TagTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }
