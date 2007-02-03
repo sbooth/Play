@@ -29,10 +29,9 @@
 
 - (void) awakeFromNib
 {
-	NSFormatter		*formatter		= [[SecondsFormatter alloc] init];
+	NSFormatter *formatter = [[SecondsFormatter alloc] init];
 	
 	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
-	
 	[formatter release];
 }
 
@@ -56,7 +55,7 @@
 			NSBeep();
 		}
 		else {
-			[_streamArrayController removeObjectsAtArrangedObjectIndexes:[self selectedRowIndexes]];
+			[_streamController removeObjectsAtArrangedObjectIndexes:[self selectedRowIndexes]];
 		}
 	}
 	else {
@@ -88,24 +87,21 @@
 
 - (IBAction) openWithFinder:(id)sender
 {
-	NSURL		*url	= [NSURL URLWithString:[[_streamArrayController selection] valueForKey:@"url"]];
-	NSString	*path	= [url path];
+	NSString *path = [[_streamController selection] valueForKey:@"filename"];
 
 	[[NSWorkspace sharedWorkspace] openFile:path];
 }
 
 - (IBAction) revealInFinder:(id)sender
 {
-	NSURL		*url	= [NSURL URLWithString:[[_streamArrayController selection] valueForKey:@"url"]];
-	NSString	*path	= [url path];
+	NSString *path = [[_streamController selection] valueForKey:@"filename"];
 
 	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
 }
 
 - (IBAction) convertWithMax:(id)sender
 {
-	NSURL		*url	= [NSURL URLWithString:[[_streamArrayController selection] valueForKey:@"url"]];
-	NSString	*path	= [url path];
+	NSString *path = [[_streamController selection] valueForKey:@"filename"];
 	
 	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
 }
@@ -114,7 +110,13 @@
 {
 	NSOpenPanel		*panel		= [NSOpenPanel openPanel];
 	
-	[panel beginSheetForDirectory:@"/Applications" file:nil types:[NSArray arrayWithObject:@"app"] modalForWindow:[self window] modalDelegate:self didEndSelector:@selector(openWithPanelDidEnd:returnCode:contextInfo:) contextInfo:NULL];	
+	[panel beginSheetForDirectory:@"/Applications" 
+							 file:nil
+							types:[NSArray arrayWithObject:@"app"] 
+				   modalForWindow:[self window] 
+					modalDelegate:self 
+				   didEndSelector:@selector(openWithPanelDidEnd:returnCode:contextInfo:) 
+					  contextInfo:NULL];	
 }
 
 @end
@@ -124,11 +126,10 @@
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
 	if(NSOKButton == returnCode) {
-		NSURL				*url				= [NSURL URLWithString:[[_streamArrayController selection] valueForKey:@"url"]];
-		NSString			*path				= [url path];
-		NSArray				*applications		= [panel filenames];
-		NSString			*applicationPath	= nil;
-		unsigned			i;
+		NSString		*path				= [[_streamController selection] valueForKey:@"filename"];
+		NSArray			*applications		= [panel filenames];
+		NSString		*applicationPath	= nil;
+		unsigned		i;
 		
 		for(i = 0; i < [applications count]; ++i) {
 			applicationPath = [applications objectAtIndex:i];
