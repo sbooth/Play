@@ -30,7 +30,6 @@
 - (void) awakeFromNib
 {
 	NSFormatter *formatter = [[SecondsFormatter alloc] init];
-	
 	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
 	[formatter release];
 }
@@ -87,27 +86,29 @@
 
 - (IBAction) openWithFinder:(id)sender
 {
-	NSString *path = [[_streamController selection] valueForKey:@"filename"];
+	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
 	[[NSWorkspace sharedWorkspace] openFile:path];
 }
 
 - (IBAction) revealInFinder:(id)sender
 {
-	NSString *path = [[_streamController selection] valueForKey:@"filename"];
+	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
 	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
 }
 
 - (IBAction) convertWithMax:(id)sender
 {
-	NSString *path = [[_streamController selection] valueForKey:@"filename"];
+	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
 	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
 }
 
 - (IBAction) openWith:(id)sender
 {
-	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	NSOpenPanel		*panel				= [NSOpenPanel openPanel];
+	NSArray			*paths				= NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES);
+	NSString		*applicationFolder	= (0 == [paths count] ? nil : [paths objectAtIndex:0]);
 	
-	[panel beginSheetForDirectory:@"/Applications" 
+	[panel beginSheetForDirectory:applicationFolder 
 							 file:nil
 							types:[NSArray arrayWithObject:@"app"] 
 				   modalForWindow:[self window] 
@@ -123,7 +124,7 @@
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
 	if(NSOKButton == returnCode) {
-		NSString		*path				= [[_streamController selection] valueForKey:@"filename"];
+		NSString		*path				= [[[_streamController selection] valueForKey:@"url"] path];
 		NSArray			*applications		= [panel filenames];
 		NSString		*applicationPath	= nil;
 		unsigned		i;
