@@ -1,5 +1,5 @@
 /*
- *  $Id: AudioMetadataEditingSheet.m 227 2007-01-21 06:22:13Z stephen_booth $
+ *  $Id$
  *
  *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
  *

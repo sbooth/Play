@@ -20,24 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioLibrary;
-
-@interface AudioMetadataEditingSheet : NSObject
+@interface AudioStreamTableViewDataSource : NSObject
 {
-	IBOutlet NSWindow			*_sheet;
-	
-	id							_streams;
-	AudioLibrary				*_owner;
 }
-
-- (NSWindow *)			sheet;
-
-- (IBAction)			ok:(id)sender;
-- (IBAction)			cancel:(id)sender;
-
-//- (IBAction)			undo:(id)sender;
-//- (IBAction)			redo:(id)sender;
-
-- (NSArray *)			genres;
 
 @end
