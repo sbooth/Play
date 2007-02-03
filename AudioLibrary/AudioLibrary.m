@@ -46,6 +46,7 @@
 #import "AudioMetadataWriter.h"
 
 #import "AudioStreamInformationSheet.h"
+#import "AudioMetadataEditingSheet.h"
 
 //#import "ImageAndTextCell.h"
 
@@ -75,6 +76,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 @interface AudioLibrary (CallbackMethods)
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo;
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 // ========================================
@@ -379,21 +381,18 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 									   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
 										  contextInfo:streamInformationSheet];
 	}
-/*	else {
-		AudioMetadataEditingSheet	*metadataEditingSheet;
+	else {
+		AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
 		
-		metadataEditingSheet		= [[AudioMetadataEditingSheet alloc] init];
-		
+		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
 		[metadataEditingSheet setValue:self forKey:@"owner"];
 		
-		[[metadataEditingSheet valueForKey:@"streamArrayController"] addObjects:[_streamArrayController selectedObjects]];
-		
 		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
-									   modalForWindow:[self windowForSheet] 
+									   modalForWindow:[self window] 
 										modalDelegate:self 
 									   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
 										  contextInfo:metadataEditingSheet];
-	}*/
+	}
 }
 
 - (IBAction) newPlaylist:(id)sender
@@ -1139,6 +1138,21 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	}
 	
 	[streamInformationSheet release];
+}
+
+- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioMetadataEditingSheet *metadataEditingSheet = (AudioMetadataEditingSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[_streamController rearrangeObjects];
+	}
+	else if(NSCancelButton == returnCode) {
+	}
+	
+	[metadataEditingSheet release];
 }
 
 @end
