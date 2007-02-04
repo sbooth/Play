@@ -45,7 +45,7 @@
 		
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 			
-		result			= NSDragOperationCopy;
+		result = NSDragOperationCopy;
 	}
 	
 	return result;
@@ -64,7 +64,6 @@
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray *filenames = [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 		success = [library addFiles:filenames];
-//		success = YES;		
 	}
 	
 	return success;
@@ -85,7 +84,7 @@
 		NSMutableArray		*filenames				= [NSMutableArray array];
 		
 		for(i = 0; i < [objects count]; ++i) {
-			stream			= [objects objectAtIndex:i];
+			stream = [objects objectAtIndex:i];
 			
 			[objectIDs addObject:[stream valueForKey:@"id"]];
 			[filenames addObject:[[stream valueForKey:@"url"] path]];
