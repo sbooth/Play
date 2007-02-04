@@ -19,6 +19,7 @@
  */
 
 #import "PlayApplicationDelegate.h"
+#import "ServicesProvider.h"
 #import "AudioLibrary.h"
 #import "AudioScrobbler.h"
 #import "AudioStream.h"
@@ -62,6 +63,9 @@
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+	// Register services
+	[[NSApplication sharedApplication] setServicesProvider:[[[ServicesProvider alloc] init] autorelease]];
+
 	// Register for applicable audio notifications
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidStart:) 

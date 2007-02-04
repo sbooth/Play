@@ -245,6 +245,25 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Play/Play Selected File</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>playFile</string>
+			<key>NSPortName</key>
+			<string>Play</string>
+			<key>NSSendTypes</key>
+			<array>
+				<string>NSFilenamesPboardType</string>
+				<string>NSStringPboardType</string>
+			</array>
+		</dict>
+	</array>
 	<key>OSAScriptingDefinition</key>
 	<string>Play.sdef</string>
 	<key>SUFeedURL</key>
