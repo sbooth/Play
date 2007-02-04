@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
+		8C30A0770B74F8630007204B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0740B74F8630007204B /* main.m */; };
+		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
 		8C9C240C0B7249E000CE799A /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */; };
 		8C9C240D0B7249E000CE799A /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FE0B7249E000CE799A /* AIPlasticInfoButton.m */; };
 		8C9C240E0B7249E000CE799A /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24000B7249E000CE799A /* AIPlasticMinusButton.m */; };
@@ -64,7 +67,6 @@
 		8C9C27280B724B1000CE799A /* vdbemem.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C25890B724B0F00CE799A /* vdbemem.c */; };
 		8C9C27290B724B1000CE799A /* vtab.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C258A0B724B0F00CE799A /* vtab.c */; };
 		8C9C272A0B724B1000CE799A /* where.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C258B0B724B0F00CE799A /* where.c */; };
-		8C9C287C0B724C7C00CE799A /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C287B0B724C7C00CE799A /* PlayApplicationDelegate.m */; };
 		8C9C28890B724D2600CE799A /* Play.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C28880B724D2600CE799A /* Play.sdef */; };
 		8C9C2DC70B72AF0400CE799A /* AudioLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C2DC60B72AF0400CE799A /* AudioLibrary.m */; };
 		8C9C2DF90B72BC1A00CE799A /* AudioStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C2DF80B72BC1A00CE799A /* AudioStream.m */; };
@@ -171,7 +173,6 @@
 		8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
-		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -202,11 +203,15 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Play_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Play_Prefix.pch; sourceTree = "<group>"; };
+		8C30A0510B74F6220007204B /* ServicesProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServicesProvider.h; path = Application/ServicesProvider.h; sourceTree = "<group>"; };
+		8C30A0520B74F6220007204B /* ServicesProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServicesProvider.m; path = Application/ServicesProvider.m; sourceTree = "<group>"; };
+		8C30A0740B74F8630007204B /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Application/main.m; sourceTree = "<group>"; };
+		8C30A0750B74F8630007204B /* PlayApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlayApplicationDelegate.h; path = Application/PlayApplicationDelegate.h; sourceTree = "<group>"; };
+		8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlayApplicationDelegate.m; path = Application/PlayApplicationDelegate.m; sourceTree = "<group>"; };
 		8C9C23FB0B7249E000CE799A /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticButton.h; sourceTree = "<group>"; };
 		8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AIPlasticButton.m; sourceTree = "<group>"; };
 		8C9C23FD0B7249E000CE799A /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -299,8 +304,6 @@
 		8C9C25890B724B0F00CE799A /* vdbemem.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = vdbemem.c; sourceTree = "<group>"; };
 		8C9C258A0B724B0F00CE799A /* vtab.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = vtab.c; sourceTree = "<group>"; };
 		8C9C258B0B724B0F00CE799A /* where.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = where.c; sourceTree = "<group>"; };
-		8C9C287A0B724C7C00CE799A /* PlayApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PlayApplicationDelegate.h; sourceTree = "<group>"; };
-		8C9C287B0B724C7C00CE799A /* PlayApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PlayApplicationDelegate.m; sourceTree = "<group>"; };
 		8C9C28880B724D2600CE799A /* Play.sdef */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.sdef; name = Play.sdef; path = AppleScript/Play.sdef; sourceTree = "<group>"; };
 		8C9C28920B724D5400CE799A /* AudioScrobbler.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioScrobbler.h; path = AudioScrobbler/AudioScrobbler.h; sourceTree = "<group>"; };
 		8C9C28930B724D5400CE799A /* AudioScrobbler.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScrobbler.m; path = AudioScrobbler/AudioScrobbler.m; sourceTree = "<group>"; };
@@ -530,10 +533,12 @@
 		29B97315FDCFA39411CA2CEA /* Application */ = {
 			isa = PBXGroup;
 			children = (
-				8C9C287A0B724C7C00CE799A /* PlayApplicationDelegate.h */,
-				8C9C287B0B724C7C00CE799A /* PlayApplicationDelegate.m */,
+				8C30A0740B74F8630007204B /* main.m */,
+				8C30A0750B74F8630007204B /* PlayApplicationDelegate.h */,
+				8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */,
 				32CA4F630368D1EE00C91783 /* Play_Prefix.pch */,
-				29B97316FDCFA39411CA2CEA /* main.m */,
+				8C30A0510B74F6220007204B /* ServicesProvider.h */,
+				8C30A0520B74F6220007204B /* ServicesProvider.m */,
 			);
 			name = Application;
 			sourceTree = "<group>";
@@ -1038,7 +1043,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				8C9C240C0B7249E000CE799A /* AIPlasticButton.m in Sources */,
 				8C9C240D0B7249E000CE799A /* AIPlasticInfoButton.m in Sources */,
 				8C9C240E0B7249E000CE799A /* AIPlasticMinusButton.m in Sources */,
@@ -1087,7 +1091,6 @@
 				8C9C27280B724B1000CE799A /* vdbemem.c in Sources */,
 				8C9C27290B724B1000CE799A /* vtab.c in Sources */,
 				8C9C272A0B724B1000CE799A /* where.c in Sources */,
-				8C9C287C0B724C7C00CE799A /* PlayApplicationDelegate.m in Sources */,
 				8C9C2DC70B72AF0400CE799A /* AudioLibrary.m in Sources */,
 				8C9C2DF90B72BC1A00CE799A /* AudioStream.m in Sources */,
 				8C9C2E2D0B72BEE300CE799A /* Playlist.m in Sources */,
@@ -1140,6 +1143,9 @@
 				8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */,
 				8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */,
 				8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */,
+				8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */,
+				8C30A0770B74F8630007204B /* main.m in Sources */,
+				8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
