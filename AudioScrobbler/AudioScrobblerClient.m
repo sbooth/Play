@@ -31,6 +31,8 @@
 static in_addr_t 
 addressForHost(NSString *hostname)
 {
+	NSCParameterAssert(nil != hostname);
+	
 	in_addr_t			address;
 	struct hostent		*hostinfo;
 	
@@ -79,8 +81,6 @@ addressForHost(NSString *hostname)
 
 - (void) send:(NSString *)data
 {
-	NSParameterAssert(-1 != _socket);
-	
 	const char		*utf8data		= [data UTF8String];
 	unsigned		len				= strlen(utf8data);	
 	unsigned		bytesToSend		= len;
@@ -100,8 +100,6 @@ addressForHost(NSString *hostname)
 
 - (NSString *) receive
 {
-	NSParameterAssert(-1 != _socket);
-	
 	char		buffer			[ kBufferSize ];
 	int			readSize		= kBufferSize - 1;
 	ssize_t		bytesRead		= 0;
@@ -127,8 +125,6 @@ addressForHost(NSString *hostname)
 
 - (void) shutdown
 {
-//	NSParameterAssert(-1 != _socket);
-
 	int			result;
 	char		buffer [ kBufferSize ];
 	ssize_t		bytesRead;
