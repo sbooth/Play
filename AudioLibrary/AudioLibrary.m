@@ -60,6 +60,8 @@ static AudioLibrary *defaultLibrary = nil;
 // ========================================
 // Notification names
 // ========================================
+NSString * const	AudioStreamAddedToLibraryNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamAddedToLibraryNotification";
+NSString * const	AudioStreamDeletedFromLibraryNotification	= @"org.sbooth.Play.LibraryDocument.AudioStreamDeletedFromLibraryNotification";
 NSString * const	AudioStreamPlaybackDidStartNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStartNotification";
 NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStopNotification";
 NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidPauseNotification";
@@ -92,6 +94,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 - (void) connectToDatabase:(NSString *)databasePath;
 - (void) disconnectFromDatabase;
+
+- (void) beginTransaction;
+- (void) commitTransaction;
+- (void) rollbackTransaction;
 
 - (void) createStreamTable;
 - (void) createPlaylistTable;
@@ -257,6 +263,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[_sql release], _sql = nil;
 	[_streams release], _streams = nil;
 	[_playlists release], _playlists = nil;
+	[_undoManager release], _undoManager = nil;
 	
 	[super dealloc];
 }
@@ -341,9 +348,17 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	else if([anItem action] == @selector(insertPlaylistWithSelectedStreams:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
-	else {
-		return YES;
+	else if([anItem action] == @selector(scrollNowPlayingToVisible:)) {
+		return (nil != [self nowPlaying] && [[_streamController arrangedObjects] containsObject:[self nowPlaying]]);
 	}
+	else if([anItem action] == @selector(undo:)) {
+		return [[self undoManager] canUndo];
+	}
+	else if([anItem action] == @selector(redo:)) {
+		return [[self undoManager] canRedo];
+	}
+
+	return YES;
 }
 
 #pragma mark Action Methods
@@ -364,10 +379,18 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 					  contextInfo:nil];
 }
 
+- (IBAction) scrollNowPlayingToVisible:(id)sender
+{
+	AudioStream *stream = [self nowPlaying];
+	if(nil != stream && [[_streamController arrangedObjects] containsObject:stream]) {
+		[_streamTable scrollRowToVisible:[[_streamController arrangedObjects] indexOfObject:stream]];
+	}
+}
+
 - (IBAction) showStreamInformationSheet:(id)sender
 {
 	NSArray *streams = [_streamController selectedObjects];
-	
+		
 	if(0 == [streams count]) {
 		return;
 	}
@@ -376,6 +399,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		
 		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
 		[streamInformationSheet setValue:self forKey:@"owner"];
+		
+//		[self beginTransaction];
 		
 		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 									   modalForWindow:[self window] 
@@ -388,7 +413,9 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		
 		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
 		[metadataEditingSheet setValue:self forKey:@"owner"];
-		
+
+//		[self beginTransaction];
+
 		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
 									   modalForWindow:[self window] 
 										modalDelegate:self 
@@ -792,6 +819,14 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[[self window] setTitle:windowTitle];
 }
 
+- (NSUndoManager *) undoManager
+{
+	if(nil == _undoManager) {
+		_undoManager = [[NSUndoManager alloc] init];
+	}
+	return _undoManager;
+}
+
 #pragma mark Stream KVC Accessor Methods
 
 - (unsigned int) countOfStreams
@@ -817,6 +852,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 {
 	// The stream represented must already be added to the database	
 	[_streams insertObject:stream atIndex:index];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned int)index
@@ -826,6 +865,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	// was successful
 	[self deleteStream:[_streams objectAtIndex:index]];		
 	[_streams removeObjectAtIndex:index];
+
+//	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDeletedFromLibraryNotification 
+//														object:self 
+//													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 #pragma mark Playlist KVC Accessor Methods
@@ -904,12 +947,17 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setIsPlaying:NO];
+
+	[self beginTransaction];
+	
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
 	
 	if(nil == [stream valueForKey:@"firstPlayed"]) {
 		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
+	
+	[self commitTransaction];
 	
 	NSArray *filtered = [_streams filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"url == %@", url]];
 	
@@ -933,12 +981,17 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setIsPlaying:NO];
+
+	[self beginTransaction];
+	
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
 	
 	if(nil == [stream valueForKey:@"firstPlayed"]) {
 		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
+	
+	[self commitTransaction];
 	
 	[self playNextStream:self];
 }
@@ -1003,6 +1056,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSError					*error			= nil;
 	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:@"url"] error:&error];
 	BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
+	NSAssert(YES == result, @"Unable to save metadata to file.");
 }
 
 - (void) playlistDidChange:(Playlist *)playlist
@@ -1118,7 +1172,9 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		clock_t start = clock();
 #endif
 		
+		[self beginTransaction];
 		[self addFiles:[panel filenames]];
+		[self commitTransaction];
 
 #if SQL_DEBUG
 		clock_t end = clock();
@@ -1137,9 +1193,12 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+//		[self commitTransaction];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
+//		[self rollbackTransaction];
+		// TODO: refresh affected objects
 	}
 	
 	[streamInformationSheet release];
@@ -1152,9 +1211,12 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+//		[self commitTransaction];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
+//		[self rollbackTransaction];
+		// TODO: refresh affected objects
 	}
 	
 	[metadataEditingSheet release];
@@ -1170,6 +1232,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[[self player] reset];
 }
 
+- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
+{
+	return [self undoManager];
+}
 
 @end
 
@@ -1181,7 +1247,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
-	NSArray			*files				= [NSArray arrayWithObjects:@"select_all_streams", @"insert_stream", @"update_stream", @"delete_stream", nil];
+	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", @"select_all_streams", @"insert_stream", @"update_stream", @"delete_stream", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	int				result				= SQLITE_OK;
@@ -1235,6 +1301,48 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	int result = sqlite3_close(_db);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to close the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
 	_db = NULL;
+}
+
+- (void) beginTransaction
+{
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"begin_transaction"];
+	int				result			= SQLITE_OK;
+	
+	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	result = sqlite3_step(statement);
+	NSAssert1(SQLITE_DONE == result, @"Unable to begin an SQL transaction (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+}
+
+- (void) commitTransaction
+{
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"commit_transaction"];
+	int				result			= SQLITE_OK;
+	
+	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	result = sqlite3_step(statement);
+	NSAssert1(SQLITE_DONE == result, @"Unable to commit the SQL transaction (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+}
+
+- (void) rollbackTransaction
+{
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"rollback_transaction"];
+	int				result			= SQLITE_OK;
+	
+	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	result = sqlite3_step(statement);
+	NSAssert1(SQLITE_DONE == result, @"Unable to rollback the SQL transaction (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 }
 
 #pragma mark Table Creation
@@ -2057,7 +2165,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	BOOL		result		= [[self player] setStreamURL:[stream valueForKey:@"url"] error:&error];
 	
 	if(NO == result) {
-		BOOL errorRecoveryDone = [self presentError:error];
+		/*BOOL errorRecoveryDone =*/ [self presentError:error];
 		return;
 	}
 	

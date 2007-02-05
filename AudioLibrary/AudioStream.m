@@ -63,6 +63,8 @@
 			
 			nil];
 		
+		_notificationsEnabled = YES;
+
 		return self;
 	}
 	return nil;
@@ -86,24 +88,33 @@
 	[_streamInfo setValue:value forKey:key];
 }
 
-- (BOOL) isDirty
-{
-	return _isDirty;
-}
+- (BOOL) isDirty					{ return _isDirty; }
+- (void) setIsDirty:(BOOL)isDirty	{ _isDirty = isDirty; }
 
-- (void) setIsDirty:(BOOL)isDirty
+- (void) enableNotifications		{ [self setNotificationsEnabled:YES]; }
+- (void) disableNotifications		{ [self setNotificationsEnabled:NO]; }
+
+- (BOOL) notificationsEnabled		{ return _notificationsEnabled; }
+- (void) setNotificationsEnabled:(BOOL)notificationsEnabled
 {
-	_isDirty = isDirty;
+	_notificationsEnabled = notificationsEnabled;
+	
+	if([self notificationsEnabled] && [self isDirty]) {
+		[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+	}
 }
 
 - (void) setValue:(id)value forKey:(NSString *)key
 {
 	if([_databaseKeys containsObject:key]) {
 		[_streamInfo setValue:value forKey:key];
-//		[self setIsDirty:YES];
-		
+
+		[self setIsDirty:YES];
+
 		// Propagate changes to database
-		[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+		if([self notificationsEnabled]) {
+			[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+		}
 	}
 	else {
 		[super setValue:value forKey:key];

@@ -34,6 +34,7 @@ extern NSString * const		kMetadataAlbumArtistKey;
 	NSArray				*_databaseKeys;
 
 	BOOL				_isDirty;
+	BOOL				_notificationsEnabled;
 	
 	BOOL				_isPlaying;
 	id					_albumArt;
@@ -44,6 +45,12 @@ extern NSString * const		kMetadataAlbumArtistKey;
 
 - (BOOL) isDirty;
 - (void) setIsDirty:(BOOL)isDirty;
+
+- (void) enableNotifications;
+- (void) disableNotifications;
+
+- (BOOL) notificationsEnabled;
+- (void) setNotificationsEnabled:(BOOL)notificationsEnabled;
 
 - (BOOL) isPlaying;
 - (void) setIsPlaying:(BOOL)isPlaying;

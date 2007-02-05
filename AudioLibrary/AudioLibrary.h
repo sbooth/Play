@@ -29,6 +29,8 @@
 // ========================================
 // Notification names
 // ========================================
+extern NSString * const			AudioStreamAddedToLibraryNotification;
+extern NSString * const			AudioStreamDeletedFromLibraryNotification;
 extern NSString * const			AudioStreamPlaybackDidStartNotification;
 extern NSString * const			AudioStreamPlaybackDidStopNotification;
 extern NSString * const			AudioStreamPlaybackDidPauseNotification;
@@ -77,7 +79,9 @@ extern NSString * const			AudioStreamObjectKey;
 	
 	NSMutableDictionary			*_sql;
 	
-	sqlite3						*_db;	
+	sqlite3						*_db;
+	
+	NSUndoManager				*_undoManager;
 }
 
 // ========================================
@@ -115,6 +119,8 @@ extern NSString * const			AudioStreamObjectKey;
 
 // ========================================
 // Action methods
+- (IBAction) scrollNowPlayingToVisible:(id)sender;
+
 - (IBAction) showStreamInformationSheet:(id)sender;
 
 // ========================================
@@ -133,6 +139,8 @@ extern NSString * const			AudioStreamObjectKey;
 
 - (AudioStream *) nowPlaying;
 - (void) setNowPlaying:(AudioStream *)nowPlaying;
+
+- (NSUndoManager *) undoManager;
 
 // ========================================
 // AudioPlayer Callbacks
