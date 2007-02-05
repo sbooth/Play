@@ -12,6 +12,7 @@
                 playPause = id; 
                 playPreviousStream = id; 
                 previousPlaylist = id; 
+                scrollNowPlayingToVisible = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 
