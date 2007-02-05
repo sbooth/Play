@@ -60,23 +60,28 @@
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
 }
 
-/*- (IBAction) undo:(id)sender
+/*- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
 {
-	[[[self managedObjectContext] undoManager] undo];
+	return [_owner undoManager];
+}
+
+- (IBAction) undo:(id)sender
+{
+	[[_owner undoManager] undo];
 }
 
 - (IBAction) redo:(id)sender
 {
-	[[[self managedObjectContext] undoManager] redo];
+	[[_owner undoManager] redo];
 }
 
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
 	if([anItem action] == @selector(undo:)) {
-		return [[[self managedObjectContext] undoManager] canUndo];
+		return [[_owner undoManager] canUndo];
 	}
 	else if([anItem action] == @selector(redo:)) {
-		return [[[self managedObjectContext] undoManager] canRedo];
+		return [[_owner undoManager] canRedo];
 	}
 	
 	return YES;
