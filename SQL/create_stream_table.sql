@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'comment' 				TEXT,
 	'isrc' 					TEXT,
 	'mcn' 					TEXT,
-		
+
+	'file_type'				TEXT,
+	'format_type'			TEXT,
 	'bits_per_channel'		INTEGER,
 	'channels_per_frame'	INTEGER,
 	'sample_rate' 			REAL,

@@ -58,7 +58,8 @@
 
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:@"Monkey's Audio" forKey:@"formatName"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:@"fileType"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:@"formatType"];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)] forKey:@"totalFrames"];
 	//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_BITS_PER_SAMPLE)] forKey:@"bitsPerChannel"];

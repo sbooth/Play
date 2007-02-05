@@ -86,7 +86,8 @@
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:@"Musepack" forKey:@"formatName"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:@"fileType"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:@"formatType"];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:mpc_streaminfo_get_length_samples(&streaminfo)] forKey:@"totalFrames"];
 	//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
 	//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];

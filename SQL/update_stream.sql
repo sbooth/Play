@@ -18,13 +18,6 @@ UPDATE 'streams' SET
 		disc_total = ?,
 		comment = ?,
 		isrc = ?,
-		mcn = ?,
-		
-		bits_per_channel = ?,
-		channels_per_frame = ?,
-		sample_rate = ?,
-		total_frames = ?,
-		duration = ?,
-		bitrate = ?
+		mcn = ?		
 		
 	WHERE id == ?;

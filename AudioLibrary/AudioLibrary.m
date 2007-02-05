@@ -145,7 +145,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		[NSNumber numberWithBool:NO], @"albumArtist",
 		[NSNumber numberWithBool:YES], @"genre",
 		[NSNumber numberWithBool:YES], @"track",
-		[NSNumber numberWithBool:YES], @"formatName",
+		[NSNumber numberWithBool:NO], @"fileType",
+		[NSNumber numberWithBool:YES], @"formatType",
 		[NSNumber numberWithBool:NO], @"composer",
 		[NSNumber numberWithBool:YES], @"duration",
 		[NSNumber numberWithBool:NO], @"playCount",
@@ -162,7 +163,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		[NSNumber numberWithFloat:129], @"albumArtist",
 		[NSNumber numberWithFloat:63], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
-		[NSNumber numberWithFloat:88], @"formatName",
+		[NSNumber numberWithFloat:88], @"fileType",
+		[NSNumber numberWithFloat:88], @"formatType",
 		[NSNumber numberWithFloat:99], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
@@ -172,7 +174,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		nil];
 	
 	NSDictionary *columnOrderArray = [NSArray arrayWithObjects:
-		@"title", @"artist", @"albumTitle", @"genre", @"track", nil];
+		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
 	
 	NSDictionary *streamTableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
 		visibleColumnsDictionary, @"streamTableColumnVisibility",
@@ -284,7 +286,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[self setupStreamButtons];
 	[self setupPlaylistButtons];
 	[self setupStreamTableColumns];
-//	[self setupPlaylistTable];	
+	[self setupPlaylistTable];	
 }
 
 - (void) windowDidLoad
@@ -409,7 +411,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 1, [[playlist valueForKey:@"name"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind filename to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to insert a record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -868,7 +870,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_int(statement, 1, [[playlist valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to delete the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
@@ -1112,6 +1114,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 {	
 	if(NSOKButton == returnCode) {
 #if SQL_DEBUG
+		unsigned startCount = [_streams count];
 		clock_t start = clock();
 #endif
 		
@@ -1119,8 +1122,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 #if SQL_DEBUG
 		clock_t end = clock();
+		unsigned endCount = [_streams count];
+		unsigned filesAdded = endCount - startCount;
 		double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-		NSLog(@"Added files in %f seconds", elapsed);
+		NSLog(@"Added %i files in %f seconds (%i files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
 #endif
 	}
 }
@@ -1217,6 +1222,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 - (void) connectToDatabase:(NSString *)databasePath
 {
+	NSParameterAssert(nil != databasePath);
+	
 	int result = sqlite3_open([databasePath UTF8String], &_db);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to open the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
 }
@@ -1229,6 +1236,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to close the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
 	_db = NULL;
 }
+
+#pragma mark Table Creation
 
 - (void) createStreamTable
 {
@@ -1270,6 +1279,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 }
 
+#pragma mark Data Retrieval
+
 - (void) fetchData
 {
 	[self fetchStreams];
@@ -1284,9 +1295,6 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	const char		*rawText		= NULL;
 	NSString		*text			= nil;
 	AudioStream		*value			= nil;
-	double			doubleValue;
-	int				intValue;
-	long long		longLongValue;
 				
 	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 
@@ -1301,27 +1309,31 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	clock_t start = clock();
 #endif
 	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
 	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
 		value = [[AudioStream alloc] init];
 		
-		[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 0)] forKey:@"id"];		
-		rawText = (const char *)sqlite3_column_text(statement, 1);
-		if(NULL != rawText) {
+		// Stream ID and location
+		if(SQLITE_NULL != sqlite3_column_type(statement, 0)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 0)] forKey:@"id"];
+		}
+		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 1))) {
 			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
 			[value initValue:[NSURL URLWithString:text] forKey:@"url"];
 		}
 		
-		[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 2)] forKey:@"dateAdded"];
-		if(0.0 != (doubleValue = sqlite3_column_double(statement, 3))) {
-			[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:doubleValue] forKey:@"firstPlayed"];
+		// Statistics
+		if(SQLITE_NULL != sqlite3_column_type(statement, 2)) {
+			[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 2)] forKey:@"dateAdded"];
 		}
-		if(0.0 != (doubleValue = sqlite3_column_double(statement, 4))) {
-			[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:doubleValue] forKey:@"lastPlayed"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 3)) {
+			[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 3)] forKey:@"firstPlayed"];
 		}
-		[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 5)] forKey:@"playCount"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 4)) {
+			[value initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 4)] forKey:@"lastPlayed"];
+		}
+		if(SQLITE_NULL != sqlite3_column_type(statement, 5)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 5)] forKey:@"playCount"];
+		}
 
 		// Metadata
 		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 6))) {
@@ -1352,20 +1364,20 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
 			[value initValue:text forKey:@"date"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 13))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"compilation"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 13)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 13)] forKey:@"compilation"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 14))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"trackNumber"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 14)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 14)] forKey:@"trackNumber"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 15))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"trackTotal"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 15)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 15)] forKey:@"trackTotal"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 16))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"discNumber"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 16)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 16)] forKey:@"discNumber"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 17))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"discTotal"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 17)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 17)] forKey:@"discTotal"];
 		}
 		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 18))) {
 			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
@@ -1381,30 +1393,43 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		}
 		
 		// Properties
-		if(0 != (intValue = sqlite3_column_int(statement, 21))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"bitsPerChannel"];
+		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 21))) {
+			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
+			[value initValue:text forKey:@"fileType"];
 		}
-		if(0 != (intValue = sqlite3_column_int(statement, 22))) {
-			[value initValue:[NSNumber numberWithInt:intValue] forKey:@"channelsPerFrame"];
+		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 22))) {
+			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
+			[value initValue:text forKey:@"formatType"];
 		}
-		if(0.0 != (doubleValue = sqlite3_column_double(statement, 23))) {
-			[value initValue:[NSNumber numberWithDouble:doubleValue] forKey:@"sampleRate"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 23)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 23)] forKey:@"bitsPerChannel"];
 		}
-		if(0 != (longLongValue = sqlite3_column_int64(statement, 24))) {
-			[value initValue:[NSNumber numberWithLongLong:longLongValue] forKey:@"totalFrames"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 24)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 24)] forKey:@"channelsPerFrame"];
 		}
-		if(0.0 != (doubleValue = sqlite3_column_double(statement, 25))) {
-			[value initValue:[NSNumber numberWithDouble:doubleValue] forKey:@"duration"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 25)) {
+			[value initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, 25)] forKey:@"sampleRate"];
 		}
-		if(0.0 != (doubleValue = sqlite3_column_double(statement, 26))) {
-			[value initValue:[NSNumber numberWithDouble:doubleValue] forKey:@"bitrate"];
+		if(SQLITE_NULL != sqlite3_column_type(statement, 26)) {
+			[value initValue:[NSNumber numberWithLongLong:sqlite3_column_int64(statement, 26)] forKey:@"totalFrames"];
 		}
+		if(SQLITE_NULL != sqlite3_column_type(statement, 27)) {
+			[value initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, 27)] forKey:@"duration"];
+		}
+		if(SQLITE_NULL != sqlite3_column_type(statement, 28)) {
+			[value initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, 28)] forKey:@"bitrate"];
+		}
+		
+		NSAssert(nil != [value valueForKey:@"id"], @"No id for stream!");
 		
 		[_streams addObject:[value autorelease]];
 	}
 	
 	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
@@ -1524,6 +1549,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	AudioStream		*stream			= [[AudioStream alloc] init];
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"insert_stream"];
 	int				result			= SQLITE_OK;
+	id				value			= nil;
+	
+	NSParameterAssert(nil != url);
+	NSParameterAssert(nil != streamInfo);
 	
 	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 
@@ -1549,6 +1578,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	[stream initValue:[streamInfo valueForKey:@"isrc"] forKey:@"isrc"];
 	[stream initValue:[streamInfo valueForKey:@"mcn"] forKey:@"mcn"];
 
+	[stream initValue:[streamInfo valueForKey:@"fileType"] forKey:@"fileType"];
+	[stream initValue:[streamInfo valueForKey:@"formatType"] forKey:@"formatType"];
 	[stream initValue:[streamInfo valueForKey:@"bitsPerChannel"] forKey:@"bitsPerChannel"];
 	[stream initValue:[streamInfo valueForKey:@"channelsPerFrame"] forKey:@"channelsPerFrame"];
 	[stream initValue:[streamInfo valueForKey:@"sampleRate"] forKey:@"sampleRate"];
@@ -1561,110 +1592,147 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		[stream initValue:[[NSFileManager defaultManager] displayNameAtPath:[url path]] forKey:@"title"];
 	}
 	
-#if SQL_DEBUG
+/*#if SQL_DEBUG
 	clock_t start = clock();
-#endif
+#endif*/
 
 	@try {
+		// Stream ID and location
+		result = sqlite3_bind_text(statement, 1, [[[stream valueForKey:@"url"] absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		// Statistics
+		if(nil != (value = [stream valueForKey:@"dateAdded"])) {
+			result = sqlite3_bind_double(statement, 2, [value timeIntervalSinceReferenceDate]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"playCount"])) {
+			result = sqlite3_bind_int(statement, 5, [value intValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+
+		// Metadata
+		if(nil != (value = [stream valueForKey:@"title"])) {
+			result = sqlite3_bind_text(statement, 6, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"albumTitle"])) {
+			result = sqlite3_bind_text(statement, 7, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"artist"])) {
+			result = sqlite3_bind_text(statement, 8, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"albumArtist"])) {
+			result = sqlite3_bind_text(statement, 9, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"genre"])) {
+			result = sqlite3_bind_text(statement, 10, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"composer"])) {
+			result = sqlite3_bind_text(statement, 11, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"date"])) {
+			result = sqlite3_bind_text(statement, 12, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"compilation"])) {
+			result = sqlite3_bind_int(statement, 13, [value boolValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"trackNumber"])) {
+			result = sqlite3_bind_int(statement, 14, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"trackTotal"])) {
+			result = sqlite3_bind_int(statement, 15, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"discNumber"])) {
+			result = sqlite3_bind_int(statement, 16, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"discTotal"])) {
+			result = sqlite3_bind_int(statement, 17, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"comment"])) {
+			result = sqlite3_bind_text(statement, 18, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"isrc"])) {
+			result = sqlite3_bind_text(statement, 19, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"mcn"])) {
+			result = sqlite3_bind_text(statement, 20, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		
+		// Properties
+		if(nil != (value = [stream valueForKey:@"fileType"])) {
+			result = sqlite3_bind_text(statement, 21, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"formatType"])) {
+			result = sqlite3_bind_text(statement, 22, [value UTF8String], -1, SQLITE_TRANSIENT);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"bitsPerChannel"])) {
+			result = sqlite3_bind_int(statement, 23, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"channelsPerFrame"])) {
+			result = sqlite3_bind_int(statement, 24, [value unsignedIntValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"sampleRate"])) {
+			result = sqlite3_bind_double(statement, 25, [value doubleValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"totalFrames"])) {
+			result = sqlite3_bind_int64(statement, 26, [value longLongValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"duration"])) {
+			result = sqlite3_bind_double(statement, 27, [value doubleValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+		if(nil != (value = [stream valueForKey:@"bitrate"])) {
+			result = sqlite3_bind_double(statement, 28, [value doubleValue]);
+			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		}
+
+		result = sqlite3_step(statement);
+		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[url path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		[stream initValue:[NSNumber numberWithInt:sqlite3_last_insert_rowid(_db)] forKey:@"id"];
+		
 		result = sqlite3_reset(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 
 		result = sqlite3_clear_bindings(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		// File information
-		result = sqlite3_bind_text(statement, 1, [[[stream valueForKey:@"url"] absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind url to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		// Housekeeping info
-		result = sqlite3_bind_double(statement, 2, [[stream valueForKey:@"dateAdded"] timeIntervalSinceReferenceDate]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 5, [[stream valueForKey:@"playCount"] intValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		// Metadata
-		result = sqlite3_bind_text(statement, 6, [[stream valueForKey:@"title"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		result = sqlite3_bind_text(statement, 7, [[stream valueForKey:@"albumTitle"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind album to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		result = sqlite3_bind_text(statement, 8, [[stream valueForKey:@"artist"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 9, [[stream valueForKey:@"albumArtist"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 10, [[stream valueForKey:@"genre"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 11, [[stream valueForKey:@"composer"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 12, [[stream valueForKey:@"date"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 13, [[stream valueForKey:@"compilation"] boolValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 14, [[stream valueForKey:@"trackNumber"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 15, [[stream valueForKey:@"trackTotal"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 16, [[stream valueForKey:@"discNumber"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 17, [[stream valueForKey:@"discTotal"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 18, [[stream valueForKey:@"comment"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 19, [[stream valueForKey:@"isrc"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_text(statement, 20, [[stream valueForKey:@"mcn"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		// Properties
-		result = sqlite3_bind_int(statement, 21, [[stream valueForKey:@"bitsPerChannel"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int(statement, 22, [[stream valueForKey:@"channelsPerFrame"] unsignedIntValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_double(statement, 23, [[stream valueForKey:@"sampleRate"] doubleValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_int64(statement, 24, [[stream valueForKey:@"totalFrames"] longLongValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_double(statement, 25, [[stream valueForKey:@"duration"] doubleValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-		result = sqlite3_bind_double(statement, 26, [[stream valueForKey:@"bitrate"] doubleValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-
-		result = sqlite3_step(statement);
-		NSAssert1(SQLITE_DONE == result, @"Unable to insert a record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		[stream initValue:[NSNumber numberWithInt:sqlite3_last_insert_rowid(_db)] forKey:@"id"];
 	}
 	
 	@catch(NSException *exception) {
-		NSLog(@"Caught:%@",exception);
+		NSLog(@"%@",exception);
 		[stream release], stream = nil;
+
+		// Ignore the result code, because it will always be an error in this case
+		// (sqlite3_reset returns the result of the previous operation and we are in a catch block)
+		/*result =*/ sqlite3_reset(statement);
 	}
-	
-#if SQL_DEBUG
+		
+/*#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream insertion time = %f seconds", elapsed);
-#endif
+#endif*/
 	
 	return [stream autorelease];
 }
@@ -1673,103 +1741,107 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 {
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_stream"];
 	int				result			= SQLITE_OK;
+	id				value			= nil;
 	
+	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != [stream valueForKey:@"id"]);
+
 	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 
 #if SQL_DEBUG
 	clock_t start = clock();
 #endif
 
+	// Statistics
+	if(nil != (value = [stream valueForKey:@"firstPlayed"])) {
+		result = sqlite3_bind_double(statement, 1, [value timeIntervalSinceReferenceDate]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"lastPlayed"])) {
+		result = sqlite3_bind_double(statement, 2, [value timeIntervalSinceReferenceDate]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"playCount"])) {
+		result = sqlite3_bind_int(statement, 3, [value intValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	
+	// Metadata
+	if(nil != (value = [stream valueForKey:@"title"])) {
+		result = sqlite3_bind_text(statement, 4, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"albumTitle"])) {
+		result = sqlite3_bind_text(statement, 5, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"artist"])) {
+		result = sqlite3_bind_text(statement, 6, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"albumArtist"])) {
+		result = sqlite3_bind_text(statement, 7, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"genre"])) {
+		result = sqlite3_bind_text(statement, 8, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"composer"])) {
+		result = sqlite3_bind_text(statement, 9, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"date"])) {
+		result = sqlite3_bind_text(statement, 10, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"compilation"])) {
+		result = sqlite3_bind_int(statement, 11, [value boolValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"trackNumber"])) {
+		result = sqlite3_bind_int(statement, 12, [value unsignedIntValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"trackTotal"])) {
+		result = sqlite3_bind_int(statement, 13, [value unsignedIntValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"discNumber"])) {
+		result = sqlite3_bind_int(statement, 14, [value unsignedIntValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"discTotal"])) {
+		result = sqlite3_bind_int(statement, 15, [value unsignedIntValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"comment"])) {
+		result = sqlite3_bind_text(statement, 16, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"isrc"])) {
+		result = sqlite3_bind_text(statement, 17, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	if(nil != (value = [stream valueForKey:@"mcn"])) {
+		result = sqlite3_bind_text(statement, 18, [value UTF8String], -1, SQLITE_TRANSIENT);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+		
+	// Object ID
+	result = sqlite3_bind_int(statement, 19, [[stream valueForKey:@"id"] unsignedIntValue]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	
+	result = sqlite3_step(statement);
+	NSAssert2(SQLITE_DONE == result, @"Unable to update the record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:@"url"] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
+
 	result = sqlite3_clear_bindings(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 
-	
-	result = sqlite3_bind_double(statement, 1, [[stream valueForKey:@"firstPlayed"] timeIntervalSinceReferenceDate]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	result = sqlite3_bind_double(statement, 2, [[stream valueForKey:@"lastPlayed"] timeIntervalSinceReferenceDate]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	result = sqlite3_bind_int(statement, 3, [[stream valueForKey:@"playCount"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	// Metadata
-	result = sqlite3_bind_text(statement, 4, [[stream valueForKey:@"title"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 5, [[stream valueForKey:@"albumTitle"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind album to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 6, [[stream valueForKey:@"artist"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 7, [[stream valueForKey:@"albumArtist"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 8, [[stream valueForKey:@"genre"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 9, [[stream valueForKey:@"composer"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 10, [[stream valueForKey:@"date"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 11, [[stream valueForKey:@"compilation"] boolValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 12, [[stream valueForKey:@"trackNumber"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 13, [[stream valueForKey:@"trackTotal"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 14, [[stream valueForKey:@"discNumber"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 15, [[stream valueForKey:@"discTotal"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 16, [[stream valueForKey:@"comment"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 17, [[stream valueForKey:@"isrc"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 18, [[stream valueForKey:@"mcn"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	// Properties shouldn't change
-	/*
-	result = sqlite3_bind_int(statement, 19, [[stream valueForKey:@"bitsPerChannel"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 20, [[stream valueForKey:@"channelsPerFrame"] unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_double(statement, 21, [[stream valueForKey:@"sampleRate"] doubleValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int64(statement, 22, [[stream valueForKey:@"totalFrames"] longLongValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_double(statement, 23, [[stream valueForKey:@"duration"] doubleValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_double(statement, 24, [[stream valueForKey:@"bitrate"] doubleValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	*/
-	
-	// Object ID	
-	result = sqlite3_bind_int(statement, 25, [[stream valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to update the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
@@ -1782,28 +1854,31 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"delete_stream"];
 	int				result			= SQLITE_OK;
 	
+	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != [stream valueForKey:@"id"]);
+	
 	NSAssert(NULL != _db, NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
 #if SQL_DEBUG
 	clock_t start = clock();
 #endif
 
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_clear_bindings(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_int(statement, 1, [[stream valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	result = sqlite3_bind_int(statement, 1, [[stream valueForKey:@"id"] unsignedIntValue]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to delete the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
+	NSAssert2(SQLITE_DONE == result, @"Unable to delete the record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:@"url"] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+	result = sqlite3_clear_bindings(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream update time = %f seconds", elapsed);
+	NSLog(@"Stream delete time = %f seconds", elapsed);
 #endif	
 }
 
@@ -1820,10 +1895,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 1, [[playlist valueForKey:@"name"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind name to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_int(statement, 2, [[playlist valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to update the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -1852,16 +1927,16 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		result = sqlite3_bind_text(statement, 1, [[stream valueForKey:@"filename"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind filename to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		result = sqlite3_bind_text(statement, 2, [[stream valueForKey:@"title"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		result = sqlite3_bind_text(statement, 3, [[stream valueForKey:@"artist"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		result = sqlite3_bind_text(statement, 4, [[stream valueForKey:@"albumTitle"] UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind album to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		result = sqlite3_step(statement);
 		NSAssert1(SQLITE_DONE == result, @"Unable to insert a record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -1891,16 +1966,16 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 1, [[stream valueForKey:@"title"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind title to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 2, [[stream valueForKey:@"artist"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind artist to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 3, [[stream valueForKey:@"albumTitle"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind album to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_int(statement, 4, [[stream valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to update the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
@@ -1920,7 +1995,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_int(statement, 1, [[stream valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to delete the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
@@ -1940,10 +2015,10 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_text(statement, 1, [[playlist valueForKey:@"name"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind name to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_bind_int(statement, 2, [[playlist valueForKey:@"id"] intValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind id to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to update the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);

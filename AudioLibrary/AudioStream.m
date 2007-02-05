@@ -52,6 +52,8 @@
 			@"isrc",
 			@"mcn",
 
+			@"fileType",
+			@"formatType",
 			@"bitsPerChannel",
 			@"channelsPerFrame",
 			@"sampleRate",
@@ -84,10 +86,21 @@
 	[_streamInfo setValue:value forKey:key];
 }
 
+- (BOOL) isDirty
+{
+	return _isDirty;
+}
+
+- (void) setIsDirty:(BOOL)isDirty
+{
+	_isDirty = isDirty;
+}
+
 - (void) setValue:(id)value forKey:(NSString *)key
 {
 	if([_databaseKeys containsObject:key]) {
 		[_streamInfo setValue:value forKey:key];
+//		[self setIsDirty:YES];
 		
 		// Propagate changes to database
 		[[AudioLibrary defaultLibrary] audioStreamDidChange:self];

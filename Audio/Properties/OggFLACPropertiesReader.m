@@ -118,7 +118,8 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	result = FLAC__stream_decoder_process_until_end_of_metadata(flac);
 	NSAssert1(YES == result, @"FLAC__file_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(flac));
 	
-	[_localProperties setValue:@"FLAC" forKey:@"formatName"];
+	[_localProperties setValue:NSLocalizedStringFromTable(@"Ogg", @"Formats", @"") forKey:@"fileType"];
+	[_localProperties setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:@"formatType"];
 
 	result = FLAC__stream_decoder_finish(flac);
 	NSAssert1(YES == result, @"FLAC__stream_decoder_finish failed: %s", FLAC__stream_decoder_get_resolved_state_string(flac));

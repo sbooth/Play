@@ -51,7 +51,8 @@
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 
-	[propertiesDictionary setValue:@"WavPack" forKey:@"formatName"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:@"fileType"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:@"formatType"];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetNumSamples(wpc)] forKey:@"totalFrames"];
 	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetBitsPerSample(wpc)] forKey:@"bitsPerChannel"];
 	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetNumChannels(wpc)] forKey:@"channelsPerFrame"];

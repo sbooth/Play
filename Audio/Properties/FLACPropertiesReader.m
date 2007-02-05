@@ -87,7 +87,8 @@
 			case FLAC__METADATA_TYPE_STREAMINFO:
 				propertiesDictionary			= [NSMutableDictionary dictionary];
 				
-				[propertiesDictionary setValue:@"FLAC" forKey:@"formatName"];
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:@"fileType"];
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:@"formatType"];
 				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:@"totalFrames"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];

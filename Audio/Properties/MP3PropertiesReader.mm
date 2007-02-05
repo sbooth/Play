@@ -53,7 +53,8 @@
 	audioProperties							= f.audioProperties();
 	
 	if(NULL != audioProperties) {
-		[propertiesDictionary setValue:[NSString stringWithFormat:@"MPEG Layer %i", audioProperties->layer()] forKey:@"formatName"];
+		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG-1", @"Formats", @"") forKey:@"formatType"];
+		[propertiesDictionary setValue:[NSString stringWithFormat:NSLocalizedStringFromTable(@"MPEG Layer %i", @"Formats", @""), audioProperties->layer()] forKey:@"formatType"];
 		
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->channels()] forKey:@"channelsPerFrame"];
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->sampleRate()] forKey:@"sampleRate"];

@@ -32,12 +32,18 @@ extern NSString * const		kMetadataAlbumArtistKey;
 {
 	NSMutableDictionary *_streamInfo;
 	NSArray				*_databaseKeys;
+
+	BOOL				_isDirty;
+	
 	BOOL				_isPlaying;
 	id					_albumArt;
 }
 
 // Call this with the values retrieved from the database
 - (void) initValue:(id)value forKey:(NSString *)key;
+
+- (BOOL) isDirty;
+- (void) setIsDirty:(BOOL)isDirty;
 
 - (BOOL) isPlaying;
 - (void) setIsPlaying:(BOOL)isPlaying;

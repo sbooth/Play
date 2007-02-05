@@ -23,6 +23,8 @@ INSERT INTO 'streams' (
 		isrc,
 		mcn,
 		
+		file_type,
+		format_type,
 		bits_per_channel,
 		channels_per_frame,
 		sample_rate,
@@ -55,6 +57,8 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		
+		?,
+		?,
 		?, 
 		?, 
 		?, 

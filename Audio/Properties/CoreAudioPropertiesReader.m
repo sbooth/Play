@@ -100,7 +100,7 @@
 		
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:[fileFormat autorelease] forKey:@"formatName"];
+	[propertiesDictionary setValue:[fileFormat autorelease] forKey:@"formatType"];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
 	if(0 != asbd.mBitsPerChannel) {
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:@"bitsPerChannel"];
