@@ -24,6 +24,7 @@
 
 @implementation AudioStreamTableViewDataSource
 
+// 0 and nil indicate that the table should fall back to its bindings
 - (int) numberOfRowsInTableView:(NSTableView *)aTableView
 {
 	return 0;
@@ -39,12 +40,8 @@
 	NSDragOperation			result				= NSDragOperationNone;
 	NSDictionary			*infoForBinding		= [tableView infoForBinding:NSContentBinding];
 	
-	if(nil != infoForBinding && [info draggingSource] != tableView) {
-		NSArrayController	*arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
-		unsigned			objectCount				= [[arrayController arrangedObjects] count];
-		
+	if(nil != infoForBinding && [info draggingSource] != tableView) {		
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
-			
 		result = NSDragOperationCopy;
 	}
 	
@@ -54,16 +51,21 @@
 - (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)operation
 {
 	BOOL			success				= NO;
-	unsigned		count				= 0;
-	NSArray			*supportedTypes		= [NSArray arrayWithObject:NSFilenamesPboardType];
+	NSArray			*supportedTypes		= [NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil];
 	NSString		*bestType			= [[info draggingPasteboard] availableTypeFromArray:supportedTypes];	
 	AudioLibrary	*library			= [[tableView window] valueForKey:@"library"];
 
-	NSAssert(nil != library, @"No AudioLibrary found for NSTableView");
+	NSAssert(nil != library, @"No AudioLibrary found for AudioStreamTableView");
 	
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray *filenames = [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 		success = [library addFiles:filenames];
+	}
+	else if([bestType isEqualToString:NSURLPboardType]) {
+		NSURL *url = [NSURL URLFromPasteboard:[info draggingPasteboard]];
+		if([url isFileURL]) {
+			success = [library addFile:[url path]];
+		}
 	}
 	
 	return success;
