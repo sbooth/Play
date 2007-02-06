@@ -19,7 +19,6 @@
  */
 
 #import <Cocoa/Cocoa.h>
-
 #include <sqlite3.h>
 
 @class AudioPlayer;
@@ -86,7 +85,7 @@ extern NSString * const			AudioStreamObjectKey;
 
 // ========================================
 // The standard global instance
-+ (AudioLibrary *)	defaultLibrary;
++ (AudioLibrary *) defaultLibrary;
 
 // ========================================
 // Playback control
@@ -112,19 +111,22 @@ extern NSString * const			AudioStreamObjectKey;
 - (BOOL)		addFile:(NSString *)filename;
 - (BOOL)		addFiles:(NSArray *)filenames;
 
-- (IBAction)	newPlaylist:(id)sender;
+// ========================================
+// Playlist manipulation
+- (IBAction)	insertPlaylist:(id)sender;
+- (IBAction)	insertPlaylistWithSelection:(id)sender;
 
-- (void)		audioStreamDidChange:(AudioStream *)stream;
-- (void)		playlistDidChange:(Playlist *)playlist;
+- (IBAction)	nextPlaylist:(id)sender;
+- (IBAction)	previousPlaylist:(id)sender;
 
 // ========================================
 // Action methods
-- (IBAction) scrollNowPlayingToVisible:(id)sender;
+- (IBAction)	scrollNowPlayingToVisible:(id)sender;
 
-- (IBAction) showStreamInformationSheet:(id)sender;
+- (IBAction)	showStreamInformationSheet:(id)sender;
 
 // ========================================
-// Properties
+// Library properties
 - (BOOL)		randomizePlayback;
 - (void)		setRandomizePlayback:(BOOL)randomizePlayback;
 
@@ -143,7 +145,12 @@ extern NSString * const			AudioStreamObjectKey;
 - (NSUndoManager *) undoManager;
 
 // ========================================
-// AudioPlayer Callbacks
+// Database callbacks
+- (void)		audioStreamDidChange:(AudioStream *)stream;
+- (void)		playlistDidChange:(Playlist *)playlist;
+
+// ========================================
+// AudioPlayer callbacks
 - (void)		streamPlaybackDidStart:(NSURL *)url;
 - (void)		streamPlaybackDidComplete;
 - (void)		requestNextStream;
