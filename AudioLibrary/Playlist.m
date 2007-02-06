@@ -56,9 +56,15 @@
 	[[AudioLibrary defaultLibrary] playlistDidChange:self];
 }
 
+- (unsigned) hash
+{
+	// Database ID is guaranteed to be unique
+	return [[_d valueForKey:@"id"] unsignedIntValue];
+}
+
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%@: %@", [_d valueForKey:@"id"], [[NSFileManager defaultManager] displayNameAtPath:[_d valueForKey:@"filename"]]];
+	return [NSString stringWithFormat:@"[%@] %@", [_d valueForKey:@"id"], [_d valueForKey:@"name"]];
 }
 
 @end

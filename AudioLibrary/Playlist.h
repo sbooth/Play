@@ -21,12 +21,14 @@
 #import <Cocoa/Cocoa.h>
 
 // ========================================
-// Key Names
+// Playlist kinds
 // ========================================
-/*extern NSString * const			kTitleKey;
-extern NSString * const			kArtistKey;
-extern NSString * const			kAlbumArtistKey;
-extern NSString * const			kTitleKey;*/
+enum ePlaylistType {
+	ePlaylistTypeStaticPlaylist		= 0,
+	ePlaylistTypeFolderPlaylist		= 1,
+	ePlaylistTypeDynamicPlaylist	= 2
+};
+typedef enum ePlaylistType ePlaylistType;
 
 @interface Playlist : NSObject
 {
