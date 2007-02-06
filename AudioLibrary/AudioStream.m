@@ -124,6 +124,12 @@
 - (BOOL) isPlaying							{ return _isPlaying; }
 - (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
 
+- (unsigned) hash
+{
+	// Database ID is guaranteed to be unique
+	return [[_streamInfo valueForKey:@"id"] unsignedIntValue];
+}
+
 - (NSString *) description
 {
 	return [NSString stringWithFormat:@"[%@] %@", [_streamInfo valueForKey:@"id"], [[NSFileManager defaultManager] displayNameAtPath:[[_streamInfo valueForKey:@"url"] path]]];
