@@ -1,5 +1,5 @@
 INSERT INTO 'streams' (
-		
+
 		url, 
 		
 		date_added,
@@ -31,9 +31,11 @@ INSERT INTO 'streams' (
 		total_frames,
 		duration,
 		bitrate
+		
 	) 
 	
 	VALUES (
+	
 		?, 
 		
 		?, 
@@ -65,4 +67,5 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?
+		
 	);
