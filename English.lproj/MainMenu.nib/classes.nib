@@ -5,8 +5,8 @@
                 addFiles = id; 
                 insertDynamicPlaylist = id; 
                 insertFolderPlaylist = id; 
-                insertPlaylistWithSelectedStreams = id; 
-                insertStaticPlaylist = id; 
+                insertPlaylist = id; 
+                insertPlaylistWithSelection = id; 
                 nextPlaylist = id; 
                 playNextStream = id; 
                 playPause = id; 
