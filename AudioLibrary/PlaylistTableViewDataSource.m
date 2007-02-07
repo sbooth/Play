@@ -70,30 +70,12 @@
 	
 	if(nil != destinationContentBindingInfo) {
 		NSArrayController	*destinationArrayController	= [destinationContentBindingInfo objectForKey:NSObservedObjectKey];
-		NSArrayController	*sourceArrayController		= nil;
-		NSDictionary		*sourceContentBindingInfo	= [destinationArrayController infoForBinding:NSContentArrayBinding];
-		
-		if(nil != sourceContentBindingInfo) {
-			sourceArrayController = [sourceContentBindingInfo objectForKey:NSObservedObjectKey];  
-		}
-		
-		if(nil != sourceArrayController) {
-			NSArray		*objectIDs		= [objectIDString componentsSeparatedByString:@", "];
-			NSNumber	*objectID		= nil;
-			unsigned	i;
-			
-			for(i = 0; i < [objectIDs count]; ++i) {
-				objectID = [objectIDs objectAtIndex:i];
-				
-				if(nil != objectID) {
-					Playlist *playlist = [[destinationArrayController arrangedObjects] objectAtIndex:row];
+		Playlist			*playlist					= [[destinationArrayController arrangedObjects] objectAtIndex:row];
+		NSArray				*objectIDs					= [objectIDString componentsSeparatedByString:@", "];
+
+		[[AudioLibrary defaultLibrary] addStreamIDs:objectIDs toPlaylist:playlist];
 					
-					NSLog(@"Add stream %@ to playlist %@", objectID, playlist);
-					
-					success = YES;					
-				}
-			}
-		}
+		success = YES;					
 	}
 	
 	return success;

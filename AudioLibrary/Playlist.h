@@ -23,12 +23,11 @@
 // ========================================
 // Playlist kinds
 // ========================================
-enum ePlaylistType {
-	ePlaylistTypeStaticPlaylist		= 0,
-	ePlaylistTypeFolderPlaylist		= 1,
-	ePlaylistTypeDynamicPlaylist	= 2
-};
-typedef enum ePlaylistType ePlaylistType;
+typedef enum _ePlaylistType {
+	ePlaylistTypeStaticPlaylist		= 1,
+	ePlaylistTypeFolderPlaylist		= 2,
+	ePlaylistTypeDynamicPlaylist	= 3
+} ePlaylistType;
 
 @interface Playlist : NSObject
 {
@@ -38,5 +37,8 @@ typedef enum ePlaylistType ePlaylistType;
 
 // Call this with the values retrieved from the database
 - (void) initValue:(id)value forKey:(NSString *)key;
+
+- (ePlaylistType) type;
+- (NSString *) tableName;
 
 @end

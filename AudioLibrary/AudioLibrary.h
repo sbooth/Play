@@ -29,16 +29,20 @@
 // Notification names
 // ========================================
 extern NSString * const			AudioStreamAddedToLibraryNotification;
-extern NSString * const			AudioStreamDeletedFromLibraryNotification;
+extern NSString * const			AudioStreamRemovedFromLibraryNotification;
 extern NSString * const			AudioStreamPlaybackDidStartNotification;
 extern NSString * const			AudioStreamPlaybackDidStopNotification;
 extern NSString * const			AudioStreamPlaybackDidPauseNotification;
 extern NSString * const			AudioStreamPlaybackDidResumeNotification;
 
+extern NSString * const			PlaylistAddedToLibraryNotification;
+extern NSString * const			PlaylistRemovedFromLibraryNotification;
+
 // ========================================
 // Notification keys
 // ========================================
 extern NSString * const			AudioStreamObjectKey;
+extern NSString * const			PlaylistObjectKey;
 
 @interface AudioLibrary : NSWindowController
 {

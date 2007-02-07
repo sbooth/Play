@@ -22,9 +22,8 @@
 #include <sqlite3.h>
 
 #import "AudioLibrary.h"
-
-@class AudioStream;
-@class Playlist;
+#import "AudioStream.h"
+#import "Playlist.h"
 
 // ========================================
 // Database Methods
@@ -33,26 +32,46 @@
 // ========================================
 @interface AudioLibrary (DatabaseMethods)
 
+// ========================================
+// Prepared SQL statement management
 - (void) prepareSQL;
 - (void) finalizeSQL;
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action;
 
+// ========================================
+// Database connection
 - (void) connectToDatabase:(NSString *)databasePath;
 - (void) disconnectFromDatabase;
 
+// ========================================
+// Transaction support
 - (void) beginTransaction;
 - (void) commitTransaction;
 - (void) rollbackTransaction;
 
+// ========================================
+// Table creation
 - (void) createStreamTable;
 - (void) createPlaylistTable;
 
+- (void) createEntryTableForPlaylist:(Playlist *)playlist;
+- (void) createEntryTableForStaticPlaylist:(Playlist *)playlist;
+- (void) createEntryTableForFolderPlaylist:(Playlist *)playlist;
+- (void) createEntryTableForDynamicPlaylist:(Playlist *)playlist;
+
+- (void) dropEntryTableForPlaylist:(Playlist *)playlist;
+
+// ========================================
+// Data retrieval
 - (void) fetchData;
 
 - (void) fetchStreams;
 - (void) fetchPlaylists;
 
 - (void) fetchStreamsForPlaylist:(Playlist *)playlist;
+- (void) fetchStreamsForStaticPlaylist:(Playlist *)playlist;
+- (void) fetchStreamsForFolderPlaylist:(Playlist *)playlist;
+- (void) fetchStreamsForDynamicPlaylist:(Playlist *)playlist;
 
 // ========================================
 // Stream manipulation
@@ -62,8 +81,10 @@
 
 // ========================================
 // Playlist manipulation
-- (Playlist *) insertPlaylistOfType:(enum ePlaylistType)type name:(NSString *)name;
+- (Playlist *) insertPlaylistOfType:(ePlaylistType)type name:(NSString *)name;
 - (void) updatePlaylist:(Playlist *)playlist;
 - (void) deletePlaylist:(Playlist *)playlist;
+
+- (void) addStreamIDs:(NSArray *)streamIDs toPlaylist:(Playlist *)playlist;
 
 @end

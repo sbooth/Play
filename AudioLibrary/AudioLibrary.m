@@ -63,16 +63,20 @@ static AudioLibrary *defaultLibrary = nil;
 // Notification names
 // ========================================
 NSString * const	AudioStreamAddedToLibraryNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamAddedToLibraryNotification";
-NSString * const	AudioStreamDeletedFromLibraryNotification	= @"org.sbooth.Play.LibraryDocument.AudioStreamDeletedFromLibraryNotification";
+NSString * const	AudioStreamRemovedFromLibraryNotification	= @"org.sbooth.Play.LibraryDocument.AudioStreamRemovedFromLibraryNotification";
 NSString * const	AudioStreamPlaybackDidStartNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStartNotification";
 NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidStopNotification";
 NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidPauseNotification";
 NSString * const	AudioStreamPlaybackDidResumeNotification	= @"org.sbooth.Play.LibraryDocument.AudioStreamPlaybackDidResumeNotification";
 
+NSString * const	PlaylistAddedToLibraryNotification			= @"org.sbooth.Play.LibraryDocument.PlaylistAddedToLibraryNotification";
+NSString * const	PlaylistRemovedFromLibraryNotification		= @"org.sbooth.Play.LibraryDocument.PlaylistRemovedFromLibraryNotification";
+
 // ========================================
 // Notification keys
 // ========================================
 NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
+NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 // ========================================
 // Callback Methods (for sheets, etc.)
@@ -87,6 +91,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 // Private Methods
 // ========================================
 @interface AudioLibrary (Private)
+
+- (AudioStream *) streamForID:(NSNumber *)streamID;
 
 - (AudioPlayer *) player;
 
@@ -233,6 +239,12 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	
 	[super dealloc];
 }
+
+- (id) copyWithZone:(NSZone *)zone					{ return self; }
+- (id) retain										{ return self; }
+- (unsigned) retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
+- (void) release									{ /* do nothing */ }
+- (id) autorelease									{ return self; }
 
 - (void) awakeFromNib
 {
@@ -390,47 +402,6 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	}
 }
 
-/*- (IBAction) newPlaylist:(id)sender
-{
-	Playlist		*playlist			= [[Playlist alloc] init];
-	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
-	const char		*tail				= NULL;
-	
-	[playlist initValue:@"Untitled" forKey:@"name"];
-	
-	// Create the entry for the playist in the playlist table
-	result = sqlite3_prepare_v2(_db, "INSERT INTO playlists (name) VALUES (?)", -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_bind_text(statement, 1, [[playlist valueForKey:@"name"] UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to insert a record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, @"Unable to finalize sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	[playlist initValue:[NSNumber numberWithInt:sqlite3_last_insert_rowid(_db)] forKey:@"id"];
-	
-	// Create the table for the playlist
-	NSString *tableName = [NSString stringWithFormat:@"_playlist_%@", [playlist valueForKey:@"id"]];
-	NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS '%@' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'stream_id' INTEGER UNIQUE, 'index' INTEGER)", tableName];
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, @"Unable to prepare sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create a playlist table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, @"Unable to finalize sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	[_playlistController addObject:playlist];
-	
-	[playlist release];
-}*/
-
 #pragma mark File Addition
 
 - (BOOL) addFile:(NSString *)filename
@@ -511,10 +482,14 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 	if(nil != playlist) {
 		[_playlistController addObject:playlist];
 
-//		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
+		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
 			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
-//		}
+		}
+
+//		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
+//															object:self 
+//														  userInfo:nil];
 	}
 }
 
@@ -602,8 +577,16 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 - (IBAction) stop:(id)sender
 {
+	[self setNowPlaying:nil];
+
 	if([[self player] hasValidStream]) {
-		[[self player] stop];
+		
+		if([[self player] isPlaying]) {
+			[[self player] stop];
+		}
+		
+		[[self player] reset];
+
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStopNotification 
 															object:self
 														  userInfo:nil];
@@ -856,15 +839,24 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned int)index
 {
+	AudioStream *stream = [_streams objectAtIndex:index];
+	
+	if([stream isPlaying]) {
+		[self stop:self];
+	}
+	
+	// Just in case the notification's receiver mucks with the object
+	[stream setNotificationsEnabled:NO];
+	
 	// To keep the database and in-memory representation in sync, remove the 
 	// stream from the database first and then from the array if the removal
 	// was successful
-	[self deleteStream:[_streams objectAtIndex:index]];		
+	[self deleteStream:stream];		
 	[_streams removeObjectAtIndex:index];
 
-//	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDeletedFromLibraryNotification 
-//														object:self 
-//													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 #pragma mark Playlist KVC Accessor Methods
@@ -888,23 +880,32 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 
 #pragma mark Playlist KVC Mutator Methods
 
-- (void) insertObject:(id)stream inPlaylistsAtIndex:(unsigned int)index
+- (void) insertObject:(id)playlist inPlaylistsAtIndex:(unsigned int)index
 {
 	// The playlist represented must already be added to the database	
-	[_playlists insertObject:stream atIndex:index];
+	[_playlists insertObject:playlist atIndex:index];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:AudioStreamObjectKey]];
 }
 
 - (void) removeObjectFromPlaylistsAtIndex:(unsigned int)index
 {
+	Playlist *playlist = [_playlists objectAtIndex:index];
+		
+	// Just in case the notification's receiver mucks with the object
+//	[playlist setNotificationsEnabled:NO];
+
 	// To keep the database and in-memory representation in sync, remove the 
 	// playlist from the database first and then from the array if the removal
 	// was successful
-	[self deletePlaylist:[_playlists objectAtIndex:index]];		
+	[self deletePlaylist:playlist];		
 	[_playlists removeObjectAtIndex:index];
 	
-	//	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistDeletedFromLibraryNotification 
-	//														object:self 
-	//													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];	
+	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistRemovedFromLibraryNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];	
 }
 
 #pragma mark AudioPlayer Callbacks
@@ -1044,6 +1045,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 {
 	if([[aNotification object] isEqual:_playlistTable]) {
 		
+		NSNumber *nowPlayingID = [[self nowPlaying] valueForKey:@"id"];
 		unsigned count = [[_playlistController selectedObjects] count];
 		
 		if(0 == count) {
@@ -1055,7 +1057,16 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		}
 		else {
 			// SELECT [...] FROM streams WHERE id IN (SELECT stream_id FROM _playlist_9) OR id IN (SELECT stream_id FROM _playlist_10)
-		}		
+		}
+		
+		if(nil != nowPlayingID) {
+			AudioStream *newNowPlaying = [self streamForID:nowPlayingID];
+
+			if(nil != newNowPlaying) {
+				[newNowPlaying setIsPlaying:YES];
+				[self setNowPlaying:newNowPlaying];
+			}
+		}
 	}
 }
 
@@ -1150,6 +1161,8 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 		NSLog(@"Added %i files in %f seconds (%i files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
 #endif
+		
+		[_streamController rearrangeObjects];
 	}
 }
 
@@ -1207,6 +1220,14 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 @end
 
 @implementation AudioLibrary (Private)
+
+- (AudioStream *) streamForID:(NSNumber *)streamID
+{
+	NSParameterAssert(nil != streamID);
+	
+	NSArray *filtered = [_streams filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"id == %@", streamID]];
+	return (0 < [filtered count] ? [filtered objectAtIndex:0] : nil);
+}
 
 - (AudioPlayer *) player
 {
@@ -1276,6 +1297,7 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
 		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
 		
+		[_playPauseButton setState:NSOffState];
 		[_playPauseButton setImage:buttonImage];
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];

@@ -56,6 +56,16 @@
 	[[AudioLibrary defaultLibrary] playlistDidChange:self];
 }
 
+- (ePlaylistType) type
+{
+	return [[_d valueForKey:@"type"] intValue];
+}
+
+- (NSString *) tableName
+{
+	return [NSString stringWithFormat:@"playlist_%@_entries", [_d valueForKey:@"id"]];
+}
+
 - (unsigned) hash
 {
 	// Database ID is guaranteed to be unique
