@@ -94,6 +94,9 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			PropertiesDurationKey,
 			PropertiesBitrateKey,
 			
+			@"playlistEntryID",
+			@"playlistPosition",
+			
 			nil];
 		
 		_notificationsEnabled = YES;

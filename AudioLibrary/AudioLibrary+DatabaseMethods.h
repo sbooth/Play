@@ -86,5 +86,6 @@
 - (void) deletePlaylist:(Playlist *)playlist;
 
 - (void) addStreamIDs:(NSArray *)streamIDs toPlaylist:(Playlist *)playlist;
+- (void) removePlaylistEntryIDs:(NSArray *)entryIDs fromPlaylist:(Playlist *)playlist;
 
 @end

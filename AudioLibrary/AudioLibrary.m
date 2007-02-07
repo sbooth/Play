@@ -357,6 +357,23 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					  contextInfo:nil];
 }
 
+- (IBAction) removeAudioStreams:(id)sender
+{
+	NSArray *selectedPlaylists = [_playlistController selectedObjects];
+		
+	if(0 == [selectedPlaylists count]) {
+		[_streamController remove:sender];
+	}
+	else {
+		NSArray *selectedStreams = [_streamController selectedObjects];
+		[self removePlaylistEntryIDs:[selectedStreams valueForKey:@"playlistEntryID"] fromPlaylist:[selectedPlaylists objectAtIndex:0]];
+
+		[self willChangeValueForKey:@"streams"];
+		[_streams removeObjectsInArray:selectedStreams];
+		[self didChangeValueForKey:@"streams"];
+	}
+}
+
 - (IBAction) scrollNowPlayingToVisible:(id)sender
 {
 	AudioStream *stream = [self nowPlaying];
@@ -482,20 +499,37 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	if(nil != playlist) {
 		[_playlistController addObject:playlist];
 
+		[_playlistDrawer open:self];
+		
 		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
 			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
 		}
 
-//		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
-//															object:self 
-//														  userInfo:nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
+															object:self 
+														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
 	}
 }
 
 - (IBAction) insertPlaylistWithSelection:(id)sender;
 {
-	
+	Playlist *playlist = [self insertPlaylistOfType:ePlaylistTypeStaticPlaylist name:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"")];
+	if(nil != playlist) {
+		[self addStreamIDs:[[_streamController selectedObjects] valueForKey:StreamIDKey] toPlaylist:playlist];
+		[_playlistController addObject:playlist];
+		
+		[_playlistDrawer open:self];
+
+		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
+			// The playlist table has only one column for now
+			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
+		}
+				
+		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
+															object:self 
+														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
+	}
 }
 
 - (IBAction) nextPlaylist:(id)sender
@@ -534,7 +568,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[[self player] play];
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidResumeNotification 
 															object:self 
-														  userInfo:nil];
+														  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
 	}
 	
 	[self updatePlayButtonState];
@@ -551,12 +585,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		if([[self player] isPlaying]) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidResumeNotification 
 																object:self
-															  userInfo:nil];
+															  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
 		}
 		else {
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidPauseNotification
 																object:self
-															  userInfo:nil];
+															  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
 		}
 	}
 	
@@ -577,6 +611,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) stop:(id)sender
 {
+	AudioStream *stream = [self nowPlaying];
 	[self setNowPlaying:nil];
 
 	if([[self player] hasValidStream]) {
@@ -589,7 +624,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStopNotification 
 															object:self
-														  userInfo:nil];
+														  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 	}
 	
 	[self updatePlayButtonState];
@@ -1045,7 +1080,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if([[aNotification object] isEqual:_playlistTable]) {
 		
-		NSNumber *nowPlayingID = [[self nowPlaying] valueForKey:@"id"];
+		NSNumber *nowPlayingID = [[self nowPlaying] valueForKey:StreamIDKey];
 		unsigned count = [[_playlistController selectedObjects] count];
 		
 		if(0 == count) {
@@ -1335,8 +1370,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					  toObject:_streamController
 				   withKeyPath:@"canRemove"
 					   options:nil];
-	[_removeStreamsButton setAction:@selector(remove:)];
-	[_removeStreamsButton setTarget:_streamController];
+	[_removeStreamsButton setAction:@selector(removeAudioStreams:)];
+	[_removeStreamsButton setTarget:self];
 	
 	[_streamInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected streams", @"Player", @"")];
 	[_streamInfoButton bind:@"enabled"

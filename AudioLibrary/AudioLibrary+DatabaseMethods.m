@@ -687,6 +687,9 @@
 		}
 		
 		// Playlist entry info
+		if(SQLITE_NULL != sqlite3_column_type(statement, 29)) {
+			[value initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 29)] forKey:@"playlistEntryID"];
+		}
 		if(SQLITE_NULL != sqlite3_column_type(statement, 31)) {
 			[value initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, 31)] forKey:@"playlistPosition"];
 		}
@@ -1281,6 +1284,62 @@
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Added %i streams to %@ in %f seconds (%i streams per second)", [streamIDs count], playlist, elapsed, (double)[streamIDs count] / elapsed);
+#endif
+}
+
+- (void) removePlaylistEntryIDs:(NSArray *)entryIDs fromPlaylist:(Playlist *)playlist
+{
+	NSParameterAssert(nil != entryIDs);
+	NSParameterAssert(nil != playlist);
+	NSParameterAssert(nil != [playlist valueForKey:@"id"]);
+	NSParameterAssert(ePlaylistTypeStaticPlaylist == [playlist type]);
+	
+	sqlite3_stmt	*statement		= NULL;
+	int				result			= SQLITE_OK;
+	const char		*tail			= NULL;
+	NSError			*error			= nil;
+	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"delete_static_playlist_entry_table_entry" ofType:@"sql"];
+	NSString		*sqlTemplate	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+	NSString		*tableName		= [playlist tableName];
+	NSString		*sql			= [NSString stringWithFormat:sqlTemplate, tableName];
+	NSEnumerator	*enumerator		= [entryIDs objectEnumerator];
+	NSNumber		*entryID		= nil;
+	
+	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"delete_static_playlist_entry_table_entry");
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+		
+	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+	[self beginTransaction];
+
+	while((entryID = [enumerator nextObject])) {
+		
+		result = sqlite3_bind_int(statement, 1, [entryID intValue]);
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_step(statement);
+		NSAssert1(SQLITE_DONE == result, @"Unable to delete the record (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_reset(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_clear_bindings(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
+	}
+	
+	[self commitTransaction];
+
+	result = sqlite3_finalize(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Removed %i streams from %@ in %f seconds (%i streams per second)", [entryIDs count], playlist, elapsed, (double)[entryIDs count] / elapsed);
 #endif
 }
 

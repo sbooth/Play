@@ -125,6 +125,7 @@ extern NSString * const			PlaylistObjectKey;
 
 // ========================================
 // Action methods
+- (IBAction)	removeAudioStreams:(id)sender;
 - (IBAction)	scrollNowPlayingToVisible:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;

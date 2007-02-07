@@ -185,6 +185,7 @@
 		8CBEF99B0B7935130067CAE1 /* drop_playlist_entry_table.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF99A0B7935130067CAE1 /* drop_playlist_entry_table.sql */; };
 		8CBEF9C50B793BC60067CAE1 /* select_streams_for_static_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF9C40B793BC60067CAE1 /* select_streams_for_static_playlist.sql */; };
 		8CBEFAEB0B79A9340067CAE1 /* insert_static_playlist_entry_table_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEFAEA0B79A9340067CAE1 /* insert_static_playlist_entry_table_entry.sql */; };
+		8CBEFB900B79B1BB0067CAE1 /* delete_static_playlist_entry_table_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEFB8F0B79B1BB0067CAE1 /* delete_static_playlist_entry_table_entry.sql */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -480,6 +481,7 @@
 		8CBEF99A0B7935130067CAE1 /* drop_playlist_entry_table.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = drop_playlist_entry_table.sql; path = SQL/drop_playlist_entry_table.sql; sourceTree = "<group>"; };
 		8CBEF9C40B793BC60067CAE1 /* select_streams_for_static_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_streams_for_static_playlist.sql; path = SQL/select_streams_for_static_playlist.sql; sourceTree = "<group>"; };
 		8CBEFAEA0B79A9340067CAE1 /* insert_static_playlist_entry_table_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_static_playlist_entry_table_entry.sql; path = SQL/insert_static_playlist_entry_table_entry.sql; sourceTree = "<group>"; };
+		8CBEFB8F0B79B1BB0067CAE1 /* delete_static_playlist_entry_table_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_static_playlist_entry_table_entry.sql; path = SQL/delete_static_playlist_entry_table_entry.sql; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -915,6 +917,7 @@
 				8CBEF99A0B7935130067CAE1 /* drop_playlist_entry_table.sql */,
 				8CBEF9C40B793BC60067CAE1 /* select_streams_for_static_playlist.sql */,
 				8CBEFAEA0B79A9340067CAE1 /* insert_static_playlist_entry_table_entry.sql */,
+				8CBEFB8F0B79B1BB0067CAE1 /* delete_static_playlist_entry_table_entry.sql */,
 			);
 			name = SQL;
 			sourceTree = "<group>";
@@ -1089,6 +1092,7 @@
 				8CBEF99B0B7935130067CAE1 /* drop_playlist_entry_table.sql in Resources */,
 				8CBEF9C50B793BC60067CAE1 /* select_streams_for_static_playlist.sql in Resources */,
 				8CBEFAEB0B79A9340067CAE1 /* insert_static_playlist_entry_table_entry.sql in Resources */,
+				8CBEFB900B79B1BB0067CAE1 /* delete_static_playlist_entry_table_entry.sql in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
