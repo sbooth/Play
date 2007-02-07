@@ -425,6 +425,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	AudioStream				*stream				= nil;
 	NSError					*error				= nil;
+	NSArray					*selectedPlaylists	= [_playlistController selectedObjects];
 	
 	// First read the properties
 	AudioPropertiesReader *propertiesReader = [AudioPropertiesReader propertiesReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
@@ -458,6 +459,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(nil != stream) {
 		[_streamController addObject:stream];
+		
+		if(0 < [selectedPlaylists count]) {
+			[self addStreamIDs:[NSArray arrayWithObject:[stream valueForKey:StreamIDKey]] toPlaylist:[selectedPlaylists objectAtIndex:0]];
+		}
 	}
 	
 	return (nil != stream);
@@ -516,8 +521,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	Playlist *playlist = [self insertPlaylistOfType:ePlaylistTypeStaticPlaylist name:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"")];
 	if(nil != playlist) {
+		
+		[self beginTransaction];
 		[self addStreamIDs:[[_streamController selectedObjects] valueForKey:StreamIDKey] toPlaylist:playlist];
 		[_playlistController addObject:playlist];
+		[self commitTransaction];
 		
 		[_playlistDrawer open:self];
 

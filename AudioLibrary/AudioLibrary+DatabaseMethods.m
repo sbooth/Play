@@ -1262,6 +1262,8 @@
 	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
+//	[self beginTransaction];
+
 	while((streamID = [enumerator nextObject])) {
 
 		result = sqlite3_bind_int(statement, 1, [streamID intValue]);
@@ -1276,7 +1278,9 @@
 		result = sqlite3_clear_bindings(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);		
 	}
-		
+
+//	[self commitTransaction];
+
 	result = sqlite3_finalize(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
