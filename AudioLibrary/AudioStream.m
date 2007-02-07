@@ -21,6 +21,39 @@
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 
+NSString * const	StreamIDKey								= @"id";
+NSString * const	StreamURLKey							= @"url";
+
+NSString * const	StatisticsDateAddedKey					= @"dateAdded";
+NSString * const	StatisticsFirstPlayedDateKey			= @"firstPlayed";
+NSString * const	StatisticsLastPlayedDateKey				= @"lastPlayed";
+NSString * const	StatisticsPlayCountKey					= @"playCount";
+
+NSString * const	MetadataTitleKey						= @"title";
+NSString * const	MetadataAlbumTitleKey					= @"albumTitle";
+NSString * const	MetadataArtistKey						= @"artist";
+NSString * const	MetadataAlbumArtistKey					= @"albumArtist";
+NSString * const	MetadataGenreKey						= @"genre";
+NSString * const	MetadataComposerKey						= @"composer";
+NSString * const	MetadataDateKey							= @"date";
+NSString * const	MetadataCompilationKey					= @"compilation";
+NSString * const	MetadataTrackNumberKey					= @"trackNumber";
+NSString * const	MetadataTrackTotalKey					= @"trackTotal";
+NSString * const	MetadataDiscNumberKey					= @"discNumber";
+NSString * const	MetadataDiscTotalKey					= @"discTotal";
+NSString * const	MetadataCommentKey						= @"comment";
+NSString * const	MetadataISRCKey							= @"isrc";
+NSString * const	MetadataMCNKey							= @"mcn";
+
+NSString * const	PropertiesFileTypeKey					= @"fileType";
+NSString * const	PropertiesFormatTypeKey					= @"formatType";
+NSString * const	PropertiesBitsPerChannelKey				= @"bitsPerChannel";
+NSString * const	PropertiesChannelsPerFrameKey			= @"channelsPerFrame";
+NSString * const	PropertiesSampleRateKey					= @"sampleRate";
+NSString * const	PropertiesTotalFramesKey				= @"totalFrames";
+NSString * const	PropertiesDurationKey					= @"duration";
+NSString * const	PropertiesBitrateKey					= @"bitrate";
+
 @implementation AudioStream
 
 - (id) init
@@ -28,38 +61,38 @@
 	if((self = [super init])) {
 		_streamInfo		= [[NSMutableDictionary alloc] init];
 		_databaseKeys	= [[NSArray alloc] initWithObjects:
-			@"id", 
-			@"url",
+			StreamIDKey, 
+			StreamURLKey,
 			
-			@"dateAdded",
-			@"firstPlayed",
-			@"lastPlayed",
-			@"playCount",
+			StatisticsDateAddedKey,
+			StatisticsFirstPlayedDateKey,
+			StatisticsLastPlayedDateKey,
+			StatisticsPlayCountKey,
 			
-			@"title",
-			@"albumTitle",
-			@"artist",
-			@"albumArtist",
-			@"genre",
-			@"composer",
-			@"date",
-			@"compilation",
-			@"trackNumber",
-			@"trackTotal",
-			@"discNumber",
-			@"discTotal",
-			@"comment",
-			@"isrc",
-			@"mcn",
+			MetadataTitleKey,
+			MetadataAlbumTitleKey,
+			MetadataArtistKey,
+			MetadataAlbumArtistKey,
+			MetadataGenreKey,
+			MetadataComposerKey,
+			MetadataDateKey,
+			MetadataCompilationKey,
+			MetadataTrackNumberKey,
+			MetadataTrackTotalKey,
+			MetadataDiscNumberKey,
+			MetadataDiscTotalKey,
+			MetadataCommentKey,
+			MetadataISRCKey,
+			MetadataMCNKey,
 
-			@"fileType",
-			@"formatType",
-			@"bitsPerChannel",
-			@"channelsPerFrame",
-			@"sampleRate",
-			@"totalFrames",
-			@"duration",
-			@"bitrate",
+			PropertiesFileTypeKey,
+			PropertiesFormatTypeKey,
+			PropertiesBitsPerChannelKey,
+			PropertiesChannelsPerFrameKey,
+			PropertiesSampleRateKey,
+			PropertiesTotalFramesKey,
+			PropertiesDurationKey,
+			PropertiesBitrateKey,
 			
 			nil];
 		
@@ -72,7 +105,6 @@
 
 - (void) dealloc
 {
-	//	NSLog(@"AudioStream (%@) dealloc", [[NSFileManager defaultManager] displayNameAtPath:[[_d valueForKey:@"url"] path]]);
 	[_streamInfo release], _streamInfo = nil;
 	[_databaseKeys release], _databaseKeys = nil;
 	[super dealloc];
@@ -114,6 +146,7 @@
 		// Propagate changes to database
 		if([self notificationsEnabled]) {
 			[[AudioLibrary defaultLibrary] audioStreamDidChange:self];
+			[self setIsDirty:NO];
 		}
 	}
 	else {
@@ -127,12 +160,12 @@
 - (unsigned) hash
 {
 	// Database ID is guaranteed to be unique
-	return [[_streamInfo valueForKey:@"id"] unsignedIntValue];
+	return [[_streamInfo valueForKey:StreamIDKey] unsignedIntValue];
 }
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [_streamInfo valueForKey:@"id"], [[NSFileManager defaultManager] displayNameAtPath:[[_streamInfo valueForKey:@"url"] path]]];
+	return [NSString stringWithFormat:@"[%@] %@", [_streamInfo valueForKey:StreamIDKey], [[NSFileManager defaultManager] displayNameAtPath:[[_streamInfo valueForKey:StreamURLKey] path]]];
 }
 
 @end
