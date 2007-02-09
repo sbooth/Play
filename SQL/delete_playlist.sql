@@ -1,1 +1,1 @@
-DELETE FROM 'playlists' WHERE id == ?;
+DELETE FROM 'playlists' WHERE id == :id;

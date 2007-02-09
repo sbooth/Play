@@ -6,13 +6,3 @@ CREATE TABLE IF NOT EXISTS 'playlist_entries' (
 	'position' 				INTEGER
 
 );
-
-CREATE TRIGGER 'playlist_was_deleted' DELETE ON 'playlists'
-	BEGIN
-		DELETE FROM 'playlist_entries' WHERE playlist_id == old.id;
-	END;
-
-CREATE TRIGGER 'stream_was_deleted' DELETE ON 'streams'
-	BEGIN
-		DELETE FROM 'playlist_entries' WHERE stream_id == old.id;
-	END;
