@@ -19,19 +19,13 @@
  */
 
 #import "Playlist.h"
-#import "Playlist+DatabaseContextMethods.h"
 #import "DatabaseContext.h"
 
 NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
 
-NSString * const	PlaylistIDKey							= @"id";
 NSString * const	PlaylistNameKey							= @"name";
 
 NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
-
-@interface Playlist (Private)
-- (DatabaseContext *) databaseContext;
-@end
 
 @implementation Playlist
 
@@ -52,149 +46,79 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	return [playlist autorelease];
 }
 
-- (void) dealloc
-{
-	[_databaseContext release], _databaseContext = nil;
-	
-	[_databaseKeys release], _databaseKeys = nil;
-	
-	[_savedValues release], _savedValues = nil;
-	[_changedValues release], _changedValues = nil;
-	
-	[super dealloc];
-}
-
-- (id) valueForKey:(NSString *)key
-{
-	if([_databaseKeys containsObject:key]) {
-		id value = [_changedValues valueForKey:key];
-		if(nil == value) {
-			value = [_savedValues valueForKey:key];
-		}
-		
-		return value;
-	}
-	else {
-		return [super valueForKey:key];
-	}
-}
-
-- (void) setValue:(id)value forKey:(NSString *)key
-{
-	if([_databaseKeys containsObject:key]) {
-		//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
-		
-		if([[_savedValues valueForKey:key] isEqual:value]) {
-			[_changedValues removeObjectForKey:key];
-		}
-		else {
-			[_changedValues setValue:value forKey:key];			
-		}
-		
-		[[self databaseContext] playlist:self didChangeForKey:key];
-	}
-	else {
-		[super setValue:value forKey:key];
-	}
-}
-
 - (NSArray *) streams
 {
 	return [[self databaseContext] streamsForPlaylist:self];
 }
 
+- (void) addStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	
+	[self addStreams:[NSArray arrayWithObject:stream]];
+}
+
+- (void) addStreams:(NSArray *)streams
+{
+	NSParameterAssert(nil != streams);
+	NSParameterAssert(0 != [streams count]);
+	
+	NSEnumerator	*enumerator		= [streams objectEnumerator];
+	AudioStream		*stream			= nil;
+
+	[[self databaseContext] beginTransaction];
+	
+	while((stream = [enumerator nextObject])) {
+		[[self databaseContext] addStream:stream toPlaylist:self];
+	}
+
+	[[self databaseContext] commitTransaction];
+}
+
+
+- (void) addStreamWithID:(NSNumber *)objectID
+{
+	NSParameterAssert(nil != objectID);
+
+	AudioStream *stream = [[self databaseContext] streamForID:objectID];
+	if(nil != stream) {
+		[self addStream:stream];
+	}
+}
+
+- (void) addStreamsWithIDs:(NSArray *)objectIDs
+{
+	NSParameterAssert(nil != objectIDs);
+	NSParameterAssert(0 != [objectIDs count]);
+	
+	NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
+	NSNumber		*objectID		= nil;
+	AudioStream		*stream			= nil;
+	NSMutableArray	*streams		= [NSMutableArray array];
+	
+	while((objectID = [enumerator nextObject])) {
+		stream = [[self databaseContext] streamForID:objectID];
+		if(nil != stream) {
+			[streams addObject:stream];
+		}
+	}
+	
+	if(0 != [streams count]) {
+		[self addStreams:streams];
+	}
+
+/*	NSArray *streams = [[self databaseContext] streamsForIDs:objectIDs];
+	if(nil != streams && 0 != [streams count]) {
+		[self addStreams:streams];
+	}*/
+}
+
 - (BOOL) isPlaying							{ return _isPlaying; }
 - (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
 
-- (void) save
-{
-	[[self databaseContext] savePlaylist:self];
-}
-
-- (void) revert
-{
-	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
-	NSString		*key			= nil;
-	
-	while((key = [changedKeys nextObject])) {
-		[self willChangeValueForKey:key];
-		[_changedValues removeObjectForKey:key];
-		[self didChangeValueForKey:key];
-	}
-}
-
-- (void) delete
-{
-	[[self databaseContext] deletePlaylist:self];
-}
-
-- (unsigned) hash
-{
-	// Database ID is guaranteed to be unique
-	return [[_savedValues valueForKey:PlaylistIDKey] unsignedIntValue];
-}
-
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:PlaylistIDKey], [self valueForKey:PlaylistNameKey]];
-}
-
-@end
-
-@implementation Playlist (DatabaseContextMethods)
-
-- (id) initWithDatabaseContext:(DatabaseContext *)context
-{
-	NSParameterAssert(nil != context);
-	
-	if((self = [super init])) {
-		_databaseContext = [context retain];
-		
-		_savedValues	= [[NSMutableDictionary alloc] init];
-		_changedValues	= [[NSMutableDictionary alloc] init];
-		
-		_databaseKeys	= [[NSArray alloc] initWithObjects:
-			PlaylistIDKey, 
-			PlaylistNameKey, 
-			
-			StatisticsDateCreatedKey,
-			StatisticsFirstPlayedDateKey,
-			StatisticsLastPlayedDateKey,
-			StatisticsPlayCountKey,
-						
-			nil];
-		
-		return self;
-	}
-	return nil;
-}
-
-- (void) initValue:(id)value forKey:(NSString *)key
-{
-	[self willChangeValueForKey:key];
-	[_changedValues removeObjectForKey:key];
-	[_savedValues setValue:value forKey:key];
-	[self didChangeValueForKey:key];
-}
-
-- (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues
-{
-	NSEnumerator	*savedKeys		= [keyedValues keyEnumerator];
-	NSString		*key			= nil;
-	
-	while((key = [savedKeys nextObject])) {
-		[self initValue:[keyedValues valueForKey:key] forKey:key];
-	}
-}
-
-- (BOOL) hasChanges
-{
-	return 0 != [_changedValues count];
-}
-
-- (NSDictionary *) changes
-{
-	return [[_changedValues copy] autorelease];
+	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
 }
 
 #pragma mark Callbacks
@@ -206,13 +130,24 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 													  userInfo:[NSDictionary dictionaryWithObject:self forKey:PlaylistObjectKey]];
 }
 
-@end
+#pragma mark Reimplementations
 
-@implementation Playlist (Private)
-
-- (DatabaseContext *) databaseContext
+- (NSArray *) databaseKeys
 {
-	return _databaseContext;
+	if(nil == _databaseKeys) {
+		_databaseKeys	= [[NSArray alloc] initWithObjects:
+			ObjectIDKey, 
+
+			PlaylistNameKey, 
+			
+			StatisticsDateCreatedKey,
+			StatisticsFirstPlayedDateKey,
+			StatisticsLastPlayedDateKey,
+			StatisticsPlayCountKey,
+			
+			nil];
+	}	
+	return _databaseKeys;
 }
 
 @end

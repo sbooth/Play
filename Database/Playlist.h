@@ -19,6 +19,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "DatabaseObject.h"
 
 // ========================================
 // Notification Names
@@ -33,7 +34,6 @@ extern NSString * const		PlaylistObjectKey;
 // ========================================
 // Key Names
 // ========================================
-extern NSString * const		PlaylistIDKey;
 extern NSString * const		PlaylistNameKey;
 
 extern NSString * const		StatisticsDateCreatedKey;
@@ -44,17 +44,9 @@ extern NSString * const		StatisticsPlayCountKey;
 @class DatabaseContext;
 @class AudioStream;
 
-@interface Playlist : NSObject
+@interface Playlist : DatabaseObject
 {
-	@private
-	DatabaseContext			*_databaseContext;
-	
-	NSMutableDictionary		*_savedValues;
-	NSMutableDictionary		*_changedValues;
-	
-	NSArray					*_databaseKeys;
-	
-	BOOL					_isPlaying;
+	BOOL	_isPlaying;
 }
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
@@ -64,14 +56,13 @@ extern NSString * const		StatisticsPlayCountKey;
 - (void) addStream:(AudioStream *)stream;
 - (void) addStreams:(NSArray *)streams;
 
+- (void) addStreamWithID:(NSNumber *)objectID;
+- (void) addStreamsWithIDs:(NSArray *)objectIDs;
+
 - (void) removeStream:(AudioStream *)stream;
 - (void) removeStreams:(NSArray *)streams;
 
 - (BOOL) isPlaying;
 - (void) setIsPlaying:(BOOL)isPlaying;
-
-- (void) save;
-- (void) revert;
-- (void) delete;
 
 @end

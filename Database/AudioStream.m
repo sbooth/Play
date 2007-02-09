@@ -19,12 +19,10 @@
  */
 
 #import "AudioStream.h"
-#import "AudioStream+DatabaseContextMethods.h"
 #import "DatabaseContext.h"
 
 NSString * const	AudioStreamDidChangeNotification		= @"org.sbooth.Play.AudioStreamDidChangeNotification";
 
-NSString * const	StreamIDKey								= @"id";
 NSString * const	StreamURLKey							= @"url";
 
 NSString * const	StatisticsDateAddedKey					= @"dateAdded";
@@ -57,10 +55,6 @@ NSString * const	PropertiesTotalFramesKey				= @"totalFrames";
 NSString * const	PropertiesDurationKey					= @"duration";
 NSString * const	PropertiesBitrateKey					= @"bitrate";
 
-@interface AudioStream (Private)
-- (DatabaseContext *) databaseContext;
-@end
-
 @implementation AudioStream
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context
@@ -82,52 +76,6 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	return [stream autorelease];
 }
 
-- (void) dealloc
-{
-	[_databaseContext release], _databaseContext = nil;
-	
-	[_databaseKeys release], _databaseKeys = nil;
-
-	[_savedValues release], _savedValues = nil;
-	[_changedValues release], _changedValues = nil;
-	
-	[super dealloc];
-}
-
-- (id) valueForKey:(NSString *)key
-{
-	if([_databaseKeys containsObject:key]) {
-		id value = [_changedValues valueForKey:key];
-		if(nil == value) {
-			value = [_savedValues valueForKey:key];
-		}
-		
-		return value;
-	}
-	else {
-		return [super valueForKey:key];
-	}
-}
-
-- (void) setValue:(id)value forKey:(NSString *)key
-{
-	if([_databaseKeys containsObject:key]) {
-//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
-		
-		if([[_savedValues valueForKey:key] isEqual:value]) {
-			[_changedValues removeObjectForKey:key];
-		}
-		else {
-			[_changedValues setValue:value forKey:key];			
-		}
-		
-		[[self databaseContext] audioStream:self didChangeForKey:key];
-	}
-	else {
-		[super setValue:value forKey:key];
-	}
-}
-
 - (BOOL) isPlaying							{ return _isPlaying; }
 - (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
 
@@ -138,14 +86,14 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (void) revert
 {
-	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
+/*	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
 	NSString		*key			= nil;
 	
 	while((key = [changedKeys nextObject])) {
 		[self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
 		[self didChangeValueForKey:key];
-	}
+	}*/
 }
 
 - (void) delete
@@ -153,33 +101,27 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[[self databaseContext] deleteStream:self];
 }
 
-- (unsigned) hash
-{
-	// Database ID is guaranteed to be unique
-	return [[_savedValues valueForKey:StreamIDKey] unsignedIntValue];
-}
-
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:StreamIDKey], [[NSFileManager defaultManager] displayNameAtPath:[[self valueForKey:StreamURLKey] path]]];
+	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [[NSFileManager defaultManager] displayNameAtPath:[[self valueForKey:StreamURLKey] path]]];
 }
 
-@end
+#pragma mark Callbacks
 
-@implementation AudioStream (DatabaseContextMethods)
-
-- (id) initWithDatabaseContext:(DatabaseContext *)context
+- (void) didSave
 {
-	NSParameterAssert(nil != context);
-	
-	if((self = [super init])) {
-		_databaseContext = [context retain];
-		
-		_savedValues	= [[NSMutableDictionary alloc] init];
-		_changedValues	= [[NSMutableDictionary alloc] init];
-		
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:self forKey:AudioStreamObjectKey]];
+}
+
+#pragma mark Reimplementations
+
+- (NSArray *) databaseKeys
+{
+	if(nil == _databaseKeys) {
 		_databaseKeys	= [[NSArray alloc] initWithObjects:
-			StreamIDKey, 
+			ObjectIDKey, 
 			StreamURLKey,
 			
 			StatisticsDateAddedKey,
@@ -213,56 +155,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			PropertiesBitrateKey,
 			
 			nil];
-		
-		return self;
-	}
-	return nil;
-}
-
-- (void) initValue:(id)value forKey:(NSString *)key
-{
-	[self willChangeValueForKey:key];
-	[_changedValues removeObjectForKey:key];
-	[_savedValues setValue:value forKey:key];
-	[self didChangeValueForKey:key];
-}
-
-- (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues
-{
-	NSEnumerator	*savedKeys		= [keyedValues keyEnumerator];
-	NSString		*key			= nil;
-	
-	while((key = [savedKeys nextObject])) {
-		[self initValue:[keyedValues valueForKey:key] forKey:key];
-	}
-}
-
-- (BOOL) hasChanges
-{
-	return 0 != [_changedValues count];
-}
-
-- (NSDictionary *) changes
-{
-	return [[_changedValues copy] autorelease];
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:AudioStreamObjectKey]];
-}
-
-@end
-
-@implementation AudioStream (Private)
-
-- (DatabaseContext *) databaseContext
-{
-	return _databaseContext;
+	}	
+	return _databaseKeys;
 }
 
 @end

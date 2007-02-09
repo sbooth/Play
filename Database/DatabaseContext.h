@@ -21,6 +21,7 @@
 #import <Cocoa/Cocoa.h>
 #include <sqlite3.h>
 
+@class DatabaseObject;
 @class AudioStream;
 @class Playlist;
 
@@ -52,10 +53,16 @@
 - (IBAction) revert:(id)sender;
 
 // ========================================
+// Generic DatabaseObject support
+- (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key;
+
+// ========================================
 // AudioStream support
 - (NSArray *) allStreams;
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+
 - (AudioStream *) streamForID:(NSNumber *)objectID;
+//- (NSArray *) streamsForIDs:(NSArray *)objectIDs;
 
 - (BOOL) insertStream:(AudioStream *)stream;
 - (void) saveStream:(AudioStream *)stream;
@@ -73,6 +80,8 @@
 - (void) savePlaylist:(Playlist *)playlist;
 - (void) deletePlaylist:(Playlist *)playlist;
 - (void) revertPlaylist:(Playlist *)playlist;
+
+- (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
 
 - (void) playlist:(Playlist *)playlist didChangeForKey:(NSString *)key;
 

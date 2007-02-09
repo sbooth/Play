@@ -19,26 +19,37 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "DatabaseObject.h"
 
-@class Playlist;
+// ========================================
+// Notification Names
+// ========================================
+extern NSString * const		PlaylistEntryDidChangeNotification;
+
+// ========================================
+// Notification Keys
+// ========================================
+extern NSString * const		PlaylistEntryObjectKey;
+
+// ========================================
+// Key Names
+// ========================================
+extern NSString * const		PlaylistObjectIDKey;
+extern NSString * const		AudioStreamIDKey;
+
+extern NSString * const		PlaylistEntryIndexKey;
+
 @class DatabaseContext;
+@class AudioStream;
+@class Playlist;
 
-@interface Playlist (DatabaseContextMethods)
+@interface PlaylistEntry : DatabaseObject
+{
+}
 
-// ========================================
-// Designated initializer
-- (id) initWithDatabaseContext:(DatabaseContext *)context;
++ (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
-// ========================================
-// Call this with the values retrieved from the database
-- (void) initValue:(id)value forKey:(NSString *)key;
-- (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;
-
-- (BOOL)			hasChanges;
-- (NSDictionary *)	changes;
-
-// ========================================
-// Callbacks
-- (void) didSave;
+- (AudioStream *) stream;
+- (Playlist *) playlist;
 
 @end

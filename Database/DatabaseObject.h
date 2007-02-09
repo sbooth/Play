@@ -20,25 +20,59 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
+// ========================================
+// Notification Names
+// ========================================
+extern NSString * const		DatabasObjectDidChangeNotification;
+
+// ========================================
+// Notification Keys
+// ========================================
+extern NSString * const		DatabaseObjectKey;
+
+// ========================================
+// KVC key names for persistent properties
+// ========================================
+extern NSString * const		ObjectIDKey;
+
 @class DatabaseContext;
 
-@interface AudioStream (DatabaseContextMethods)
+// ========================================
+// KVC-compliant object whose persistent properties are stored in a database
+// An instance of this class represents a single row in a table
+// ========================================
+@interface DatabaseObject : NSObject
+{
+	@protected
+	NSArray					*_databaseKeys;
+	
+	@private
+	DatabaseContext			*_databaseContext;
+	
+	NSMutableDictionary		*_savedValues;
+	NSMutableDictionary		*_changedValues;
+}
 
 // ========================================
 // Designated initializer
 - (id) initWithDatabaseContext:(DatabaseContext *)context;
 
 // ========================================
-// Call this with the values retrieved from the database
+// Call these with the values retrieved from the database
 - (void) initValue:(id)value forKey:(NSString *)key;
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;
 
-- (BOOL)			hasChanges;
-- (NSDictionary *)	changes;
+- (DatabaseContext *) databaseContext;
+
+- (BOOL) hasChanges;
+- (NSDictionary *) changes;
 
 // ========================================
 // Callbacks
 - (void) didSave;
+
+// ========================================
+// Returns a list of KVC keys for this object's persistent properties
+- (NSArray *) databaseKeys;
 
 @end

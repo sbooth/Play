@@ -19,6 +19,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "DatabaseObject.h"
 
 // ========================================
 // Notification Names
@@ -31,9 +32,8 @@ extern NSString * const		AudioStreamDidChangeNotification;
 extern NSString * const		AudioStreamObjectKey;
 
 // ========================================
-// Key Names
+// KVC key names for persistent properties
 // ========================================
-extern NSString * const		StreamIDKey;
 extern NSString * const		StreamURLKey;
 
 extern NSString * const		StatisticsDateAddedKey;
@@ -66,29 +66,15 @@ extern NSString * const		PropertiesTotalFramesKey;
 extern NSString * const		PropertiesDurationKey;
 extern NSString * const		PropertiesBitrateKey;
 
-@class DatabaseContext;
-
-@interface AudioStream : NSObject
+@interface AudioStream : DatabaseObject
 {
-	@private
-	DatabaseContext			*_databaseContext;
-	
-	NSMutableDictionary		*_savedValues;
-	NSMutableDictionary		*_changedValues;
-	
-	NSArray					*_databaseKeys;
-	
-	BOOL					_isPlaying;
-	id						_albumArt;
+	BOOL	_isPlaying;
+	id		_albumArt;
 }
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
 - (BOOL) isPlaying;
 - (void) setIsPlaying:(BOOL)isPlaying;
-
-- (void) save;
-- (void) revert;
-- (void) delete;
 
 @end
