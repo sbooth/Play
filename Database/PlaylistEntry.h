@@ -35,9 +35,9 @@ extern NSString * const		PlaylistEntryObjectKey;
 // Key Names
 // ========================================
 extern NSString * const		PlaylistObjectIDKey;
-extern NSString * const		AudioStreamIDKey;
+extern NSString * const		AudioStreamObjectIDKey;
 
-extern NSString * const		PlaylistEntryIndexKey;
+extern NSString * const		PlaylistEntryPositionKey;
 
 @class DatabaseContext;
 @class AudioStream;

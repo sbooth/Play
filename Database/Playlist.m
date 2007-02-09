@@ -46,6 +46,11 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	return [playlist autorelease];
 }
 
+- (NSArray *) entries
+{
+	return [[self databaseContext] playlistEntriesForPlaylist:self];
+}
+
 - (NSArray *) streams
 {
 	return [[self databaseContext] streamsForPlaylist:self];

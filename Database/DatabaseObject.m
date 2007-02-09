@@ -29,6 +29,8 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) dealloc
 {
+	[[[self databaseContext] undoManager] removeAllActionsWithTarget:self];
+
 	[_databaseContext release], _databaseContext = nil;
 	
 	[_databaseKeys release], _databaseKeys = nil;
@@ -57,7 +59,8 @@ NSString * const	ObjectIDKey								= @"id";
 - (void) setValue:(id)value forKey:(NSString *)key
 {
 	if([[self databaseKeys] containsObject:key]) {
-		//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
+
+//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
 		
 		if([[_savedValues valueForKey:key] isEqual:value]) {
 			[_changedValues removeObjectForKey:key];
@@ -96,7 +99,11 @@ NSString * const	ObjectIDKey								= @"id";
 	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
 	NSString		*key			= nil;
 
+
 	while((key = [changedKeys nextObject])) {
+		
+//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[_savedValues valueForKey:key] forKey:key];
+
 		[self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
 		[self didChangeValueForKey:key];

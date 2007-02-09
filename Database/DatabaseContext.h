@@ -24,16 +24,18 @@
 @class DatabaseObject;
 @class AudioStream;
 @class Playlist;
+@class PlaylistEntry;
 
 @interface DatabaseContext : NSObject
 {
-	sqlite3					*_db;			// The database
-	NSMutableDictionary		*_sql;			// Prepared SQL statements
+	sqlite3					*_db;				// The database
+	NSMutableDictionary		*_sql;				// Prepared SQL statements
 	
-	NSMapTable				*_streams;		// Registered streams
-	NSMapTable				*_playlists;	// Registered playlists
+	NSMapTable				*_streams;			// Registered streams
+	NSMapTable				*_playlists;		// Registered playlists
+	NSMapTable				*_playlistEntries;	// Registered playlist entries
 	
-//	NSUndoManager			*_undoManager;	// For undo/redo management
+	NSUndoManager			*_undoManager;		// For undo/redo management
 	
 	BOOL					_hasActiveTransaction;
 }
@@ -59,7 +61,7 @@
 // ========================================
 // AudioStream support
 - (NSArray *) allStreams;
-- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+//- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 
 - (AudioStream *) streamForID:(NSNumber *)objectID;
 //- (NSArray *) streamsForIDs:(NSArray *)objectIDs;
@@ -68,8 +70,6 @@
 - (void) saveStream:(AudioStream *)stream;
 - (void) deleteStream:(AudioStream *)stream;
 - (void) revertStream:(AudioStream *)stream;
-
-- (void) audioStream:(AudioStream *)stream didChangeForKey:(NSString *)key;
 
 // ========================================
 // Playlist support
@@ -83,8 +83,19 @@
 
 - (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
 
-- (void) playlist:(Playlist *)playlist didChangeForKey:(NSString *)key;
+// ========================================
+// PlaylistEntry support
+- (NSArray *) playlistEntriesForPlaylist:(Playlist *)playlist;
+- (PlaylistEntry *) playlistEntryForID:(NSNumber *)objectID;
 
-//- (NSUndoManager *) undoManager;
+//- (BOOL) insertPlaylist:(Playlist *)playlist;
+//- (void) savePlaylist:(Playlist *)playlist;
+//- (void) deletePlaylist:(Playlist *)playlist;
+//- (void) revertPlaylist:(Playlist *)playlist;
+
+//- (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
+
+// ========================================
+- (NSUndoManager *) undoManager;
 
 @end

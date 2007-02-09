@@ -26,8 +26,8 @@ NSString * const	PlaylistEntryDidChangeNotification		= @"org.sbooth.Play.Playlis
 NSString * const	PlaylistEntryObjectKey					= @"org.sbooth.Play.PlaylistEntry";
 
 NSString * const	PlaylistObjectIDKey						= @"playlistID";
-NSString * const	AudioStreamIDKey						= @"streamID";
-NSString * const	PlaylistEntryIndexKey					= @"index";
+NSString * const	AudioStreamObjectIDKey					= @"streamID";
+NSString * const	PlaylistEntryPositionKey				= @"position";
 
 @implementation PlaylistEntry
 
@@ -35,29 +35,31 @@ NSString * const	PlaylistEntryIndexKey					= @"index";
 {
 	NSParameterAssert(nil != context);
 	
-	PlaylistEntry *playlistEntry = [[PlaylistEntry alloc] initWithDatabaseContext:context];
+	PlaylistEntry *entry = [[PlaylistEntry alloc] initWithDatabaseContext:context];
 	
 	// Call init: methods here to avoid sending change notifications to the context
-	[playlistEntry initValuesForKeysWithDictionary:keyedValues];
+	[entry initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [context insertPlaylistEntry:playlistEntry]) {
-		[playlistEntry release], playlistEntry = nil;
+	if(NO == [context insertPlaylistEntry:entry]) {
+		[entry release], entry = nil;
 	}
 	
-	return [playlistEntry autorelease];
+	return [entry autorelease];
 }
 
 - (AudioStream *) stream
 {
+	return [[self databaseContext] streamForID:[self valueForKey:AudioStreamObjectIDKey]];
 }
 
 - (Playlist *) playlist
 {
+	return [[self databaseContext] playlistForID:[self valueForKey:PlaylistObjectIDKey]];
 }
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistObjectIDKey]];
+	return [NSString stringWithFormat:@"[%@] %@ %@ (%@)", [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistEntryPositionKey], [self stream], [self playlist]];
 }
 
 #pragma mark Callbacks
@@ -78,8 +80,8 @@ NSString * const	PlaylistEntryIndexKey					= @"index";
 			ObjectIDKey, 
 			
 			PlaylistObjectIDKey, 			
-			AudioStreamIDKey,
-			PlaylistEntryIndexKey,
+			AudioStreamObjectIDKey,
+			PlaylistEntryPositionKey,
 			
 			nil];
 	}	
