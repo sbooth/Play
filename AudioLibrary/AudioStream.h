@@ -21,6 +21,16 @@
 #import <Cocoa/Cocoa.h>
 
 // ========================================
+// Notification Names
+// ========================================
+extern NSString * const		AudioStreamDidChangeNotification;
+
+// ========================================
+// Notification Keys
+// ========================================
+extern NSString * const		AudioStreamObjectKey;
+
+// ========================================
 // Key Names
 // ========================================
 extern NSString * const		StreamIDKey;
@@ -56,32 +66,29 @@ extern NSString * const		PropertiesTotalFramesKey;
 extern NSString * const		PropertiesDurationKey;
 extern NSString * const		PropertiesBitrateKey;
 
+@class DatabaseContext;
+
 @interface AudioStream : NSObject
 {
 	@private
-	NSMutableDictionary *_streamInfo;
-	NSArray				*_databaseKeys;
-
-	BOOL				_isDirty;
-	BOOL				_notificationsEnabled;
+	DatabaseContext			*_databaseContext;
 	
-	BOOL				_isPlaying;
-	id					_albumArt;
+	NSMutableDictionary		*_savedValues;
+	NSMutableDictionary		*_changedValues;
+	
+	NSArray					*_databaseKeys;
+	
+	BOOL					_isPlaying;
+	id						_albumArt;
 }
 
-// Call this with the values retrieved from the database
-- (void) initValue:(id)value forKey:(NSString *)key;
-
-- (BOOL) isDirty;
-- (void) setIsDirty:(BOOL)isDirty;
-
-- (void) enableNotifications;
-- (void) disableNotifications;
-
-- (BOOL) notificationsEnabled;
-- (void) setNotificationsEnabled:(BOOL)notificationsEnabled;
++ (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
 - (BOOL) isPlaying;
 - (void) setIsPlaying:(BOOL)isPlaying;
+
+- (void) save;
+- (void) revert;
+- (void) delete;
 
 @end

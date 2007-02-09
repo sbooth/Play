@@ -21,24 +21,57 @@
 #import <Cocoa/Cocoa.h>
 
 // ========================================
-// Playlist kinds
+// Notification Names
 // ========================================
-typedef enum _ePlaylistType {
-	ePlaylistTypeStaticPlaylist		= 1,
-	ePlaylistTypeFolderPlaylist		= 2,
-	ePlaylistTypeDynamicPlaylist	= 3
-} ePlaylistType;
+extern NSString * const		PlaylistDidChangeNotification;
+
+// ========================================
+// Notification Keys
+// ========================================
+extern NSString * const		PlaylistObjectKey;
+
+// ========================================
+// Key Names
+// ========================================
+extern NSString * const		PlaylistIDKey;
+extern NSString * const		PlaylistNameKey;
+
+extern NSString * const		StatisticsDateCreatedKey;
+extern NSString * const		StatisticsFirstPlayedDateKey;
+extern NSString * const		StatisticsLastPlayedDateKey;
+extern NSString * const		StatisticsPlayCountKey;
+
+@class DatabaseContext;
+@class AudioStream;
 
 @interface Playlist : NSObject
 {
 	@private
-	NSMutableDictionary *_d;
+	DatabaseContext			*_databaseContext;
+	
+	NSMutableDictionary		*_savedValues;
+	NSMutableDictionary		*_changedValues;
+	
+	NSArray					*_databaseKeys;
+	
+	BOOL					_isPlaying;
 }
 
-// Call this with the values retrieved from the database
-- (void) initValue:(id)value forKey:(NSString *)key;
++ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
-- (ePlaylistType) type;
-- (NSString *) tableName;
+- (NSArray *) streams;
+
+- (void) addStream:(AudioStream *)stream;
+- (void) addStreams:(NSArray *)streams;
+
+- (void) removeStream:(AudioStream *)stream;
+- (void) removeStreams:(NSArray *)streams;
+
+- (BOOL) isPlaying;
+- (void) setIsPlaying:(BOOL)isPlaying;
+
+- (void) save;
+- (void) revert;
+- (void) delete;
 
 @end
