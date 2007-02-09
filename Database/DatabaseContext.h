@@ -22,6 +22,7 @@
 #include <sqlite3.h>
 
 @class AudioStream;
+@class Playlist;
 
 @interface DatabaseContext : NSObject
 {
@@ -53,6 +54,7 @@
 // ========================================
 // AudioStream support
 - (NSArray *) allStreams;
+- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 - (AudioStream *) streamForID:(NSNumber *)objectID;
 
 - (BOOL) insertStream:(AudioStream *)stream;
@@ -61,6 +63,18 @@
 - (void) revertStream:(AudioStream *)stream;
 
 - (void) audioStream:(AudioStream *)stream didChangeForKey:(NSString *)key;
+
+// ========================================
+// Playlist support
+- (NSArray *) allPlaylists;
+- (Playlist *) playlistForID:(NSNumber *)objectID;
+
+- (BOOL) insertPlaylist:(Playlist *)playlist;
+- (void) savePlaylist:(Playlist *)playlist;
+- (void) deletePlaylist:(Playlist *)playlist;
+- (void) revertPlaylist:(Playlist *)playlist;
+
+- (void) playlist:(Playlist *)playlist didChangeForKey:(NSString *)key;
 
 //- (NSUndoManager *) undoManager;
 
