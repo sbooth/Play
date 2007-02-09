@@ -1,1 +1,1 @@
-DELETE FROM 'streams' WHERE id == ?;
+DELETE FROM 'streams' WHERE id == :id;

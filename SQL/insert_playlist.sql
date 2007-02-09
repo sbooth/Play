@@ -1,9 +1,8 @@
 INSERT INTO 'playlists' (		
 
-		type, 
 		name,
 		
-		date_added,
+		date_created,
 		first_played_date,
 		last_played_date,
 		play_count
@@ -12,7 +11,6 @@ INSERT INTO 'playlists' (
 	
 	VALUES (
 	
-		?, 
 		?, 
 		
 		?, 
