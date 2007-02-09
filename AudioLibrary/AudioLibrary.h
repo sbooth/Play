@@ -19,30 +19,30 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#include <sqlite3.h>
 
 @class AudioPlayer;
+@class DatabaseContext;
 @class AudioStream;
 @class Playlist;
 
 // ========================================
-// Notification names
+// Notification Names
 // ========================================
-extern NSString * const			AudioStreamAddedToLibraryNotification;
-extern NSString * const			AudioStreamRemovedFromLibraryNotification;
-extern NSString * const			AudioStreamPlaybackDidStartNotification;
-extern NSString * const			AudioStreamPlaybackDidStopNotification;
-extern NSString * const			AudioStreamPlaybackDidPauseNotification;
-extern NSString * const			AudioStreamPlaybackDidResumeNotification;
+extern NSString * const		AudioStreamAddedToLibraryNotification;
+extern NSString * const		AudioStreamRemovedFromLibraryNotification;
+extern NSString * const		AudioStreamPlaybackDidStartNotification;
+extern NSString * const		AudioStreamPlaybackDidStopNotification;
+extern NSString * const		AudioStreamPlaybackDidPauseNotification;
+extern NSString * const		AudioStreamPlaybackDidResumeNotification;
 
-extern NSString * const			PlaylistAddedToLibraryNotification;
-extern NSString * const			PlaylistRemovedFromLibraryNotification;
+extern NSString * const		PlaylistAddedToLibraryNotification;
+extern NSString * const		PlaylistRemovedFromLibraryNotification;
 
 // ========================================
-// Notification keys
+// Notification Keys
 // ========================================
-extern NSString * const			AudioStreamObjectKey;
-extern NSString * const			PlaylistObjectKey;
+extern NSString * const		AudioStreamObjectKey;
+extern NSString * const		PlaylistObjectKey;
 
 @interface AudioLibrary : NSWindowController
 {
@@ -80,9 +80,7 @@ extern NSString * const			PlaylistObjectKey;
 	NSMutableArray				*_streams;
 	NSMutableArray				*_playlists;
 	
-	NSMutableDictionary			*_sql;
-	
-	sqlite3						*_db;
+	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
 }
@@ -129,6 +127,7 @@ extern NSString * const			PlaylistObjectKey;
 - (IBAction)	scrollNowPlayingToVisible:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
+- (IBAction)	showPlaylistInformationSheet:(id)sender;
 
 // ========================================
 // Library properties
@@ -148,11 +147,6 @@ extern NSString * const			PlaylistObjectKey;
 - (void) setNowPlaying:(AudioStream *)nowPlaying;
 
 - (NSUndoManager *) undoManager;
-
-// ========================================
-// Database callbacks
-- (void)		audioStreamDidChange:(AudioStream *)stream;
-- (void)		playlistDidChange:(Playlist *)playlist;
 
 // ========================================
 // AudioPlayer callbacks

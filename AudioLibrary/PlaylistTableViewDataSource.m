@@ -19,7 +19,6 @@
  */
 
 #import "PlaylistTableViewDataSource.h"
-#import "AudioLibrary.h"
 #import "Playlist.h"
 
 @implementation PlaylistTableViewDataSource
@@ -49,10 +48,10 @@
 				--row;
 			}
 		
-			Playlist *playlist = [[arrayController arrangedObjects] objectAtIndex:row];
+			id playlist = [[arrayController arrangedObjects] objectAtIndex:row];
 
 			// Only allow dropping streams on static playlists
-			if(ePlaylistTypeStaticPlaylist == [[playlist valueForKey:@"type"] intValue]) {
+			if([playlist isKindOfClass:[Playlist class]]) {
 				[tableView setDropRow:row dropOperation:NSTableViewDropOn];
 				result = NSDragOperationCopy;
 			}
@@ -73,7 +72,7 @@
 		Playlist			*playlist					= [[destinationArrayController arrangedObjects] objectAtIndex:row];
 		NSArray				*objectIDs					= [objectIDString componentsSeparatedByString:@", "];
 
-		[[AudioLibrary defaultLibrary] addStreamIDs:objectIDs toPlaylist:playlist];
+		[playlist addStreamIDs:objectIDs];
 					
 		success = YES;					
 	}
