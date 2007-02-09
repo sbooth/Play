@@ -88,14 +88,14 @@
 		for(i = 0; i < [objects count]; ++i) {
 			stream = [objects objectAtIndex:i];
 			
-			[objectIDs addObject:[stream valueForKey:@"id"]];
-			[filenames addObject:[[stream valueForKey:@"url"] path]];
+			[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
+			[filenames addObject:[[stream valueForKey:StreamURLKey] path]];
 		}
 		
 		[pboard declareTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
 		[pboard addTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
 
-		success = [pboard setString:[objectIDs componentsJoinedByString:@", "] forType:@"AudioStreamPboardType"];
+		success = [pboard setPropertyList:objectIDs forType:@"AudioStreamPboardType"];
 		success &= [pboard setPropertyList:filenames forType:NSFilenamesPboardType];
 	}
 	

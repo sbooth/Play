@@ -64,15 +64,14 @@
 - (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)operation
 {
 	BOOL			success							= NO;
-	NSString		*objectIDString					= [[info draggingPasteboard] stringForType:@"AudioStreamPboardType"];
+	NSArray			*objectIDs						= [[info draggingPasteboard] propertyListForType:@"AudioStreamPboardType"];
 	NSDictionary	*destinationContentBindingInfo	= [tableView infoForBinding:NSContentBinding];
 	
 	if(nil != destinationContentBindingInfo) {
 		NSArrayController	*destinationArrayController	= [destinationContentBindingInfo objectForKey:NSObservedObjectKey];
 		Playlist			*playlist					= [[destinationArrayController arrangedObjects] objectAtIndex:row];
-		NSArray				*objectIDs					= [objectIDString componentsSeparatedByString:@", "];
 
-		[playlist addStreamIDs:objectIDs];
+		[playlist addStreamsWithIDs:objectIDs];
 					
 		success = YES;					
 	}

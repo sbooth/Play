@@ -1194,7 +1194,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 @implementation AudioLibrary (CallbackMethods)
 
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo
-{	
+{
 	if(NSOKButton == returnCode) {
 #if SQL_DEBUG
 		unsigned startCount = [_streams count];
