@@ -80,6 +80,8 @@ extern NSString * const		PlaylistObjectKey;
 	NSMutableArray				*_streams;
 	NSMutableArray				*_playlists;
 	
+	NSArray						*_playbackContext;
+	
 	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
@@ -143,8 +145,11 @@ extern NSString * const		PlaylistObjectKey;
 - (BOOL)		canPlayNextStream;
 - (BOOL)		canPlayPreviousStream;
 
-- (AudioStream *) nowPlaying;
-- (void) setNowPlaying:(AudioStream *)nowPlaying;
+- (AudioStream *)	nowPlaying;
+- (void)			setNowPlaying:(AudioStream *)nowPlaying;
+
+- (NSArray *)	playbackContext;
+- (void)		setPlaybackContext:(NSArray *)playbackContext;
 
 - (NSUndoManager *) undoManager;
 

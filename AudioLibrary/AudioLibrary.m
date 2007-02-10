@@ -230,6 +230,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[_streams release], _streams = nil;
 	[_playlists release], _playlists = nil;
+	
+	[_playbackContext release], _playbackContext = nil;
+	
 	[_undoManager release], _undoManager = nil;
 	
 	[super dealloc];
@@ -331,10 +334,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return (nil != [self nowPlaying] && [[_streamController arrangedObjects] containsObject:[self nowPlaying]]);
 	}
 	else if([anItem action] == @selector(undo:)) {
-		return [[self undoManager] canUndo];
+//		return [[self undoManager] canUndo];
+		return [[[self databaseContext] undoManager] canUndo];
 	}
 	else if([anItem action] == @selector(redo:)) {
-		return [[self undoManager] canRedo];
+//		return [[self undoManager] canRedo];
+		return [[[self databaseContext] undoManager] canRedo];
 	}
 
 	return YES;
@@ -600,6 +605,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			randomIndex			= (unsigned)(randomNumber * [streams count]);
 			stream				= [streams objectAtIndex:randomIndex];
 			
+			[self setPlaybackContext:[_streamController arrangedObjects]];			
 			[self playStream:stream];
 		}
 		else {
@@ -642,9 +648,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (IBAction) playSelection:(id)sender
 {
 	if(0 == [[_streamController selectedObjects] count]) {
+		[self setPlaybackContext:[_streamController arrangedObjects]];		
 		[self playStream:[[_streamController arrangedObjects] objectAtIndex:0]];
 	}
 	else {
+		[self setPlaybackContext:[_streamController arrangedObjects]];		
 		[self playStream:[[_streamController selectedObjects] objectAtIndex:0]];
 	}
 	
@@ -700,7 +708,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self setNowPlaying:nil];
 	[stream setIsPlaying:NO];
 	
-	NSArray *streams = [_streamController arrangedObjects];
+	NSArray *streams = [self playbackContext];
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];
@@ -737,6 +745,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}
 		else {
 			[[self player] reset];
+			[self setPlaybackContext:nil];
 			[self updatePlayButtonState];
 		}
 	}
@@ -750,7 +759,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self setNowPlaying:nil];
 	[stream setIsPlaying:NO];
 	
-	NSArray *streams = [_streamController arrangedObjects];
+	NSArray *streams = [self playbackContext];
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];	
@@ -804,7 +813,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) canPlayNextStream
 {
 	AudioStream		*stream		= [self nowPlaying];
-	NSArray			*streams	= [_streamController arrangedObjects];
+//	NSArray			*streams	= [_streamController arrangedObjects];
+	NSArray			*streams	= [self playbackContext];
 	BOOL			result;
 	
 	if(nil == stream || 0 == [streams count]) {
@@ -827,7 +837,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) canPlayPreviousStream
 {
 	AudioStream		*stream		= [self nowPlaying];
-	NSArray			*streams	= [_streamController arrangedObjects];
+//	NSArray			*streams	= [_streamController arrangedObjects];
+	NSArray			*streams	= [self playbackContext];
 	BOOL			result;
 	
 	if(nil == stream || 0 == [streams count]) {
@@ -877,10 +888,22 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (NSUndoManager *) undoManager
 {
+	return [[self databaseContext] undoManager];
 	if(nil == _undoManager) {
 		_undoManager = [[NSUndoManager alloc] init];
 	}
 	return _undoManager;
+}
+
+- (NSArray *)	playbackContext
+{
+	return _playbackContext;
+}
+
+- (void) setPlaybackContext:(NSArray *)playbackContext
+{
+	[_playbackContext release];
+	_playbackContext = [playbackContext copy];
 }
 
 #pragma mark Stream KVC Accessor Methods
@@ -1047,7 +1070,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
-	NSArray *streams = [_streamController arrangedObjects];
+//	NSArray *streams = [_streamController arrangedObjects];
+	NSArray *streams = [self playbackContext];
 	
 	if(nil == stream || 0 == [streams count]) {
 		stream = nil;
@@ -1083,8 +1107,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(nil != stream) {
 		NSError		*error		= nil;
-		BOOL		result		= [[self player] setNextStreamURL:[stream valueForKey:@"url"] error:&error];
-		
+		BOOL		result		= [[self player] setNextStreamURL:[stream valueForKey:StreamURLKey] error:&error];
+		NSLog(@"requestNextStream returned %@", stream);
 		if(NO == result) {
 			if(nil != error) {
 				
@@ -1110,9 +1134,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[self didChangeValueForKey:@"streams"];
 		}
 		else if(1 == count) {
+			Playlist *playlist = [[_playlistController selectedObjects] objectAtIndex:0];
 			[self willChangeValueForKey:@"streams"];
 			[_streams removeAllObjects];
-			[_streams addObjectsFromArray:[[[_playlistController selectedObjects] objectAtIndex:0] streams]];
+			[_streams addObjectsFromArray:[[playlist entries] valueForKey:@"stream"]];
 			[self didChangeValueForKey:@"streams"];
 		}
 		else {
@@ -1318,7 +1343,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	NSError		*error		= nil;
-	BOOL		result		= [[self player] setStreamURL:[stream valueForKey:@"url"] error:&error];
+	BOOL		result		= [[self player] setStreamURL:[stream valueForKey:StreamURLKey] error:&error];
 	
 	if(NO == result) {
 		/*BOOL errorRecoveryDone =*/ [self presentError:error];
