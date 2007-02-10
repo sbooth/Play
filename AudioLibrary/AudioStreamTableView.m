@@ -19,6 +19,7 @@
  */
 
 #import "AudioStreamTableView.h"
+#import "AudioStream.h"
 #import "SecondsFormatter.h"
 
 @interface AudioStreamTableView (Private)
@@ -86,19 +87,19 @@
 
 - (IBAction) openWithFinder:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
+	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
 	[[NSWorkspace sharedWorkspace] openFile:path];
 }
 
 - (IBAction) revealInFinder:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
+	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
 	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
 }
 
 - (IBAction) convertWithMax:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:@"url"] path];
+	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
 	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
 }
 
@@ -124,7 +125,7 @@
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
 	if(NSOKButton == returnCode) {
-		NSString		*path				= [[[_streamController selection] valueForKey:@"url"] path];
+		NSString		*path				= [[[_streamController selection] valueForKey:StreamURLKey] path];
 		NSArray			*applications		= [panel filenames];
 		NSString		*applicationPath	= nil;
 		unsigned		i;
