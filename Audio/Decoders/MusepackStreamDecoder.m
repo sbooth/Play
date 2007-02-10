@@ -19,6 +19,7 @@
  */
 
 #import "MusepackStreamDecoder.h"
+#import "AudioStream.h"
 
 @implementation MusepackStreamDecoder
 
@@ -46,7 +47,7 @@
 	
 	[super setupDecoder:error];
 
-	_file							= fopen([[[self valueForKey:@"url"] path] fileSystemRepresentation], "r");
+	_file							= fopen([[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
 	NSAssert1(NULL != _file, @"Unable to open the input file (%s).", strerror(errno));	
 	
 	mpc_reader_setup_file_reader(&_reader_file, _file);

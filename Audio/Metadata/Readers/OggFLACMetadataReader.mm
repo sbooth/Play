@@ -19,6 +19,7 @@
  */
 
 #import "OggFLACMetadataReader.h"
+#import "AudioStream.h"
 #include <taglib/oggflacfile.h>
 #include <taglib/xiphcomment.h>
 

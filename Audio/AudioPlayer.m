@@ -20,6 +20,7 @@
 
 #import "AudioPlayer.h"
 #import "AudioLibrary.h"
+#import "AudioStream.h"
 #import "AudioStreamDecoder.h"
 
 #include <CoreServices/CoreServices.h>
@@ -733,7 +734,7 @@ MyRenderNotification(void							*inRefCon,
 	[self setNextStreamDecoder:nil];
 	_requestedNextStream = NO;
 	
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] valueForKey:@"url"] waitUntilDone:NO];
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] valueForKey:StreamURLKey] waitUntilDone:NO];
 }
 
 - (void) currentFrameNeedsUpdate

@@ -19,6 +19,7 @@
  */
 
 #import "CoreAudioPropertiesReader.h"
+#import "AudioStream.h"
 #include <AudioToolbox/AudioFormat.h>
 #include <AudioToolbox/ExtendedAudioFile.h>
 
@@ -38,8 +39,8 @@
 	NSMutableDictionary				*propertiesDictionary;
 	
 	// Open the input file
-	path							= [[self valueForKey:@"url"] path];
-	result							= FSPathMakeRef((const UInt8 *)[[[self valueForKey:@"url"] path] fileSystemRepresentation], &ref, NULL);
+	path							= [[self valueForKey:StreamURLKey] path];
+	result							= FSPathMakeRef((const UInt8 *)[[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], &ref, NULL);
 	
 	if(noErr != result) {
 		if(nil != error) {

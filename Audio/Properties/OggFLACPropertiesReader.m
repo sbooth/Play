@@ -19,6 +19,7 @@
  */
 
 #import "OggFLACPropertiesReader.h"
+#import "AudioStream.h"
 #include <FLAC/stream_decoder.h>
 #include <FLAC/metadata.h>
 

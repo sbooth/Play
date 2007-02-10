@@ -19,6 +19,7 @@
  */
 
 #import "MonkeysAudioStreamDecoder.h"
+#import "AudioStream.h"
 #include <mac/All.h>
 #include <mac/MACLib.h>
 #include <mac/APEDecompress.h>
@@ -52,7 +53,7 @@
 	[super setupDecoder:error];
 	
 	// Setup converter
-	chars			= GetUTF16FromANSI([[[self valueForKey:@"url"] path] fileSystemRepresentation]);
+	chars			= GetUTF16FromANSI([[[self valueForKey:StreamURLKey] path] fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
 	
 	_decompressor	= (void *)CreateIAPEDecompress(chars, &result);

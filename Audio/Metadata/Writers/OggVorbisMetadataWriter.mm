@@ -19,6 +19,7 @@
  */
 
 #import "OggVorbisMetadataWriter.h"
+#import "AudioStream.h"
 
 #include <taglib/vorbisfile.h>
 #include <taglib/tag.h>

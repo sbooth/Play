@@ -19,6 +19,7 @@
  */
 
 #import "MP3MetadataWriter.h"
+#import "AudioStream.h"
 #import "Genres.h"
 #import "UtilityFunctions.h"
 

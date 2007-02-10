@@ -45,6 +45,7 @@
 #import "WavPackStreamDecoder.h"
 #import "MonkeysAudioStreamDecoder.h"
 
+#import "AudioStream.h"
 #import "UtilityFunctions.h"
 
 #import <mach/mach_error.h>
@@ -93,7 +94,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	if([pathExtension isEqualToString:@"flac"]) {
 		result						= [[FLACStreamDecoder alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ogg"]) {
 		OggStreamType			type		= oggStreamType(url);
@@ -138,27 +139,27 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 			default:						result = nil;												break;
 		}
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackStreamDecoder alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackStreamDecoder alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioStreamDecoder alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
 		result						= [[CoreAudioStreamDecoder alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
 		if(nil != error) {

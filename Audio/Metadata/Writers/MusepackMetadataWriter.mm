@@ -19,6 +19,7 @@
  */
 
 #import "MusepackMetadataWriter.h"
+#import "AudioStream.h"
 #include <taglib/mpcfile.h>
 #include <taglib/tag.h>
 #include <taglib/tstring.h>

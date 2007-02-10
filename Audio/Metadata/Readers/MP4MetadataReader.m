@@ -19,6 +19,7 @@
  */
 
 #import "MP4MetadataReader.h"
+#import "AudioStream.h"
 #include <mp4v2/mp4.h>
 
 @implementation MP4MetadataReader

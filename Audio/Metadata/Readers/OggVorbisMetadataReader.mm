@@ -19,6 +19,7 @@
  */
 
 #import "OggVorbisMetadataReader.h"
+#import "AudioStream.h"
 #include <taglib/vorbisfile.h>
 #include <taglib/xiphcomment.h>
 

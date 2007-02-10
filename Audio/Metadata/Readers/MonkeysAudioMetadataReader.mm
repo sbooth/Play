@@ -19,6 +19,7 @@
  */
 
 #import "MonkeysAudioMetadataReader.h"
+#import "AudioStream.h"
 #include <mac/All.h>
 #include <mac/MACLib.h>
 #include <mac/APETag.h>
@@ -35,7 +36,7 @@
 	CAPETag							*f						= NULL;
 	CAPETagField					*tag					= NULL;		
 	
-	path							= [[self valueForKey:@"url"] path];
+	path							= [[self valueForKey:StreamURLKey] path];
 
 	chars = GetUTF16FromANSI([path fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));

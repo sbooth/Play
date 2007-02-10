@@ -19,6 +19,7 @@
  */
 
 #import "OggVorbisPropertiesReader.h"
+#import "AudioStream.h"
 #include <ogg/os_types.h>
 #include <ogg/ogg.h>
 #include <vorbis/vorbisfile.h>
@@ -36,7 +37,7 @@
 	ogg_int64_t						totalFrames;
 	long							bitrate;
 	
-	path							= [[self valueForKey:@"url"] path];
+	path							= [[self valueForKey:StreamURLKey] path];
 	file							= fopen([path fileSystemRepresentation], "r");
 	
 	if(NULL == file) {

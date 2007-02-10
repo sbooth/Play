@@ -28,6 +28,7 @@
 #import "MonkeysAudioPropertiesReader.h"
 #import "MP3PropertiesReader.h"
 
+#import "AudioStream.h"
 #import "UtilityFunctions.h"
 
 NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPropertiesReader";
@@ -49,7 +50,7 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	if([pathExtension isEqualToString:@"flac"]) {
 		result						= [[FLACPropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ogg"]) {
 		OggStreamType			type		= oggStreamType(url);
@@ -94,32 +95,32 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 			default:						result = nil;												break;
 		}
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackPropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackPropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioPropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
 		result						= [[MP3PropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
 		result						= [[CoreAudioPropertiesReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
 		if(nil != error) {

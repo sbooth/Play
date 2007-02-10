@@ -19,6 +19,7 @@
  */
 
 #import "WavPackMetadataWriter.h"
+#import "AudioStream.h"
 #include <wavpack/wavpack.h>
 
 @implementation WavPackMetadataWriter

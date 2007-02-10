@@ -19,6 +19,7 @@
  */
 
 #import "MonkeysAudioMetadataWriter.h"
+#import "AudioStream.h"
 #include <mac/All.h>
 #include <mac/MACLib.h>
 #include <mac/APETag.h>

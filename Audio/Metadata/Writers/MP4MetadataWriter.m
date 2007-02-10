@@ -19,6 +19,7 @@
  */
 
 #import "MP4MetadataWriter.h"
+#import "AudioStream.h"
 #import "UtilityFunctions.h"
 #include <mp4v2/mp4.h>
 

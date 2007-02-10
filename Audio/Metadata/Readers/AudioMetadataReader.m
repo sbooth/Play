@@ -28,6 +28,7 @@
 #import "WavPackMetadataReader.h"
 #import "MonkeysAudioMetadataReader.h"
 
+#import "AudioStream.h"
 #import "UtilityFunctions.h"
 
 NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioMetadataReader";
@@ -49,7 +50,7 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	if([pathExtension isEqualToString:@"flac"]) {
 		result						= [[FLACMetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
@@ -95,37 +96,37 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 			default:						result = [[AudioMetadataReader alloc] init];				break;
 		}
 
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackMetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
 		result						= [[MP3MetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
 		result						= [[MP4MetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackMetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioMetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
 		result						= [[AudioMetadataReader alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	
 	return [result autorelease];

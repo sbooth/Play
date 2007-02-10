@@ -19,6 +19,7 @@
  */
 
 #import "CoreAudioStreamDecoder.h"
+#import "AudioStream.h"
 #include <AudioToolbox/AudioFormat.h>
 
 @implementation CoreAudioStreamDecoder
@@ -72,7 +73,7 @@
 	[super setupDecoder:error];
 
 	// Open the input file
-	path			= [[self valueForKey:@"url"] path];
+	path			= [[self valueForKey:StreamURLKey] path];
 	result			= FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, NULL);
 
 	if(noErr != result) {

@@ -28,6 +28,7 @@
 #import "WavPackMetadataWriter.h"
 #import "MonkeysAudioMetadataWriter.h"
 
+#import "AudioStream.h"
 #import "UtilityFunctions.h"
 
 NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioMetadataWriter";
@@ -49,7 +50,7 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	if([pathExtension isEqualToString:@"flac"]) {
 		result						= [[FLACMetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
@@ -95,32 +96,32 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 			default:						result = [[AudioMetadataWriter alloc] init];				break;
 		}
 
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
 		result						= [[MusepackMetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
 		result						= [[MP3MetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
 		result						= [[MP4MetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
 		result						= [[WavPackMetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result						= [[MonkeysAudioMetadataWriter alloc] init];
 		
-		[result setValue:url forKey:@"url"];
+		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
 /*		if(nil != error) {

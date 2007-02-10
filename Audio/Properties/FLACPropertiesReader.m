@@ -19,6 +19,7 @@
  */
 
 #import "FLACPropertiesReader.h"
+#import "AudioStream.h"
 #include <FLAC/metadata.h>
 
 @implementation FLACPropertiesReader

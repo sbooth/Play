@@ -19,6 +19,7 @@
  */
 
 #import "FLACMetadataWriter.h"
+#import "AudioStream.h"
 #include <FLAC/metadata.h>
 
 static void

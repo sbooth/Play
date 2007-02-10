@@ -19,6 +19,7 @@
  */
 
 #import "WavPackPropertiesReader.h"
+#import "AudioStream.h"
 #include <wavpack/wavpack.h>
 
 @implementation WavPackPropertiesReader
@@ -30,7 +31,7 @@
     WavpackContext					*wpc;
 	char							errorMsg [80];
 
-	path							= [[self valueForKey:@"url"] path];
+	path							= [[self valueForKey:StreamURLKey] path];
 
 	wpc = WavpackOpenFileInput([path fileSystemRepresentation], errorMsg, 0, 0);
 	if(NULL == wpc) {

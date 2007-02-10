@@ -19,6 +19,7 @@
  */
 
 #import "OggFLACStreamDecoder.h"
+#import "AudioStream.h"
 #include <FLAC/metadata.h>
 
 @interface OggFLACStreamDecoder (Private)
@@ -206,7 +207,7 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	
 	// Initialize decoder
 	status		= FLAC__stream_decoder_init_ogg_file(_flac, 											
-													 [[[self valueForKey:@"url"] path] fileSystemRepresentation],
+													 [[[self valueForKey:StreamURLKey] path] fileSystemRepresentation],
 													 writeCallback, 
 													 metadataCallback, 
 													 errorCallback,

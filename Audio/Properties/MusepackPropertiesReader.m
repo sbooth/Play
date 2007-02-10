@@ -19,6 +19,7 @@
  */
 
 #import "MusepackPropertiesReader.h"
+#import "AudioStream.h"
 #include <mpcdec/mpcdec.h>
 
 @implementation MusepackPropertiesReader
@@ -35,7 +36,7 @@
 	mpc_int32_t						intResult;
 	mpc_bool_t						boolResult;
 	
-	path			= [[self valueForKey:@"url"] path];
+	path			= [[self valueForKey:StreamURLKey] path];
 	file			= fopen([path fileSystemRepresentation], "r");
 	
 	if(NULL == file) {

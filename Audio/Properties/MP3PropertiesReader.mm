@@ -19,6 +19,7 @@
  */
 
 #import "MP3PropertiesReader.h"
+#import "AudioStream.h"
 #include <taglib/mpegfile.h>
 #include <taglib/xingheader.h>
 
