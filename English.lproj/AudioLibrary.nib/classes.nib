@@ -6,13 +6,19 @@
         {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
             ACTIONS = {
-                newPlaylist = id; 
+                insertPlaylist = id; 
+                insertPlaylistWithSelection = id; 
+                nextPlaylist = id; 
                 openDocument = id; 
                 play = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
                 playSelection = id; 
+                previousPlaylist = id; 
+                scrollNowPlayingToVisible = id; 
+                showPlaybackContext = id; 
+                showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
@@ -26,16 +32,16 @@
                 "_addPlaylistButton" = NSButton; 
                 "_addStreamsButton" = NSButton; 
                 "_albumArtImageView" = NSImageView; 
+                "_browserDrawer" = NSDrawer; 
+                "_browserOutlineView" = NSOutlineView; 
                 "_playPauseButton" = NSButton; 
-                "_playlistController" = NSArrayController; 
-                "_playlistDrawer" = NSDrawer; 
+                "_playlistEntryController" = NSArrayController; 
                 "_playlistInfoButton" = NSButton; 
-                "_playlistTable" = NSTableView; 
                 "_removePlaylistsButton" = NSButton; 
                 "_removeStreamsButton" = NSButton; 
-                "_streamController" = NSArrayController; 
                 "_streamInfoButton" = NSButton; 
-                "_streamTable" = NSTableView; 
+                "_unorderedStreamController" = NSArrayController; 
+                "_unorderedStreamTable" = NSTableView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
@@ -62,8 +68,12 @@
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = PlaylistTableViewDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+        {
+            CLASS = BrowserOutlineViewDataSource; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }
