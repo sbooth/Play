@@ -19,6 +19,8 @@
  */
 
 #import "UnorderedAudioStreamNodeData.h"
+#import "AudioLibrary.h"
+#import "AudioStream.h"
 
 @implementation UnorderedAudioStreamNodeData
 
@@ -31,12 +33,11 @@
 {
 	if((self = [super init])) {
 		[self setSelectable:YES];
+		_streams = [[NSMutableArray alloc] init];
 		return self;
 	}	
 	return nil;
 }
-
-- (void) refreshData {}
 
 - (id) initWithName:(NSString *)name
 {
@@ -44,20 +45,59 @@
 	
 	if((self = [super initWithName:name])) {
 		[self setSelectable:YES];
+		_streams = [[NSMutableArray alloc] init];
 		return self;
 	}	
 	return nil;
 }
 
-// ========================================
-// KVC Accessors
-- (unsigned)		countOfStreams											{ return 0; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return nil; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{}
+- (void) dealloc
+{
+	[_streams release], _streams = nil;
+	
+	[super dealloc];
+}
 
-// ========================================
-// KVC Mutators
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index		{}
-- (void) removeObjectFromStreamsAtIndex:(unsigned)index								{}
+- (void) refreshData
+{}
+
+#pragma mark KVC Accessors
+
+- (unsigned)		countOfStreams											{ return [_streams count]; }
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [_streams objectAtIndex:index]; }
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [_streams getObjects:buffer range:aRange]; }
+
+#pragma mark KVC Mutators
+
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
+{
+	[_streams insertObject:stream atIndex:index];
+	
+	[self refreshData];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
+														object:[AudioLibrary defaultLibrary] 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+}
+
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index
+{
+	AudioStream *stream = [_streams objectAtIndex:index];
+	
+	if([stream isPlaying]) {
+		[[AudioLibrary defaultLibrary] stop:self];
+	}
+	
+	// To keep the database and in-memory representation in sync, remove the 
+	// stream from the database first and then from the array
+	[stream delete];
+	[_streams removeObjectAtIndex:index];
+
+	[self refreshData];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
+														object:[AudioLibrary defaultLibrary] 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+}
 
 @end

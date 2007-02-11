@@ -23,7 +23,6 @@
 
 @interface LibraryNodeData : UnorderedAudioStreamNodeData
 {
-	NSMutableArray *_streams;
 }
 
 @end

@@ -27,17 +27,9 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
-		_streams = [[NSMutableArray alloc] init];
 		return self;
 	}	
 	return nil;
-}
-
-- (void) dealloc
-{
-	[_streams release], _streams = nil;
-	
-	[super dealloc];
 }
 
 - (void) refreshData
@@ -46,41 +38,6 @@
 	[_streams release];
 	_streams = [[[AudioLibrary defaultLibrary] allStreams] mutableCopy];
 	[self didChangeValueForKey:@"streams"];
-}
-
-#pragma mark KVC Accessors
-
-- (unsigned)		countOfStreams											{ return [_streams count]; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [_streams objectAtIndex:index]; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [_streams getObjects:buffer range:aRange]; }
-
-#pragma mark KVC Mutators
-
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
-{
-	[_streams insertObject:stream atIndex:index];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:[AudioLibrary defaultLibrary] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
-- (void) removeObjectFromStreamsAtIndex:(unsigned)index
-{
-	AudioStream *stream = [_streams objectAtIndex:index];
-	
-	if([stream isPlaying]) {
-		[[AudioLibrary defaultLibrary] stop:self];
-	}
-	
-	// To keep the database and in-memory representation in sync, remove the 
-	// stream from the database first and then from the array
-	[stream delete];
-	[_streams removeObjectAtIndex:index];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:[AudioLibrary defaultLibrary] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 @end

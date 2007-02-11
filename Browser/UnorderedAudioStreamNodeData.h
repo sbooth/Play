@@ -28,6 +28,7 @@
 // ========================================
 @interface UnorderedAudioStreamNodeData : BrowserNodeData
 {
+	NSMutableArray		*_streams;
 }
 
 // ========================================
