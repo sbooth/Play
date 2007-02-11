@@ -63,8 +63,15 @@
 - (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key;
 
 // ========================================
+// Metadata query support
+- (NSArray *) allArtists;
+- (NSArray *) allAlbumTitles;
+
+// ========================================
 // AudioStream support
 - (NSArray *) allStreams;
+- (NSArray *) streamsForArtist:(NSString *)artist;
+- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
 //- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 
 - (AudioStream *) streamForID:(NSNumber *)objectID;

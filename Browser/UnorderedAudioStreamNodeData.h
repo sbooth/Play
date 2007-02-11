@@ -23,6 +23,9 @@
 
 @class AudioStream;
 
+// ========================================
+// An object that is KVC-compliant for a set of AudioStreams
+// ========================================
 @interface UnorderedAudioStreamNodeData : BrowserNodeData
 {
 }
@@ -34,12 +37,12 @@
 // ========================================
 // KVC Accessors
 - (unsigned)		countOfStreams;
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned int)index;
-- (void)			getUnorderedStreams:(id *)buffer range:(NSRange)aRange;
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index;
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange;
 
 // ========================================
 // KVC Mutators
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned int)index;
-- (void) removeObjectFromStreamsAtIndex:(unsigned int)index;
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index;
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index;
 
 @end

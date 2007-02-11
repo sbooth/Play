@@ -19,27 +19,15 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "BrowserNodeData.h"
 
-@class BrowserNode;
-
-@interface BrowserNodeData : NSObject
+@interface DynamicBrowserNodeData : BrowserNodeData
 {
-	BrowserNode		*_node;
-	NSString		*_name;
-	BOOL			_isSelectable;
 }
 
-- (id) initWithName:(NSString *)name;
-
-- (BrowserNode *) node;
-- (void) setNode:(BrowserNode *)node;
-
-- (NSString *) name;
-- (void) setName:(NSString *)name;
-
-- (BOOL) isSelectable;
-- (void) setSelectable:(BOOL)selectable;
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data;
+// ========================================
+// 'Delegate' methods for DynamicBrowserNode
+- (unsigned) countOfChildren;
+- (BrowserNode *) childAtIndex:(unsigned)index;
 
 @end

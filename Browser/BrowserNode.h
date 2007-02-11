@@ -28,7 +28,7 @@
 @interface BrowserNode : NSObject
 {
 	BrowserNode		*_parent;
-	NSMutableArray		*_children;
+	NSMutableArray	*_children;
 	
 	BrowserNodeData	*_representedObject;
 }

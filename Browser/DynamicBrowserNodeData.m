@@ -18,28 +18,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
+#import "DynamicBrowserNodeData.h"
+#import "BrowserNode.h"
 
-@class BrowserNode;
+@implementation DynamicBrowserNodeData
 
-@interface BrowserNodeData : NSObject
-{
-	BrowserNode		*_node;
-	NSString		*_name;
-	BOOL			_isSelectable;
-}
-
-- (id) initWithName:(NSString *)name;
-
-- (BrowserNode *) node;
-- (void) setNode:(BrowserNode *)node;
-
-- (NSString *) name;
-- (void) setName:(NSString *)name;
-
-- (BOOL) isSelectable;
-- (void) setSelectable:(BOOL)selectable;
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data;
+- (unsigned)		countOfChildren						{ return 0; }
+- (BrowserNode *)	childAtIndex:(unsigned)index		{ return nil; }
 
 @end

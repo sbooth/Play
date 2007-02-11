@@ -19,27 +19,15 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "DynamicBrowserNodeData.h"
 
-@class BrowserNode;
-
-@interface BrowserNodeData : NSObject
+@interface ArtistsNodeData : DynamicBrowserNodeData
 {
-	BrowserNode		*_node;
-	NSString		*_name;
-	BOOL			_isSelectable;
+	NSMutableArray *_artists;
 }
 
-- (id) initWithName:(NSString *)name;
-
-- (BrowserNode *) node;
-- (void) setNode:(BrowserNode *)node;
-
-- (NSString *) name;
-- (void) setName:(NSString *)name;
-
-- (BOOL) isSelectable;
-- (void) setSelectable:(BOOL)selectable;
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data;
+// ========================================
+// Reload data from source
+- (void) refreshData;
 
 @end

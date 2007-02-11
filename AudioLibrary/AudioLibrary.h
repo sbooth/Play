@@ -88,8 +88,13 @@ extern NSString * const		PlaylistObjectKey;
 + (AudioLibrary *) defaultLibrary;
 
 // ========================================
-// Stream access
+// Library streams and metadata information
 - (NSArray *) allStreams;
+- (NSArray *) streamsForArtist:(NSString *)artist;
+- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
+
+- (NSArray *) allArtists;
+- (NSArray *) allAlbumTitles;
 
 // ========================================
 // Playback control

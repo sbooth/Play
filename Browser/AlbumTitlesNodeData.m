@@ -18,45 +18,43 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "BrowserNodeData.h"
+#import "AlbumTitlesNodeData.h"
+#import "AudioLibrary.h"
+#import "AlbumTitleNodeData.h"
 #import "BrowserNode.h"
 
-@implementation BrowserNodeData
+@implementation AlbumTitlesNodeData
 
-- (id) initWithName:(NSString *)name
+- (id) init
 {
-	if((self = [super init])) {
-		[self setName:name];
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Albums", @"General", @"")])) {
+		_albumTitles = [[NSMutableArray alloc] init];
 		return self;
-	}
+	}	
 	return nil;
 }
 
 - (void) dealloc
 {
-	[_node release], _node = nil;
-	[_name release], _name = nil;
+	[_albumTitles release], _albumTitles = nil;
 	
 	[super dealloc];
 }
 
-- (BrowserNode *)		node								{ return _node; }
-- (void)				setNode:(BrowserNode *)node			{ [_node release]; _node = [node retain]; }
-
-- (NSString *)			name								{ return _name; }
-- (void)				setName:(NSString *)name			{ [_name release]; _name = [name retain]; }
-
-- (BOOL)				isSelectable						{ return _isSelectable; }
-- (void)				setSelectable:(BOOL)selectable		{ _isSelectable = selectable; }
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data
+- (void) refreshData
 {
-	return [_name compare:[data valueForKey:@"name"]];
+	[_albumTitles release];
+	_albumTitles = [[[AudioLibrary defaultLibrary] allAlbumTitles] mutableCopy];
 }
 
-- (NSString *) description
+- (unsigned) countOfChildren			{ return [_albumTitles count]; }
+
+- (BrowserNode *) childAtIndex:(unsigned)index
 {
-	return _name;
+	NSString *albumTitle = [_albumTitles objectAtIndex:index];
+	AlbumTitleNodeData *representedObject = [[AlbumTitleNodeData alloc] initWithName:albumTitle];
+	[representedObject setSelectable:YES];
+	return [[[BrowserNode alloc] initWithParent:[self node] representedObject:[representedObject autorelease]] autorelease];
 }
 
 @end

@@ -18,46 +18,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "UnorderedAudioStreamNodeData.h"
+#import <Cocoa/Cocoa.h>
+#import "BrowserNode.h"
 
-@implementation UnorderedAudioStreamNodeData
-
-+ (void) initialize
-{
-	[self exposeBinding:@"streams"];
-}
-
-- (id) init
-{
-	if((self = [super init])) {
-		[self setSelectable:YES];
-		return self;
-	}	
-	return nil;
-}
-
-- (void) refreshData {}
-
-- (id) initWithName:(NSString *)name
-{
-	NSParameterAssert(nil != name);
-	
-	if((self = [super initWithName:name])) {
-		[self setSelectable:YES];
-		return self;
-	}	
-	return nil;
-}
+@class DynamicBrowserNodeData;
 
 // ========================================
-// KVC Accessors
-- (unsigned)		countOfStreams											{ return 0; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return nil; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{}
-
+// A node which queries its represented object for children
 // ========================================
-// KVC Mutators
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index		{}
-- (void) removeObjectFromStreamsAtIndex:(unsigned)index								{}
+@interface DynamicBrowserNode : BrowserNode
+{
+}
 
 @end

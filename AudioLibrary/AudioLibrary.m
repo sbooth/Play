@@ -53,9 +53,14 @@
 #import "StaticPlaylistInformationSheet.h"
 
 #import "BrowserNode.h"
+#import "DynamicBrowserNode.h"
 #import "BrowserNodeData.h"
+#import "DynamicBrowserNodeData.h"
 #import "UnorderedAudioStreamNodeData.h"
 #import "LibraryNodeData.h"
+#import "ArtistsNodeData.h"
+#import "AlbumTitlesNodeData.h"
+
 //#import "ImageAndTextCell.h"
 
 #include "sfmt19937.h"
@@ -595,11 +600,31 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 //	[_playlistController selectPrevious:self];
 }
 
-#pragma mark Stream access
+#pragma mark Library stream and metadata access
 
 - (NSArray *) allStreams
 {
-	return [_databaseContext allStreams];
+	return [[self databaseContext] allStreams];
+}
+
+- (NSArray *) streamsForArtist:(NSString *)artist
+{
+	return [[self databaseContext] streamsForArtist:artist];
+}
+
+- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle
+{
+	return [[self databaseContext] streamsForAlbumTitle:albumTitle];
+}
+
+- (NSArray *) allArtists
+{
+	return [[self databaseContext] allArtists];
+}
+
+- (NSArray *) allAlbumTitles
+{
+	return [[self databaseContext] allAlbumTitles];
 }
 
 #pragma mark Playback Control
@@ -1464,6 +1489,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
 	*/
 	
+	ArtistsNodeData		*artistsNodeData	= [[ArtistsNodeData alloc] init];
+	DynamicBrowserNode	*artistsNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[artistsNodeData autorelease]];
+
+	AlbumTitlesNodeData	*albumTitlesNodeData	= [[AlbumTitlesNodeData alloc] init];
+	DynamicBrowserNode	*albumTitlesNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[albumTitlesNodeData autorelease]];
+
+	[artistsNodeData refreshData];
+	[albumTitlesNodeData refreshData];
+	
 	[[_browserOutlineView dataSource] setRootNode:[rootNode autorelease]];
 	[_browserOutlineView reloadData];
 	
@@ -1479,6 +1513,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[collectionNode release];
 	[libraryNode release];
+	[artistsNode release];
+	[albumTitlesNode release];
 }
 
 - (void) setupStreamButtons

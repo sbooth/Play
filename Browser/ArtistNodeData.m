@@ -18,15 +18,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "LibraryNodeData.h"
+#import "ArtistNodeData.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 
-@implementation LibraryNodeData
+@implementation ArtistNodeData
 
-- (id) init
+- (id) initWithName:(NSString *)name
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
+	if((self = [super initWithName:name])) {
 		_streams = [[NSMutableArray alloc] init];
 		return self;
 	}	
@@ -44,7 +44,7 @@
 {
 	[self willChangeValueForKey:@"streams"];
 	[_streams release];
-	_streams = [[[AudioLibrary defaultLibrary] allStreams] mutableCopy];
+	_streams = [[[AudioLibrary defaultLibrary] streamsForArtist:[self name]] mutableCopy];
 	[self didChangeValueForKey:@"streams"];
 }
 
@@ -59,6 +59,8 @@
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
 	[_streams insertObject:stream atIndex:index];
+	
+	[self refreshData];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
 														object:[AudioLibrary defaultLibrary] 
@@ -77,7 +79,9 @@
 	// stream from the database first and then from the array
 	[stream delete];
 	[_streams removeObjectAtIndex:index];
-	
+
+	[self refreshData];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
 														object:[AudioLibrary defaultLibrary] 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];

@@ -19,27 +19,11 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "UnorderedAudioStreamNodeData.h"
 
-@class BrowserNode;
-
-@interface BrowserNodeData : NSObject
+@interface ArtistNodeData : UnorderedAudioStreamNodeData
 {
-	BrowserNode		*_node;
-	NSString		*_name;
-	BOOL			_isSelectable;
+	NSMutableArray *_streams;
 }
-
-- (id) initWithName:(NSString *)name;
-
-- (BrowserNode *) node;
-- (void) setNode:(BrowserNode *)node;
-
-- (NSString *) name;
-- (void) setName:(NSString *)name;
-
-- (BOOL) isSelectable;
-- (void) setSelectable:(BOOL)selectable;
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data;
 
 @end

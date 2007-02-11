@@ -18,46 +18,43 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "UnorderedAudioStreamNodeData.h"
+#import "ArtistsNodeData.h"
+#import "AudioLibrary.h"
+#import "ArtistNodeData.h"
+#import "BrowserNode.h"
 
-@implementation UnorderedAudioStreamNodeData
-
-+ (void) initialize
-{
-	[self exposeBinding:@"streams"];
-}
+@implementation ArtistsNodeData
 
 - (id) init
 {
-	if((self = [super init])) {
-		[self setSelectable:YES];
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")])) {
+		_artists = [[NSMutableArray alloc] init];
 		return self;
 	}	
 	return nil;
 }
 
-- (void) refreshData {}
-
-- (id) initWithName:(NSString *)name
+- (void) dealloc
 {
-	NSParameterAssert(nil != name);
+	[_artists release], _artists = nil;
 	
-	if((self = [super initWithName:name])) {
-		[self setSelectable:YES];
-		return self;
-	}	
-	return nil;
+	[super dealloc];
 }
 
-// ========================================
-// KVC Accessors
-- (unsigned)		countOfStreams											{ return 0; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return nil; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{}
+- (void) refreshData
+{
+	[_artists release];
+	_artists = [[[AudioLibrary defaultLibrary] allArtists] mutableCopy];
+}
 
-// ========================================
-// KVC Mutators
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index		{}
-- (void) removeObjectFromStreamsAtIndex:(unsigned)index								{}
+- (unsigned) countOfChildren			{ return [_artists count]; }
+
+- (BrowserNode *) childAtIndex:(unsigned)index
+{
+	NSString *artist = [_artists objectAtIndex:index];
+	ArtistNodeData *representedObject = [[ArtistNodeData alloc] initWithName:artist];
+	[representedObject setSelectable:YES];
+	return [[[BrowserNode alloc] initWithParent:[self node] representedObject:[representedObject autorelease]] autorelease];
+}
 
 @end

@@ -18,28 +18,24 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
+#import "DynamicBrowserNode.h"
+#import "DynamicBrowserNodeData.h"
 
-@class BrowserNode;
+@implementation DynamicBrowserNode
 
-@interface BrowserNodeData : NSObject
+#pragma mark Child Management
+
+// The bare minimum required by the datasource
+
+- (unsigned)			countOfChildren						{ return [(DynamicBrowserNodeData *)[self representedObject] countOfChildren]; }
+- (BrowserNode *)		childAtIndex:(unsigned)index		{ return [(DynamicBrowserNodeData *)[self representedObject] childAtIndex:index]; }
+
+#pragma mark Represented object
+
+- (void) setRepresentedObject:(BrowserNodeData *)representedObject
 {
-	BrowserNode		*_node;
-	NSString		*_name;
-	BOOL			_isSelectable;
+	NSParameterAssert([representedObject isKindOfClass:[DynamicBrowserNodeData class]]);
+	[super setRepresentedObject:representedObject];
 }
-
-- (id) initWithName:(NSString *)name;
-
-- (BrowserNode *) node;
-- (void) setNode:(BrowserNode *)node;
-
-- (NSString *) name;
-- (void) setName:(NSString *)name;
-
-- (BOOL) isSelectable;
-- (void) setSelectable:(BOOL)selectable;
-
-- (NSComparisonResult) compare:(BrowserNodeData *)data;
 
 @end
