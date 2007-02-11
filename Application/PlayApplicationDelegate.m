@@ -23,6 +23,7 @@
 #import "AudioLibrary.h"
 #import "AudioScrobbler.h"
 #import "AudioStream.h"
+#import "AudioMetadataWriter.h"
 
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
@@ -85,6 +86,11 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(playbackDidResume:) 
 												 name:AudioStreamPlaybackDidResumeNotification
+											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(streamDidChange:) 
+												 name:AudioStreamDidChangeNotification
 											   object:nil];
 }
 
@@ -173,6 +179,16 @@
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
 		[[self scrobbler] resume];
 	}
+}
+
+- (void) streamDidChange:(NSNotification *)aNotification
+{
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
+	
+	NSError					*error			= nil;
+	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
+	BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
+	NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
 }
 
 @end
