@@ -108,7 +108,7 @@ escapeForLastFM(NSString *string)
 		escapeForLastFM([stream valueForKey:@"albumTitle"]), 
 		@"", // TODO: MusicBrainz support
 		[[stream valueForKey:@"duration"] intValue], 
-		escapeForLastFM([[stream valueForKey:@"url"] path])
+		escapeForLastFM([[stream valueForKey:StreamURLKey] path])
 		]];	
 }
 
