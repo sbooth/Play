@@ -45,6 +45,8 @@ extern NSString * const		PlaylistEntryPositionKey;
 
 @interface PlaylistEntry : DatabaseObject
 {
+	AudioStream		*_stream;
+	Playlist		*_playlist;
 }
 
 + (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;

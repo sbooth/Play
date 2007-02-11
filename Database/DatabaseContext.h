@@ -56,6 +56,10 @@
 
 // ========================================
 // Generic DatabaseObject support
+- (void) saveObject:(DatabaseObject *)object;
+- (void) deleteObject:(DatabaseObject *)object;
+- (void) revertObject:(DatabaseObject *)object;
+
 - (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key;
 
 // ========================================
@@ -64,6 +68,7 @@
 //- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 
 - (AudioStream *) streamForID:(NSNumber *)objectID;
+- (AudioStream *) streamForURL:(NSURL *)url;
 //- (NSArray *) streamsForIDs:(NSArray *)objectIDs;
 
 - (BOOL) insertStream:(AudioStream *)stream;

@@ -91,7 +91,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) save
 {
-//	[[self databaseContext] savePlaylist:self];
+	[[self databaseContext] saveObject:self];
 }
 
 - (void) revert
@@ -112,7 +112,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) delete
 {
-//	[[self databaseContext] deletePlaylist:self];
+	[[self databaseContext] deleteObject:self];
 }
 
 #pragma mark -

@@ -51,7 +51,11 @@ extern NSString * const		StatisticsPlayCountKey;
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
+// ========================================
+// Returns an array of PlaylistEntries contained in this Playlist
 - (NSArray *) entries;
+
+
 - (NSArray *) streams;
 
 - (void) addStream:(AudioStream *)stream;

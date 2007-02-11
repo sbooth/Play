@@ -84,18 +84,6 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[[self databaseContext] saveStream:self];
 }
 
-- (void) revert
-{
-/*	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
-	NSString		*key			= nil;
-	
-	while((key = [changedKeys nextObject])) {
-		[self willChangeValueForKey:key];
-		[_changedValues removeObjectForKey:key];
-		[self didChangeValueForKey:key];
-	}*/
-}
-
 - (void) delete
 {
 	[[self databaseContext] deleteStream:self];

@@ -58,6 +58,12 @@ extern NSString * const		ObjectIDKey;
 - (id) initWithDatabaseContext:(DatabaseContext *)context;
 
 // ========================================
+// Actions
+- (void) save;
+- (void) revert;
+- (void) delete;
+
+// ========================================
 // Call these with the values retrieved from the database
 - (void) initValue:(id)value forKey:(NSString *)key;
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;

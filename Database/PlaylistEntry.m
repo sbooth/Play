@@ -49,12 +49,18 @@ NSString * const	PlaylistEntryPositionKey				= @"position";
 
 - (AudioStream *) stream
 {
-	return [[self databaseContext] streamForID:[self valueForKey:AudioStreamObjectIDKey]];
+	if(nil == _stream) {
+		_stream = [[self databaseContext] streamForID:[self valueForKey:AudioStreamObjectIDKey]];
+	}
+	return _stream;
 }
 
 - (Playlist *) playlist
 {
-	return [[self databaseContext] playlistForID:[self valueForKey:PlaylistObjectIDKey]];
+	if(nil == _playlist) {
+		_playlist = [[self databaseContext] playlistForID:[self valueForKey:PlaylistObjectIDKey]];
+	}
+	return _playlist;
 }
 
 - (NSString *) description

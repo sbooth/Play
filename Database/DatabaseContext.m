@@ -154,6 +154,23 @@
 {
 }
 
+#pragma mark DatabaseObject support
+
+- (void) saveObject:(DatabaseObject *)object
+{
+	
+}
+
+- (void) revertObject:(DatabaseObject *)object
+{
+	
+}
+
+- (void) deleteObject:(DatabaseObject *)object
+{
+	
+}
+
 // This method is ugly right now because it relies on knowing the names of the subclasses
 - (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key
 {
@@ -264,6 +281,42 @@
 #endif
 	
 	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded stream in %f seconds", elapsed);
+#endif
+	
+	return stream;
+}
+
+- (AudioStream *) streamForURL:(NSURL *)url
+{
+	NSParameterAssert(nil != url);
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_stream_by_url"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":url"), [[url absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
@@ -713,7 +766,7 @@
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", 
-		@"select_all_streams", @"select_streams_for_playlist", @"select_stream_by_id", @"select_streams_by_id", @"insert_stream", @"insert_stream_in_playlist", @"update_stream", @"delete_stream", 
+		@"select_all_streams", @"select_streams_for_playlist", @"select_stream_by_id", @"select_stream_by_url", @"insert_stream", @"update_stream", @"delete_stream", 
 		@"select_all_playlists", @"select_playlist_by_id", @"insert_playlist", @"update_playlist", @"delete_playlist", 
 		@"select_playlist_entries_for_playlist", @"select_playlist_entry_by_id", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
@@ -1047,7 +1100,7 @@
 	
 	@try {
 		// Stream ID and location
-		result = sqlite3_bind_text(statement, 1, [[[stream valueForKey:@"url"] absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
+		result = sqlite3_bind_text(statement, 1, [[[stream valueForKey:StreamURLKey] absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
 		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
 		// Statistics
