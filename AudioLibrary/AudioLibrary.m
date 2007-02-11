@@ -61,7 +61,8 @@
 #import "ArtistsNodeData.h"
 #import "AlbumTitlesNodeData.h"
 
-//#import "ImageAndTextCell.h"
+#import "IconFamily.h"
+#import "ImageAndTextCell.h"
 
 #include "sfmt19937.h"
 
@@ -114,9 +115,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) setupBrowser;
 
 - (void) setupStreamButtons;
-- (void) setupPlaylistButtons;
 - (void) setupStreamTableColumns;
-- (void) setupPlaylistTable;
 
 - (void) saveStreamTableColumnOrder;
 - (IBAction) streamTableHeaderContextMenuSelected:(id)sender;
@@ -168,9 +167,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
 	
 	NSDictionary *streamTableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-		visibleColumnsDictionary, @"unorderedStreamTableColumnVisibility",
-		columnSizesDictionary, @"unorderedStreamTableColumnSizes",
-		columnOrderArray, @"unorderedStreamTableColumnOrder",
+		visibleColumnsDictionary, @"streamTableColumnVisibility",
+		columnSizesDictionary, @"streamTableColumnSizes",
+		columnOrderArray, @"streamTableColumnOrder",
 		nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
@@ -251,14 +250,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) awakeFromNib
 {
-//	[self willChangeValueForKey:@"unorderedStreams"];
-//	[_unorderedStreams addObjectsFromArray:[[self databaseContext] allStreams]];
-//	[self didChangeValueForKey:@"unorderedStreams"];
-
-//	[self willChangeValueForKey:@"playlists"];
-//	[_playlists addObjectsFromArray:[[self databaseContext] allPlaylists]];
-//	[self didChangeValueForKey:@"playlists"];
-	
 	// Setup browser
 	[self setupBrowser];
 	[_browserOutlineView reloadData];
@@ -282,9 +273,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	
 	[self setupStreamButtons];
-	[self setupPlaylistButtons];
 	[self setupStreamTableColumns];
-//	[self setupPlaylistTable];	
 }
 
 - (void) windowDidLoad
@@ -1194,7 +1183,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
 		}
 		
-		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"unorderedStreamTableColumnSizes"];
+		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
 	}
 }
 
@@ -1207,13 +1196,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return [[(BrowserNode *)item representedObject] isSelectable];
 }
 
-- (BOOL) outlineView:(NSOutlineView *)outlineView shouldCollapseItem:(id)item
+/*- (BOOL) outlineView:(NSOutlineView *)outlineView shouldCollapseItem:(id)item
 {
 	int				selectedRow		= [outlineView selectedRow];
 	BrowserNode		*selectedNode	= [outlineView itemAtRow:selectedRow];
 	
 	return (NO == [selectedNode isDescendantOfNode:item]);
-}
+}*/
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
@@ -1231,6 +1220,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
     return nil;
 }
 
+- (void) outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
+{
+	BrowserNodeData *nodeData = [(BrowserNode *)item representedObject];
+
+	[(ImageAndTextCell *)cell setImage:[nodeData icon]];
+}
+
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
 {
 	NSOutlineView *outlineView = [notification object];
@@ -1241,6 +1237,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		BrowserNodeData		*nodeData		= [node representedObject];
 
 		if(nil == nodeData) {
+			return;
 		}
 		
 		// Display the appropriate set of unordered streams
@@ -1461,6 +1458,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) setupBrowser
 {	
+	// Setup the custom data cell
+	NSTableColumn		*tableColumn		= [_browserOutlineView tableColumnWithIdentifier:@"name"];
+	ImageAndTextCell	*imageAndTextCell	= [[ImageAndTextCell alloc] init];
+	
+	[imageAndTextCell setLineBreakMode:NSLineBreakByTruncatingTail];
+	[tableColumn setDataCell:[imageAndTextCell autorelease]];
+
+	// Grab the icon we'll be using
+	IconFamily	*folderIconFamily	= [IconFamily iconFamilyWithSystemIcon:kGenericFolderIcon];
+	NSImage		*folderIcon			= [folderIconFamily imageWithAllReps];
+
+	[folderIcon setSize:NSMakeSize(16.0, 16.0)];
+	
 	// The root node
 	BrowserNode *rootNode = [[BrowserNode alloc] init];
 	
@@ -1470,6 +1480,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	LibraryNodeData		*libraryData	= [[LibraryNodeData alloc] init];
 	BrowserNode			*libraryNode	= [[BrowserNode alloc] initWithParent:collectionNode representedObject:[libraryData autorelease]];
+	
+	[collectionData setIcon:folderIcon];
 	
 /*	data = [[BrowserNodeData alloc] initWithName:@"Playlists"];
 	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
@@ -1494,6 +1506,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	AlbumTitlesNodeData	*albumTitlesNodeData	= [[AlbumTitlesNodeData alloc] init];
 	DynamicBrowserNode	*albumTitlesNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[albumTitlesNodeData autorelease]];
+
+	[artistsNodeData setIcon:folderIcon];
+	[albumTitlesNodeData setIcon:folderIcon];
 
 	[artistsNodeData refreshData];
 	[albumTitlesNodeData refreshData];
@@ -1543,9 +1558,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamInfoButton setTarget:self];
 }
 
-- (void) setupPlaylistButtons
+/* - (void) setupPlaylistButtons
 {
-/*	NSMenu			*buttonMenu;
+	NSMenu			*buttonMenu;
 	NSMenuItem		*buttonMenuItem;
 	
 	// Bind playlist addition/removal button actions and state
@@ -1618,8 +1633,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 				  withKeyPath:@"selectedObjects.@count"
 					  options:nil];
 	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
-	[_playlistInfoButton setTarget:self];*/
-}
+	[_playlistInfoButton setTarget:self];
+}*/
 
 - (void) setupStreamTableColumns
 {
@@ -1628,9 +1643,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	int				menuIndex, i;
 	
 	// Setup stream table columns
-	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnVisibility"];
-	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnSizes"];
-	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnOrder"];
+	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
+	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
+	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
 	
 	NSArray			*tableColumns		= [_unorderedStreamTable tableColumns];
 	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
@@ -1680,17 +1695,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_unorderedStreamTable setDelegate:self];
 }
 
-- (void) setupPlaylistTable
-{
-/*	// Setup playlist table
-	NSTableColumn	*tableColumn	= [_playlistTable tableColumnWithIdentifier:@"name"];
-	NSCell			*dataCell		= [[ImageAndTextCell alloc] init];
-	
-	[tableColumn setDataCell:dataCell];
-	[tableColumn bind:@"value" toObject:_playlistController withKeyPath:@"arrangedObjects.name" options:nil];
-	[dataCell release];	*/
-}
-
 #pragma mark Stream Table Management
 
 - (void) saveStreamTableColumnOrder
@@ -1703,7 +1707,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[identifiers addObject:[obj identifier]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"unorderedStreamTableColumnOrder"];
+	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
 	//	[[NSUserDefaults standardUserDefaults] synchronize];
 }	
 
@@ -1735,7 +1739,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"unorderedStreamTableColumnVisibility"];
+	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
 	
 	[self saveStreamTableColumnOrder];
 }
