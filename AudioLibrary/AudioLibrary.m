@@ -52,6 +52,10 @@
 #import "AudioMetadataEditingSheet.h"
 #import "StaticPlaylistInformationSheet.h"
 
+#import "BrowserNode.h"
+#import "BrowserNodeData.h"
+#import "UnorderedAudioStreamNodeData.h"
+#import "LibraryNodeData.h"
 //#import "ImageAndTextCell.h"
 
 #include "sfmt19937.h"
@@ -101,6 +105,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) playStream:(AudioStream *)stream;
 
 - (void) updatePlayButtonState;
+
+- (void) setupBrowser;
 
 - (void) setupStreamButtons;
 - (void) setupPlaylistButtons;
@@ -157,9 +163,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
 	
 	NSDictionary *streamTableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-		visibleColumnsDictionary, @"streamTableColumnVisibility",
-		columnSizesDictionary, @"streamTableColumnSizes",
-		columnOrderArray, @"streamTableColumnOrder",
+		visibleColumnsDictionary, @"unorderedStreamTableColumnVisibility",
+		columnSizesDictionary, @"unorderedStreamTableColumnSizes",
+		columnOrderArray, @"unorderedStreamTableColumnOrder",
 		nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
@@ -192,9 +198,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		// Seed random number generator
 		init_gen_rand(time(NULL));
 
-		_streams	= [[NSMutableArray alloc] init];
-		_playlists	= [[NSMutableArray alloc] init];
-		
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 		NSAssert(nil != paths, NSLocalizedStringFromTable(@"Unable to locate the \"Application Support\" folder.", @"Errors", @""));
 		
@@ -222,15 +225,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[_player release], _player = nil;
 
-	[_streamTableVisibleColumns release], _streamTableVisibleColumns = nil;
-	[_streamTableHiddenColumns release], _streamTableHiddenColumns = nil;
-	[_streamTableHeaderContextMenu release], _streamTableHeaderContextMenu = nil;
+	[_unorderedStreamTableVisibleColumns release], _unorderedStreamTableVisibleColumns = nil;
+	[_unorderedStreamTableHiddenColumns release], _unorderedStreamTableHiddenColumns = nil;
+	[_unorderedStreamTableHeaderContextMenu release], _unorderedStreamTableHeaderContextMenu = nil;
 
 	[_nowPlaying release], _nowPlaying = nil;
 
-	[_streams release], _streams = nil;
-	[_playlists release], _playlists = nil;
-	
 	[_playbackContext release], _playbackContext = nil;
 	
 	[_undoManager release], _undoManager = nil;
@@ -246,27 +246,31 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) awakeFromNib
 {
-	[self willChangeValueForKey:@"streams"];
-	[_streams addObjectsFromArray:[[self databaseContext] allStreams]];
-	[self didChangeValueForKey:@"streams"];
+//	[self willChangeValueForKey:@"unorderedStreams"];
+//	[_unorderedStreams addObjectsFromArray:[[self databaseContext] allStreams]];
+//	[self didChangeValueForKey:@"unorderedStreams"];
 
-	[self willChangeValueForKey:@"playlists"];
-	[_playlists addObjectsFromArray:[[self databaseContext] allPlaylists]];
-	[self didChangeValueForKey:@"playlists"];
+//	[self willChangeValueForKey:@"playlists"];
+//	[_playlists addObjectsFromArray:[[self databaseContext] allPlaylists]];
+//	[self didChangeValueForKey:@"playlists"];
+	
+	// Setup browser
+	[self setupBrowser];
+	[_browserOutlineView reloadData];
 	
 	// Setup drag and drop
-	[_streamTable registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
-	[_playlistTable registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
+	[_unorderedStreamTable registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
+//	[_playlistTable registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
 	
 	// Set sort descriptors
-	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
+	[_unorderedStreamController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"albumTitle" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"trackNumber" ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES] autorelease],
 		nil]];
-	[_playlistController setSortDescriptors:[NSArray arrayWithObjects:
+/*	[_playlistController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
-		nil]];
+		nil]];*/
 	
 	// Default window state
 	[self updatePlayButtonState];
@@ -275,7 +279,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self setupStreamButtons];
 	[self setupPlaylistButtons];
 	[self setupStreamTableColumns];
-	[self setupPlaylistTable];	
+//	[self setupPlaylistTable];	
 }
 
 - (void) windowDidLoad
@@ -296,14 +300,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return [self playButtonEnabled];
 	}
 	else if([anItem action] == @selector(addFiles:)) {
-		return [_streamController canAdd];
+		return [_unorderedStreamController canAdd];
 	}
 	else if([anItem action] == @selector(showStreamInformationSheet:)) {
-		return (0 != [[_streamController selectedObjects] count]);
+		return (0 != [[_unorderedStreamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
+/*	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
 		return (0 != [[_playlistController selectedObjects] count]);
-	}
+	}*/
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
 			|| [anItem action] == @selector(skipToEnd:) 
@@ -316,7 +320,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	else if([anItem action] == @selector(playPreviousStream:)) {
 		return [self canPlayPreviousStream];
 	}
-	else if([anItem action] == @selector(nextPlaylist:)) {
+/*	else if([anItem action] == @selector(nextPlaylist:)) {
 		return [_playlistController canSelectNext];
 	}
 	else if([anItem action] == @selector(previousPlaylist:)) {
@@ -328,10 +332,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return [_playlistController canInsert];
 	}
 	else if([anItem action] == @selector(insertPlaylistWithSelection:)) {
-		return ([_playlistController canInsert] && 0 != [[_streamController selectedObjects] count]);
-	}
+		return ([_playlistController canInsert] && 0 != [[_unorderedStreamController selectedObjects] count]);
+	}*/
 	else if([anItem action] == @selector(scrollNowPlayingToVisible:)) {
-		return (nil != [self nowPlaying] && [[_streamController arrangedObjects] containsObject:[self nowPlaying]]);
+		return (nil != [self nowPlaying] && [[_unorderedStreamController arrangedObjects] containsObject:[self nowPlaying]]);
+	}
+	else if([anItem action] == @selector(showPlaybackContext:)) {
+		return (nil != [self playbackContext]);
 	}
 	else if([anItem action] == @selector(undo:)) {
 //		return [[self undoManager] canUndo];
@@ -346,6 +353,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 }
 
 #pragma mark Action Methods
+
+- (IBAction) toggleBrowser:(id)sender
+{
+	[_browserDrawer toggle:sender];
+}
 
 - (IBAction) openDocument:(id)sender
 {
@@ -363,36 +375,29 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					  contextInfo:nil];
 }
 
-- (IBAction) removeAudioStreams:(id)sender
-{
-	NSArray *selectedPlaylists = [_playlistController selectedObjects];
-		
-	if(0 == [selectedPlaylists count]) {
-		[[self databaseContext] beginTransaction];
-		[_streamController remove:sender];
-		[[self databaseContext] commitTransaction];
-	}
-	else {
-		NSArray *selectedStreams = [_streamController selectedObjects];
-//		[self removePlaylistEntryIDs:[selectedStreams valueForKey:@"playlistEntryID"] fromPlaylist:[selectedPlaylists objectAtIndex:0]];
-
-		[self willChangeValueForKey:@"streams"];
-		[_streams removeObjectsInArray:selectedStreams];
-		[self didChangeValueForKey:@"streams"];
-	}
-}
-
 - (IBAction) scrollNowPlayingToVisible:(id)sender
 {
 	AudioStream *stream = [self nowPlaying];
-	if(nil != stream && [[_streamController arrangedObjects] containsObject:stream]) {
-		[_streamTable scrollRowToVisible:[[_streamController arrangedObjects] indexOfObject:stream]];
+	if(nil != stream && [[_unorderedStreamController arrangedObjects] containsObject:stream]) {
+		[_unorderedStreamTable scrollRowToVisible:[[_unorderedStreamController arrangedObjects] indexOfObject:stream]];
 	}
+}
+
+- (IBAction) showPlaybackContext:(id)sender
+{
+	if(nil == [self playbackContext]) {
+		return;
+	}
+	
+//	[self willChangeValueForKey:@"streams"];
+//	[_streams removeAllObjects];
+//	[_streams addObjectsFromArray:[self playbackContext]];
+//	[self didChangeValueForKey:@"streams"];
 }
 
 - (IBAction) showStreamInformationSheet:(id)sender
 {
-	NSArray *streams = [_streamController selectedObjects];
+	NSArray *streams = [_unorderedStreamController selectedObjects];
 		
 	if(0 == [streams count]) {
 		return;
@@ -401,9 +406,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
 		
 		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-		[streamInformationSheet setValue:self forKey:@"owner"];
+		[streamInformationSheet setValue:[self allStreams] forKey:@"allStreams"];
 		
-//		[self beginTransaction];
+		[[self databaseContext] beginTransaction];
 		
 		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 									   modalForWindow:[self window] 
@@ -414,10 +419,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	else {
 		AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
 		
-		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-		[metadataEditingSheet setValue:self forKey:@"owner"];
+		[metadataEditingSheet setValue:[_unorderedStreamController selection] forKey:@"streams"];
+		[metadataEditingSheet setValue:[self allStreams] forKey:@"allStreams"];
 
-//		[self beginTransaction];
+		[[self databaseContext] beginTransaction];
 
 		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
 									   modalForWindow:[self window] 
@@ -429,7 +434,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
 {
-	NSArray *playlists = [_playlistController selectedObjects];
+/*	NSArray *playlists = [_playlistController selectedObjects];
 	
 	if(0 == [playlists count]) {
 		return;
@@ -439,12 +444,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if([playlist isKindOfClass:[Playlist class]]) {
 		[self showStaticPlaylistInformationSheet];
-	}
+	}*/
 }
 
 - (void) showStaticPlaylistInformationSheet
 {
-	StaticPlaylistInformationSheet *playlistInformationSheet = [[StaticPlaylistInformationSheet alloc] init];
+/*	StaticPlaylistInformationSheet *playlistInformationSheet = [[StaticPlaylistInformationSheet alloc] init];
 	
 	[playlistInformationSheet setValue:[[_playlistController selectedObjects] objectAtIndex:0] forKey:@"playlist"];
 	[playlistInformationSheet setValue:self forKey:@"owner"];
@@ -455,7 +460,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 								   modalForWindow:[self window] 
 									modalDelegate:self 
 								   didEndSelector:@selector(showStaticPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:playlistInformationSheet];
+									  contextInfo:playlistInformationSheet];*/
 }
 
 #pragma mark File Addition
@@ -464,7 +469,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	AudioStream				*stream				= nil;
 	NSError					*error				= nil;
-	NSArray					*selectedPlaylists	= [_playlistController selectedObjects];
+//	NSArray					*selectedPlaylists	= [_playlistController selectedObjects];
 	
 	// First read the properties
 	AudioPropertiesReader *propertiesReader = [AudioPropertiesReader propertiesReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
@@ -491,10 +496,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader valueForKey:@"properties"]];
 	[values addEntriesFromDictionary:[metadataReader valueForKey:@"metadata"]];
 	
+	// Insert the object in the database
 	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values inDatabaseContext:[self databaseContext]];
 	
 	if(nil != stream) {
-		[_streamController addObject:stream];
+		[_unorderedStreamController addObject:stream];
 		
 //		if(0 < [selectedPlaylists count]) {
 //			[playlist addStream:stream];
@@ -540,12 +546,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) insertPlaylist:(id)sender;
 {
-	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+/*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues inDatabaseContext:[self databaseContext]];
 	if(nil != playlist) {
 		[_playlistController addObject:playlist];
 
-		[_playlistDrawer open:self];
+		[_browserDrawer open:self];
 		
 		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
@@ -555,18 +561,18 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
 															object:self 
 														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
-	}
+	}*/
 }
 
 - (IBAction) insertPlaylistWithSelection:(id)sender;
 {
-	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+/*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues inDatabaseContext:[self databaseContext]];
 	if(nil != playlist) {
-		[playlist addStreams:[_streamController selectedObjects]];
+		[playlist addStreams:[_unorderedStreamController selectedObjects]];
 		[_playlistController addObject:playlist];
 		
-		[_playlistDrawer open:self];
+		[_browserDrawer open:self];
 		
 		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
@@ -576,17 +582,24 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
 															object:self 
 														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
-	}
+	}*/
 }
 
 - (IBAction) nextPlaylist:(id)sender
 {
-	[_playlistController selectNext:self];
+//	[_playlistController selectNext:self];
 }
 
 - (IBAction) previousPlaylist:(id)sender
 {
-	[_playlistController selectPrevious:self];
+//	[_playlistController selectPrevious:self];
+}
+
+#pragma mark Stream access
+
+- (NSArray *) allStreams
+{
+	return [_databaseContext allStreams];
 }
 
 #pragma mark Playback Control
@@ -600,12 +613,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			double				randomNumber;
 			unsigned			randomIndex;
 			
-			streams				= [_streamController arrangedObjects];
+			streams				= [_unorderedStreamController arrangedObjects];
 			randomNumber		= genrand_real2();
 			randomIndex			= (unsigned)(randomNumber * [streams count]);
 			stream				= [streams objectAtIndex:randomIndex];
 			
-			[self setPlaybackContext:[_streamController arrangedObjects]];			
+			[self setPlaybackContext:[_unorderedStreamController arrangedObjects]];			
 			[self playStream:stream];
 		}
 		else {
@@ -647,13 +660,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) playSelection:(id)sender
 {
-	if(0 == [[_streamController selectedObjects] count]) {
-		[self setPlaybackContext:[_streamController arrangedObjects]];		
-		[self playStream:[[_streamController arrangedObjects] objectAtIndex:0]];
+	if(0 == [[_unorderedStreamController selectedObjects] count]) {
+		[self setPlaybackContext:[_unorderedStreamController arrangedObjects]];		
+		[self playStream:[[_unorderedStreamController arrangedObjects] objectAtIndex:0]];
 	}
 	else {
-		[self setPlaybackContext:[_streamController arrangedObjects]];		
-		[self playStream:[[_streamController selectedObjects] objectAtIndex:0]];
+		[self setPlaybackContext:[_unorderedStreamController arrangedObjects]];		
+		[self playStream:[[_unorderedStreamController selectedObjects] objectAtIndex:0]];
 	}
 	
 	[self updatePlayButtonState];
@@ -813,7 +826,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) canPlayNextStream
 {
 	AudioStream		*stream		= [self nowPlaying];
-//	NSArray			*streams	= [_streamController arrangedObjects];
 	NSArray			*streams	= [self playbackContext];
 	BOOL			result;
 	
@@ -837,7 +849,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) canPlayPreviousStream
 {
 	AudioStream		*stream		= [self nowPlaying];
-//	NSArray			*streams	= [_streamController arrangedObjects];
 	NSArray			*streams	= [self playbackContext];
 	BOOL			result;
 	
@@ -906,56 +917,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	_playbackContext = [playbackContext copy];
 }
 
-#pragma mark Stream KVC Accessor Methods
-
-- (unsigned int) countOfStreams
-{
-	return [_streams count];
-}
-
-- (id) objectInStreamsAtIndex:(unsigned int)index
-{
-	// The stream in question already exists in the database if it is in the array
-	return [_streams objectAtIndex:index];
-}
-
-- (void) getStreams:(id *)buffer range:(NSRange)aRange
-{
-	// The streams in question already exist in the database if they are in the array
-	return [_streams getObjects:buffer range:aRange];
-}
-
-#pragma mark Stream KVC Mutator Methods
-
-- (void) insertObject:(id)stream inStreamsAtIndex:(unsigned int)index
-{
-	// The stream represented must already be added to the database	
-	[_streams insertObject:stream atIndex:index];
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
-- (void) removeObjectFromStreamsAtIndex:(unsigned int)index
-{
-	AudioStream *stream = [_streams objectAtIndex:index];
-	
-	if([stream isPlaying]) {
-		[self stop:self];
-	}
-	
-	// To keep the database and in-memory representation in sync, remove the 
-	// stream from the database first and then from the array
-	[stream delete];
-	[_streams removeObjectAtIndex:index];
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
-#pragma mark Playlist KVC Accessor Methods
+/*#pragma mark Playlist KVC Accessor Methods
 
 - (unsigned int) countOfPlaylists
 {
@@ -1003,7 +965,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 														object:self 
 													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];	
 }
-
+*/
 #pragma mark AudioPlayer Callbacks
 
 - (void) streamPlaybackDidStart:(NSURL *)url
@@ -1017,7 +979,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setIsPlaying:NO];
 
-//	[self beginTransaction];
+	[[self databaseContext] beginTransaction];
 	
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
@@ -1026,18 +988,16 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
 	
-//	[self commitTransaction];
+	[[self databaseContext] commitTransaction];
 	
-	NSArray *filtered = [_streams filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"url == %@", url]];
+	stream = [[self databaseContext] streamForURL:url];
+	NSAssert(nil != stream, @"Playback started for stream not in library!");
 	
-	if(0 < [filtered count]) {
-		stream = [filtered objectAtIndex:0];
-		[stream setIsPlaying:YES];
-		[self setNowPlaying:stream];
-		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
-															object:self 
-														  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-	}
+	[stream setIsPlaying:YES];
+	[self setNowPlaying:stream];
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 - (void) streamPlaybackDidComplete
@@ -1051,7 +1011,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setIsPlaying:NO];
 
-//	[self beginTransaction];
+	[[self databaseContext] beginTransaction];
 	
 	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
 	[stream setValue:newPlayCount forKey:@"playCount"];
@@ -1060,7 +1020,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
 	}
 	
-//	[self commitTransaction];
+	[[self databaseContext] commitTransaction];
 	
 	[self playNextStream:self];
 }
@@ -1070,7 +1030,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
-//	NSArray *streams = [_streamController arrangedObjects];
 	NSArray *streams = [self playbackContext];
 	
 	if(nil == stream || 0 == [streams count]) {
@@ -1108,7 +1067,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	if(nil != stream) {
 		NSError		*error		= nil;
 		BOOL		result		= [[self player] setNextStreamURL:[stream valueForKey:StreamURLKey] error:&error];
-		NSLog(@"requestNextStream returned %@", stream);
+
 		if(NO == result) {
 			if(nil != error) {
 				
@@ -1123,7 +1082,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-	if([[aNotification object] isEqual:_playlistTable]) {
+/*	if([[aNotification object] isEqual:_playlistTable]) {
 		
 		unsigned count = [[_playlistController selectedObjects] count];
 		
@@ -1143,7 +1102,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		else {
 			// SELECT [...] FROM streams WHERE id IN (SELECT stream_id FROM _playlist_9) OR id IN (SELECT stream_id FROM _playlist_10)
 		}		
-	}
+	}*/
 }
 
 - (NSString *) tableView:(NSTableView *)aTableView toolTipForCell:(NSCell *)aCell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
@@ -1159,19 +1118,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
-/*	if([aTableView isEqual:_playlistTableView] && [[aTableColumn identifier] isEqualToString:@"name"]) {
+/*	if([aTableView isEqual:_playlistTable] && [[aTableColumn identifier] isEqualToString:@"name"]) {
 		NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
-		
+
 		if(nil != infoForBinding) {
-			NSArrayController *arrayController		= [infoForBinding objectForKey:NSObservedObjectKey];
-			Playlist *playlistObject		= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
+			Playlist			*playlist			= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 			
-			[aCell setImage:[playlistObject imageScaledToSize:NSMakeSize(16.0, 16.0)]];
+//			[aCell setImage:[playlistObject imageScaledToSize:NSMakeSize(16.0, 16.0)]];
 		}
 	}
-	else*/ if([aTableView isEqual:_streamTable]) {
+	else*/ if([aTableView isEqual:_unorderedStreamTable]) {
 		NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
-		
+
 		if(nil != infoForBinding && [aCell respondsToSelector:@selector(setDrawsBackground:)]) {
 			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
 			AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
@@ -1194,23 +1153,81 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
 {
-	if([[aNotification object] isEqual:_streamTable]) {
+	if([[aNotification object] isEqual:_unorderedStreamTable]) {
 		[self saveStreamTableColumnOrder];
 	}
 }
 
 - (void) tableViewColumnDidResize:(NSNotification *)aNotification
 {
-	if([[aNotification object] isEqual:_streamTable]) {
+	if([[aNotification object] isEqual:_unorderedStreamTable]) {
 		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
-		NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
+		NSEnumerator			*enumerator		= [[_unorderedStreamTable tableColumns] objectEnumerator];
 		id						column;
 		
 		while((column = [enumerator nextObject])) {
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
 		}
 		
-		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
+		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"unorderedStreamTableColumnSizes"];
+	}
+}
+
+@end
+
+@implementation AudioLibrary (NSOutlineViewDelegateMethods)
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item
+{
+	return [[(BrowserNode *)item representedObject] isSelectable];
+}
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView shouldCollapseItem:(id)item
+{
+	int				selectedRow		= [outlineView selectedRow];
+	BrowserNode		*selectedNode	= [outlineView itemAtRow:selectedRow];
+	
+	return (NO == [selectedNode isDescendantOfNode:item]);
+}
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
+{
+	return NO;
+}
+
+- (NSString *) outlineView:(NSOutlineView *)ov toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)tc item:(id)item mouseLocation:(NSPoint)mouseLocation
+{
+    if([cell isKindOfClass:[NSTextFieldCell class]]) {
+        if([[cell attributedStringValue] size].width > rect->size.width) {
+            return [cell stringValue];
+        }
+    }
+	
+    return nil;
+}
+
+- (void) outlineViewSelectionDidChange:(NSNotification *)notification
+{
+	NSOutlineView *outlineView = [notification object];
+	
+	if([[notification object] isEqual:_browserOutlineView]) {
+		int					selectedRow		= [outlineView selectedRow];
+		BrowserNode			*node			= [outlineView itemAtRow:selectedRow];
+		BrowserNodeData		*nodeData		= [node representedObject];
+
+		if(nil == nodeData) {
+		}
+		
+		// Display the appropriate set of unordered streams
+		if([nodeData isKindOfClass:[UnorderedAudioStreamNodeData class]]) {
+
+			[_unorderedStreamController unbind:@"contentArray"];
+			[_unorderedStreamController setContent:nil];
+
+			[(UnorderedAudioStreamNodeData *)nodeData refreshData];
+			
+			[_unorderedStreamController bind:@"contentArray" toObject:nodeData withKeyPath:@"streams" options:nil];
+		}
 	}
 }
 
@@ -1222,7 +1239,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if(NSOKButton == returnCode) {
 #if SQL_DEBUG
-		unsigned startCount = [_streams count];
+		unsigned startCount = [[_unorderedStreamController arrangedObjects] count];
 		clock_t start = clock();
 #endif
 		
@@ -1230,13 +1247,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 #if SQL_DEBUG
 		clock_t end = clock();
-		unsigned endCount = [_streams count];
+		unsigned endCount = [[_unorderedStreamController arrangedObjects] count];
 		unsigned filesAdded = endCount - startCount;
 		double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 		NSLog(@"Added %i files in %f seconds (%i files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
 #endif
 		
-		[_streamController rearrangeObjects];
+		[_unorderedStreamController rearrangeObjects];
 	}
 }
 
@@ -1248,10 +1265,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+		[[self databaseContext] commitTransaction];
 		[stream save];
-		[_streamController rearrangeObjects];
+		[_unorderedStreamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
+		[[self databaseContext] rolbackTransaction];
 		[stream revert];
 		[[self databaseContext] revertStream:stream];
 		// TODO: refresh affected objects
@@ -1267,11 +1286,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-//		[self commitTransaction];
-		[_streamController rearrangeObjects];
+		[[self databaseContext] commitTransaction];
+		[_unorderedStreamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-//		[self rollbackTransaction];
+		[[self databaseContext] rolbackTransaction];
 		// TODO: refresh affected objects
 	}
 	
@@ -1286,7 +1305,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(NSOKButton == returnCode) {
 		//		[self commitTransaction];
-		[_streamController rearrangeObjects];
+		[_unorderedStreamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
 		//		[self rollbackTransaction];
@@ -1304,6 +1323,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	[self stop:self];
 	[[self player] reset];
+}
+
+- (DatabaseContext *) databaseContext
+{
+	return _databaseContext;
 }
 
 - (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
@@ -1393,7 +1417,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];
 		
-		[self setPlayButtonEnabled:(0 != [[_streamController arrangedObjects] count])];
+		[self setPlayButtonEnabled:(0 != [[_unorderedStreamController arrangedObjects] count])];
 	}
 	else {
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
@@ -1410,12 +1434,59 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 }
 
+- (void) setupBrowser
+{	
+	// The root node
+	BrowserNode *rootNode = [[BrowserNode alloc] init];
+	
+	// Create the collection node
+	BrowserNodeData		*collectionData = [[BrowserNodeData alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
+	BrowserNode			*collectionNode = [[BrowserNode alloc] initWithParent:rootNode representedObject:[collectionData autorelease]];
+	
+	LibraryNodeData		*libraryData	= [[LibraryNodeData alloc] init];
+	BrowserNode			*libraryNode	= [[BrowserNode alloc] initWithParent:collectionNode representedObject:[libraryData autorelease]];
+	
+/*	data = [[BrowserNodeData alloc] initWithName:@"Playlists"];
+	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
+	
+	NSArray *playlists = [[self databaseContext] allPlaylists];
+	NSEnumerator *enumerator = [playlists objectEnumerator];
+	Playlist *playlist;
+	while((playlist = [enumerator nextObject])) {
+		data = [[BrowserNodeData alloc] initWithName:[playlist valueForKey:PlaylistNameKey]];
+		node2 = [[BrowserNode alloc] initWithParent:node representedObject:[data autorelease]];
+	}
+
+	data = [[BrowserNodeData alloc] initWithName:@"Smart Playlists"];
+	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
+	
+	data = [[BrowserNodeData alloc] initWithName:@"Watch Folders"];
+	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
+	*/
+	
+	[[_browserOutlineView dataSource] setRootNode:[rootNode autorelease]];
+	[_browserOutlineView reloadData];
+	
+	// Expand the collectionNode and then select the library item
+	if(-1 != [_browserOutlineView rowForItem:collectionNode]) {
+		[_browserOutlineView expandItem:collectionNode];
+		
+		int rowIndex = [_browserOutlineView rowForItem:libraryNode];
+		if(-1 != rowIndex) {
+			[_browserOutlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowIndex] byExtendingSelection:NO];
+		}
+	}
+	
+	[collectionNode release];
+	[libraryNode release];
+}
+
 - (void) setupStreamButtons
 {
 	// Bind stream addition/removal button actions and state
 	[_addStreamsButton setToolTip:NSLocalizedStringFromTable(@"Add audio streams to the library", @"Player", @"")];
 	[_addStreamsButton bind:@"enabled"
-				   toObject:_streamController
+				   toObject:_unorderedStreamController
 				withKeyPath:@"canInsert"
 					options:nil];
 	[_addStreamsButton setAction:@selector(openDocument:)];
@@ -1423,15 +1494,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[_removeStreamsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected audio streams from the library", @"Player", @"")];
 	[_removeStreamsButton bind:@"enabled"
-					  toObject:_streamController
+					  toObject:_unorderedStreamController
 				   withKeyPath:@"canRemove"
 					   options:nil];
-	[_removeStreamsButton setAction:@selector(removeAudioStreams:)];
-	[_removeStreamsButton setTarget:self];
 	
 	[_streamInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected streams", @"Player", @"")];
 	[_streamInfoButton bind:@"enabled"
-				   toObject:_streamController
+				   toObject:_unorderedStreamController
 				withKeyPath:@"selectedObjects.@count"
 					options:nil];
 	[_streamInfoButton setAction:@selector(showStreamInformationSheet:)];
@@ -1440,7 +1509,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) setupPlaylistButtons
 {
-	NSMenu			*buttonMenu;
+/*	NSMenu			*buttonMenu;
 	NSMenuItem		*buttonMenuItem;
 	
 	// Bind playlist addition/removal button actions and state
@@ -1475,7 +1544,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			 withKeyPath:@"canInsert"
 				 options:nil];
 	[buttonMenuItem bind:@"enabled2"
-				toObject:_streamController
+				toObject:_unorderedStreamController
 			 withKeyPath:@"selectedObjects.@count"
 				 options:nil];
 	[buttonMenuItem release];
@@ -1513,7 +1582,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 				  withKeyPath:@"selectedObjects.@count"
 					  options:nil];
 	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
-	[_playlistInfoButton setTarget:self];
+	[_playlistInfoButton setTarget:self];*/
 }
 
 - (void) setupStreamTableColumns
@@ -1523,31 +1592,31 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	int				menuIndex, i;
 	
 	// Setup stream table columns
-	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
-	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
-	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
+	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnVisibility"];
+	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnSizes"];
+	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"unorderedStreamTableColumnOrder"];
 	
-	NSArray			*tableColumns		= [_streamTable tableColumns];
+	NSArray			*tableColumns		= [_unorderedStreamTable tableColumns];
 	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
 	
-	_streamTableVisibleColumns			= [[NSMutableSet alloc] init];
-	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
-	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
+	_unorderedStreamTableVisibleColumns			= [[NSMutableSet alloc] init];
+	_unorderedStreamTableHiddenColumns			= [[NSMutableSet alloc] init];
+	_unorderedStreamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
 	
-	[[_streamTable headerView] setMenu:_streamTableHeaderContextMenu];
+	[[_unorderedStreamTable headerView] setMenu:_unorderedStreamTableHeaderContextMenu];
 	
 	// Keep our changes from generating notifications to ourselves
-	[_streamTable setDelegate:nil];
+	[_unorderedStreamTable setDelegate:nil];
 	
 	while((obj = [enumerator nextObject])) {
 		menuIndex = 0;
 		
-		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
-			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+		while(menuIndex < [_unorderedStreamTableHeaderContextMenu numberOfItems] 
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_unorderedStreamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
 			menuIndex++;
 		}
 		
-		contextMenuItem = [_streamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
+		contextMenuItem = [_unorderedStreamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
 		
 		[contextMenuItem setTarget:self];
 		[contextMenuItem setRepresentedObject:obj];
@@ -1557,22 +1626,22 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
 		
 		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
-			[_streamTableVisibleColumns addObject:obj];
+			[_unorderedStreamTableVisibleColumns addObject:obj];
 		}
 		else {
-			[_streamTableHiddenColumns addObject:obj];
-			[_streamTable removeTableColumn:obj];
+			[_unorderedStreamTableHiddenColumns addObject:obj];
+			[_unorderedStreamTable removeTableColumn:obj];
 		}
 	}
 	
 	i = 0;
 	enumerator = [orderArray objectEnumerator];
 	while((obj = [enumerator nextObject])) {
-		[_streamTable moveColumn:[_streamTable columnWithIdentifier:obj] toColumn:i];
+		[_unorderedStreamTable moveColumn:[_unorderedStreamTable columnWithIdentifier:obj] toColumn:i];
 		++i;
 	}
 	
-	[_streamTable setDelegate:self];
+	[_unorderedStreamTable setDelegate:self];
 }
 
 - (void) setupPlaylistTable
@@ -1591,14 +1660,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) saveStreamTableColumnOrder
 {
 	NSMutableArray	*identifiers	= [NSMutableArray array];
-	NSEnumerator	*enumerator		= [[_streamTable tableColumns] objectEnumerator];
+	NSEnumerator	*enumerator		= [[_unorderedStreamTable tableColumns] objectEnumerator];
 	id				obj;
 	
 	while((obj = [enumerator nextObject])) {
 		[identifiers addObject:[obj identifier]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
+	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"unorderedStreamTableColumnOrder"];
 	//	[[NSUserDefaults standardUserDefaults] synchronize];
 }	
 
@@ -1606,31 +1675,31 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if(NSOnState == [sender state]) {
 		[sender setState:NSOffState];
-		[_streamTableHiddenColumns addObject:[sender representedObject]];
-		[_streamTableVisibleColumns removeObject:[sender representedObject]];
-		[_streamTable removeTableColumn:[sender representedObject]];
+		[_unorderedStreamTableHiddenColumns addObject:[sender representedObject]];
+		[_unorderedStreamTableVisibleColumns removeObject:[sender representedObject]];
+		[_unorderedStreamTable removeTableColumn:[sender representedObject]];
 	}
 	else {
 		[sender setState:NSOnState];
-		[_streamTable addTableColumn:[sender representedObject]];
-		[_streamTableVisibleColumns addObject:[sender representedObject]];
-		[_streamTableHiddenColumns removeObject:[sender representedObject]];
+		[_unorderedStreamTable addTableColumn:[sender representedObject]];
+		[_unorderedStreamTableVisibleColumns addObject:[sender representedObject]];
+		[_unorderedStreamTableHiddenColumns removeObject:[sender representedObject]];
 	}
 	
 	NSMutableDictionary	*visibleDictionary	= [NSMutableDictionary dictionary];
-	NSEnumerator		*enumerator			= [_streamTableVisibleColumns objectEnumerator];
+	NSEnumerator		*enumerator			= [_unorderedStreamTableVisibleColumns objectEnumerator];
 	id					obj;
 	
 	while((obj = [enumerator nextObject])) {
 		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
 	}
 	
-	enumerator = [_streamTableHiddenColumns objectEnumerator];
+	enumerator = [_unorderedStreamTableHiddenColumns objectEnumerator];
 	while((obj = [enumerator nextObject])) {
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
 	}
 	
-	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
+	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"unorderedStreamTableColumnVisibility"];
 	
 	[self saveStreamTableColumnOrder];
 }

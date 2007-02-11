@@ -27,7 +27,7 @@
 	IBOutlet NSWindow			*_sheet;
 	
 	id							_streams;
-	AudioLibrary				*_owner;
+	NSArray						*_allStreams;
 }
 
 - (NSWindow *)			sheet;

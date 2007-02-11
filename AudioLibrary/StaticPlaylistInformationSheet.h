@@ -20,15 +20,15 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
+@class Playlist;
+@class AudioLibrary;
 
-@interface AudioStreamInformationSheet : NSObject
+@interface StaticPlaylistInformationSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSImageView		*_albumArtImageView;
-
-	AudioStream					*_stream;
-	NSArray						*_allStreams;
+	
+	Playlist					*_playlist;
+	AudioLibrary				*_owner;
 }
 
 - (NSWindow *)			sheet;
@@ -38,9 +38,5 @@
 
 //- (IBAction)			undo:(id)sender;
 //- (IBAction)			redo:(id)sender;
-
-- (IBAction)			chooseAlbumArt:(id)sender;
-
-- (NSArray *)			genres;
 
 @end

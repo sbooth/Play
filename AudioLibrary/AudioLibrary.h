@@ -46,11 +46,11 @@ extern NSString * const		PlaylistObjectKey;
 
 @interface AudioLibrary : NSWindowController
 {
-	IBOutlet NSArrayController	*_streamController;
-	IBOutlet NSArrayController	*_playlistController;
+	IBOutlet NSArrayController	*_unorderedStreamController;
+	IBOutlet NSArrayController	*_playlistEntryController;
 	
-	IBOutlet NSTableView		*_streamTable;
-	IBOutlet NSTableView		*_playlistTable;
+	IBOutlet NSTableView		*_unorderedStreamTable;
+	IBOutlet NSOutlineView		*_browserOutlineView;
 	
 	IBOutlet NSButton			*_playPauseButton;
 	
@@ -63,7 +63,7 @@ extern NSString * const		PlaylistObjectKey;
 	IBOutlet NSButton			*_playlistInfoButton;
 	
 	IBOutlet NSImageView		*_albumArtImageView;
-	IBOutlet NSDrawer			*_playlistDrawer;
+	IBOutlet NSDrawer			*_browserDrawer;
 	
 	@private
 	AudioPlayer					*_player;
@@ -73,15 +73,11 @@ extern NSString * const		PlaylistObjectKey;
 	BOOL						_loopPlayback;
 	BOOL						_playButtonEnabled;
 	
-	NSMutableSet				*_streamTableVisibleColumns;
-	NSMutableSet				*_streamTableHiddenColumns;
-	NSMenu						*_streamTableHeaderContextMenu;
+	NSMutableSet				*_unorderedStreamTableVisibleColumns;
+	NSMutableSet				*_unorderedStreamTableHiddenColumns;
+	NSMenu						*_unorderedStreamTableHeaderContextMenu;
 
-	NSMutableArray				*_streams;
-	NSMutableArray				*_playlists;
-	
-	NSArray						*_playbackContext;
-	
+	NSArray						*_playbackContext;	
 	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
@@ -90,6 +86,10 @@ extern NSString * const		PlaylistObjectKey;
 // ========================================
 // The standard global instance
 + (AudioLibrary *) defaultLibrary;
+
+// ========================================
+// Stream access
+- (NSArray *) allStreams;
 
 // ========================================
 // Playback control
@@ -125,8 +125,8 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // Action methods
-- (IBAction)	removeAudioStreams:(id)sender;
 - (IBAction)	scrollNowPlayingToVisible:(id)sender;
+- (IBAction)	showPlaybackContext:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
 - (IBAction)	showPlaylistInformationSheet:(id)sender;
