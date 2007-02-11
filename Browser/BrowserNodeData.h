@@ -27,6 +27,7 @@
 	BrowserNode		*_node;
 	NSString		*_name;
 	BOOL			_isSelectable;
+	NSImage			*_icon;
 }
 
 - (id) initWithName:(NSString *)name;
@@ -39,6 +40,9 @@
 
 - (BOOL) isSelectable;
 - (void) setSelectable:(BOOL)selectable;
+
+- (NSImage *) icon;
+- (void) setIcon:(NSImage *)icon;
 
 - (NSComparisonResult) compare:(BrowserNodeData *)data;
 

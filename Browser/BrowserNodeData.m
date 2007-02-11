@@ -36,6 +36,7 @@
 {
 	[_node release], _node = nil;
 	[_name release], _name = nil;
+	[_icon release], _icon = nil;
 	
 	[super dealloc];
 }
@@ -48,6 +49,9 @@
 
 - (BOOL)				isSelectable						{ return _isSelectable; }
 - (void)				setSelectable:(BOOL)selectable		{ _isSelectable = selectable; }
+
+- (NSImage *)			icon								{ return _icon; }
+- (void)				setIcon:(NSImage *)icon				{ [_icon release]; _icon = [icon retain]; }
 
 - (NSComparisonResult) compare:(BrowserNodeData *)data
 {
