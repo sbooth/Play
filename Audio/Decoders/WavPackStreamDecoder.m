@@ -48,7 +48,7 @@
 	[super setupDecoder:error];
 	
 	// Setup converter
-	_wpc = WavpackOpenFileInput([[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], errorBuf, 0, 0);
+	_wpc = WavpackOpenFileInput([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], errorBuf, 0, 0);
 	NSAssert1(NULL != _wpc, @"Unable to open the input file (%s).", errorBuf);
 	
 	// Setup input format descriptor

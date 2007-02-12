@@ -53,7 +53,7 @@
 	[super setupDecoder:error];
 	
 	// Setup converter
-	chars			= GetUTF16FromANSI([[[self valueForKey:StreamURLKey] path] fileSystemRepresentation]);
+	chars			= GetUTF16FromANSI([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
 	
 	_decompressor	= (void *)CreateIAPEDecompress(chars, &result);

@@ -309,8 +309,10 @@ MyRenderNotification(void							*inRefCon,
 
 #pragma mark Stream Management
 
-- (BOOL) setStreamURL:(NSURL *)url error:(NSError **)error
+- (BOOL) setStream:(AudioStream *)stream error:(NSError **)error
 {
+	NSParameterAssert(nil != stream);
+	
 	BOOL							result;
 	AudioStreamBasicDescription		pcmFormat;
 	AudioStreamDecoder				*streamDecoder;
@@ -326,7 +328,7 @@ MyRenderNotification(void							*inRefCon,
 		
 	}
 	
-	streamDecoder = [AudioStreamDecoder streamDecoderForURL:url error:error];
+	streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
 	if(nil == streamDecoder) {
 
 		if(nil != error) {
@@ -366,11 +368,13 @@ MyRenderNotification(void							*inRefCon,
 	return YES;
 }
 
-- (BOOL) setNextStreamURL:(NSURL *)url error:(NSError **)error
+- (BOOL) setNextStream:(AudioStream *)stream error:(NSError **)error
 {
+	NSParameterAssert(nil != stream);
+
 	AudioStreamBasicDescription		pcmFormat, nextPCMFormat;
 		
-	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForURL:url error:error];	
+	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];	
 	if(nil == streamDecoder) {
 		
 		if(nil != error) {
@@ -701,7 +705,7 @@ MyRenderNotification(void							*inRefCon,
 {
 	[self stop];
 	//	[_owner streamPlaybackDidComplete];
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete:) withObject:nil waitUntilDone:NO];
 }
 
 //- (void) didReadFrames:(NSNumber *)frameCount
@@ -734,7 +738,7 @@ MyRenderNotification(void							*inRefCon,
 	[self setNextStreamDecoder:nil];
 	_requestedNextStream = NO;
 	
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] valueForKey:StreamURLKey] waitUntilDone:NO];
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] stream] waitUntilDone:NO];
 }
 
 - (void) currentFrameNeedsUpdate

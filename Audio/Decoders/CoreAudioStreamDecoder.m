@@ -73,7 +73,7 @@
 	[super setupDecoder:error];
 
 	// Open the input file
-	path			= [[self valueForKey:StreamURLKey] path];
+	path			= [[[self stream] valueForKey:StreamURLKey] path];
 	result			= FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, NULL);
 
 	if(noErr != result) {

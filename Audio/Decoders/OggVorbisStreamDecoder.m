@@ -47,7 +47,7 @@
 	
 	[super setupDecoder:error];
 
-	file							= fopen([[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
+	file							= fopen([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
 	NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
 	
 	result							= ov_test(file, &_vf, NULL, 0);

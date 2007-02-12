@@ -22,6 +22,7 @@
 #include <AudioUnit/AudioUnit.h>
 
 @class AudioLibrary;
+@class AudioStream;
 @class AudioStreamDecoder;
 @class SecondsFormatter;
 
@@ -46,8 +47,8 @@
 - (AudioLibrary *)	owner;
 - (void)			setOwner:(AudioLibrary *)owner;
 
-- (BOOL)			setStreamURL:(NSURL *)url error:(NSError **)error;
-- (BOOL)			setNextStreamURL:(NSURL *)url error:(NSError **)error;
+- (BOOL)			setStream:(AudioStream *)stream error:(NSError **)error;
+- (BOOL)			setNextStream:(AudioStream *)stream error:(NSError **)error;
 
 - (void)			reset;
 

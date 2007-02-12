@@ -37,12 +37,13 @@ enum {
 	AudioStreamDecoderInputOutputError					= 2
 };
 
+@class AudioStream;
 @class AudioStreamReaderThread;
 
 // A decoder reads audio data in some format and provides it as PCM
 @interface AudioStreamDecoder : NSObject
 {
-	NSURL							*_url;				// The location of the raw stream
+	AudioStream						*_stream;			// The stream to be decoded
 	
 	AudioStreamBasicDescription		_pcmFormat;			// The type of PCM data provided by the stream
     VirtualRingBuffer				*_pcmBuffer;		// The buffer which holds the PCM audio data
@@ -56,7 +57,10 @@ enum {
     semaphore_t						_semaphore;			// Semaphore for intra-thread communication
 }
 
-+ (AudioStreamDecoder *)			streamDecoderForURL:(NSURL *)url error:(NSError **)error;
++ (AudioStreamDecoder *)			streamDecoderForStream:(AudioStream *)stream error:(NSError **)error;
+
+// The stream this decoder will process
+- (AudioStream *)					stream;
 
 // The type of PCM data provided by this AudioStreamDecoder
 - (AudioStreamBasicDescription)		pcmFormat;
