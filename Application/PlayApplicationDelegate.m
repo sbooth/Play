@@ -103,16 +103,25 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (BOOL) application:(NSApplication *)theApplication openFile:(NSString *)filename
-{
-	return [[AudioLibrary defaultLibrary] addFile:filename];
-
-}
-
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
-	BOOL success =  [[AudioLibrary defaultLibrary] addFiles:filenames];
-	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
+	BOOL successfullyAdded =  [[AudioLibrary defaultLibrary] addFiles:filenames];
+	
+	if(successfullyAdded) {
+		BOOL			successfullyPlayed	= NO;
+		NSEnumerator	*enumerator			= [filenames objectEnumerator];
+		NSString		*filename			= nil;
+		
+		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
+			successfullyPlayed = [[AudioLibrary defaultLibrary] playFile:filename];
+		}
+
+		if(successfullyPlayed) {
+			[[AudioLibrary defaultLibrary] scrollNowPlayingToVisible:self];
+		}
+	}
+	
+	[[NSApplication sharedApplication] replyToOpenOrPrint:(successfullyAdded ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
 }
 
 #pragma mark Growl
