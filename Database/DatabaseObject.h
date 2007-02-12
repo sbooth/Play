@@ -46,7 +46,7 @@ extern NSString * const		ObjectIDKey;
 	@protected
 	NSArray					*_databaseKeys;
 	
-	@private
+//	@private
 	DatabaseContext			*_databaseContext;
 	
 	NSMutableDictionary		*_savedValues;

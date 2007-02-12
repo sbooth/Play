@@ -49,7 +49,7 @@ NSString * const	ObjectIDKey								= @"id";
 			value = [_savedValues valueForKey:key];
 		}
 		
-		return value;
+		return ([value isEqual:[NSNull null]] ? nil : value);
 	}
 	else {
 		return [super valueForKey:key];
@@ -61,6 +61,11 @@ NSString * const	ObjectIDKey								= @"id";
 	if([[self databaseKeys] containsObject:key]) {
 
 //		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
+		
+		// Internally NSNull is used to indicate a value that was specifically set to nil
+		if(nil == value) {
+			value = [NSNull null];
+		}
 		
 		if([[_savedValues valueForKey:key] isEqual:value]) {
 			[_changedValues removeObjectForKey:key];

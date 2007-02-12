@@ -19,7 +19,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 @class DatabaseObject;
 @class AudioStream;
