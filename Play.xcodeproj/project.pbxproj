@@ -13,6 +13,7 @@
 		8C1A63DD0B7E8E9B008A04AB /* UnorderedAudioStreamNodeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63DB0B7E8E9A008A04AB /* UnorderedAudioStreamNodeData.m */; };
 		8C1A64D80B7EA36D008A04AB /* LibraryNodeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A64D60B7EA36D008A04AB /* LibraryNodeData.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
+		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
 		8C30A0770B74F8630007204B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0740B74F8630007204B /* main.m */; };
 		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
@@ -268,6 +269,8 @@
 		8C1A64D50B7EA36D008A04AB /* LibraryNodeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibraryNodeData.h; path = Browser/LibraryNodeData.h; sourceTree = "<group>"; };
 		8C1A64D60B7EA36D008A04AB /* LibraryNodeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LibraryNodeData.m; path = Browser/LibraryNodeData.m; sourceTree = "<group>"; };
 		8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_url.sql; path = SQL/select_stream_by_url.sql; sourceTree = "<group>"; };
+		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
+		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C30A0510B74F6220007204B /* ServicesProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServicesProvider.h; path = Application/ServicesProvider.h; sourceTree = "<group>"; };
 		8C30A0520B74F6220007204B /* ServicesProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServicesProvider.m; path = Application/ServicesProvider.m; sourceTree = "<group>"; };
 		8C30A0740B74F8630007204B /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Application/main.m; sourceTree = "<group>"; };
@@ -1030,6 +1033,8 @@
 				8C9C31DA0B732F1B00CE799A /* Genres.m */,
 				8C9C31DB0B732F1B00CE799A /* UtilityFunctions.h */,
 				8C9C31DC0B732F1B00CE799A /* UtilityFunctions.m */,
+				8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */,
+				8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1394,6 +1399,7 @@
 				8C5BD5270B7EEC6D000DE945 /* AlbumTitleNodeData.m in Sources */,
 				8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */,
 				8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */,
+				8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
