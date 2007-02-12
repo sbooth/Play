@@ -260,9 +260,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// Set sort descriptors
 	[_unorderedStreamController setSortDescriptors:[NSArray arrayWithObjects:
-		[[[NSSortDescriptor alloc] initWithKey:@"albumTitle" ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:@"trackNumber" ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:@"artist" ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
 /*	[_playlistController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
@@ -922,8 +922,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	_nowPlaying = [nowPlaying retain];
 	
 	// Update window title
-	NSString *title			= [[self nowPlaying] valueForKey:@"title"];
-	NSString *artist		= [[self nowPlaying] valueForKey:@"artist"];
+	NSString *title			= [[self nowPlaying] valueForKey:MetadataTitleKey];
+	NSString *artist		= [[self nowPlaying] valueForKey:MetadataArtistKey];
 	NSString *windowTitle	= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
 	
 	if(nil != title && nil != artist) {
@@ -1018,18 +1018,18 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	NSNumber		*playCount;
 	NSNumber		*newPlayCount;
 
-	playCount		= [stream valueForKey:@"playCount"];
+	playCount		= [stream valueForKey:StatisticsPlayCountKey];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setIsPlaying:NO];
 
 	[[self databaseContext] beginTransaction];
 	
-	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
-	[stream setValue:newPlayCount forKey:@"playCount"];
+	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
+	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
 	
-	if(nil == [stream valueForKey:@"firstPlayed"]) {
-		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
+	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
+		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
 	[[self databaseContext] commitTransaction];
@@ -1050,18 +1050,18 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	NSNumber		*playCount;
 	NSNumber		*newPlayCount;
 	
-	playCount		= [stream valueForKey:@"playCount"];
+	playCount		= [stream valueForKey:StatisticsPlayCountKey];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setIsPlaying:NO];
 
 	[[self databaseContext] beginTransaction];
 	
-	[stream setValue:[NSDate date] forKey:@"lastPlayed"];
-	[stream setValue:newPlayCount forKey:@"playCount"];
+	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
+	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
 	
-	if(nil == [stream valueForKey:@"firstPlayed"]) {
-		[stream setValue:[NSDate date] forKey:@"firstPlayed"];
+	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
+		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
 	[[self databaseContext] commitTransaction];
@@ -1411,7 +1411,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) playStream:(AudioStream *)stream
 {
 	NSParameterAssert(nil != stream);
-	
+
 	AudioStream *currentStream = [self nowPlaying];
 	
 	[[self player] stop];
