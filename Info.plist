@@ -11,6 +11,8 @@
 			<array>
 				<string>mpc</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>Musepack Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -25,6 +27,8 @@
 			<array>
 				<string>mp3</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>MP3</string>
 			<key>CFBundleTypeName</key>
 			<string>MP3 Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -43,6 +47,8 @@
 			<array>
 				<string>flac</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>FLAC Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -61,6 +67,8 @@
 			<array>
 				<string>ogg</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Ogg</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array>
 				<string>application/ogg</string>
@@ -83,6 +91,8 @@
 			<array>
 				<string>m4a</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>MPEG-4 Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -101,6 +111,8 @@
 			<array>
 				<string>wv</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>WavPack Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -115,6 +127,8 @@
 			<array>
 				<string>ape</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>Monkey's Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -129,6 +143,8 @@
 			<array>
 				<string>mp4</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>MPEG-4 Multimedia</string>
 			<key>CFBundleTypeRole</key>
@@ -147,6 +163,8 @@
 			<array>
 				<string>aiff</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>AIFF</string>
 			<key>CFBundleTypeName</key>
 			<string>AIFF Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -165,6 +183,8 @@
 			<array>
 				<string>aifc</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>AIFF</string>
 			<key>CFBundleTypeName</key>
 			<string>AIFC Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -183,6 +203,8 @@
 			<array>
 				<string>caf</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Generic</string>
 			<key>CFBundleTypeName</key>
 			<string>Core Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -202,6 +224,8 @@
 			<array>
 				<string>wav</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>WAV</string>
 			<key>CFBundleTypeName</key>
 			<string>WAVE Audio</string>
 			<key>CFBundleTypeRole</key>
@@ -217,8 +241,6 @@
 			<string>Binary</string>
 		</dict>
 	</array>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
