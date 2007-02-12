@@ -25,14 +25,14 @@ extern "C" {
 #endif
 	
 	// Types of audio contained in an Ogg stream that Play knows about
-	enum OggStreamType {
+	enum _OggStreamType {
 		kOggStreamTypeInvalid,
 		kOggStreamTypeUnknown,
 		kOggStreamTypeVorbis,
 		kOggStreamTypeFLAC,
 		kOggStreamTypeSpeex	
 	};
-	typedef enum OggStreamType OggStreamType;
+	typedef enum _OggStreamType OggStreamType;
 	
 	// Determine the type of audio contained in an ogg stream
 	OggStreamType oggStreamType(NSURL *url);
