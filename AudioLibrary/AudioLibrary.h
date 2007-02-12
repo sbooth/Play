@@ -98,6 +98,8 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // Playback control
+- (BOOL)		playFile:(NSString *)filename;
+
 - (IBAction)	play:(id)sender;
 - (IBAction)	playPause:(id)sender;
 - (IBAction)	playSelection:(id)sender;
@@ -160,8 +162,8 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // AudioPlayer callbacks
-- (void)		streamPlaybackDidStart:(NSURL *)url;
-- (void)		streamPlaybackDidComplete;
+- (void)		streamPlaybackDidStart:(AudioStream *)stream;
+- (void)		streamPlaybackDidComplete:(AudioStream *)stream;
 - (void)		requestNextStream;
 
 @end

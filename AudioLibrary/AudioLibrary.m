@@ -500,7 +500,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 //			[playlist addStream:stream];
 //		}
 	}
-	
+	else {
+		// If we couldn't add the file, cheeck if it exists in the library
+		// Perform this check here, not at the beginning, to avoid hitting the database twice
+		// for every file addition
+		stream = [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+	}
+		
 	return (nil != stream);
 }
 
@@ -617,6 +623,28 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 }
 
 #pragma mark Playback Control
+
+- (BOOL) playFile:(NSString *)filename
+{
+	// First try to find this file in our library
+	BOOL			success		= YES;
+	AudioStream		*stream		= [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+
+	// If it wasn't found, try and add it
+	if(nil == stream) {
+		success = [self addFile:filename];
+		if(success) {
+			stream = [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+		}
+	}
+	
+	// Play the file, if everything worked
+	if(nil != stream) {
+		[self playStream:stream];
+	}
+	
+	return success;
+}
 
 - (IBAction) play:(id)sender
 {
@@ -982,8 +1010,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 */
 #pragma mark AudioPlayer Callbacks
 
-- (void) streamPlaybackDidStart:(NSURL *)url
+- (void) streamPlaybackDidStart:(AudioStream *)startedStream
 {
+	NSParameterAssert(nil != startedStream);
+	
 	AudioStream		*stream		= [self nowPlaying];
 	NSNumber		*playCount;
 	NSNumber		*newPlayCount;
@@ -1004,17 +1034,17 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[self databaseContext] commitTransaction];
 	
-	stream = [[self databaseContext] streamForURL:url];
-	NSAssert(nil != stream, @"Playback started for stream not in library!");
+//	stream = [[self databaseContext] streamForURL:url];
+//	NSAssert(nil != stream, @"Playback started for stream not in library!");
 	
-	[stream setIsPlaying:YES];
-	[self setNowPlaying:stream];
+	[startedStream setIsPlaying:YES];
+	[self setNowPlaying:startedStream];
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+													  userInfo:[NSDictionary dictionaryWithObject:startedStream forKey:AudioStreamObjectKey]];
 }
 
-- (void) streamPlaybackDidComplete
+- (void) streamPlaybackDidComplete:(AudioStream *)unused
 {
 	AudioStream		*stream		= [self nowPlaying];
 	NSNumber		*playCount;
@@ -1080,7 +1110,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(nil != stream) {
 		NSError		*error		= nil;
-		BOOL		result		= [[self player] setNextStreamURL:[stream valueForKey:StreamURLKey] error:&error];
+		BOOL		result		= [[self player] setNextStream:stream error:&error];
 
 		if(NO == result) {
 			if(nil != error) {
@@ -1240,6 +1270,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			return;
 		}
 		
+		NSArray				*selected		= [_unorderedStreamController selectedObjects];
+		
 		// Display the appropriate set of unordered streams
 		if([nodeData isKindOfClass:[UnorderedAudioStreamNodeData class]]) {
 
@@ -1249,6 +1281,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[(UnorderedAudioStreamNodeData *)nodeData refreshData];
 			
 			[_unorderedStreamController bind:@"contentArray" toObject:nodeData withKeyPath:@"streams" options:nil];
+			[_unorderedStreamController setSelectedObjects:selected];
 		}
 	}
 }
@@ -1389,7 +1422,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	NSError		*error		= nil;
-	BOOL		result		= [[self player] setStreamURL:[stream valueForKey:StreamURLKey] error:&error];
+	BOOL		result		= [[self player] setStream:stream error:&error];
 	
 	if(NO == result) {
 		/*BOOL errorRecoveryDone =*/ [self presentError:error];
@@ -1465,11 +1498,16 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[imageAndTextCell setLineBreakMode:NSLineBreakByTruncatingTail];
 	[tableColumn setDataCell:[imageAndTextCell autorelease]];
 
-	// Grab the icon we'll be using
+	// Grab the icons we'll be using
 	IconFamily	*folderIconFamily	= [IconFamily iconFamilyWithSystemIcon:kGenericFolderIcon];
 	NSImage		*folderIcon			= [folderIconFamily imageWithAllReps];
 
 	[folderIcon setSize:NSMakeSize(16.0, 16.0)];
+
+	IconFamily	*cdIconFamily		= [IconFamily iconFamilyWithSystemIcon:kGenericCDROMIcon];
+	NSImage		*cdIcon				= [cdIconFamily imageWithAllReps];
+
+	[cdIcon setSize:NSMakeSize(16.0, 16.0)];
 	
 	// The root node
 	BrowserNode *rootNode = [[BrowserNode alloc] init];
@@ -1482,6 +1520,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode			*libraryNode	= [[BrowserNode alloc] initWithParent:collectionNode representedObject:[libraryData autorelease]];
 	
 	[collectionData setIcon:folderIcon];
+	[libraryData setIcon:cdIcon];
 	
 /*	data = [[BrowserNodeData alloc] initWithName:@"Playlists"];
 	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
