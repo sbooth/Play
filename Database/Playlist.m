@@ -118,12 +118,17 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	}*/
 }
 
-- (BOOL) isPlaying							{ return _isPlaying; }
-- (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
+- (BOOL) isPlaying							{ return _playing; }
+- (void) setPlaying:(BOOL)playing			{ _playing = playing; }
 
 - (NSString *) description
 {
 	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
+}
+
+- (NSString *) debugDscription
+{
+	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
 }
 
 #pragma mark Callbacks

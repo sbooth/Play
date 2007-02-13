@@ -46,7 +46,7 @@ extern NSString * const		StatisticsPlayCountKey;
 
 @interface Playlist : DatabaseObject
 {
-	BOOL	_isPlaying;
+	BOOL	_playing;
 }
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
@@ -68,6 +68,6 @@ extern NSString * const		StatisticsPlayCountKey;
 - (void) removeStreams:(NSArray *)streams;
 
 - (BOOL) isPlaying;
-- (void) setIsPlaying:(BOOL)isPlaying;
+- (void) setPlaying:(BOOL)playing;
 
 @end
