@@ -58,8 +58,8 @@
 #import "DynamicBrowserNodeData.h"
 #import "UnorderedAudioStreamNodeData.h"
 #import "LibraryNodeData.h"
-#import "ArtistsNodeData.h"
-#import "AlbumTitlesNodeData.h"
+#import "ArtistNodeData.h"
+#import "AlbumTitleNodeData.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -143,6 +143,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[NSNumber numberWithBool:NO], @"lastPlayed",
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
+		[NSNumber numberWithBool:NO], @"filename",
 		nil];
 	
 	NSDictionary *columnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -161,6 +162,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[NSNumber numberWithFloat:96], @"lastPlayed",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
+		[NSNumber numberWithFloat:55], @"filename",
 		nil];
 	
 	NSDictionary *columnOrderArray = [NSArray arrayWithObjects:
@@ -216,11 +218,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		NSString *databasePath = [applicationSupportFolder stringByAppendingPathComponent:@"Library.sqlite3"];
 		
 		_databaseContext = [[DatabaseContext alloc] init];
-		[_databaseContext connectToDatabase:databasePath];		
-
-		return self;
+		[_databaseContext connectToDatabase:databasePath];
 	}
-	return nil;
+	return self;
 }
 
 - (void) dealloc
@@ -249,7 +249,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (id) autorelease									{ return self; }
 
 - (void) awakeFromNib
-{
+{	
 	// Setup browser
 	[self setupBrowser];
 	[_browserOutlineView reloadData];
@@ -351,6 +351,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (IBAction) toggleBrowser:(id)sender
 {
 	[_browserDrawer toggle:sender];
+}
+
+- (IBAction) removeSelectedStreams:(id)sender
+{
+	[[self databaseContext] beginTransaction];
+	[_unorderedStreamController remove:sender];
+	[[self databaseContext] commitTransaction];
 }
 
 - (IBAction) openDocument:(id)sender
@@ -538,6 +545,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 
 	[[self databaseContext] commitTransaction];
+	
+	[_browserOutlineView reloadData];
 	
 	return openSuccessful;
 }
@@ -761,7 +770,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	unsigned		streamIndex;
 	
 	[self setNowPlaying:nil];
-	[stream setIsPlaying:NO];
+	[stream setPlaying:NO];
 	
 	NSArray *streams = [self playbackContext];
 	
@@ -812,7 +821,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	unsigned		streamIndex;
 	
 	[self setNowPlaying:nil];
-	[stream setIsPlaying:NO];
+	[stream setPlaying:NO];
 	
 	NSArray *streams = [self playbackContext];
 	
@@ -1021,7 +1030,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	playCount		= [stream valueForKey:StatisticsPlayCountKey];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[stream setIsPlaying:NO];
+	[stream setPlaying:NO];
 
 	[[self databaseContext] beginTransaction];
 	
@@ -1037,7 +1046,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 //	stream = [[self databaseContext] streamForURL:url];
 //	NSAssert(nil != stream, @"Playback started for stream not in library!");
 	
-	[startedStream setIsPlaying:YES];
+	[startedStream setPlaying:YES];
 	[self setNowPlaying:startedStream];
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
@@ -1053,7 +1062,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	playCount		= [stream valueForKey:StatisticsPlayCountKey];
 	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
-	[stream setIsPlaying:NO];
+	[stream setPlaying:NO];
 
 	[[self databaseContext] beginTransaction];
 	
@@ -1417,7 +1426,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[[self player] stop];
 	
 	if(nil != currentStream) {
-		[currentStream setIsPlaying:NO];
+		[currentStream setPlaying:NO];
 		[self setNowPlaying:nil];
 	}
 	
@@ -1429,7 +1438,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return;
 	}
 	
-	[stream setIsPlaying:YES];	
+	[stream setPlaying:YES];	
 	[self setNowPlaying:stream];
 	
 	if(nil == [stream valueForKey:@"albumArt"]) {
@@ -1540,17 +1549,28 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	node = [[BrowserNode alloc] initWithParent:[BrowserNode rootNode] representedObject:[data autorelease]];
 	*/
 	
-	ArtistsNodeData		*artistsNodeData	= [[ArtistsNodeData alloc] init];
-	DynamicBrowserNode	*artistsNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[artistsNodeData autorelease]];
+	 BrowserNodeData	*artistsNodeData	= [[BrowserNodeData alloc] initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")];
+	_artistsNode		= [[BrowserNode alloc] initWithParent:collectionNode representedObject:[artistsNodeData autorelease]];
 
-	AlbumTitlesNodeData	*albumTitlesNodeData	= [[AlbumTitlesNodeData alloc] init];
-	DynamicBrowserNode	*albumTitlesNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[albumTitlesNodeData autorelease]];
+	NSArray *allArtists = [self allArtists];
+	NSEnumerator *enumerator = [allArtists objectEnumerator];
+	NSString *artist;
+	ArtistNodeData *artistNodeData;
+	BrowserNode *node;
+	while((artist = [enumerator nextObject])) {
+		artistNodeData = [[ArtistNodeData alloc] initWithName:artist];
+		node = [[BrowserNode alloc] initWithParent:_artistsNode representedObject:[artistNodeData autorelease]];
+//		[artistNodeData refreshData];
+	}
+	
+//	AlbumTitlesNodeData	*albumTitlesNodeData	= [[AlbumTitlesNodeData alloc] init];
+//	DynamicBrowserNode	*albumTitlesNode		= [[DynamicBrowserNode alloc] initWithParent:collectionNode representedObject:[albumTitlesNodeData autorelease]];
 
 	[artistsNodeData setIcon:folderIcon];
-	[albumTitlesNodeData setIcon:folderIcon];
+//	[albumTitlesNodeData setIcon:folderIcon];
 
-	[artistsNodeData refreshData];
-	[albumTitlesNodeData refreshData];
+//	[[_artistsNode representedObject] refreshData];
+//	[albumTitlesNodeData refreshData];
 	
 	[[_browserOutlineView dataSource] setRootNode:[rootNode autorelease]];
 	[_browserOutlineView reloadData];
@@ -1567,8 +1587,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[collectionNode release];
 	[libraryNode release];
-	[artistsNode release];
-	[albumTitlesNode release];
+//	[artistsNode release];
+//	[albumTitlesNode release];
 }
 
 - (void) setupStreamButtons
@@ -1582,11 +1602,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_addStreamsButton setAction:@selector(openDocument:)];
 	[_addStreamsButton setTarget:self];
 	
-	[_removeStreamsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected audio streams from the library", @"Player", @"")];
+	[_removeStreamsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected audio streams", @"Player", @"")];
 	[_removeStreamsButton bind:@"enabled"
 					  toObject:_unorderedStreamController
 				   withKeyPath:@"canRemove"
 					   options:nil];
+	[_streamInfoButton setAction:@selector(removeSelectedStreams:)];
+	[_streamInfoButton setTarget:self];
 	
 	[_streamInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected streams", @"Player", @"")];
 	[_streamInfoButton bind:@"enabled"

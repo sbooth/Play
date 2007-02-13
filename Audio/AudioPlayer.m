@@ -48,7 +48,7 @@
 
 - (void)				currentFrameNeedsUpdate;
 
-- (void)				setIsPlaying:(BOOL)isPlaying;
+- (void)				setPlaying:(BOOL)playing;
 
 @end
 
@@ -275,11 +275,8 @@ MyRenderNotification(void							*inRefCon,
 
 		_secondsFormatter	= [[SecondsFormatter alloc] init];
 		_runLoop			= [[NSRunLoop currentRunLoop] retain];
-		
-		return self;
 	}
-	
-	return nil;
+	return self;
 }
 
 - (void) dealloc
@@ -440,7 +437,7 @@ MyRenderNotification(void							*inRefCon,
 		printf ("AudioOutputUnitStart=%ld\n", result);
 	}
 	
-	[self setIsPlaying:YES];
+	[self setPlaying:YES];
 }
 
 - (void) playPause
@@ -460,7 +457,7 @@ MyRenderNotification(void							*inRefCon,
 		printf ("AudioOutputUnitStop=%ld\n", result);
 	}
 
-	[self setIsPlaying:NO];
+	[self setPlaying:NO];
 }
 
 - (void) skipForward
@@ -526,7 +523,7 @@ MyRenderNotification(void							*inRefCon,
 
 - (BOOL) isPlaying
 {
-	return _isPlaying;
+	return _playing;
 }
 
 #pragma mark Bindings
@@ -590,9 +587,7 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		BOOL isPlaying = [self isPlaying];
-		
-		if(isPlaying) {
+		if([self isPlaying]) {
 			[self stop];
 		}
 		
@@ -611,7 +606,7 @@ MyRenderNotification(void							*inRefCon,
 			_requestedNextStream = NO;
 		}
 		
-		if(isPlaying) {
+		if([self isPlaying]) {
 			[self play];
 		}
 	}
@@ -747,9 +742,9 @@ MyRenderNotification(void							*inRefCon,
 	[self didChangeValueForKey:@"currentFrame"];	
 }
 
-- (void) setIsPlaying:(BOOL)isPlaying
+- (void) setPlaying:(BOOL)playing
 {
-	_isPlaying = isPlaying;
+	_playing = playing;
 }
 
 @end

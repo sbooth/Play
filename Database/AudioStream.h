@@ -68,13 +68,16 @@ extern NSString * const		PropertiesBitrateKey;
 
 @interface AudioStream : DatabaseObject
 {
-	BOOL	_isPlaying;
+	BOOL	_playing;
 	id		_albumArt;
 }
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
 
+- (NSString *) filename;
+- (NSString *) pathname;
+
 - (BOOL) isPlaying;
-- (void) setIsPlaying:(BOOL)isPlaying;
+- (void) setPlaying:(BOOL)playing;
 
 @end

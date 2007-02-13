@@ -76,8 +76,18 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	return [stream autorelease];
 }
 
-- (BOOL) isPlaying							{ return _isPlaying; }
-- (void) setIsPlaying:(BOOL)isPlaying		{ _isPlaying = isPlaying; }
+- (NSString *) filename
+{
+	return [[NSFileManager defaultManager] displayNameAtPath:[[self valueForKey:StreamURLKey] path]];
+}
+
+- (NSString *) pathname
+{
+	return [[self valueForKey:StreamURLKey] path];
+}
+
+- (BOOL) isPlaying							{ return _playing; }
+- (void) setPlaying:(BOOL)playing			{ _playing = playing; }
 
 - (void) save
 {
@@ -91,7 +101,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [[NSFileManager defaultManager] displayNameAtPath:[[self valueForKey:StreamURLKey] path]]];
+	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self filename]];
+}
+
+- (NSString *) debugDscription
+{
+	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self filename]];
 }
 
 #pragma mark Callbacks

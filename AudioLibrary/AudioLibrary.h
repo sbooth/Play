@@ -25,6 +25,8 @@
 @class AudioStream;
 @class Playlist;
 
+@class BrowserNode;
+
 // ========================================
 // Notification Names
 // ========================================
@@ -48,6 +50,7 @@ extern NSString * const		PlaylistObjectKey;
 {
 	IBOutlet NSArrayController	*_unorderedStreamController;
 	IBOutlet NSArrayController	*_playlistEntryController;
+	IBOutlet NSTreeController	*_treeController;
 	
 	IBOutlet NSTableView		*_unorderedStreamTable;
 	IBOutlet NSOutlineView		*_browserOutlineView;
@@ -81,6 +84,9 @@ extern NSString * const		PlaylistObjectKey;
 	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
+	
+	// Browser node references
+	BrowserNode					*_artistsNode;
 }
 
 // ========================================
@@ -132,6 +138,9 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // Action methods
+- (IBAction)	toggleBrowser:(id)sender;
+- (IBAction)	removeSelectedStreams:(id)sender;
+
 - (IBAction)	scrollNowPlayingToVisible:(id)sender;
 - (IBAction)	showPlaybackContext:(id)sender;
 

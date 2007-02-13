@@ -36,7 +36,7 @@
 	
 	AudioLibrary			*_owner;
 	
-	BOOL					_isPlaying;
+	BOOL					_playing;
 
 	SInt64					_frameCounter;
 	NSFormatter				*_secondsFormatter;
