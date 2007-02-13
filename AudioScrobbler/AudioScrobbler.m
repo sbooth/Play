@@ -79,11 +79,8 @@ escapeForLastFM(NSString *string)
 		}
 		
 		[NSThread detachNewThreadSelector:@selector(processAudioScrobblerCommands:) toTarget:self withObject:self];
-
-		return self;
 	}
-	
-	return nil;
+	return self;
 }
 
 - (void) dealloc

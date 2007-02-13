@@ -67,10 +67,8 @@
 		_playlistEntries	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 1024);
 		
 		_sql				= [[NSMutableDictionary alloc] init];
-		
-		return self;
 	}
-	return nil;
+	return self;
 }
 
 - (void) dealloc

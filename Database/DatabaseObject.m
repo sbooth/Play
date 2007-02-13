@@ -131,10 +131,8 @@ NSString * const	ObjectIDKey								= @"id";
 		
 		_savedValues	= [[NSMutableDictionary alloc] init];
 		_changedValues	= [[NSMutableDictionary alloc] init];
-				
-		return self;
 	}
-	return nil;
+	return self;
 }
 
 - (void) initValue:(id)value forKey:(NSString *)key

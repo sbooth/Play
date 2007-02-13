@@ -33,11 +33,8 @@
 			[self release];
 			return nil;
 		}
-		
-		return self;
 	}
-	
-	return nil;
+	return self;
 }
 
 - (void) awakeFromNib

@@ -103,6 +103,22 @@
 		// Wavpack uses "complete" samples (one sample across all channels), i.e. a Core Audio frame
 		samplesRead		= WavpackUnpackSamples(_wpc, inputBuffer, WP_INPUT_BUFFER_LEN / [self pcmFormat].mChannelsPerFrame);
 
+		// Handle floating point files
+		// Perform hard clipping and convert to integers
+		if(MODE_FLOAT & WavpackGetMode(_wpc) && 127 == WavpackGetFloatNormExp(_wpc)) {
+			float f;
+			alias32 = inputBuffer;
+			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+				f =  * ((float *) alias32);
+				
+				if(f > 1.0)		{ f = 1.0; }
+				if(f < -1.0)	{ f = -1.0; }
+				
+//				*alias32++ = (int32_t) (f * 2147483647.0);
+				*alias32++ = (int32_t) (f * 32767.0);
+			}
+		}
+
 		switch([self pcmFormat].mBitsPerChannel) {
 			
 			case 8:
@@ -160,7 +176,7 @@
 				@throw [NSException exceptionWithName:@"IllegalInputException" reason:@"Sample size not supported" userInfo:nil]; 
 				break;	
 		}
-		
+
 		// EOS?
 		if(0 == samplesRead) {
 			[self setAtEndOfStream:YES];

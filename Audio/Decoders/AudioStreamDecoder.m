@@ -195,10 +195,8 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 			[self release];
 			return nil;
 		}
-		
-		return self;
 	}
-	return nil;
+	return self;
 }
 
 - (void) dealloc

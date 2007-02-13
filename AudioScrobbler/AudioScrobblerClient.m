@@ -60,14 +60,11 @@ addressForHost(NSString *hostname)
 - (id) init
 {
 	if((self = [super init])) {
-
 		_socket				= -1;
 		_lastPort			= -1;
 		_doPortStepping		= YES;
-		
-		return self;
 	}
-	return nil;
+	return self;
 }
 
 - (in_port_t) connectToHost:(NSString *)hostname port:(in_port_t)port

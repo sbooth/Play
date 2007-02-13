@@ -73,7 +73,7 @@
 {
 	[_streams insertObject:stream atIndex:index];
 	
-	[self refreshData];
+//	[self refreshData];
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
 														object:[AudioLibrary defaultLibrary] 
@@ -93,7 +93,7 @@
 	[stream delete];
 	[_streams removeObjectAtIndex:index];
 
-	[self refreshData];
+//	[self refreshData];
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
 														object:[AudioLibrary defaultLibrary] 
