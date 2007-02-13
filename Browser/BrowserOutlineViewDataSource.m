@@ -59,9 +59,8 @@
 
 - (void) outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-	BrowserNode *node = (BrowserNode *)item;
-	
-	[[node representedObject] setValue:object forKey:@"name"];
+	BrowserNode *node = (BrowserNode *)item;	
+//	[[node representedObject] setValue:object forKey:@"name"];
 }
 
 @end
