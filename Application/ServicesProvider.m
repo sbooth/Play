@@ -25,28 +25,34 @@
 
 - (void) playFile:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error
 {
-	AudioLibrary	*library	= [AudioLibrary defaultLibrary];
-	NSArray			*types			= [pboard types];
-	NSEnumerator	*enumerator;
-	NSString		*current;
+	NSArray		*types			= [pboard types];
+	NSArray 	*filenames 		= nil;
 	
 	if([types containsObject:NSFilenamesPboardType]) {
-		enumerator = [[pboard propertyListForType:NSFilenamesPboardType] objectEnumerator];
-		while((current = [enumerator nextObject])) {
-			if(NO == [library addFile:current]) {
-				*error = [NSString stringWithFormat:NSLocalizedStringFromTable(@"The document \"%@\" does not appear to be a valid FLAC or Ogg Vorbis file.", @"Errors", @""), [current lastPathComponent]];
-				return;
-			}
-		}
-		
-		[library playSelection:self];
+		filenames = [pboard propertyListForType:NSFilenamesPboardType];
 	}
 	else if([types containsObject:NSStringPboardType]) {
-		if(NO == [library addFile:[pboard stringForType:NSStringPboardType]]) {
-			*error = [NSString stringWithFormat:NSLocalizedStringFromTable(@"The document \"%@\" does not appear to be a valid FLAC or Ogg Vorbis file.", @"Errors", @""), [[pboard stringForType:NSStringPboardType] lastPathComponent]];
-			return;
+		filenames = [NSArray arrayWithObject:[pboard stringForType:NSStringPboardType]];
+	}
+	
+	BOOL successfullyAdded = [[AudioLibrary defaultLibrary] addFiles:filenames];
+
+	if(successfullyAdded) {
+		BOOL			successfullyPlayed	= NO;
+		NSEnumerator	*enumerator			= [filenames objectEnumerator];
+		NSString		*filename			= nil;
+
+		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
+			successfullyPlayed = [[AudioLibrary defaultLibrary] playFile:filename];
 		}
-	}	
+
+		if(successfullyPlayed) {
+			[[AudioLibrary defaultLibrary] scrollNowPlayingToVisible:self];
+		}
+	}
+	else {
+		*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
+	}
 }
 
 @end
