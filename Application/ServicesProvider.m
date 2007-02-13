@@ -49,6 +49,9 @@
 		if(successfullyPlayed) {
 			[[AudioLibrary defaultLibrary] scrollNowPlayingToVisible:self];
 		}
+		else {
+			*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
+		}
 	}
 	else {
 		*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
