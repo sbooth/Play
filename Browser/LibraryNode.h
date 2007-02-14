@@ -18,26 +18,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "LibraryNodeData.h"
-#import "AudioStream.h"
-#import "AudioLibrary.h"
+#import <Cocoa/Cocoa.h>
+#import "AudioStreamCollectionNode.h"
 
-@implementation LibraryNodeData
-
-- (id) init
+// ========================================
+// A node representing every stream in the library
+// ========================================
+@interface LibraryNode : AudioStreamCollectionNode
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
-		return self;
-	}	
-	return nil;
-}
-
-- (void) refreshData
-{
-	[self willChangeValueForKey:@"streams"];
-	[_streams release];
-	_streams = [[[AudioLibrary defaultLibrary] allStreams] mutableCopy];
-	[self didChangeValueForKey:@"streams"];
 }
 
 @end

@@ -20,58 +20,77 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class BrowserNodeData;
-
 // ========================================
-// A node in the source list
+// A node in the browser
+// Semantics: Parents retain their children, and children maintain
+// a weak reference to their parent
+// KVC-compliant for "name", "icon", "children", and "parent"
 // ========================================
 @interface BrowserNode : NSObject
 {
+	@private
+	NSString		*_name;
+	NSImage			*_icon;
+	
 	BrowserNode		*_parent;
 	NSMutableArray	*_children;
-	
-	BrowserNodeData	*_representedObject;
 }
 
-- (id) initWithParent:(BrowserNode *)parent;
-- (id) initWithRepresentedObject:(BrowserNodeData *)representedObject;
-- (id) initWithParent:(BrowserNode *)parent representedObject:(BrowserNodeData *)representedObject;
+// ========================================
+// Creation shortcuts
++ (id) nodeWithName:(NSString *)name;
++ (id) nodeWithIcon:(NSImage *)icon;
++ (id) nodeWithName:(NSString *)name icon:(NSImage *)icon;
 
 // ========================================
-// Parent management
-- (BrowserNode *) parent;
-- (void) setParent:(BrowserNode *)parent;
+// View properties
+- (NSString *) 	name;
+- (void) 		setName:(NSString *)name;
 
-- (void) removeFromParent;
+- (NSImage *) 	icon;
+- (void) 		setIcon:(NSImage *)icon;
 
 // ========================================
-// Child management
-- (NSArray *) children;
-- (unsigned) countOfChildren;
+// Relationship traversal
+- (BrowserNode *) 	root;
 
-- (BrowserNode *) firstChild;
-- (BrowserNode *) lastChild;
+- (BrowserNode *) 	parent;
 
-- (BrowserNode *) childAtIndex:(unsigned)index;
-- (unsigned) indexOfChild:(BrowserNode *)child;
+- (unsigned) 		childCount;
 
-- (void) addChild:(BrowserNode *)child;
-- (void) insertChild:(BrowserNode *)child atIndex:(unsigned)index;
-- (void) insertChildren:(NSArray *)children atIndexes:(NSIndexSet *)indexes;
+- (BrowserNode *) 	firstChild;
+- (BrowserNode *) 	lastChild;
 
-- (void) removeChild:(BrowserNode *)child;
+- (BrowserNode *) 	childAtIndex:(unsigned)index;
+- (unsigned) 		indexOfChild:(BrowserNode *)child;
 
-- (void) sortChildren;
-- (void) recursivelySortChildren;
+- (BrowserNode *) 	nextSibling;
+- (BrowserNode *) 	previousSibling;
+
+- (BOOL) 			isLeaf;
 
 // ========================================
 // Relationship management
-- (BOOL) isDescendantOfNode:(BrowserNode *)node;
-- (BOOL) isDescendantOfNodes:(NSArray *)nodes;
+- (void) setParent:(BrowserNode *)parent;
+
+- (void) addChild:(BrowserNode *)child;
+- (void) addChild:(BrowserNode *)child atIndex:(unsigned)index;
+
+- (void) removeChild:(BrowserNode *)child;
+- (void) removeChildAtIndex:(unsigned)index;
+
+- (void) removeChildrenAtIndexes:(NSIndexSet *)indexes;
+- (void) removeAllChildren;
 
 // ========================================
-// Represented object
-- (BrowserNodeData *) representedObject;
-- (void) setRepresentedObject:(BrowserNodeData *)representedObject;
+// KVC Accessors
+- (unsigned) 		countOfChildren;
+- (BrowserNode *) 	objectInChildrenAtIndex:(unsigned)index;
+- (void) 			getChildren:(id *)buffer range:(NSRange)range;
+
+// ========================================
+// KVC Mutators
+- (void) insertObject:(BrowserNode *)object inChildrenAtIndex:(unsigned)index;
+- (void) removObjectFromChildrenAtIndex:(unsigned)index;
 
 @end

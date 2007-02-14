@@ -19,203 +19,248 @@
  */
 
 #import "BrowserNode.h"
-#import "BrowserNodeData.h"
-
-@interface BrowserNode (Private)
-- (void) removeChildrenIdenticalTo:(NSArray *)children;
-@end
 
 @implementation BrowserNode
+
++ (void) initialize
+{
+	[self exposeBinding:@"name"];
+	[self exposeBinding:@"icon"];
+
+	[self exposeBinding:@"parent"];
+	[self exposeBinding:@"children"];
+}
+
+#pragma mark Creation shortcuts
+
++ (id) nodeWithName:(NSString *)name
+{
+	BrowserNode *result = [[BrowserNode alloc] init];
+	[result setName:name];
+	return [result autorelease];
+}
+
++ (id) nodeWithIcon:(NSImage *)icon
+{
+	BrowserNode *result = [[BrowserNode alloc] init];
+	[result setIcon:icon];
+	return [result autorelease];
+}
+
++ (id) nodeWithName:(NSString *)name icon:(NSImage *)icon
+{
+	BrowserNode *result = [[BrowserNode alloc] init];
+	[result setName:name];
+	[result setIcon:icon];
+	return [result autorelease];
+}
 
 - (id) init
 {
 	if((self = [super init])) {
 		_children = [[NSMutableArray alloc] init];
-		return self;
 	}
-	return nil;
-}
-
-- (id) initWithParent:(BrowserNode *)parent
-{
-	NSParameterAssert(nil != parent);
-	
-	if((self = [self init])) {
-		[parent addChild:self];
-		return self;
-	}
-	return nil;
-}
-
-- (id) initWithRepresentedObject:(BrowserNodeData *)representedObject
-{
-	NSParameterAssert(nil != representedObject);
-	
-	if((self = [self init])) {
-		[self setRepresentedObject:representedObject];
-		return self;
-	}
-	return nil;
-}
-
-- (id) initWithParent:(BrowserNode *)parent representedObject:(BrowserNodeData *)representedObject
-{
-	NSParameterAssert(nil != parent);
-	NSParameterAssert(nil != representedObject);
-	
-	if((self = [self init])) {
-		[parent addChild:self];
-		[self setRepresentedObject:representedObject];
-		return self;
-	}
-	return nil;
+	return self;
 }
 
 - (void) dealloc
 {
+	[self removeAllChildren];
+	
 	[_children release], _children = nil;
-	[_representedObject release], _representedObject = nil;
-
+	
+	[_name release], _name = nil;
+	[_icon release], _icon = nil;
+	
 	[super dealloc];
 }
 
-#pragma mark Parent Management
+#pragma mark View properties
 
-- (BrowserNode *)		parent								{ return _parent; }
-- (void)				setParent:(BrowserNode *)parent		{ _parent = parent; }
+- (NSString *) name
+{
+	return _name;
+}
 
-- (void)				removeFromParent					{ [[self parent] removeChild:self]; }
+- (void) setName:(NSString *)name
+{
+	[_name release];
+	_name = [name retain];
+}
 
-#pragma mark Child Management
+- (NSImage *) icon
+{
+	return _icon;
+}
 
-- (NSArray *)			children							{ return _children; }
-- (unsigned)			countOfChildren						{ return [_children count]; }
+- (void) setIcon:(NSImage *)icon
+{
+	[_icon release];
+	_icon = [icon retain];
+}
 
-- (BrowserNode *)		firstChild							{ return [[self children] objectAtIndex:0]; }
-- (BrowserNode *)		lastChild							{ return [[self children] lastObject]; }
+#pragma mark Relationship traversal
 
-- (BrowserNode *)		childAtIndex:(unsigned)index		{ return [[self children] objectAtIndex:index]; }
-- (unsigned)			indexOfChild:(BrowserNode *)child	{ return [[self children] indexOfObject:child]; }
+- (BrowserNode *) root
+{
+	BrowserNode *node = [self parent];
+	while(nil != node) {
+		node = [node parent];
+	}
+	return node;
+}
+
+- (BrowserNode *) parent
+{
+	return _parent;
+}
+
+- (unsigned) childCount
+{
+	return [_children count];
+}
+
+- (BrowserNode *) firstChild
+{
+	return (0 != [_children count] ? [_children objectAtIndex:0] : nil);
+}
+
+- (BrowserNode *) lastChild
+{
+	return [_children lastObject];
+}
+
+- (BrowserNode *) childAtIndex:(unsigned)index
+{
+	return [_children objectAtIndex:index];
+}
+
+- (unsigned) indexOfChild:(BrowserNode *)child
+{
+	NSParameterAssert(nil != child);
+
+	return [_children indexOfObject:child];
+}
+
+- (BrowserNode *) nextSibling
+{
+	unsigned myIndex = [[self parent] indexOfChild:self];
+	if(myIndex + 1 < [[self parent] childCount]) {
+		return [[self parent] childAtIndex:myIndex + 1];
+	}
+	return nil;
+}
+
+- (BrowserNode *) previousSibling
+{
+	unsigned myIndex = [[self parent] indexOfChild:self];
+	if(0 < myIndex - 1 > [[self parent] childCount]) {
+		return [[self parent] childAtIndex:myIndex - 1];
+	}
+	return nil;
+}
+
+- (BOOL) isLeaf
+{
+	return (0 == [_children count]);
+}
+
+#pragma mark Relationship management
+
+- (void) setParent:(BrowserNode *)parent
+{
+	_parent = parent; // Weak reference
+}
 
 - (void) addChild:(BrowserNode *)child
 {
 	NSParameterAssert(nil != child);
 	
-	[_children addObject:child];
 	[child setParent:self];
+	[self willChangeValueForKey:@"children"];
+	[_children addObject:child];
+	[self didChangeValueForKey:@"children"];
 }
 
-- (void) insertChild:(BrowserNode *)child atIndex:(unsigned)index
+- (void) addChild:(BrowserNode *)child atIndex:(unsigned)index
 {
 	NSParameterAssert(nil != child);
 	
-	[_children insertObject:child atIndex:index];
 	[child setParent:self];
-}
-
-- (void) insertChildren:(NSArray *)children atIndexes:(NSIndexSet *)indexes
-{
-	NSParameterAssert(nil != children);
-	NSParameterAssert(0 != [children count]);
-	
-	[_children insertObjects:children atIndexes:indexes];
-	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:self];
+	[self willChangeValueForKey:@"children"];
+	[_children insertObject:child atIndex:index];
+	[self didChangeValueForKey:@"children"];
 }
 
 - (void) removeChild:(BrowserNode *)child
 {
 	NSParameterAssert(nil != child);
 	
-	unsigned index = [self indexOfChild:child];
-	if(NSNotFound != index) {
-		[self removeChildrenIdenticalTo:[NSArray arrayWithObject:[self childAtIndex:index]]];
-	}
+	[child setParent:nil];
+	[self willChangeValueForKey:@"children"];
+	[_children removeObject:child];
+	[self didChangeValueForKey:@"children"];
 }
 
-- (void) sortChildren
+- (void) removeChildAtIndex:(unsigned)index
 {
-	[_children sortUsingSelector:@selector(compare:)];
+	[[_children objectAtIndex:index] setParent:nil];
+	[self willChangeValueForKey:@"children"];
+	[_children removeObjectAtIndex:index];
+	[self didChangeValueForKey:@"children"];
 }
 
-- (void) recursivelySortChildren
+- (void) removeChildrenAtIndexes:(NSIndexSet *)indexes
 {
-	[_children sortUsingSelector:@selector(compare:)];
-	[_children makeObjectsPerformSelector: @selector(recursivelySortChildren)];
-}
-
-#pragma mark Relationship Management
-
-- (BOOL) isDescendantOfNode:(BrowserNode *)node
-{
-	NSParameterAssert(nil != node);
+	NSParameterAssert(nil != indexes);
 	
-	BrowserNode *parent = self;
-	
-	while(nil != parent) {
-		if(parent == node) {
-			return YES;	
-		}
-		parent = [parent parent];
-	}
-	return NO;
+	NSArray *orphans = [_children objectsAtIndexes:indexes];
+	[orphans makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+	[self willChangeValueForKey:@"children"];
+	[_children removeObjectsAtIndexes:indexes];
+	[self didChangeValueForKey:@"children"];
 }
 
-- (BOOL) isDescendantOfNodes:(NSArray *)nodes
+- (void) removeAllChildren
 {
-	NSParameterAssert(nil != nodes);
-	
-	NSEnumerator	*enumerator		= [nodes objectEnumerator];
-	BrowserNode	*node			= nil;
-	
-	while((node = [enumerator nextObject])) {
-		if([self isDescendantOfNode:node]) {
-			return YES;	
-		}
-	}
-	return NO;
+	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+	[self willChangeValueForKey:@"children"];
+	[_children removeAllObjects];
+	[self didChangeValueForKey:@"children"];
 }
 
-- (NSComparisonResult) compare:(BrowserNode *)node
+- (unsigned) countOfChildren
 {
-	return [[self representedObject] compare:[node representedObject]];
+	return [_children count];
+}
+
+- (BrowserNode *) objectInChildrenAtIndex:(unsigned)index
+{
+	return [_children objectAtIndex:index];
+}
+
+- (void) getChildren:(id *)buffer range:(NSRange)range
+{
+	return [_children getObjects:buffer range:range];
+}
+
+- (void) insertObject:(BrowserNode *)object inChildrenAtIndex:(unsigned)index
+{
+	NSParameterAssert(nil != object);
+
+	[object setParent:self];
+	[_children insertObject:object atIndex:index];
+}
+
+- (void) removObjectFromChildrenAtIndex:(unsigned)index
+{
+	[[_children objectAtIndex:index] setParent:nil];
+	[_children removeObjectAtIndex:index];
 }
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"<%@>: %@", [self class], [self representedObject]];
-}
-
-#pragma mark Represented object
-
-- (BrowserNodeData *) representedObject
-{
-	return _representedObject;
-}
-
-- (void) setRepresentedObject:(BrowserNodeData *)representedObject
-{
-	[_representedObject setNode:nil];
-	[_representedObject release];
-	_representedObject = [representedObject retain];
-	[_representedObject setNode:self];
-}
-
-@end
-
-@implementation BrowserNode (Private)
-
-- (void) removeChildrenIdenticalTo:(NSArray *)children
-{
-	NSParameterAssert(nil != children);
-	
-	NSEnumerator	*childEnumerator	= [children objectEnumerator];
-	BrowserNode	*child				= nil;
-
-	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
-
-	while((child = [childEnumerator nextObject])) {
-		[_children removeObjectIdenticalTo:child];
-	}
+	return [NSString stringWithFormat:@"%@: %@", [self name], _children];
 }
 
 @end

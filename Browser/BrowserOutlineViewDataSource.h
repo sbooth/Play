@@ -20,14 +20,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class BrowserNode;
+//@class BrowserNode;
 
 @interface BrowserOutlineViewDataSource : NSObject
 {
-	BrowserNode *_rootNode;
+//	BrowserNode *_rootNode;
 }
 
-- (BrowserNode *) rootNode;
-- (void) setRootNode:(BrowserNode *)rootNode;
+//- (BrowserNode *) rootNode;
+//- (void) setRootNode:(BrowserNode *)rootNode;
 
 @end
