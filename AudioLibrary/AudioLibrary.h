@@ -48,11 +48,10 @@ extern NSString * const		PlaylistObjectKey;
 
 @interface AudioLibrary : NSWindowController
 {
-	IBOutlet NSArrayController	*_unorderedStreamController;
-	IBOutlet NSArrayController	*_playlistEntryController;
-	IBOutlet NSTreeController	*_treeController;
+	IBOutlet NSArrayController	*_streamController;
+	IBOutlet NSTreeController	*_browserController;
 	
-	IBOutlet NSTableView		*_unorderedStreamTable;
+	IBOutlet NSTableView		*_streamTable;
 	IBOutlet NSOutlineView		*_browserOutlineView;
 	
 	IBOutlet NSButton			*_playPauseButton;
@@ -76,17 +75,16 @@ extern NSString * const		PlaylistObjectKey;
 	BOOL						_loopPlayback;
 	BOOL						_playButtonEnabled;
 	
-	NSMutableSet				*_unorderedStreamTableVisibleColumns;
-	NSMutableSet				*_unorderedStreamTableHiddenColumns;
-	NSMenu						*_unorderedStreamTableHeaderContextMenu;
+	NSMutableSet				*_streamTableVisibleColumns;
+	NSMutableSet				*_streamTableHiddenColumns;
+	NSMenu						*_streamTableHeaderContextMenu;
 
 	NSArray						*_playbackContext;	
 	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
 	
-	// Browser node references
-	BrowserNode					*_artistsNode;
+	BrowserNode					*_browserRoot;
 }
 
 // ========================================
