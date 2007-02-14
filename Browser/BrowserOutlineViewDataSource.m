@@ -19,52 +19,31 @@
  */
 
 #import "BrowserOutlineViewDataSource.h"
-//#import "BrowserNode.h"
 
 @implementation BrowserOutlineViewDataSource
 
-/*- (void) dealloc
-{
-	[_rootNode release], _rootNode = nil;
-	
-	[super dealloc];
-}*/
-
-//- (BrowserNode *)	rootNode								{ return _rootNode; }
-//- (void)			setRootNode:(BrowserNode *)rootNode		{ [_rootNode release], _rootNode = [rootNode retain]; }
-
+// Fall back to bindings
 - (id) outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
 {
 	return nil;
-//	BrowserNode *node = (nil == item ? [self rootNode] : (BrowserNode *)item);
-//	return [node childAtIndex:index];
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	return NO;
-//	BrowserNode *node = (nil == item ? [self rootNode] : (BrowserNode *)item);
-//	return (0 != [node countOfChildren]);
 }
 
 - (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 	return 0;
-//	BrowserNode *node = (nil == item ? [self rootNode] : (BrowserNode *)item);
-//	return [node countOfChildren];
 }
 
 - (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
 	return nil;
-//	BrowserNode *node = (nil == item ? [self rootNode] : (BrowserNode *)item);
-//	return [[node representedObject] valueForKey:@"name"];
 }
 
 - (void) outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-//	BrowserNode *node = (BrowserNode *)item;	
-//	[[node representedObject] setValue:object forKey:@"name"];
-}
+{}
 
 @end
