@@ -16,6 +16,7 @@
                 playPreviousStream = id; 
                 playSelection = id; 
                 previousPlaylist = id; 
+                removeSelectedStreams = id; 
                 scrollNowPlayingToVisible = id; 
                 showPlaybackContext = id; 
                 showPlaylistInformationSheet = id; 
@@ -25,6 +26,7 @@
                 skipToBeginning = id; 
                 skipToEnd = id; 
                 stop = id; 
+                toggleBrowser = id; 
             }; 
             CLASS = AudioLibrary; 
             LANGUAGE = ObjC; 
@@ -32,16 +34,16 @@
                 "_addPlaylistButton" = NSButton; 
                 "_addStreamsButton" = NSButton; 
                 "_albumArtImageView" = NSImageView; 
+                "_browserController" = NSTreeController; 
                 "_browserDrawer" = NSDrawer; 
                 "_browserOutlineView" = NSOutlineView; 
                 "_playPauseButton" = NSButton; 
-                "_playlistEntryController" = NSArrayController; 
                 "_playlistInfoButton" = NSButton; 
                 "_removePlaylistsButton" = NSButton; 
                 "_removeStreamsButton" = NSButton; 
+                "_streamController" = NSArrayController; 
                 "_streamInfoButton" = NSButton; 
-                "_unorderedStreamController" = NSArrayController; 
-                "_unorderedStreamTable" = NSTableView; 
+                "_streamTable" = NSTableView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
