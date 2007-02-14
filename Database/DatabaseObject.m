@@ -19,7 +19,7 @@
  */
 
 #import "DatabaseObject.h"
-#import "DatabaseContext.h"
+#import "CollectionManager.h"
 
 NSString * const	DatabaseObjectDidChangeNotification		= @"org.sbooth.Play.DatabaseObjectDidChangeNotification";
 NSString * const	DatabaseObjectKey						= @"org.sbooth.Play.DatabaseObject";
@@ -29,10 +29,8 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) dealloc
 {
-	[[[self databaseContext] undoManager] removeAllActionsWithTarget:self];
+	[[[CollectionManager manager] undoManager] removeAllActionsWithTarget:self];
 
-	[_databaseContext release], _databaseContext = nil;
-	
 	[_databaseKeys release], _databaseKeys = nil;
 	
 	[_savedValues release], _savedValues = nil;
@@ -74,7 +72,7 @@ NSString * const	ObjectIDKey								= @"id";
 			[_changedValues setValue:value forKey:key];			
 		}
 		
-		[[self databaseContext] databaseObject:self didChangeForKey:key];
+		[[CollectionManager manager] databaseObject:self didChangeForKey:key];
 	}
 	else {
 		[super setValue:value forKey:key];
@@ -96,7 +94,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) save
 {
-	[[self databaseContext] saveObject:self];
+	[[CollectionManager manager] saveObject:self];
 }
 
 - (void) revert
@@ -107,7 +105,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 	while((key = [changedKeys nextObject])) {
 		
-//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[_savedValues valueForKey:key] forKey:key];
+//		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] setValue:[_savedValues valueForKey:key] forKey:key];
 
 		[self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
@@ -117,18 +115,14 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) delete
 {
-	[[self databaseContext] deleteObject:self];
+	[[CollectionManager manager] deleteObject:self];
 }
 
 #pragma mark -
 
-- (id) initWithDatabaseContext:(DatabaseContext *)context
+- (id) init
 {
-	NSParameterAssert(nil != context);
-	
 	if((self = [super init])) {
-		_databaseContext = [context retain];
-		
 		_savedValues	= [[NSMutableDictionary alloc] init];
 		_changedValues	= [[NSMutableDictionary alloc] init];
 	}
@@ -151,11 +145,6 @@ NSString * const	ObjectIDKey								= @"id";
 	while((key = [savedKeys nextObject])) {
 		[self initValue:[keyedValues valueForKey:key] forKey:key];
 	}
-}
-
-- (DatabaseContext *) databaseContext
-{
-	return _databaseContext;
 }
 
 - (BOOL) hasChanges

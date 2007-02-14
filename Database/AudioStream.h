@@ -72,7 +72,7 @@ extern NSString * const		PropertiesBitrateKey;
 	id		_albumArt;
 }
 
-+ (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
++ (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
 
 - (NSString *) filename;
 - (NSString *) pathname;

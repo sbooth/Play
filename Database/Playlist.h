@@ -41,7 +41,7 @@ extern NSString * const		StatisticsFirstPlayedDateKey;
 extern NSString * const		StatisticsLastPlayedDateKey;
 extern NSString * const		StatisticsPlayCountKey;
 
-@class DatabaseContext;
+@class CollectionManager;
 @class AudioStream;
 
 @interface Playlist : DatabaseObject
@@ -49,7 +49,7 @@ extern NSString * const		StatisticsPlayCountKey;
 	BOOL	_playing;
 }
 
-+ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
++ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues;
 
 // ========================================
 // Returns an array of PlaylistEntries contained in this Playlist

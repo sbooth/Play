@@ -19,7 +19,7 @@
  */
 
 #import "AudioStream.h"
-#import "DatabaseContext.h"
+#import "CollectionManager.h"
 
 NSString * const	AudioStreamDidChangeNotification		= @"org.sbooth.Play.AudioStreamDidChangeNotification";
 
@@ -57,19 +57,18 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 @implementation AudioStream
 
-+ (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context
++ (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues
 {
 	NSParameterAssert(nil != URL);
-	NSParameterAssert(nil != context);
 	
-	AudioStream *stream = [[AudioStream alloc] initWithDatabaseContext:context];
+	AudioStream *stream = [[AudioStream alloc] init];
 	
 	// Call init: methods here to avoid sending change notifications to the context
 	[stream initValue:URL forKey:StreamURLKey];
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [context insertStream:stream]) {
+	if(NO == [[CollectionManager manager] insertStream:stream]) {
 		[stream release], stream = nil;
 	}
 
@@ -91,12 +90,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (void) save
 {
-	[[self databaseContext] saveStream:self];
+	[[CollectionManager manager] saveStream:self];
 }
 
 - (void) delete
 {
-	[[self databaseContext] deleteStream:self];
+	[[CollectionManager manager] deleteStream:self];
 }
 
 - (NSString *) description

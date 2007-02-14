@@ -19,7 +19,7 @@
  */
 
 #import "Playlist.h"
-#import "DatabaseContext.h"
+#import "CollectionManager.h"
 
 NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
 
@@ -29,11 +29,11 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 @implementation Playlist
 
-+ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
++ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inCollectionManager:(CollectionManager *)context;
 {
 	NSParameterAssert(nil != context);
 	
-	Playlist *playlist = [[Playlist alloc] initWithDatabaseContext:context];
+	Playlist *playlist = [[Playlist alloc] initWithCollectionManager:context];
 	
 	// Call init: methods here to avoid sending change notifications to the context
 	[playlist initValue:[NSDate date] forKey:StatisticsDateCreatedKey];

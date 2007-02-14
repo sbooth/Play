@@ -1,0 +1,800 @@
+/*
+ *  $Id$
+ *
+ *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#import "AudioStreamManager.h"
+#import "AudioStream.h"
+
+#import "SQLiteUtilityFunctions.h"
+
+@interface AudioStreamManager (Private)
+- (void) 			prepareSQL;
+- (void) 			finalizeSQL;
+- (sqlite3_stmt *) 	preparedStatementForAction:(NSString *)action;
+
+- (BOOL) isConnectedToDatabase;
+
+- (AudioStream *) loadStream:(sqlite3_stmt *)statement;
+
+- (BOOL) doInsertStream:(AudioStream *)stream;
+- (void) doUpdateStream:(AudioStream *)stream;
+- (void) doDeleteStream:(AudioStream *)stream;
+@end
+
+// ========================================
+// The singleton instance
+// ========================================
+static AudioStreamManager *streamManagerInstance = nil;
+
+@implementation AudioStreamManager
+
++ (AudioStreamManager *) streamManager
+{
+	@synchronized(self) {
+		if(nil == streamManagerInstance) {
+			streamManagerInstance = [[self alloc] init];
+		}
+	}
+	return streamManagerInstance;
+}
+
++ (id) allocWithZone:(NSZone *)zone
+{
+    @synchronized(self) {
+        if(nil == streamManagerInstance) {
+            return [super allocWithZone:zone];
+        }
+    }
+    return streamManagerInstance;
+}
+
+- (id) init
+{
+	if((self = [super init])) {
+		_streams	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
+		_sql		= [[NSMutableDictionary alloc] init];
+	}
+	return self;
+}
+
+- (void) dealloc
+{
+	NSFreeMapTable(_streams), _streams = NULL;	
+
+	[_sql release], _sql = nil;
+
+	_db = NULL;
+
+	[super dealloc];
+}
+
+- (id) 			copyWithZone:(NSZone *)zone			{ return self; }
+- (id) 			retain								{ return self; }
+- (unsigned) 	retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
+- (void) 		release								{ /* do nothing */ }
+- (id) 			autorelease							{ return self; }
+
+- (void) reset
+{
+	[self willChangeValueForKey:@"streams"];
+	NSResetMapTable(_streams);
+	[self didChangeValueForKey:@"streams"];
+}
+
+/*
+#pragma mark Metadata query access
+
+- (NSArray *) allArtists
+{
+	NSMutableArray	*artists		= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_artists"];
+	int				result			= SQLITE_OK;
+	const char		*rawText		= NULL;
+	NSString		*text			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 0))) {
+			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
+			[artists addObject:text];
+		}
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i artists in %f seconds (%i per second)", [artists count], elapsed, (double)[artists count] / elapsed);
+#endif
+	
+	return [artists autorelease];
+}
+
+- (NSArray *) allAlbumTitles
+{
+	NSMutableArray	*albumTitles	= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_album_titles"];
+	int				result			= SQLITE_OK;
+	const char		*rawText		= NULL;
+	NSString		*text			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 0))) {
+			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
+			[albumTitles addObject:text];
+		}
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i album titles in %f seconds (%i per second)", [albumTitles count], elapsed, (double)[albumTitles count] / elapsed);
+#endif
+	
+	return [albumTitles autorelease];
+}
+*/
+
+#pragma mark AudioStream support
+
+// ========================================
+// Retrieve all streams from the database
+
+- (NSArray *) allStreams
+{
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_streams"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+		[streams addObject:stream];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+#endif
+
+	return [streams autorelease];
+}
+
+- (NSArray *) streamsForArtist:(NSString *)artist
+{
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_artist"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+
+	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":artist"), [artist UTF8String], -1, SQLITE_TRANSIENT);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+		[streams addObject:stream];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+#endif
+	
+	return [streams autorelease];
+}
+
+- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle
+{
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_album_title"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":album_title"), [albumTitle UTF8String], -1, SQLITE_TRANSIENT);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+		[streams addObject:stream];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+#endif
+	
+	return [streams autorelease];
+}
+
+/*- (NSArray *) streamsForPlaylist:(Playlist *)playlist
+{
+	NSParameterAssert(nil != playlist);
+
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_playlist"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":playlist_id"), [[playlist valueForKey:ObjectIDKey] unsignedIntValue]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+		[streams addObject:stream];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+#endif
+	
+	return [streams autorelease];
+}*/
+
+- (AudioStream *) streamForID:(NSNumber *)objectID
+{
+	NSParameterAssert(nil != objectID);
+	
+	AudioStream *stream = (AudioStream *)NSMapGet(_streams, (void *)[objectID unsignedIntValue]);
+	if(nil != stream) {
+		return stream;
+	}
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_stream_by_id"];
+	int				result			= SQLITE_OK;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded stream in %f seconds", elapsed);
+#endif
+	
+	return stream;
+}
+
+- (AudioStream *) streamForURL:(NSURL *)url
+{
+	NSParameterAssert(nil != url);
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_stream_by_url"];
+	int				result			= SQLITE_OK;
+	AudioStream		*stream			= nil;
+				
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif
+	
+	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":url"), [[url absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+		stream = [self loadStream:statement];
+	}
+	
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Loaded stream in %f seconds", elapsed);
+#endif
+	
+	return stream;
+}
+
+- (BOOL) insertStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self willChangeValueForKey:@"streams"];
+	}
+
+	BOOL result = [self doInsertStream:stream];
+	
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self didChangeValueForKey:@"streams"];
+	}
+	
+	return result;
+}
+
+- (void) saveStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	
+	if(NO == [stream hasChanges]) {
+		return;
+	}
+	
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self willChangeValueForKey:@"streams"];
+	}
+
+	[self doUpdateStream:stream];	
+
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self didChangeValueForKey:@"streams"];
+	}
+	
+	[stream didSave];
+}
+
+- (void) deleteStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self willChangeValueForKey:@"streams"];
+	}
+
+	[self doDeleteStream:stream];	
+
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self didChangeValueForKey:@"streams"];
+	}
+}
+
+- (void) revertStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self willChangeValueForKey:@"streams"];
+	}
+
+	[stream revert];
+	
+	if(NO == [[CollectionManager manager] massUpdateInProgress]) {
+		[self didChangeValueForKey:@"streams"];
+	}
+}
+
+@end
+
+@implementation AudioStreamManager (Private)
+
+#pragma mark Prepared SQL Statements
+
+- (void) prepareSQL
+{
+	NSError			*error				= nil;	
+	NSString		*path				= nil;
+	NSString		*sql				= nil;
+	NSString		*filename			= nil;
+	NSArray			*files				= [NSArray arrayWithObjects:
+		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"insert_stream", @"update_stream", @"delete_stream", 
+		@"select_streams_for_playlist"
+		, nil];
+	NSEnumerator	*enumerator			= [files objectEnumerator];
+	sqlite3_stmt	*statement			= NULL;
+	int				result				= SQLITE_OK;
+	const char		*tail				= NULL;
+	
+	while((filename = [enumerator nextObject])) {
+		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
+		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+		NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), filename);
+		
+		result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
+		NSAssert2(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement for '%@' (%@).", @"Database", @""), filename, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		[_sql setValue:[NSNumber numberWithUnsignedLong:(unsigned long)statement] forKey:filename];
+	}	
+}
+
+- (void) finalizeSQL
+{
+	NSEnumerator	*enumerator			= [_sql objectEnumerator];
+	NSNumber		*wrappedPtr			= nil;
+	sqlite3_stmt	*statement			= NULL;
+	int				result				= SQLITE_OK;
+	
+	while((wrappedPtr = [enumerator nextObject])) {
+		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
+		result = sqlite3_finalize(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	
+	[_sql removeAllObjects];
+}
+
+- (sqlite3_stmt *) preparedStatementForAction:(NSString *)action
+{
+	return (sqlite3_stmt *)[[_sql valueForKey:action] unsignedLongValue];		
+}
+
+- (BOOL) isConnectedToDatabase
+{
+	return NULL != _db;
+}
+
+#pragma mark Object Loading
+
+- (AudioStream *) loadStream:(sqlite3_stmt *)statement
+{
+	AudioStream		*stream			= nil;
+	unsigned		objectID;
+	
+	// The ID should never be NULL
+	NSAssert(SQLITE_NULL != sqlite3_column_type(statement, 0), @"No ID found for stream");
+	objectID = sqlite3_column_int(statement, 0);
+	
+	stream = (AudioStream *)NSMapGet(_streams, (void *)objectID);
+	if(nil != stream) {
+		return stream;
+	}
+	
+	stream = [[AudioStream alloc] initWithCollectionManager:self];
+	
+	// Stream ID and location
+	[stream initValue:[NSNumber numberWithUnsignedInt:objectID] forKey:ObjectIDKey];
+//	getColumnValue(statement, 0, stream, ObjectIDKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 1, stream, StreamURLKey, eObjectTypeURL);
+
+	// Statistics
+	getColumnValue(statement, 2, stream, StatisticsDateAddedKey, eObjectTypeDate);
+	getColumnValue(statement, 3, stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
+	getColumnValue(statement, 4, stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
+	getColumnValue(statement, 5, stream, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+
+	// Metadata
+	getColumnValue(statement, 6, stream, MetadataTitleKey, eObjectTypeString);
+	getColumnValue(statement, 7, stream, MetadataAlbumTitleKey, eObjectTypeString);
+	getColumnValue(statement, 8, stream, MetadataArtistKey, eObjectTypeString);
+	getColumnValue(statement, 9, stream, MetadataAlbumArtistKey, eObjectTypeString);
+	getColumnValue(statement, 10, stream, MetadataGenreKey, eObjectTypeString);
+	getColumnValue(statement, 11, stream, MetadataComposerKey, eObjectTypeString);
+	getColumnValue(statement, 12, stream, MetadataDateKey, eObjectTypeString);	
+	getColumnValue(statement, 13, stream, MetadataCompilationKey, eObjectTypeInteger);
+	getColumnValue(statement, 14, stream, MetadataTrackNumberKey, eObjectTypeInteger);
+	getColumnValue(statement, 15, stream, MetadataTrackTotalKey, eObjectTypeInteger);
+	getColumnValue(statement, 16, stream, MetadataDiscNumberKey, eObjectTypeInteger);
+	getColumnValue(statement, 17, stream, MetadataDiscTotalKey, eObjectTypeInteger);
+	getColumnValue(statement, 18, stream, MetadataCommentKey, eObjectTypeString);
+	getColumnValue(statement, 19, stream, MetadataISRCKey, eObjectTypeString);
+	getColumnValue(statement, 20, stream, MetadataMCNKey, eObjectTypeString);
+	
+	// Properties
+	getColumnValue(statement, 21, stream, PropertiesFileTypeKey, eObjectTypeString);
+	getColumnValue(statement, 22, stream, PropertiesFormatTypeKey, eObjectTypeString);
+	getColumnValue(statement, 23, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 24, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 25, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+	getColumnValue(statement, 26, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+	getColumnValue(statement, 27, stream, PropertiesDurationKey, eObjectTypeDouble);
+	getColumnValue(statement, 28, stream, PropertiesBitrateKey, eObjectTypeDouble);
+	
+	// Register the object	
+	NSMapInsert(_streams, (void *)objectID, (void *)stream);
+	
+	return [stream autorelease];
+}
+
+#pragma mark Streams
+
+- (BOOL) doInsertStream:(AudioStream *)stream
+{
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"insert_stream"];
+	int				result			= SQLITE_OK;
+	BOOL			success			= YES;
+	
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+/*#if SQL_DEBUG
+	clock_t start = clock();
+#endif*/
+	
+	@try {
+		// Location
+		bindParameter(statement, 1, stream, StreamURLKey, eObjectTypeURL);
+		
+		// Statistics
+		bindParameter(statement, 2, stream, StatisticsDateAddedKey, eObjectTypeDate);
+		bindParameter(statement, 3, stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
+		bindParameter(statement, 4, stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
+		bindParameter(statement, 5, stream, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+		
+		// Metadata
+		bindParameter(statement, 6, stream, MetadataTitleKey, eObjectTypeString);
+		bindParameter(statement, 7, stream, MetadataAlbumTitleKey, eObjectTypeString);
+		bindParameter(statement, 8, stream, MetadataArtistKey, eObjectTypeString);
+		bindParameter(statement, 9, stream, MetadataAlbumArtistKey, eObjectTypeString);
+		bindParameter(statement, 10, stream, MetadataGenreKey, eObjectTypeString);
+		bindParameter(statement, 11, stream, MetadataComposerKey, eObjectTypeString);
+		bindParameter(statement, 12, stream, MetadataDateKey, eObjectTypeString);	
+		bindParameter(statement, 13, stream, MetadataCompilationKey, eObjectTypeInteger);
+		bindParameter(statement, 14, stream, MetadataTrackNumberKey, eObjectTypeInteger);
+		bindParameter(statement, 15, stream, MetadataTrackTotalKey, eObjectTypeInteger);
+		bindParameter(statement, 16, stream, MetadataDiscNumberKey, eObjectTypeInteger);
+		bindParameter(statement, 17, stream, MetadataDiscTotalKey, eObjectTypeInteger);
+		bindParameter(statement, 18, stream, MetadataCommentKey, eObjectTypeString);
+		bindParameter(statement, 19, stream, MetadataISRCKey, eObjectTypeString);
+		bindParameter(statement, 20, stream, MetadataMCNKey, eObjectTypeString);
+		
+		// Properties
+		bindParameter(statement, 21, stream, PropertiesFileTypeKey, eObjectTypeString);
+		bindParameter(statement, 22, stream, PropertiesFormatTypeKey, eObjectTypeString);
+		bindParameter(statement, 23, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 24, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 25, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+		bindParameter(statement, 26, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+		bindParameter(statement, 27, stream, PropertiesDurationKey, eObjectTypeDouble);
+		bindParameter(statement, 28, stream, PropertiesBitrateKey, eObjectTypeDouble);
+				
+		result = sqlite3_step(statement);
+		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		[stream initValue:[NSNumber numberWithInt:sqlite3_last_insert_rowid(_db)] forKey:ObjectIDKey];
+		
+		result = sqlite3_reset(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_clear_bindings(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	
+	@catch(NSException *exception) {
+		NSLog(@"%@", exception);
+		
+		// Ignore the result code, because it will always be an error in this case
+		// (sqlite3_reset returns the result of the previous operation and we are in a catch block)
+		/*result =*/ sqlite3_reset(statement);
+		
+		success = NO;
+	}
+	
+/*#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Stream insertion time = %f seconds", elapsed);
+#endif*/
+	
+	return success;
+}
+
+- (void) doUpdateStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	//	NSParameterAssert(nil != [stream valueForKey:ObjectIDKey]);
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_stream"];
+	int				result			= SQLITE_OK;
+	NSDictionary	*changes		= [stream changes];
+	
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+/*#if SQL_DEBUG
+	clock_t start = clock();
+#endif*/
+	
+	// ID and Location
+	bindNamedParameter(statement, ":id", stream, ObjectIDKey, eObjectTypeUnsignedInteger);
+	bindNamedParameter(statement, ":url", stream, StreamURLKey, eObjectTypeURL);
+	
+	// Statistics
+	bindNamedParameter(statement, ":date_added", stream, StatisticsDateAddedKey, eObjectTypeDate);
+	bindNamedParameter(statement, ":first_played_date", stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
+	bindNamedParameter(statement, ":last_played_date", stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
+	bindNamedParameter(statement, ":play_count", stream, StatisticsPlayCountKey, eObjectTypeInteger);
+	
+	// Metadata
+	bindNamedParameter(statement, ":title", stream, MetadataTitleKey, eObjectTypeString);
+	bindNamedParameter(statement, ":album_title", stream, MetadataAlbumTitleKey, eObjectTypeString);
+	bindNamedParameter(statement, ":artist", stream, MetadataArtistKey, eObjectTypeString);
+	bindNamedParameter(statement, ":album_artist", stream, MetadataAlbumArtistKey, eObjectTypeString);
+	bindNamedParameter(statement, ":genre", stream, MetadataGenreKey, eObjectTypeString);
+	bindNamedParameter(statement, ":composer", stream, MetadataComposerKey, eObjectTypeString);
+	bindNamedParameter(statement, ":date", stream, MetadataDateKey, eObjectTypeString);	
+	bindNamedParameter(statement, ":compilation", stream, MetadataCompilationKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":track_number", stream, MetadataTrackNumberKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":track_total", stream, MetadataTrackTotalKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":disc_number", stream, MetadataDiscNumberKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":disc_total", stream, MetadataDiscTotalKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":comment", stream, MetadataCommentKey, eObjectTypeString);
+	bindNamedParameter(statement, ":isrc", stream, MetadataISRCKey, eObjectTypeString);
+	bindNamedParameter(statement, ":mcn", stream, MetadataMCNKey, eObjectTypeString);
+	
+	// Properties
+	bindNamedParameter(statement, ":file_type", stream, PropertiesFileTypeKey, eObjectTypeString);
+	bindNamedParameter(statement, ":format_type", stream, PropertiesFormatTypeKey, eObjectTypeString);
+	bindNamedParameter(statement, ":bits_per_channel", stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+	bindNamedParameter(statement, ":channels_per_frame", stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+	bindNamedParameter(statement, ":sample_rate", stream, PropertiesSampleRateKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":total_frames", stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+	bindNamedParameter(statement, ":duration", stream, PropertiesDurationKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":bitrate", stream, PropertiesBitrateKey, eObjectTypeDouble);
+	
+	result = sqlite3_step(statement);
+	NSAssert2(SQLITE_DONE == result, @"Unable to update the record for %@ (%@).", stream, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_clear_bindings(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+/*#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Stream update time = %f seconds", elapsed);
+#endif*/
+	
+	// Reset the object with the stored values
+	[stream initValuesForKeysWithDictionary:changes];
+
+//	[_updatedObjects removeObject:stream];
+}
+
+- (void) doDeleteStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	//	NSParameterAssert(nil != [stream valueForKey:ObjectIDKey]);
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"delete_stream"];
+	int				result			= SQLITE_OK;
+	unsigned		objectID		= [[stream valueForKey:ObjectIDKey] unsignedIntValue];
+	
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+/*#if SQL_DEBUG
+	clock_t start = clock();
+#endif*/
+	
+	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), objectID);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_step(statement);
+	NSAssert2(SQLITE_DONE == result, @"Unable to delete the record for %@ (%@).", stream, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_clear_bindings(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+/*#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Stream delete time = %f seconds", elapsed);
+#endif*/
+
+	// Deregister the object
+	NSMapRemove(_streams, (void *)objectID);
+}
+
+@end
+
+@implementation AudioStreamManager (CollectionManagerMethods)
+
+- (void) connectedToDatabase:(sqlite3_db *)db
+{
+	_db = db;
+	[self prepareSQL];
+}
+
+- (void) disconnectedFromDatabase
+{
+	[self finalizeSQL];
+	_db = NULL;
+}
+
+@end

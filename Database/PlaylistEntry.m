@@ -19,7 +19,7 @@
  */
 
 #import "PlaylistEntry.h"
-#import "DatabaseContext.h"
+#import "CollectionManager.h"
 
 NSString * const	PlaylistEntryDidChangeNotification		= @"org.sbooth.Play.PlaylistEntryDidChangeNotification";
 
@@ -31,11 +31,11 @@ NSString * const	PlaylistEntryPositionKey				= @"position";
 
 @implementation PlaylistEntry
 
-+ (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
++ (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inCollectionManager:(CollectionManager *)context;
 {
 	NSParameterAssert(nil != context);
 	
-	PlaylistEntry *entry = [[PlaylistEntry alloc] initWithDatabaseContext:context];
+	PlaylistEntry *entry = [[PlaylistEntry alloc] initWithCollectionManager:context];
 	
 	// Call init: methods here to avoid sending change notifications to the context
 	[entry initValuesForKeysWithDictionary:keyedValues];

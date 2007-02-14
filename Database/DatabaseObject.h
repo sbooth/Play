@@ -35,7 +35,7 @@ extern NSString * const		DatabaseObjectKey;
 // ========================================
 extern NSString * const		ObjectIDKey;
 
-@class DatabaseContext;
+@class CollectionManager;
 
 // ========================================
 // KVC-compliant object whose persistent properties are stored in a database
@@ -46,16 +46,10 @@ extern NSString * const		ObjectIDKey;
 	@protected
 	NSArray					*_databaseKeys;
 	
-//	@private
-	DatabaseContext			*_databaseContext;
-	
+	@private
 	NSMutableDictionary		*_savedValues;
 	NSMutableDictionary		*_changedValues;
 }
-
-// ========================================
-// Designated initializer
-- (id) initWithDatabaseContext:(DatabaseContext *)context;
 
 // ========================================
 // Actions
@@ -68,7 +62,7 @@ extern NSString * const		ObjectIDKey;
 - (void) initValue:(id)value forKey:(NSString *)key;
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;
 
-- (DatabaseContext *) databaseContext;
+- (CollectionManager *) databaseContext;
 
 - (BOOL) hasChanges;
 - (NSDictionary *) changes;

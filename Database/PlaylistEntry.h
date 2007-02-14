@@ -39,7 +39,7 @@ extern NSString * const		AudioStreamObjectIDKey;
 
 extern NSString * const		PlaylistEntryPositionKey;
 
-@class DatabaseContext;
+@class CollectionManager;
 @class AudioStream;
 @class Playlist;
 
@@ -49,7 +49,7 @@ extern NSString * const		PlaylistEntryPositionKey;
 	Playlist		*_playlist;
 }
 
-+ (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inDatabaseContext:(DatabaseContext *)context;
++ (id) insertPlaylistEntryWithInitialValues:(NSDictionary *)keyedValues inCollectionManager:(CollectionManager *)context;
 
 - (AudioStream *) stream;
 - (Playlist *) playlist;
