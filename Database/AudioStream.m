@@ -20,6 +20,7 @@
 
 #import "AudioStream.h"
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
 
 NSString * const	AudioStreamDidChangeNotification		= @"org.sbooth.Play.AudioStreamDidChangeNotification";
 
@@ -68,7 +69,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[CollectionManager manager] insertStream:stream]) {
+	if(NO == [[CollectionManager streamManager] insertStream:stream]) {
 		[stream release], stream = nil;
 	}
 
@@ -90,12 +91,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (void) save
 {
-	[[CollectionManager manager] saveStream:self];
+	[[CollectionManager streamManager] saveStream:self];
 }
 
 - (void) delete
 {
-	[[CollectionManager manager] deleteStream:self];
+	[[CollectionManager streamManager] deleteStream:self];
 }
 
 - (NSString *) description

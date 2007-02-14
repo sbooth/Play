@@ -19,6 +19,7 @@
  */
 
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
 #import "PlaylistEntry.h"
@@ -26,8 +27,9 @@
 #import "SQLiteUtilityFunctions.h"
 
 @interface AudioStreamManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3_db *)db;
+- (void) connectedToDatabase:(sqlite3 *)db;
 - (void) disconnectedFromDatabase;
+- (void) reset;
 @end
 
 @interface CollectionManager (Private)
@@ -45,7 +47,7 @@
 - (void) commitTransaction;
 - (void) rollbackTransaction;
 
-- (Playlist *) loadPlaylist:(sqlite3_stmt *)statement;
+/*- (Playlist *) loadPlaylist:(sqlite3_stmt *)statement;
 - (PlaylistEntry *) loadPlaylistEntry:(sqlite3_stmt *)statement;
 
 - (BOOL) doInsertPlaylist:(Playlist *)playlist;
@@ -53,7 +55,7 @@
 - (void) doDeletePlaylist:(Playlist *)playlist;
 
 - (void) bindPlaylistValues:(Playlist *)playlist toStatement:(sqlite3_stmt *)statement;
-
+*/
 @end
 
 // ========================================
@@ -141,7 +143,9 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSParameterAssert(nil != databasePath);
 	
-	[self reset];
+	if([self isConnectedToDatabase]) {
+		[self disconnectFromDatabase];
+	}
 	
 	int result = sqlite3_open([databasePath UTF8String], &_db);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to open the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
@@ -157,13 +161,15 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	[[AudioStreamManager streamManager] disonnectedFromDatabase];
+	[[AudioStreamManager streamManager] disconnectedFromDatabase];
 
 	[self finalizeSQL];
 	
 	int result = sqlite3_close(_db);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to close the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
-	_db = NULL;	
+	_db = NULL;
+
+	[self reset];
 }
 
 - (BOOL) isConnectedToDatabase
@@ -643,6 +649,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	return entry;
 }
 */
+
 @end
 
 @implementation CollectionManager (Private)

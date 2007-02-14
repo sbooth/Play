@@ -19,6 +19,7 @@
  */
 
 #import "AudioStreamManager.h"
+#import "CollectionManager.h"
 #import "AudioStream.h"
 
 #import "SQLiteUtilityFunctions.h"
@@ -89,13 +90,6 @@ static AudioStreamManager *streamManagerInstance = nil;
 - (unsigned) 	retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
 - (void) 		release								{ /* do nothing */ }
 - (id) 			autorelease							{ return self; }
-
-- (void) reset
-{
-	[self willChangeValueForKey:@"streams"];
-	NSResetMapTable(_streams);
-	[self didChangeValueForKey:@"streams"];
-}
 
 /*
 #pragma mark Metadata query access
@@ -178,7 +172,7 @@ static AudioStreamManager *streamManagerInstance = nil;
 // ========================================
 // Retrieve all streams from the database
 
-- (NSArray *) allStreams
+- (NSArray *) streams
 {
 	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_streams"];
@@ -540,7 +534,7 @@ static AudioStreamManager *streamManagerInstance = nil;
 		return stream;
 	}
 	
-	stream = [[AudioStream alloc] initWithCollectionManager:self];
+	stream = [[AudioStream alloc] init];
 	
 	// Stream ID and location
 	[stream initValue:[NSNumber numberWithUnsignedInt:objectID] forKey:ObjectIDKey];
@@ -785,7 +779,7 @@ static AudioStreamManager *streamManagerInstance = nil;
 
 @implementation AudioStreamManager (CollectionManagerMethods)
 
-- (void) connectedToDatabase:(sqlite3_db *)db
+- (void) connectedToDatabase:(sqlite3 *)db
 {
 	_db = db;
 	[self prepareSQL];
@@ -795,6 +789,13 @@ static AudioStreamManager *streamManagerInstance = nil;
 {
 	[self finalizeSQL];
 	_db = NULL;
+}
+
+- (void) reset
+{
+	[self willChangeValueForKey:@"streams"];
+	NSResetMapTable(_streams);
+	[self didChangeValueForKey:@"streams"];
 }
 
 @end

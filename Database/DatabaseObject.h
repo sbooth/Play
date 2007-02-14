@@ -62,8 +62,6 @@ extern NSString * const		ObjectIDKey;
 - (void) initValue:(id)value forKey:(NSString *)key;
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;
 
-- (CollectionManager *) databaseContext;
-
 - (BOOL) hasChanges;
 - (NSDictionary *) changes;
 

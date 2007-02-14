@@ -20,6 +20,8 @@
 
 #import "LibraryNode.h"
 #import "AudioLibrary.h"
+#import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "AudioStream.h"
 
 @implementation LibraryNode
@@ -43,21 +45,21 @@
 {
 	 [self willChangeValueForKey:@"streams"];
 	 [_streams release];
-	 _streams = [[[AudioLibrary defaultLibrary] allStreams] mutableCopy];
+	 _streams = [[[CollectionManager streamManager] streams] mutableCopy];
 	 [self didChangeValueForKey:@"streams"];
 }
 
 - (void) didInsertStream:(AudioStream *)stream
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:[AudioLibrary defaultLibrary] 
+														object:[AudioLibrary library] 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 - (void) willRemoveStream:(AudioStream *)stream
 {
 	if([stream isPlaying]) {
-		[[AudioLibrary defaultLibrary] stop:self];
+		[[AudioLibrary library] stop:self];
 	}
 	
 	// To keep the database and in-memory representation in sync, remove the 
@@ -68,7 +70,7 @@
 - (void) didRemoveStream:(AudioStream *)stream
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:[AudioLibrary defaultLibrary] 
+														object:[AudioLibrary library] 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 

@@ -40,7 +40,8 @@
 
 #import "AudioPlayer.h"
 
-#import "DatabaseContext.h"
+#import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
 
@@ -52,7 +53,7 @@
 #import "AudioMetadataEditingSheet.h"
 #import "StaticPlaylistInformationSheet.h"
 
-//#import "BrowserNode.h"
+#import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
 
@@ -64,7 +65,7 @@
 // ========================================
 // The global instance
 // ========================================
-static AudioLibrary *defaultLibrary = nil;
+static AudioLibrary *libraryInstance = nil;
 
 // ========================================
 // Notification names
@@ -101,7 +102,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 @interface AudioLibrary (Private)
 
 - (AudioPlayer *) player;
-- (DatabaseContext *) databaseContext;
 
 - (void) playStream:(AudioStream *)stream;
 
@@ -172,24 +172,24 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
 }	
 
-+ (AudioLibrary *) defaultLibrary
++ (AudioLibrary *) library
 {
 	@synchronized(self) {
-		if(nil == defaultLibrary) {
-			defaultLibrary = [[self alloc] init];
+		if(nil == libraryInstance) {
+			libraryInstance = [[self alloc] init];
 		}
 	}
-	return defaultLibrary;
+	return libraryInstance;
 }
 
 + (id) allocWithZone:(NSZone *)zone
 {
     @synchronized(self) {
-        if(nil == defaultLibrary) {
+        if(nil == libraryInstance) {
             return [super allocWithZone:zone];
         }
     }
-    return defaultLibrary;
+    return libraryInstance;
 }
 
 - (id) init
@@ -211,15 +211,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		
 		NSString *databasePath = [applicationSupportFolder stringByAppendingPathComponent:@"Library.sqlite3"];
 		
-		_databaseContext = [[DatabaseContext alloc] init];
-		[_databaseContext connectToDatabase:databasePath];
+		[[CollectionManager manager] connectToDatabase:databasePath];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[_databaseContext disconnectFromDatabase];
+	[[CollectionManager manager] disconnectFromDatabase];
 
 	[_player release], _player = nil;
 
@@ -238,11 +237,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[super dealloc];
 }
 
-- (id) copyWithZone:(NSZone *)zone					{ return self; }
-- (id) retain										{ return self; }
-- (unsigned) retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
-- (void) release									{ /* do nothing */ }
-- (id) autorelease									{ return self; }
+- (id) 			copyWithZone:(NSZone *)zone			{ return self; }
+- (id) 			retain								{ return self; }
+- (unsigned) 	retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
+- (void) 		release								{ /* do nothing */ }
+- (id) 			autorelease							{ return self; }
 
 - (void) awakeFromNib
 {	
@@ -331,11 +330,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	else if([anItem action] == @selector(undo:)) {
 //		return [[self undoManager] canUndo];
-		return [[[self databaseContext] undoManager] canUndo];
+		return [[[CollectionManager manager] undoManager] canUndo];
 	}
 	else if([anItem action] == @selector(redo:)) {
 //		return [[self undoManager] canRedo];
-		return [[[self databaseContext] undoManager] canRedo];
+		return [[[CollectionManager manager] undoManager] canRedo];
 	}
 
 	return YES;
@@ -350,9 +349,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) removeSelectedStreams:(id)sender
 {
-	[[self databaseContext] beginTransaction];
+	[[CollectionManager manager] beginTransaction];
 	[_streamController remove:sender];
-	[[self databaseContext] commitTransaction];
+	[[CollectionManager manager] commitTransaction];
 }
 
 - (IBAction) openDocument:(id)sender
@@ -402,9 +401,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
 		
 		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-		[streamInformationSheet setValue:[self allStreams] forKey:@"allStreams"];
+		[streamInformationSheet setValue:[[CollectionManager streamManager] streams] forKey:@"allStreams"];
 		
-		[[self databaseContext] beginTransaction];
+		[[CollectionManager manager] beginTransaction];
 		
 		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 									   modalForWindow:[self window] 
@@ -416,9 +415,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
 		
 		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-		[metadataEditingSheet setValue:[self allStreams] forKey:@"allStreams"];
+		[metadataEditingSheet setValue:[[CollectionManager streamManager] streams] forKey:@"allStreams"];
 
-		[[self databaseContext] beginTransaction];
+		[[CollectionManager manager] beginTransaction];
 
 		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
 									   modalForWindow:[self window] 
@@ -493,7 +492,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[values addEntriesFromDictionary:[metadataReader valueForKey:@"metadata"]];
 	
 	// Insert the object in the database
-	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values inDatabaseContext:[self databaseContext]];
+	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
 	
 	if(nil != stream) {
 		[_streamController addObject:stream];
@@ -506,7 +505,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		// If we couldn't add the file, cheeck if it exists in the library
 		// Perform this check here, not at the beginning, to avoid hitting the database twice
 		// for every file addition
-		stream = [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+		stream = [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 	}
 		
 	return (nil != stream);
@@ -522,7 +521,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BOOL					isDirectory				= NO;
 	BOOL					openSuccessful			= NO;
 	
-	[[self databaseContext] beginTransaction];
+	[[CollectionManager manager] beginTransaction];
 	
 	while((filename = [filesEnumerator nextObject])) {
 		
@@ -539,7 +538,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}
 	}
 
-	[[self databaseContext] commitTransaction];
+	[[CollectionManager manager] commitTransaction];
 	
 	[_browserOutlineView reloadData];
 	
@@ -551,7 +550,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (IBAction) insertPlaylist:(id)sender;
 {
 /*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
-	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues inDatabaseContext:[self databaseContext]];
+	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
 		[_playlistController addObject:playlist];
 
@@ -571,7 +570,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (IBAction) insertPlaylistWithSelection:(id)sender;
 {
 /*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
-	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues inDatabaseContext:[self databaseContext]];
+	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
 		[playlist addStreams:[_streamController selectedObjects]];
 		[_playlistController addObject:playlist];
@@ -599,46 +598,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 //	[_playlistController selectPrevious:self];
 }
 
-#pragma mark Library stream and metadata access
-
-- (NSArray *) allStreams
-{
-	return [[self databaseContext] allStreams];
-}
-
-- (NSArray *) streamsForArtist:(NSString *)artist
-{
-	return [[self databaseContext] streamsForArtist:artist];
-}
-
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle
-{
-	return [[self databaseContext] streamsForAlbumTitle:albumTitle];
-}
-
-- (NSArray *) allArtists
-{
-	return [[self databaseContext] allArtists];
-}
-
-- (NSArray *) allAlbumTitles
-{
-	return [[self databaseContext] allAlbumTitles];
-}
-
 #pragma mark Playback Control
 
 - (BOOL) playFile:(NSString *)filename
 {
 	// First try to find this file in our library
 	BOOL			success		= YES;
-	AudioStream		*stream		= [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+	AudioStream		*stream		= [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 
 	// If it wasn't found, try and add it
 	if(nil == stream) {
 		success = [self addFile:filename];
 		if(success) {
-			stream = [[self databaseContext] streamForURL:[NSURL fileURLWithPath:filename]];
+			stream = [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 		}
 	}
 	
@@ -949,11 +921,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (NSUndoManager *) undoManager
 {
-	return [[self databaseContext] undoManager];
-	if(nil == _undoManager) {
-		_undoManager = [[NSUndoManager alloc] init];
-	}
-	return _undoManager;
+	return [[CollectionManager manager] undoManager];
 }
 
 - (NSArray *)	playbackContext
@@ -1031,7 +999,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setPlaying:NO];
 
-	[[self databaseContext] beginTransaction];
+	[[CollectionManager manager] beginTransaction];
 	
 	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
 	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
@@ -1040,9 +1008,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
-	[[self databaseContext] commitTransaction];
+	[[CollectionManager manager] commitTransaction];
 	
-//	stream = [[self databaseContext] streamForURL:url];
+//	stream = [[CollectionManager streamManager] streamForURL:url];
 //	NSAssert(nil != stream, @"Playback started for stream not in library!");
 	
 	[startedStream setPlaying:YES];
@@ -1063,7 +1031,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setPlaying:NO];
 
-	[[self databaseContext] beginTransaction];
+	[[CollectionManager manager] beginTransaction];
 	
 	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
 	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
@@ -1072,7 +1040,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
-	[[self databaseContext] commitTransaction];
+	[[CollectionManager manager] commitTransaction];
 	
 	[self playNextStream:self];
 }
@@ -1141,7 +1109,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		if(0 == count) {
 			[self willChangeValueForKey:@"streams"];
 			[_streams removeAllObjects];
-			[_streams addObjectsFromArray:[[self databaseContext] allStreams]];
+			[_streams addObjectsFromArray:[[CollectionManager streamManager] streams]];
 			[self didChangeValueForKey:@"streams"];
 		}
 		else if(1 == count) {
@@ -1330,14 +1298,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		[[self databaseContext] commitTransaction];
+		[[CollectionManager manager] commitTransaction];
 		[stream save];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-		[[self databaseContext] rolbackTransaction];
+		[[CollectionManager manager] rolbackTransaction];
 		[stream revert];
-		[[self databaseContext] revertStream:stream];
+		[[CollectionManager streamManager] revertStream:stream];
 		// TODO: refresh affected objects
 	}
 	
@@ -1351,11 +1319,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		[[self databaseContext] commitTransaction];
+		[[CollectionManager manager] commitTransaction];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-		[[self databaseContext] rolbackTransaction];
+		[[CollectionManager manager] rolbackTransaction];
 		// TODO: refresh affected objects
 	}
 	
@@ -1390,11 +1358,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[[self player] reset];
 }
 
-- (DatabaseContext *) databaseContext
-{
-	return _databaseContext;
-}
-
 - (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
 {
 	return [self undoManager];
@@ -1411,11 +1374,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[_player setOwner:self];
 	}
 	return _player;
-}
-
-- (DatabaseContext *) databaseContext
-{
-	return _databaseContext;
 }
 
 - (void) playStream:(AudioStream *)stream

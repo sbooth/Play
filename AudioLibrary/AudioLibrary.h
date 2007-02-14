@@ -21,7 +21,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class AudioPlayer;
-@class DatabaseContext;
+@class CollectionManager;
 @class AudioStream;
 @class Playlist;
 
@@ -80,7 +80,6 @@ extern NSString * const		PlaylistObjectKey;
 	NSMenu						*_streamTableHeaderContextMenu;
 
 	NSArray						*_playbackContext;	
-	DatabaseContext				*_databaseContext;
 	
 	NSUndoManager				*_undoManager;
 	
@@ -89,16 +88,7 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // The standard global instance
-+ (AudioLibrary *) defaultLibrary;
-
-// ========================================
-// Library streams and metadata information
-- (NSArray *) allStreams;
-- (NSArray *) streamsForArtist:(NSString *)artist;
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
-
-- (NSArray *) allArtists;
-- (NSArray *) allAlbumTitles;
++ (AudioLibrary *) library;
 
 // ========================================
 // Playback control

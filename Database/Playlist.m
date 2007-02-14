@@ -29,17 +29,15 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 @implementation Playlist
 
-+ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues inCollectionManager:(CollectionManager *)context;
++ (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues
 {
-	NSParameterAssert(nil != context);
-	
-	Playlist *playlist = [[Playlist alloc] initWithCollectionManager:context];
+	Playlist *playlist = [[Playlist alloc] init];
 	
 	// Call init: methods here to avoid sending change notifications to the context
 	[playlist initValue:[NSDate date] forKey:StatisticsDateCreatedKey];
 	[playlist initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [context insertPlaylist:playlist]) {
+	if(NO == [[CollectionManager playlistManager] insertPlaylist:playlist]) {
 		[playlist release], playlist = nil;
 	}
 	
@@ -48,12 +46,12 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (NSArray *) entries
 {
-	return [[self databaseContext] playlistEntriesForPlaylist:self];
+	return [[CollectionManager playlistManager] playlistEntriesForPlaylist:self];
 }
 
 - (NSArray *) streams
 {
-	return [[self databaseContext] streamsForPlaylist:self];
+	return [[CollectionManager playlistManager] streamsForPlaylist:self];
 }
 
 - (void) addStream:(AudioStream *)stream
@@ -71,13 +69,13 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSEnumerator	*enumerator		= [streams objectEnumerator];
 	AudioStream		*stream			= nil;
 
-	[[self databaseContext] beginTransaction];
+	[[CollectionManager manager] beginTransaction];
 	
 	while((stream = [enumerator nextObject])) {
-		[[self databaseContext] addStream:stream toPlaylist:self];
+		[[CollectionManager playlistManager] addStream:stream toPlaylist:self];
 	}
 
-	[[self databaseContext] commitTransaction];
+	[[CollectionManager manager] commitTransaction];
 }
 
 
@@ -85,7 +83,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 {
 	NSParameterAssert(nil != objectID);
 
-	AudioStream *stream = [[self databaseContext] streamForID:objectID];
+	AudioStream *stream = [[CollectionManager streamManager] streamForID:objectID];
 	if(nil != stream) {
 		[self addStream:stream];
 	}
@@ -102,7 +100,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSMutableArray	*streams		= [NSMutableArray array];
 	
 	while((objectID = [enumerator nextObject])) {
-		stream = [[self databaseContext] streamForID:objectID];
+		stream = [[CollectionManager streamManager] streamForID:objectID];
 		if(nil != stream) {
 			[streams addObject:stream];
 		}

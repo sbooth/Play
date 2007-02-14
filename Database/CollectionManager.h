@@ -32,8 +32,8 @@
 	sqlite3					*_db;				// The database
 	NSMutableDictionary		*_sql;				// Prepared SQL statements
 	
-	NSMapTable				*_playlists;		// Registered playlists
-	NSMapTable				*_playlistEntries;	// Registered playlist entries
+//	NSMapTable				*_playlists;		// Registered playlists
+//	NSMapTable				*_playlistEntries;	// Registered playlist entries
 	
 	NSUndoManager			*_undoManager;		// For undo/redo management
 	
@@ -44,7 +44,7 @@
 // The shared instances
 + (CollectionManager *) 	manager;
 + (AudioStreamManager *) 	streamManager;
-+ (PlaylistManager *) 		playlistManager;
+//+ (PlaylistManager *) 		playlistManager;
 
 // ========================================
 // Database connection
@@ -70,8 +70,8 @@
 
 // ========================================
 // Metadata query support
-- (NSArray *) allArtists;
-- (NSArray *) allAlbumTitles;
+//- (NSArray *) allArtists;
+//- (NSArray *) allAlbumTitles;
 
 // ========================================
 // Playlist support
