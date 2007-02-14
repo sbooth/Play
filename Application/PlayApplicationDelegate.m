@@ -59,7 +59,7 @@
 
 - (void) applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-	[[AudioLibrary defaultLibrary] showWindow:self];
+	[[AudioLibrary library] showWindow:self];
 }
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -105,7 +105,7 @@
 
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
-	BOOL successfullyAdded =  [[AudioLibrary defaultLibrary] addFiles:filenames];
+	BOOL successfullyAdded =  [[AudioLibrary library] addFiles:filenames];
 	
 	if(successfullyAdded) {
 		BOOL			successfullyPlayed	= NO;
@@ -113,11 +113,11 @@
 		NSString		*filename			= nil;
 		
 		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
-			successfullyPlayed = [[AudioLibrary defaultLibrary] playFile:filename];
+			successfullyPlayed = [[AudioLibrary library] playFile:filename];
 		}
 
 		if(successfullyPlayed) {
-			[[AudioLibrary defaultLibrary] scrollNowPlayingToVisible:self];
+			[[AudioLibrary library] scrollNowPlayingToVisible:self];
 		}
 	}
 	

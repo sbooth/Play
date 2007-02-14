@@ -35,7 +35,7 @@
 		filenames = [NSArray arrayWithObject:[pboard stringForType:NSStringPboardType]];
 	}
 	
-	BOOL successfullyAdded = [[AudioLibrary defaultLibrary] addFiles:filenames];
+	BOOL successfullyAdded = [[AudioLibrary library] addFiles:filenames];
 
 	if(successfullyAdded) {
 		BOOL			successfullyPlayed	= NO;
@@ -43,11 +43,11 @@
 		NSString		*filename			= nil;
 
 		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
-			successfullyPlayed = [[AudioLibrary defaultLibrary] playFile:filename];
+			successfullyPlayed = [[AudioLibrary library] playFile:filename];
 		}
 
 		if(successfullyPlayed) {
-			[[AudioLibrary defaultLibrary] scrollNowPlayingToVisible:self];
+			[[AudioLibrary library] scrollNowPlayingToVisible:self];
 		}
 		else {
 			*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
