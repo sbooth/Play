@@ -21,17 +21,17 @@
 #import <Cocoa/Cocoa.h>
 #include "sqlite3.h"
 
+@class AudioStreamManager;
+@class PlaylistManager;
 @class DatabaseObject;
 @class AudioStream;
-@class Playlist;
-@class PlaylistEntry;
 
-@interface DatabaseContext : NSObject
+@interface CollectionManager : NSObject
 {
+	@private
 	sqlite3					*_db;				// The database
 	NSMutableDictionary		*_sql;				// Prepared SQL statements
 	
-	NSMapTable				*_streams;			// Registered streams
 	NSMapTable				*_playlists;		// Registered playlists
 	NSMapTable				*_playlistEntries;	// Registered playlist entries
 	
@@ -39,6 +39,12 @@
 	
 	BOOL					_hasActiveTransaction;
 }
+
+// ========================================
+// The shared instances
++ (CollectionManager *) 	manager;
++ (AudioStreamManager *) 	streamManager;
++ (PlaylistManager *) 		playlistManager;
 
 // ========================================
 // Database connection
@@ -68,24 +74,8 @@
 - (NSArray *) allAlbumTitles;
 
 // ========================================
-// AudioStream support
-- (NSArray *) allStreams;
-- (NSArray *) streamsForArtist:(NSString *)artist;
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
-//- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
-
-- (AudioStream *) streamForID:(NSNumber *)objectID;
-- (AudioStream *) streamForURL:(NSURL *)url;
-//- (NSArray *) streamsForIDs:(NSArray *)objectIDs;
-
-- (BOOL) insertStream:(AudioStream *)stream;
-- (void) saveStream:(AudioStream *)stream;
-- (void) deleteStream:(AudioStream *)stream;
-- (void) revertStream:(AudioStream *)stream;
-
-// ========================================
 // Playlist support
-- (NSArray *) allPlaylists;
+/*- (NSArray *) allPlaylists;
 - (Playlist *) playlistForID:(NSNumber *)objectID;
 
 - (BOOL) insertPlaylist:(Playlist *)playlist;
@@ -106,6 +96,7 @@
 //- (void) revertPlaylist:(Playlist *)playlist;
 
 //- (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
+*/
 
 // ========================================
 - (NSUndoManager *) undoManager;
