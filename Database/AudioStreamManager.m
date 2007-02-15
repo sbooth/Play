@@ -357,6 +357,8 @@
 	return stream;
 }
 
+// ========================================
+// Insert
 - (BOOL) insertStream:(AudioStream *)stream
 {
 	NSParameterAssert(nil != stream);
@@ -388,6 +390,8 @@
 	return result;
 }
 
+// ========================================
+// Update
 - (void) saveStream:(AudioStream *)stream
 {
 	NSParameterAssert(nil != stream);
@@ -412,6 +416,8 @@
 	}
 }
 
+// ========================================
+// Delete
 - (void) deleteStream:(AudioStream *)stream
 {
 	NSParameterAssert(nil != stream);
