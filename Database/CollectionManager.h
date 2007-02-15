@@ -39,7 +39,7 @@
 	
 	NSUndoManager			*_undoManager;		// For undo/redo management
 	
-	BOOL					_hasActiveTransaction;
+	BOOL					_updating;
 }
 
 // ========================================
@@ -58,12 +58,12 @@
 - (BOOL) isConnectedToDatabase;
 
 // ========================================
-// Action methods
-- (IBAction) undo:(id)sender;
-- (IBAction) redo:(id)sender;
+// Mass updating (transaction) support
+- (void) beginUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
 
-- (IBAction) save:(id)sender;
-- (IBAction) revert:(id)sender;
+- (BOOL) updateInProgress;
 
 // ========================================
 // Generic DatabaseObject support
@@ -72,11 +72,6 @@
 - (void) revertObject:(DatabaseObject *)object;
 
 - (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key;
-
-// ========================================
-// Metadata query support
-- (NSArray *) artists;
-//- (NSArray *) allAlbumTitles;
 
 // ========================================
 // Playlist support
@@ -104,6 +99,7 @@
 */
 
 // ========================================
+// UndoManager for tracking changes to registered objects
 - (NSUndoManager *) undoManager;
 
 @end

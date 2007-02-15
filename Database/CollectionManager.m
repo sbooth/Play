@@ -30,6 +30,10 @@
 - (void) connectedToDatabase:(sqlite3 *)db;
 - (void) disconnectedFromDatabase;
 - (void) reset;
+
+- (void) beginUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
 @end
 
 @interface CollectionManager (Private)
@@ -43,9 +47,9 @@
 - (void) finalizeSQL;
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action;
 
-- (void) beginTransaction;
-- (void) commitTransaction;
-- (void) rollbackTransaction;
+- (void) doBeginTransaction;
+- (void) doCommitTransaction;
+- (void) doRollbackTransaction;
 
 /*- (Playlist *) loadPlaylist:(sqlite3_stmt *)statement;
 - (PlaylistEntry *) loadPlaylistEntry:(sqlite3_stmt *)statement;
@@ -183,24 +187,38 @@ static CollectionManager *collectionManagerInstance = nil;
 	return NULL != _db;
 }
 
-#pragma mark Action methods
+#pragma mark Mass updating (transaction) support
 
-- (IBAction) undo:(id)sender
+- (void) beginUpdate
 {
+	NSAssert(NO == [self updateInProgress], @"Update already in progress");
+
+	_updating = YES;
+	[self doBeginTransaction];
+	[_streamManager beginUpdate];
+}
+
+- (void) finishUpdate
+{
+	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
+	[_streamManager finishUpdate];
+	[self doCommitTransaction];
+	_updating = NO;	
 }
 
-- (IBAction) redo:(id)sender
+- (void) cancelUpdate
 {
+	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
+	[_streamManager cancelUpdate];
+	[self doRollbackTransaction];
+	_updating = NO;
 }
 
-- (IBAction) save:(id)sender
+- (BOOL) updateInProgress
 {
-}
-
-- (IBAction) revert:(id)sender
-{
+	return _updating;	
 }
 
 #pragma mark DatabaseObject support
@@ -236,154 +254,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	*/
 }
 
-#pragma mark Metadata query access
-
-- (NSArray *) artists
-{
-	NSMutableArray	*artists		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_artists"];
-	int				result			= SQLITE_OK;
-	const char		*rawText		= NULL;
-	NSString		*text			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 0))) {
-			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
-			[artists addObject:text];
-		}
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i artists in %f seconds (%i per second)", [artists count], elapsed, (double)[artists count] / elapsed);
-#endif
-	
-	return [artists autorelease];
-}
 /*
-- (NSArray *) allAlbumTitles
-{
-	NSMutableArray	*albumTitles	= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_album_titles"];
-	int				result			= SQLITE_OK;
-	const char		*rawText		= NULL;
-	NSString		*text			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 0))) {
-			text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
-			[albumTitles addObject:text];
-		}
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i album titles in %f seconds (%i per second)", [albumTitles count], elapsed, (double)[albumTitles count] / elapsed);
-#endif
-	
-	return [albumTitles autorelease];
-}
-
-#pragma mark AudioStream support
-
-- (NSArray *) streamsForArtist:(NSString *)artist
-{
-	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_artist"];
-	int				result			= SQLITE_OK;
-	AudioStream		*stream			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-
-	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":artist"), [artist UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		stream = [self loadStream:statement];
-		[streams addObject:stream];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
-#endif
-	
-	return [streams autorelease];
-}
-
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle
-{
-	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_album_title"];
-	int				result			= SQLITE_OK;
-	AudioStream		*stream			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":album_title"), [albumTitle UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		stream = [self loadStream:statement];
-		[streams addObject:stream];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
-#endif
-	
-	return [streams autorelease];
-}
-
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist
 {
 	NSParameterAssert(nil != playlist);
@@ -779,10 +650,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
-	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", 
-		@"select_all_artists", @"select_all_album_titles", @"select_streams_for_artist", @"select_streams_for_album_title",
-		@"select_all_playlists", @"select_playlist_by_id", @"insert_playlist", @"update_playlist", @"delete_playlist", 
-		@"select_playlist_entries_for_playlist", @"select_playlist_entry_by_id", nil];
+	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	int				result				= SQLITE_OK;
@@ -823,12 +691,8 @@ static CollectionManager *collectionManagerInstance = nil;
 
 #pragma mark Transactions
 
-- (void) beginTransaction
+- (void) doBeginTransaction
 {
-	if(_hasActiveTransaction) {
-		return;
-	}
-	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"begin_transaction"];
 	int				result			= SQLITE_OK;
 	
@@ -839,16 +703,10 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	_hasActiveTransaction = YES;
 }
 
-- (void) commitTransaction
+- (void) doCommitTransaction
 {
-	if(NO == _hasActiveTransaction) {
-		return;
-	}
-	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"commit_transaction"];
 	int				result			= SQLITE_OK;
 	
@@ -859,16 +717,10 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	_hasActiveTransaction = NO;
 }
 
-- (void) rollbackTransaction
+- (void) doRollbackTransaction
 {
-	if(NO == _hasActiveTransaction) {
-		return;
-	}
-
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"rollback_transaction"];
 	int				result			= SQLITE_OK;
 	
@@ -879,8 +731,6 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	_hasActiveTransaction = NO;
 }
 
 #pragma mark Object Loading
