@@ -132,6 +132,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[NSNumber numberWithBool:NO], @"albumArtist",
 		[NSNumber numberWithBool:YES], @"genre",
 		[NSNumber numberWithBool:YES], @"track",
+		[NSNumber numberWithBool:NO], @"disc",
 		[NSNumber numberWithBool:NO], @"fileType",
 		[NSNumber numberWithBool:YES], @"formatType",
 		[NSNumber numberWithBool:NO], @"composer",
@@ -151,6 +152,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[NSNumber numberWithFloat:129], @"albumArtist",
 		[NSNumber numberWithFloat:63], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
+		[NSNumber numberWithFloat:54], @"disc",
 		[NSNumber numberWithFloat:88], @"fileType",
 		[NSNumber numberWithFloat:88], @"formatType",
 		[NSNumber numberWithFloat:99], @"composer",
@@ -255,6 +257,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
@@ -1298,14 +1301,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(NSOKButton == returnCode) {
 		[[CollectionManager manager] finishUpdate];
-		[stream save];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];
-		[stream revert];
-		[[[CollectionManager manager] streamManager] revertStream:stream];
-		// TODO: refresh affected objects
 	}
 	
 	[streamInformationSheet release];
@@ -1323,7 +1322,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];
-		// TODO: refresh affected objects
 	}
 	
 	[metadataEditingSheet release];
