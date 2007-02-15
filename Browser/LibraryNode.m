@@ -35,17 +35,27 @@
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
-														 options:nil//(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
+														 options:nil
 														 context:nil];
 	}
 	return self;
 }
 
+- (void) dealloc
+{
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
+	
+	[super dealloc];
+}
+
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSLog(@"LibraryNode observeValueForKeyPath:%@ ofObject:%@ change:%@", keyPath, object, change);
+	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
+	
 	// The streams in the library changed, so refresh them
-	[self refreshData];
+	if(NSKeyValueChangeSetting != changeKind) {
+		[self refreshData];
+	}
 }
 
 - (void) refreshData
@@ -58,36 +68,17 @@
 
 #pragma mark KVC Mutator Overrides
 
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
-{
-	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable LibraryNode");
-
-	[[self streamsArray] insertObject:stream atIndex:index];
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
 	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable LibraryNode");	
-	
 	AudioStream *stream = [[self streamsArray] objectAtIndex:index];
 	
 	if([stream isPlaying]) {
 		[[AudioLibrary library] stop:self];
 	}
 	
-	// To keep the database and in-memory representation in sync, remove the 
-	// stream from the database first
 	[stream delete];
-
 	[[self streamsArray] removeObjectAtIndex:index];
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 @end

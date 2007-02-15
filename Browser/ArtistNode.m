@@ -37,17 +37,27 @@
 	if((self = [super initWithName:artist])) {
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
-														 options:nil//(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
+														 options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
 														 context:nil];
 	}
 	return self;
 }
 
+- (void) dealloc
+{
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
+
+	[super dealloc];
+}
+
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSLog(@"ArtistNode observeValueForKeyPath:%@ ofObject:%@ change:%@", keyPath, object, change);
-	// The streams in the library changed, so refresh them
-	[self refreshData];
+	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
+	
+	// Any other change kind than NSKeyValueChangeSetting will result in ArtistsNode blowing us away so don't waste our time
+	if(NSKeyValueChangeSetting == changeKind) {
+		[self refreshData];
+	}
 }
 
 - (void) refreshData
@@ -68,10 +78,6 @@
 	if([[stream valueForKey:MetadataArtistKey] isEqualToString:[self name]]) {
 		[[self streamsArray] insertObject:stream atIndex:index];
 	}
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
@@ -84,15 +90,8 @@
 		[[AudioLibrary library] stop:self];
 	}
 	
-	// To keep the database and in-memory representation in sync, remove the 
-	// stream from the database first
-	[stream delete];
-	
+	[stream delete];	
 	[[self streamsArray] removeObjectAtIndex:index];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
 @end

@@ -36,17 +36,61 @@
 		[self refreshData];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
-														 options:nil//(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
+														 options:(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
 														 context:nil];
 	}
 	return self;
 }
 
+- (void) dealloc
+{
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
+	
+	[super dealloc];
+}
+
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSLog(@"ArtistsNode observeValueForKeyPath:%@ ofObject:%@ change:%@", keyPath, object, change);
-	// The artists in the library changed, so refresh them
 	[self refreshData];
+
+/*	BOOL	refresh		= NO;
+	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
+	
+	if(NSKeyValueChangeSetting == changeKind) {
+		NSArray			*oldStreams		= [change valueForKey:NSKeyValueChangeOldKey];
+		NSArray			*newStreams		= [change valueForKey:NSKeyValueChangeNewKey];
+		AudioStream		*oldStream		= nil;
+		AudioStream		*newStream		= nil;
+		unsigned		i;
+
+		NSAssert([oldStreams count] == [newStreams count], @"Unequal sized arrays passed to NSKeyValueChangeSetting");
+		
+		for(i = 0; i < [oldStreams count]; ++i) {
+			oldStream = [oldStreams objectAtIndex:i];
+			newStream = [newStreams objectAtIndex:i];
+			NSLog(@"%@ vs %@", [oldStream valueForKey:MetadataArtistKey], [newStream valueForKey:MetadataArtistKey]);
+			if(NO == [[oldStream valueForKey:MetadataArtistKey] isEqualToString:[newStream valueForKey:MetadataArtistKey]]) {
+				NSLog(@"artists changed");
+				refresh = YES;
+				break;
+			}
+		}
+	}
+	else if(NSKeyValueChangeInsertion == changeKind) {
+		refresh = YES;
+	}
+	else if(NSKeyValueChangeRemoval == changeKind) {
+		refresh = YES;
+	}
+	else if(NSKeyValueChangeReplacement == changeKind) {
+		refresh = YES;
+	}
+	
+	// The streams in the library changed, so refresh them
+	if(refresh) {
+		NSLog(@"refreshing ArtistsNode");
+		[self refreshData];
+	}*/
 }
 
 @end
@@ -55,7 +99,9 @@
 
 - (void) refreshData
 {
-	NSEnumerator	*enumerator		= [[[CollectionManager manager] artists] objectEnumerator];
+	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
+	NSArray			*artists		= [[[[CollectionManager manager] streamManager] streams] valueForKeyPath:keyName];
+	NSEnumerator	*enumerator		= [artists objectEnumerator];
 	NSString		*artist			= nil;
 	ArtistNode		*node			= nil;
 	
