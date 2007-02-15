@@ -57,6 +57,7 @@
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
 #import "ArtistsNode.h"
+#import "AlbumsNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -1477,8 +1478,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
 
+	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
+	[albumsNode setIcon:folderIcon];
+
 	[_browserRoot addChild:[libraryNode autorelease]];
 	[_browserRoot addChild:[artistsNode autorelease]];
+	[_browserRoot addChild:[albumsNode autorelease]];
 	[_browserController setContent:_browserRoot];
 	
 	// Setup the custom data cell

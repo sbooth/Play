@@ -18,21 +18,21 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "ArtistsNode.h"
+#import "AlbumsNode.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
-#import "ArtistNode.h"
+#import "AlbumNode.h"
 
-@interface ArtistsNode (Private)
+@interface AlbumsNode (Private)
 - (void) refreshData;
 @end
 
-@implementation ArtistsNode
+@implementation AlbumsNode
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Albums", @"General", @"")])) {
 		[self refreshData];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
@@ -56,21 +56,21 @@
 
 @end
 
-@implementation ArtistsNode (Private)
+@implementation AlbumsNode (Private)
 
 - (void) refreshData
 {
-	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
-	NSArray			*artists		= [[[[[CollectionManager manager] streamManager] streams] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
-	NSEnumerator	*enumerator		= [artists objectEnumerator];
-	NSString		*artist			= nil;
-	ArtistNode		*node			= nil;
+	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataAlbumTitleKey];
+	NSArray			*albums			= [[[[[CollectionManager manager] streamManager] streams] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+	NSEnumerator	*enumerator		= [albums objectEnumerator];
+	NSString		*album			= nil;
+	AlbumNode		*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((artist = [enumerator nextObject])) {
-		node = [[ArtistNode alloc] initWithArtist:artist];
+	while((album = [enumerator nextObject])) {
+		node = [[AlbumNode alloc] initWithAlbum:album];
 		[node setParent:self];
 		[_children addObject:node];
 	}

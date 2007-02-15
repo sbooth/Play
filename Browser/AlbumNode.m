@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "ArtistNode.h"
+#import "AlbumNode.h"
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
@@ -28,13 +28,13 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@implementation ArtistNode
+@implementation AlbumNode
 
-- (id) initWithArtist:(NSString *)artist
+- (id) initWithAlbum:(NSString *)album
 {
-	NSParameterAssert(nil != artist);
+	NSParameterAssert(nil != album);
 	
-	if((self = [super initWithName:artist])) {
+	if((self = [super initWithName:album])) {
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
 														 options:nil
@@ -54,7 +54,7 @@
 {
 	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
 	
-	// Any other change kind than NSKeyValueChangeSetting will result in ArtistsNode blowing us away so don't waste our time
+	// Any other change kind than NSKeyValueChangeSetting will result in AlbumsNode blowing us away so don't waste our time
 	if(NSKeyValueChangeSetting == changeKind) {
 		[self refreshData];
 	}
@@ -64,7 +64,7 @@
 {
 	[self willChangeValueForKey:@"streams"];
 	[[self streamsArray] removeAllObjects];
-	[[self streamsArray] addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForArtist:[self name]]];
+	[[self streamsArray] addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForAlbumTitle:[self name]]];
 	[self didChangeValueForKey:@"streams"];
 }
 
@@ -72,17 +72,17 @@
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable ArtistNode");
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable AlbumNode");
 
-	// Only add streams that match our artist
-	if([[stream valueForKey:MetadataArtistKey] isEqualToString:[self name]]) {
+	// Only add streams that match our albm
+	if([[stream valueForKey:MetadataAlbumTitleKey] isEqualToString:[self name]]) {
 		[[self streamsArray] insertObject:stream atIndex:index];
 	}
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable ArtistNode");	
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable AlbumNode");	
 	
 	AudioStream *stream = [[self streamsArray] objectAtIndex:index];
 	
