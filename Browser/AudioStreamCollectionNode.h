@@ -35,18 +35,13 @@
 }
 
 // ========================================
-// Subclasses must override these methods!
+// Subclasses must override this method!
 - (void) refreshData;
-- (BOOL) insertStreamAllowed;
-- (BOOL) removeStreamAllowed;
 
 // ========================================
-// Subclass hooks (implementation is optional)
-- (void) willInsertStream:(AudioStream *)stream;
-- (void) didInsertStream:(AudioStream *)stream;
-
-- (void) willRemoveStream:(AudioStream *)stream;
-- (void) didRemoveStream:(AudioStream *)stream;
+// State management
+- (BOOL) canInsertStream;
+- (BOOL) canRemoveStream;
 
 // ========================================
 // KVC Accessors

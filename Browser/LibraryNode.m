@@ -24,6 +24,10 @@
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
 
+@interface AudioStreamCollectionNode (Private)
+- (NSMutableArray *) streamsArray;
+@end
+
 @implementation LibraryNode
 
 - (id) init
@@ -46,21 +50,31 @@
 
 - (void) refreshData
 {
-	 [self willChangeValueForKey:@"streams"];
-	 [_streams release];
-	 _streams = [[[[CollectionManager manager] streamManager] streams] mutableCopy];
-	 [self didChangeValueForKey:@"streams"];
+	[self willChangeValueForKey:@"streams"];
+	[[self streamsArray] removeAllObjects];
+	[[self streamsArray] addObjectsFromArray:[[[CollectionManager manager] streamManager] streams]];
+	[self didChangeValueForKey:@"streams"];
 }
 
-- (void) didInsertStream:(AudioStream *)stream
+#pragma mark KVC Mutator Overrides
+
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable LibraryNode");
+
+	[[self streamsArray] insertObject:stream atIndex:index];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
 														object:[AudioLibrary library] 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
-- (void) willRemoveStream:(AudioStream *)stream
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable LibraryNode");	
+	
+	AudioStream *stream = [[self streamsArray] objectAtIndex:index];
+	
 	if([stream isPlaying]) {
 		[[AudioLibrary library] stop:self];
 	}
@@ -68,10 +82,9 @@
 	// To keep the database and in-memory representation in sync, remove the 
 	// stream from the database first
 	[stream delete];
-}
 
-- (void) didRemoveStream:(AudioStream *)stream
-{
+	[[self streamsArray] removeObjectAtIndex:index];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
 														object:[AudioLibrary library] 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];

@@ -22,20 +22,15 @@
 #import "AudioLibrary.h"
 #import "AudioStream.h"
 
+@interface AudioStreamCollectionNode (Private)
+- (NSMutableArray *) streamsArray;
+@end
+
 @implementation AudioStreamCollectionNode
 
 + (void) initialize
 {
 	[self exposeBinding:@"streams"];
-}
-
-- (id) initWithName:(NSString *)name
-{
-	if((self = [super initWithName:name])) {
-		_streams = [[NSMutableArray alloc] init];
-		[self refreshData];
-	}	
-	return self;
 }
 
 - (void) dealloc
@@ -48,55 +43,44 @@
 - (void) refreshData
 {}
 
-- (BOOL) insertStreamAllowed
-{
-	return YES;
-}
+#pragma mark State management
 
-- (BOOL) removeStreamAllowed
-{
-	return YES;
-}
-
-#pragma mark Subclass hooks
-
-- (void) willInsertStream:(AudioStream *)stream 
-{}
-
-- (void) didInsertStream:(AudioStream *)stream 
-{}
-
-- (void) willRemoveStream:(AudioStream *)stream 
-{}
-
-- (void) didRemoveStream:(AudioStream *)stream 
-{}
+- (BOOL) canInsertStream		{ return YES; }
+- (BOOL) canRemoveStream		{ return YES; }
 
 #pragma mark KVC Accessors
 
-- (unsigned)		countOfStreams											{ return [_streams count]; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [_streams objectAtIndex:index]; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [_streams getObjects:buffer range:aRange]; }
+- (unsigned)		countOfStreams											{ return [[self streamsArray] count]; }
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [[self streamsArray] objectAtIndex:index]; }
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [[self streamsArray] getObjects:buffer range:aRange]; }
 
 #pragma mark KVC Mutators
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self insertStreamAllowed], @"Attempt to insert a stream in an immutable AudioStreamCollectionNode");
-	
-	[self willInsertStream:stream];
-	[_streams insertObject:stream atIndex:index];
-	[self didInsertStream:stream];
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable AudioStreamCollectionNode");
+	[[self streamsArray] insertObject:stream atIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self removeStreamAllowed], @"Attempt to remove a stream from an immutable AudioStreamCollectionNode");
-	
-	AudioStream *stream = [_streams objectAtIndex:index];
-	[self willRemoveStream:stream];
-	[_streams removeObjectAtIndex:index];
-	[self didRemoveStream:stream];
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable AudioStreamCollectionNode");	
+	[[self streamsArray] removeObjectAtIndex:index];
+}
+
+@end
+
+@implementation AudioStreamCollectionNode (Private)
+
+- (NSMutableArray *) streamsArray
+{
+	@synchronized(self) {
+		if(nil == _streams) {
+			_streams = [[NSMutableArray alloc] init];
+			[self refreshData];
+		}
+	}
+	return _streams;
 }
 
 @end
