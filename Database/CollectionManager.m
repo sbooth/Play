@@ -85,11 +85,6 @@ static CollectionManager *collectionManagerInstance = nil;
     return collectionManagerInstance;
 }
 
-+ (AudioStreamManager *) streamManager
-{
-	return [AudioStreamManager streamManager];
-}
-
 - (id) init
 {
 	if((self = [super init])) {
@@ -97,7 +92,7 @@ static CollectionManager *collectionManagerInstance = nil;
 //		_playlists			= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 512);
 //		_playlistEntries	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 1024);
 		
-		_sql = [[NSMutableDictionary alloc] init];
+		_sql			= [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
@@ -108,6 +103,7 @@ static CollectionManager *collectionManagerInstance = nil;
 //	NSFreeMapTable(_playlistEntries), _playlistEntries = NULL;
 	
 	[_sql release], _sql = nil;
+	[_streamManager release], _streamManager = nil;
 
 	[_undoManager release], _undoManager = nil;
 
@@ -120,9 +116,19 @@ static CollectionManager *collectionManagerInstance = nil;
 - (void) 		release								{ /* do nothing */ }
 - (id) 			autorelease							{ return self; }
 
+- (AudioStreamManager *) streamManager
+{
+	@synchronized(self) {
+		if(nil == _streamManager) {
+			_streamManager = [[AudioStreamManager alloc] init];
+		}
+	}
+	return _streamManager;
+}
+
 - (void) reset
 {
-	[[AudioStreamManager streamManager] reset];
+	[_streamManager reset];
 //	NSResetMapTable(_playlists);
 //	NSResetMapTable(_playlistEntries);
 }
@@ -154,14 +160,14 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[self prepareSQL];
 	
-	[[AudioStreamManager streamManager] connectedToDatabase:_db];
+	[[self streamManager] connectedToDatabase:_db];
 }
 
 - (void) disconnectFromDatabase
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	[[AudioStreamManager streamManager] disconnectedFromDatabase];
+	[[self streamManager] disconnectedFromDatabase];
 
 	[self finalizeSQL];
 	
@@ -232,7 +238,7 @@ static CollectionManager *collectionManagerInstance = nil;
 
 #pragma mark Metadata query access
 
-/*- (NSArray *) allArtists
+- (NSArray *) artists
 {
 	NSMutableArray	*artists		= [[NSMutableArray alloc] init];
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_artists"];
@@ -267,7 +273,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	return [artists autorelease];
 }
-
+/*
 - (NSArray *) allAlbumTitles
 {
 	NSMutableArray	*albumTitles	= [[NSMutableArray alloc] init];

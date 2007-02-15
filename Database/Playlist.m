@@ -83,7 +83,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 {
 	NSParameterAssert(nil != objectID);
 
-	AudioStream *stream = [[CollectionManager streamManager] streamForID:objectID];
+	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 	if(nil != stream) {
 		[self addStream:stream];
 	}
@@ -100,7 +100,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSMutableArray	*streams		= [NSMutableArray array];
 	
 	while((objectID = [enumerator nextObject])) {
-		stream = [[CollectionManager streamManager] streamForID:objectID];
+		stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 		if(nil != stream) {
 			[streams addObject:stream];
 		}

@@ -56,6 +56,7 @@
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
+#import "ArtistsNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -401,7 +402,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
 		
 		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-		[streamInformationSheet setValue:[[CollectionManager streamManager] streams] forKey:@"allStreams"];
+		[streamInformationSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
 		
 		[[CollectionManager manager] beginTransaction];
 		
@@ -415,7 +416,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
 		
 		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-		[metadataEditingSheet setValue:[[CollectionManager streamManager] streams] forKey:@"allStreams"];
+		[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
 
 		[[CollectionManager manager] beginTransaction];
 
@@ -505,7 +506,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		// If we couldn't add the file, cheeck if it exists in the library
 		// Perform this check here, not at the beginning, to avoid hitting the database twice
 		// for every file addition
-		stream = [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+		stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 	}
 		
 	return (nil != stream);
@@ -604,13 +605,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	// First try to find this file in our library
 	BOOL			success		= YES;
-	AudioStream		*stream		= [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+	AudioStream		*stream		= [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 
 	// If it wasn't found, try and add it
 	if(nil == stream) {
 		success = [self addFile:filename];
 		if(success) {
-			stream = [[CollectionManager streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+			stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 		}
 	}
 	
@@ -1010,7 +1011,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[CollectionManager manager] commitTransaction];
 	
-//	stream = [[CollectionManager streamManager] streamForURL:url];
+//	stream = [[[CollectionManager manager] streamManager] streamForURL:url];
 //	NSAssert(nil != stream, @"Playback started for stream not in library!");
 	
 	[startedStream setPlaying:YES];
@@ -1109,7 +1110,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		if(0 == count) {
 			[self willChangeValueForKey:@"streams"];
 			[_streams removeAllObjects];
-			[_streams addObjectsFromArray:[[CollectionManager streamManager] streams]];
+			[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streams]];
 			[self didChangeValueForKey:@"streams"];
 		}
 		else if(1 == count) {
@@ -1305,7 +1306,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] rolbackTransaction];
 		[stream revert];
-		[[CollectionManager streamManager] revertStream:stream];
+		[[[CollectionManager manager] streamManager] revertStream:stream];
 		// TODO: refresh affected objects
 	}
 	
@@ -1470,14 +1471,17 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[cdIcon setSize:NSMakeSize(16.0, 16.0)];
 
-	_browserRoot = [[BrowserNode alloc] init];
-	[_browserRoot setName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
+	_browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
 	[_browserRoot setIcon:folderIcon];
 	
 	LibraryNode *libraryNode = [[LibraryNode alloc] init];
 	[libraryNode setIcon:cdIcon];
 
+	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
+	[artistsNode setIcon:folderIcon];
+
 	[_browserRoot addChild:[libraryNode autorelease]];
+	[_browserRoot addChild:[artistsNode autorelease]];
 	[_browserController setContent:_browserRoot];
 	
 	// Setup the custom data cell

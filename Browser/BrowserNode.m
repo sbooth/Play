@@ -29,14 +29,16 @@
 
 	[self exposeBinding:@"parent"];
 	[self exposeBinding:@"children"];
+	
+	[self setKeys:[NSArray arrayWithObject:@"children"] triggerChangeNotificationsForDependentKey:@"countOfChildren"];
+	[self setKeys:[NSArray arrayWithObject:@"children"] triggerChangeNotificationsForDependentKey:@"isLeaf"];
 }
 
 #pragma mark Creation shortcuts
 
 + (id) nodeWithName:(NSString *)name
 {
-	BrowserNode *result = [[BrowserNode alloc] init];
-	[result setName:name];
+	BrowserNode *result = [[BrowserNode alloc] initWithName:name];
 	return [result autorelease];
 }
 
@@ -49,8 +51,7 @@
 
 + (id) nodeWithName:(NSString *)name icon:(NSImage *)icon
 {
-	BrowserNode *result = [[BrowserNode alloc] init];
-	[result setName:name];
+	BrowserNode *result = [[BrowserNode alloc] initWithName:name];
 	[result setIcon:icon];
 	return [result autorelease];
 }
@@ -59,6 +60,17 @@
 {
 	if((self = [super init])) {
 		_children = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
+
+- (id) initWithName:(NSString *)name
+{
+	NSParameterAssert(nil != name);
+	
+	if((self = [super init])) {
+		_children = [[NSMutableArray alloc] init];
+		_name = [name retain];
 	}
 	return self;
 }

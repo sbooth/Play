@@ -35,8 +35,10 @@
 }
 
 // ========================================
-// Subclasses must override this method!
+// Subclasses must override these methods!
 - (void) refreshData;
+- (BOOL) insertStreamAllowed;
+- (BOOL) removeStreamAllowed;
 
 // ========================================
 // Subclass hooks (implementation is optional)

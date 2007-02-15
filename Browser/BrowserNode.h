@@ -28,7 +28,7 @@
 // ========================================
 @interface BrowserNode : NSObject
 {
-	@private
+	@protected
 	NSString		*_name;
 	NSImage			*_icon;
 	
@@ -41,6 +41,10 @@
 + (id) nodeWithName:(NSString *)name;
 + (id) nodeWithIcon:(NSImage *)icon;
 + (id) nodeWithName:(NSString *)name icon:(NSImage *)icon;
+
+// ========================================
+// Designated initializer
+- (id) initWithName:(NSString *)name;
 
 // ========================================
 // View properties

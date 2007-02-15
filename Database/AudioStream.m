@@ -69,7 +69,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[CollectionManager streamManager] insertStream:stream]) {
+	if(NO == [[[CollectionManager manager] streamManager] insertStream:stream]) {
 		[stream release], stream = nil;
 	}
 
@@ -91,12 +91,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (void) save
 {
-	[[CollectionManager streamManager] saveStream:self];
+	[[[CollectionManager manager] streamManager] saveStream:self];
 }
 
 - (void) delete
 {
-	[[CollectionManager streamManager] deleteStream:self];
+	[[[CollectionManager manager] streamManager] deleteStream:self];
 }
 
 - (NSString *) description

@@ -24,7 +24,7 @@
 @class AudioStream;
 
 // ========================================
-// Singleton class that provides access to the AudioStream objects contained
+// Class that provides access to the AudioStream objects contained
 // in the database managed by the CollectionManager
 // Provides a single, unique object for each stream
 // This class does not guarantee fast access!
@@ -37,10 +37,6 @@
 	NSMutableDictionary		*_sql;				// Prepared SQL statements
 	NSMapTable 				*_streams;			// Registered streams
 }
-
-// ========================================
-// The shared instance
-+ (AudioStreamManager *) streamManager;
 
 // ========================================
 // AudioStream support

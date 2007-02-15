@@ -38,32 +38,7 @@
 - (void) doDeleteStream:(AudioStream *)stream;
 @end
 
-// ========================================
-// The singleton instance
-// ========================================
-static AudioStreamManager *streamManagerInstance = nil;
-
 @implementation AudioStreamManager
-
-+ (AudioStreamManager *) streamManager
-{
-	@synchronized(self) {
-		if(nil == streamManagerInstance) {
-			streamManagerInstance = [[self alloc] init];
-		}
-	}
-	return streamManagerInstance;
-}
-
-+ (id) allocWithZone:(NSZone *)zone
-{
-    @synchronized(self) {
-        if(nil == streamManagerInstance) {
-            return [super allocWithZone:zone];
-        }
-    }
-    return streamManagerInstance;
-}
 
 - (id) init
 {
@@ -84,12 +59,6 @@ static AudioStreamManager *streamManagerInstance = nil;
 
 	[super dealloc];
 }
-
-- (id) 			copyWithZone:(NSZone *)zone			{ return self; }
-- (id) 			retain								{ return self; }
-- (unsigned) 	retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
-- (void) 		release								{ /* do nothing */ }
-- (id) 			autorelease							{ return self; }
 
 /*
 #pragma mark Metadata query access
@@ -473,7 +442,7 @@ static AudioStreamManager *streamManagerInstance = nil;
 	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
 		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"insert_stream", @"update_stream", @"delete_stream", 
-		@"select_streams_for_playlist"
+		@"select_streams_for_artist", @"select_streams_for_playlist"
 		, nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;

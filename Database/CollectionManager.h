@@ -35,6 +35,8 @@
 //	NSMapTable				*_playlists;		// Registered playlists
 //	NSMapTable				*_playlistEntries;	// Registered playlist entries
 	
+	AudioStreamManager		*_streamManager;
+	
 	NSUndoManager			*_undoManager;		// For undo/redo management
 	
 	BOOL					_hasActiveTransaction;
@@ -43,8 +45,11 @@
 // ========================================
 // The shared instances
 + (CollectionManager *) 	manager;
-+ (AudioStreamManager *) 	streamManager;
-//+ (PlaylistManager *) 		playlistManager;
+
+// ========================================
+// Access to the collection
+- (AudioStreamManager *) 	streamManager;
+//- (PlaylistManager *) 		playlistManager;
 
 // ========================================
 // Database connection
@@ -70,7 +75,7 @@
 
 // ========================================
 // Metadata query support
-//- (NSArray *) allArtists;
+- (NSArray *) artists;
 //- (NSArray *) allAlbumTitles;
 
 // ========================================

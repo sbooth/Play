@@ -29,9 +29,9 @@
 	[self exposeBinding:@"streams"];
 }
 
-- (id) init
+- (id) initWithName:(NSString *)name
 {
-	if((self = [super init])) {
+	if((self = [super initWithName:name])) {
 		_streams = [[NSMutableArray alloc] init];
 		[self refreshData];
 	}	
@@ -47,6 +47,16 @@
 
 - (void) refreshData
 {}
+
+- (BOOL) insertStreamAllowed
+{
+	return YES;
+}
+
+- (BOOL) removeStreamAllowed
+{
+	return YES;
+}
 
 #pragma mark Subclass hooks
 
@@ -72,6 +82,8 @@
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
+	NSAssert([self insertStreamAllowed], @"Attempt to insert a stream in an immutable AudioStreamCollectionNode");
+	
 	[self willInsertStream:stream];
 	[_streams insertObject:stream atIndex:index];
 	[self didInsertStream:stream];
@@ -79,6 +91,8 @@
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
+	NSAssert([self removeStreamAllowed], @"Attempt to remove a stream from an immutable AudioStreamCollectionNode");
+	
 	AudioStream *stream = [_streams objectAtIndex:index];
 	[self willRemoveStream:stream];
 	[_streams removeObjectAtIndex:index];

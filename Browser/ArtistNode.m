@@ -18,17 +18,19 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "LibraryNode.h"
+#import "ArtistNode.h"
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
 
-@implementation LibraryNode
+@implementation ArtistNode
 
-- (id) init
+- (id) initWithArtist:(NSString *)artist
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
+	NSParameterAssert(nil != artist);
+	
+	if((self = [super initWithName:artist])) {
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams" 
 														 options:nil//(NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld) 
@@ -39,42 +41,27 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSLog(@"LibraryNode observeValueForKeyPath:%@ ofObject:%@ change:%@", keyPath, object, change);
+	NSLog(@"ArtistNode observeValueForKeyPath:%@ ofObject:%@ change:%@", keyPath, object, change);
 	// The streams in the library changed, so refresh them
 	[self refreshData];
 }
 
 - (void) refreshData
 {
-	 [self willChangeValueForKey:@"streams"];
-	 [_streams release];
-	 _streams = [[[[CollectionManager manager] streamManager] streams] mutableCopy];
-	 [self didChangeValueForKey:@"streams"];
+	[self willChangeValueForKey:@"streams"];
+	[_streams release];
+	_streams = [[[[CollectionManager manager] streamManager] streamsForArtist:[self name]] copy];
+	[self didChangeValueForKey:@"streams"];
 }
 
-- (void) didInsertStream:(AudioStream *)stream
+- (BOOL) insertStreamAllowed
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	return NO;
 }
 
-- (void) willRemoveStream:(AudioStream *)stream
+- (BOOL) removeStreamAllowed
 {
-	if([stream isPlaying]) {
-		[[AudioLibrary library] stop:self];
-	}
-	
-	// To keep the database and in-memory representation in sync, remove the 
-	// stream from the database first
-	[stream delete];
-}
-
-- (void) didRemoveStream:(AudioStream *)stream
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-														object:[AudioLibrary library] 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	return NO;
 }
 
 @end
