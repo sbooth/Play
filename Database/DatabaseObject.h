@@ -66,10 +66,6 @@ extern NSString * const		ObjectIDKey;
 - (NSDictionary *) changes;
 
 // ========================================
-// Callbacks
-- (void) didSave;
-
-// ========================================
 // Returns a list of KVC keys for this object's persistent properties
 - (NSArray *) databaseKeys;
 

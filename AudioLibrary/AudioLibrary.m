@@ -231,8 +231,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[_playbackContext release], _playbackContext = nil;
 	
-	[_undoManager release], _undoManager = nil;
-
 	[_browserRoot release], _browserRoot = nil;
 	
 	[super dealloc];
@@ -259,7 +257,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
-/*	[_playlistController setSortDescriptors:[NSArray arrayWithObjects:
+
+/*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
 		nil]];*/
 	
@@ -330,12 +329,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return (nil != [self playbackContext]);
 	}
 	else if([anItem action] == @selector(undo:)) {
-//		return [[self undoManager] canUndo];
-		return [[[CollectionManager manager] undoManager] canUndo];
+		return [[self undoManager] canUndo];
 	}
 	else if([anItem action] == @selector(redo:)) {
-//		return [[self undoManager] canRedo];
-		return [[[CollectionManager manager] undoManager] canRedo];
+		return [[self undoManager] canRedo];
 	}
 
 	return YES;
@@ -350,9 +347,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) removeSelectedStreams:(id)sender
 {
-	[[CollectionManager manager] beginTransaction];
+	[[CollectionManager manager] beginUpdate];
 	[_streamController remove:sender];
-	[[CollectionManager manager] commitTransaction];
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) openDocument:(id)sender
@@ -404,7 +401,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
 		[streamInformationSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
 		
-		[[CollectionManager manager] beginTransaction];
+		[[CollectionManager manager] beginUpdate];
 		
 		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 									   modalForWindow:[self window] 
@@ -418,7 +415,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
 		[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
 
-		[[CollectionManager manager] beginTransaction];
+		[[CollectionManager manager] beginUpdate];
 
 		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
 									   modalForWindow:[self window] 
@@ -450,7 +447,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[playlistInformationSheet setValue:[[_playlistController selectedObjects] objectAtIndex:0] forKey:@"playlist"];
 	[playlistInformationSheet setValue:self forKey:@"owner"];
 	
-	//		[self beginTransaction];
+	//		[self beginUpdate];
 	
 	[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
 								   modalForWindow:[self window] 
@@ -522,7 +519,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BOOL					isDirectory				= NO;
 	BOOL					openSuccessful			= NO;
 	
-	[[CollectionManager manager] beginTransaction];
+	[[CollectionManager manager] beginUpdate];
 	
 	while((filename = [filesEnumerator nextObject])) {
 		
@@ -539,7 +536,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}
 	}
 
-	[[CollectionManager manager] commitTransaction];
+	[[CollectionManager manager] finishUpdate];
 	
 	[_browserOutlineView reloadData];
 	
@@ -1000,7 +997,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setPlaying:NO];
 
-	[[CollectionManager manager] beginTransaction];
+	[[CollectionManager manager] beginUpdate];
 	
 	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
 	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
@@ -1009,7 +1006,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
-	[[CollectionManager manager] commitTransaction];
+	[[CollectionManager manager] finishUpdate];
 	
 //	stream = [[[CollectionManager manager] streamManager] streamForURL:url];
 //	NSAssert(nil != stream, @"Playback started for stream not in library!");
@@ -1032,7 +1029,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setPlaying:NO];
 
-	[[CollectionManager manager] beginTransaction];
+	[[CollectionManager manager] beginUpdate];
 	
 	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
 	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
@@ -1041,7 +1038,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
 	}
 	
-	[[CollectionManager manager] commitTransaction];
+	[[CollectionManager manager] finishUpdate];
 	
 	[self playNextStream:self];
 }
@@ -1299,12 +1296,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] commitTransaction];
+		[[CollectionManager manager] finishUpdate];
 		[stream save];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] rolbackTransaction];
+		[[CollectionManager manager] cancelUpdate];
 		[stream revert];
 		[[[CollectionManager manager] streamManager] revertStream:stream];
 		// TODO: refresh affected objects
@@ -1320,11 +1317,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] commitTransaction];
+		[[CollectionManager manager] finishUpdate];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] rolbackTransaction];
+		[[CollectionManager manager] cancelUpdate];
 		// TODO: refresh affected objects
 	}
 	
@@ -1338,11 +1335,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		//		[self commitTransaction];
+		//		[self finishUpdate];
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode) {
-		//		[self rollbackTransaction];
+		//		[self cancelUpdate];
 		// TODO: refresh affected objects
 	}
 	
@@ -1508,8 +1505,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					  toObject:_streamController
 				   withKeyPath:@"canRemove"
 					   options:nil];
-	[_streamInfoButton setAction:@selector(removeSelectedStreams:)];
-	[_streamInfoButton setTarget:self];
+	[_removeStreamsButton setAction:@selector(removeSelectedStreams:)];
+	[_removeStreamsButton setTarget:self];
 	
 	[_streamInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected streams", @"Player", @"")];
 	[_streamInfoButton bind:@"enabled"

@@ -81,8 +81,6 @@ extern NSString * const		PlaylistObjectKey;
 
 	NSArray						*_playbackContext;	
 	
-	NSUndoManager				*_undoManager;
-	
 	BrowserNode					*_browserRoot;
 }
 
@@ -155,6 +153,8 @@ extern NSString * const		PlaylistObjectKey;
 - (NSArray *)	playbackContext;
 - (void)		setPlaybackContext:(NSArray *)playbackContext;
 
+// ========================================
+// Undo/redo support
 - (NSUndoManager *) undoManager;
 
 // ========================================

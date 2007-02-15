@@ -25,6 +25,10 @@ NSString * const	DatabaseObjectDidChangeNotification		= @"org.sbooth.Play.Databa
 NSString * const	DatabaseObjectKey						= @"org.sbooth.Play.DatabaseObject";
 NSString * const	ObjectIDKey								= @"id";
 
+@interface DatabaseObject (Private)
+- (void) mySetValue:(id)value forKey:(NSString *)key;
+@end
+
 @implementation DatabaseObject
 
 - (void) dealloc
@@ -56,9 +60,11 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) setValue:(id)value forKey:(NSString *)key
 {
+	NSParameterAssert(nil != key);
+	
 	if([[self databaseKeys] containsObject:key]) {
 
-//		[[[[self databaseContext] undoManager] prepareWithInvocationTarget:self] setValue:[self valueForKey:key] forKey:key];
+		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[self valueForKey:key] forKey:key];
 		
 		// Internally NSNull is used to indicate a value that was specifically set to nil
 		if(nil == value) {
@@ -105,7 +111,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 	while((key = [changedKeys nextObject])) {
 		
-//		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] setValue:[_savedValues valueForKey:key] forKey:key];
+		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[_savedValues valueForKey:key] forKey:key];
 
 		[self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
@@ -170,10 +176,21 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (NSArray *) databaseKeys
 {
-	if(nil == _databaseKeys) {
-		_databaseKeys = [[NSArray alloc] initWithObjects:ObjectIDKey, nil];
+	@synchronized(self) {
+		if(nil == _databaseKeys) {
+			_databaseKeys = [[NSArray alloc] initWithObjects:ObjectIDKey, nil];
+		}
 	}
 	return _databaseKeys;
+}
+
+@end
+
+@implementation DatabaseObject (Private)
+
+- (void) mySetValue:(id)value forKey:(NSString *)key
+{
+	[self setValue:value forKey:key];
 }
 
 @end

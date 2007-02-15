@@ -20,6 +20,7 @@
 
 #import "Playlist.h"
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
 
 NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
 
@@ -69,13 +70,13 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSEnumerator	*enumerator		= [streams objectEnumerator];
 	AudioStream		*stream			= nil;
 
-	[[CollectionManager manager] beginTransaction];
+	[[CollectionManager manager] beginUpdate];
 	
 	while((stream = [enumerator nextObject])) {
 		[[CollectionManager playlistManager] addStream:stream toPlaylist:self];
 	}
 
-	[[CollectionManager manager] commitTransaction];
+	[[CollectionManager manager] finishUpdate];
 }
 
 

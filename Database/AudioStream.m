@@ -101,21 +101,21 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self filename]];
+	return [NSString stringWithFormat:@"[%@] %@ (%@ - %@)", 
+		[self valueForKey:ObjectIDKey], 
+		[self filename], 
+		[self valueForKey:MetadataArtistKey], 
+		[self valueForKey:MetadataTitleKey]];
 }
 
 - (NSString *) debugDscription
 {
-	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self filename]];
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:AudioStreamObjectKey]];
+	return [NSString stringWithFormat:@"<%@: %x> [%@] %@ (%@ - %@)", [self class], 
+		self, 
+		[self valueForKey:ObjectIDKey], 
+		[self filename], 
+		[self valueForKey:MetadataArtistKey], 
+		[self valueForKey:MetadataTitleKey]];
 }
 
 #pragma mark Reimplementations
