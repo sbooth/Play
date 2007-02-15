@@ -20,6 +20,7 @@
 
 #import "AudioStreamTableView.h"
 #import "AudioStream.h"
+#import "AudioLibrary.h"
 #import "SecondsFormatter.h"
 
 @interface AudioStreamTableView (Private)
@@ -55,7 +56,7 @@
 			NSBeep();
 		}
 		else {
-			[_streamController removeObjectsAtArrangedObjectIndexes:[self selectedRowIndexes]];
+			[[AudioLibrary library] removeSelectedStreams:event];
 		}
 	}
 	else {
