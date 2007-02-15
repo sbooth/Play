@@ -241,11 +241,10 @@ static CollectionManager *collectionManagerInstance = nil;
 // This method is ugly right now because it relies on knowing the names of the subclasses
 - (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key
 {
-	/*
 	if([object isKindOfClass:[AudioStream class]]) {
-		[self saveStream:(AudioStream *)object];
+		[[self streamManager] saveStream:(AudioStream *)object];
 	}
-	else if([object isKindOfClass:[Playlist class]]) {
+/*	else if([object isKindOfClass:[Playlist class]]) {
 		[self savePlaylist:(Playlist *)object];
 	}
 	else if([object isKindOfClass:[PlaylistEntry class]]) {
