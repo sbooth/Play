@@ -33,20 +33,29 @@
 @interface AudioStreamManager : NSObject
 {
 	@private
-	sqlite3					*_db;				// The database to use, owned by CollectionManager
-	NSMutableDictionary		*_sql;				// Prepared SQL statements
-	NSMapTable 				*_streams;			// Registered streams
+	sqlite3					*_db;					// The database to use, owned by CollectionManager
+	NSMutableDictionary		*_sql;					// Prepared SQL statements
+	
+	NSMapTable 				*_registeredStreams;	// Registered streams
+	NSMutableArray			*_cachedStreams;		// Current state of all streams from the database
+	
+	NSMutableSet			*_insertedStreams;		// Streams inserted during a transaction
+	NSMutableSet			*_updatedStreams;		// Streams updated during a transaction
+	NSMutableSet			*_deletedStreams;		// Streams deleted during a transaction
+	
+	BOOL					_updating;				// Indicates if a transaction is in progress
 }
 
 // ========================================
 // AudioStream support
 - (NSArray *) streams;
-- (NSArray *) streamsForArtist:(NSString *)artist;
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
-//- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 
 - (AudioStream *) streamForID:(NSNumber *)objectID;
 - (AudioStream *) streamForURL:(NSURL *)url;
+
+- (NSArray *) streamsForArtist:(NSString *)artist;
+- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
+//- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 
 - (BOOL) insertStream:(AudioStream *)stream;
 - (void) saveStream:(AudioStream *)stream;
