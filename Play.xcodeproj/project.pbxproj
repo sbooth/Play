@@ -16,10 +16,6 @@
 		8C30A0770B74F8630007204B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0740B74F8630007204B /* main.m */; };
 		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
 		8C50FF940B7ADEC8005419EF /* select_stream_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */; };
-		8C5BD4260B7EE34C000DE945 /* select_all_artists.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C5BD4250B7EE34C000DE945 /* select_all_artists.sql */; };
-		8C5BD4EF0B7EEA59000DE945 /* select_streams_for_artist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C5BD4EE0B7EEA59000DE945 /* select_streams_for_artist.sql */; };
-		8C5BD4FC0B7EEB25000DE945 /* select_streams_for_album_title.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C5BD4FB0B7EEB25000DE945 /* select_streams_for_album_title.sql */; };
-		8C5BD5570B7EEDC1000DE945 /* select_all_album_titles.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C5BD5560B7EEDC1000DE945 /* select_all_album_titles.sql */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -266,10 +262,6 @@
 		8C30A0750B74F8630007204B /* PlayApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlayApplicationDelegate.h; path = Application/PlayApplicationDelegate.h; sourceTree = "<group>"; };
 		8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlayApplicationDelegate.m; path = Application/PlayApplicationDelegate.m; sourceTree = "<group>"; };
 		8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_id.sql; path = SQL/select_stream_by_id.sql; sourceTree = "<group>"; };
-		8C5BD4250B7EE34C000DE945 /* select_all_artists.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_all_artists.sql; path = SQL/select_all_artists.sql; sourceTree = "<group>"; };
-		8C5BD4EE0B7EEA59000DE945 /* select_streams_for_artist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_streams_for_artist.sql; path = SQL/select_streams_for_artist.sql; sourceTree = "<group>"; };
-		8C5BD4FB0B7EEB25000DE945 /* select_streams_for_album_title.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_streams_for_album_title.sql; path = SQL/select_streams_for_album_title.sql; sourceTree = "<group>"; };
-		8C5BD5560B7EEDC1000DE945 /* select_all_album_titles.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_all_album_titles.sql; path = SQL/select_all_album_titles.sql; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -1060,10 +1052,6 @@
 				8CC1B7FF0B7C4D1D006BF010 /* delete_stream_trigger.sql */,
 				8CC1B9BC0B7C6C67006BF010 /* select_playlist_entries_for_playlist.sql */,
 				8CC1B9E70B7C6EE4006BF010 /* select_playlist_entry_by_id.sql */,
-				8C5BD4250B7EE34C000DE945 /* select_all_artists.sql */,
-				8C5BD4EE0B7EEA59000DE945 /* select_streams_for_artist.sql */,
-				8C5BD4FB0B7EEB25000DE945 /* select_streams_for_album_title.sql */,
-				8C5BD5560B7EEDC1000DE945 /* select_all_album_titles.sql */,
 			);
 			name = SQL;
 			sourceTree = "<group>";
@@ -1243,10 +1231,6 @@
 				8CC1B9E80B7C6EE4006BF010 /* select_playlist_entry_by_id.sql in Resources */,
 				8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */,
 				8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */,
-				8C5BD4260B7EE34C000DE945 /* select_all_artists.sql in Resources */,
-				8C5BD4EF0B7EEA59000DE945 /* select_streams_for_artist.sql in Resources */,
-				8C5BD4FC0B7EEB25000DE945 /* select_streams_for_album_title.sql in Resources */,
-				8C5BD5570B7EEDC1000DE945 /* select_all_album_titles.sql in Resources */,
 				8C6639040B7FAAAD00A226F0 /* AIFF.icns in Resources */,
 				8C6639050B7FAAAD00A226F0 /* Generic.icns in Resources */,
 				8C6639060B7FAAAD00A226F0 /* MP3.icns in Resources */,
