@@ -33,8 +33,6 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] undoManager] removeAllActionsWithTarget:self];
-
 	[_supportedKeys release], _supportedKeys = nil;
 	
 	[_savedValues release], _savedValues = nil;
@@ -64,8 +62,6 @@ NSString * const	ObjectIDKey								= @"id";
 	
 	if([[self supportedKeys] containsObject:key]) {
 
-		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[self valueForKey:key] forKey:key];
-		
 		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
 		
 		// Internally NSNull is used to indicate a value that was specifically set to nil
@@ -85,6 +81,11 @@ NSString * const	ObjectIDKey								= @"id";
 	else {
 		[super setValue:value forKey:key];
 	}
+}
+
+- (void) mySetValue:(id)value forKey:(NSString *)key
+{
+	[self setValue:value forKey:key];
 }
 
 - (unsigned) hash
@@ -110,11 +111,7 @@ NSString * const	ObjectIDKey								= @"id";
 	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
 	NSString		*key			= nil;
 
-
-	while((key = [changedKeys nextObject])) {
-		
-		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[_savedValues valueForKey:key] forKey:key];
-
+	while((key = [changedKeys nextObject])) {		
 		[self willChangeValueForKey:key];
 		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
@@ -176,12 +173,12 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (NSDictionary *) changedValues
 {
-	return [[_changedValues copy] autorelease];
+	return _changedValues;
 }
 
 - (NSDictionary *) savedValues
 {
-	return [[_savedValues copy] autorelease];
+	return _savedValues;
 }
 
 #pragma mark Callbacks
@@ -203,15 +200,6 @@ NSString * const	ObjectIDKey								= @"id";
 		}
 	}
 	return _supportedKeys;
-}
-
-@end
-
-@implementation DatabaseObject (Private)
-
-- (void) mySetValue:(id)value forKey:(NSString *)key
-{
-	[self setValue:value forKey:key];
 }
 
 @end

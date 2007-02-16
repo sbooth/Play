@@ -52,6 +52,10 @@ extern NSString * const		ObjectIDKey;
 }
 
 // ========================================
+// Same as setValue:forKey: (used for NSInvocation/NSUndoManager)
+- (void) mySetValue:(id)value forKey:(NSString *)key;
+
+// ========================================
 // Actions
 - (void) save;
 - (void) revert;
