@@ -89,6 +89,13 @@ NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 // ========================================
+// Completely bogus NSTreeController bindings hack
+// ========================================
+@interface NSObject (NSTreeControllerBogosity)
+- (id) observedObject;
+@end
+
+// ========================================
 // Callback Methods (for sheets, etc.)
 // ========================================
 @interface AudioLibrary (CallbackMethods)
@@ -342,6 +349,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return YES;
 }
 
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+	NSLog(@"AudioLibrary observeValueForKeyPath:%@ object:%@",keyPath,object);
+	[_browserOutlineView reloadItem:object reloadChildren:YES];
+}
+
 #pragma mark Action Methods
 
 - (IBAction) toggleBrowser:(id)sender
@@ -541,8 +554,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 
 	[[CollectionManager manager] finishUpdate];
-	
-	[_browserOutlineView reloadData];
 	
 	return openSuccessful;
 }
@@ -900,6 +911,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) setNowPlaying:(AudioStream *)nowPlaying
 {
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[[_streamController arrangedObjects] indexOfObject:_nowPlaying]]];
+
 	[_nowPlaying release];
 	_nowPlaying = [nowPlaying retain];
 	
@@ -919,6 +932,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 			
 	[[self window] setTitle:windowTitle];
+
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[[_streamController arrangedObjects] indexOfObject:_nowPlaying]]];
 }
 
 - (NSUndoManager *) undoManager
@@ -1294,8 +1309,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-	AudioStreamInformationSheet		*streamInformationSheet		= (AudioStreamInformationSheet *)contextInfo;
-	AudioStream						*stream						= [streamInformationSheet valueForKey:@"stream"];
+	AudioStreamInformationSheet *streamInformationSheet = (AudioStreamInformationSheet *)contextInfo;
 	
 	[sheet orderOut:self];
 	
@@ -1476,13 +1490,30 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
 
+	[artistsNode addObserver:self forKeyPath:@"children" options:nil context:nil];
+	
 	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
 	[albumsNode setIcon:folderIcon];
+
+	[albumsNode addObserver:self forKeyPath:@"children" options:nil context:nil];
+	
+	BrowserNode *playlistsNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Playlists", @"General", @"")];
+	[playlistsNode setIcon:folderIcon];
+
+	BrowserNode *watchedFoldersNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")];
+	[watchedFoldersNode setIcon:folderIcon];
 
 	[_browserRoot addChild:[libraryNode autorelease]];
 	[_browserRoot addChild:[artistsNode autorelease]];
 	[_browserRoot addChild:[albumsNode autorelease]];
+	[_browserRoot addChild:[playlistsNode autorelease]];
+	[_browserRoot addChild:[watchedFoldersNode autorelease]];
 	[_browserController setContent:_browserRoot];
+	
+	// Select the LibraryNode
+	unsigned indexPathIndexes [] = {0, 0};
+	BOOL success = [_browserController setSelectionIndexPath:[NSIndexPath indexPathWithIndexes:indexPathIndexes length:2]];
+	NSAssert(YES == success, @"Unable to set selection in browser");
 	
 	// Setup the custom data cell
 	NSTableColumn		*tableColumn		= [_browserOutlineView tableColumnWithIdentifier:@"name"];
@@ -1500,6 +1531,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 				   toObject:_streamController
 				withKeyPath:@"canInsert"
 					options:nil];
+	[_addStreamsButton bind:@"enabled2"
+				   toObject:_streamController
+				withKeyPath:@"content"
+					options:[NSDictionary dictionaryWithObject:@"NSIsNotNil" forKey:NSValueTransformerNameBindingOption]];
 	[_addStreamsButton setAction:@selector(openDocument:)];
 	[_addStreamsButton setTarget:self];
 	
