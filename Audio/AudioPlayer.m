@@ -587,7 +587,9 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder *streamDecoder = [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		if([self isPlaying]) {
+		BOOL playing = [self isPlaying];
+		
+		if(playing) {
 			[self stop];
 		}
 		
@@ -606,7 +608,7 @@ MyRenderNotification(void							*inRefCon,
 			_requestedNextStream = NO;
 		}
 		
-		if([self isPlaying]) {
+		if(playing) {
 			[self play];
 		}
 	}
