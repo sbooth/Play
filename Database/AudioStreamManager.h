@@ -28,7 +28,8 @@
 // in the database managed by the CollectionManager
 // Provides a single, unique object for each stream
 // This class does not guarantee fast access!
-// This class is KVC-compliant (read only) for the key "streams"
+// This class is KVC-compliant (read only) for the key "streams" and all
+// keys supported by AudioStream
 // ========================================
 @interface AudioStreamManager : NSObject
 {
@@ -44,6 +45,8 @@
 	NSMutableSet			*_deletedStreams;		// Streams deleted during a transaction
 	
 	BOOL					_updating;				// Indicates if a transaction is in progress
+	
+	NSArray					*_streamKeys;			// AudioStream (aggregate) keys this object supports
 }
 
 // ========================================
@@ -61,5 +64,8 @@
 - (void) saveStream:(AudioStream *)stream;
 - (void) deleteStream:(AudioStream *)stream;
 - (void) revertStream:(AudioStream *)stream;
+
+// ========================================
+// Metadata support
 
 @end

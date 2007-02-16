@@ -66,6 +66,8 @@ NSString * const	ObjectIDKey								= @"id";
 
 		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[self valueForKey:key] forKey:key];
 		
+		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
+		
 		// Internally NSNull is used to indicate a value that was specifically set to nil
 		if(nil == value) {
 			value = [NSNull null];
@@ -78,7 +80,7 @@ NSString * const	ObjectIDKey								= @"id";
 			[_changedValues setValue:value forKey:key];			
 		}
 		
-		[[CollectionManager manager] databaseObject:self didChangeForKey:key];
+		[[CollectionManager manager] databaseObject:self didChangeValueForKey:key];
 	}
 	else {
 		[super setValue:value forKey:key];
@@ -114,8 +116,10 @@ NSString * const	ObjectIDKey								= @"id";
 		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[_savedValues valueForKey:key] forKey:key];
 
 		[self willChangeValueForKey:key];
+		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
 		[self didChangeValueForKey:key];
+		[[CollectionManager manager] databaseObject:self didChangeValueForKey:key];
 	}
 }
 
@@ -156,6 +160,18 @@ NSString * const	ObjectIDKey								= @"id";
 - (BOOL) hasChanges
 {
 	return 0 != [_changedValues count];
+}
+
+- (id) changedValueForKey:(NSString *)key
+{
+	id value = [_changedValues valueForKey:key];
+	return ([value isEqual:[NSNull null]] ? nil : value);
+}
+
+- (id) savedValueForKey:(NSString *)key
+{
+	id value = [_savedValues valueForKey:key];
+	return ([value isEqual:[NSNull null]] ? nil : value);
 }
 
 - (NSDictionary *) changedValues

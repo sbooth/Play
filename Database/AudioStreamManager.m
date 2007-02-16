@@ -33,6 +33,9 @@
 - (void) beginUpdate;
 - (void) finishUpdate;
 - (void) cancelUpdate;
+
+- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
+- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
 @end
 
 @interface AudioStreamManager (Private)
@@ -50,6 +53,8 @@
 - (BOOL) doInsertStream:(AudioStream *)stream;
 - (void) doUpdateStream:(AudioStream *)stream;
 - (void) doDeleteStream:(AudioStream *)stream;
+
+- (NSArray *) streamKeys;
 @end
 
 @implementation AudioStreamManager
@@ -77,6 +82,8 @@
 	[_insertedStreams release], _insertedStreams = nil;
 	[_updatedStreams release], _updatedStreams = nil;
 	[_deletedStreams release], _deletedStreams = nil;
+
+	[_streamKeys release], _streamKeys = nil;
 
 	_db = NULL;
 
@@ -404,12 +411,8 @@
 		[_updatedStreams addObject:stream];
 	}
 	else {
-		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedStreams indexOfObject:stream]];
-		
-		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];		
 		[self doUpdateStream:stream];	
-		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
-
+		
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
 															object:self 
 														  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
@@ -453,6 +456,19 @@
 	
 	if(NO == [self updateInProgress]) {
 		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
+	}
+}
+
+#pragma mark Metadata support
+
+- (id) valueForKey:(NSString *)key
+{
+	if([[self streamKeys] containsObject:key]) {
+		NSString *keyName = [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", key];
+		return [[[self streams] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+	}
+	else {
+		return [super valueForKey:key];
 	}
 }
 
@@ -501,20 +517,12 @@
 	// ========================================
 	// Process updates first
 	if(0 != [_updatedStreams count]) {
-
+		
 		// First determine the indexes of the objects we are updating
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
-			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
-		}
-
-		// And then perform the changes	
-		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [_updatedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
 			[self doUpdateStream:stream];
 		}
-		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
 		
 		// Broadcast the notifications
 		enumerator = [_updatedStreams objectEnumerator];
@@ -593,26 +601,16 @@
 {
 	NSAssert(YES == _updating, @"No update in progress");
 	
-	NSEnumerator 		*enumerator 	= nil;
-	AudioStream 		*stream 		= nil;
-	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
 
 	// For a canceled update, revert the updated streams and forget about anything else
-	if(0 != [_updatedStreams count]) {
+	if(0 != [_updatedStreams count]) {		
+		NSEnumerator	*enumerator 	= nil;
+		AudioStream 	*stream 		= nil;
 		
-		// First determine the indexes of the objects we are updating
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
-			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
-		}
-		
-		// And then perform the changes	
-		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [_updatedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
 			[stream revert];
 		}
-		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];		
 	}
 
 	[_insertedStreams removeAllObjects];
@@ -620,8 +618,17 @@
 	[_deletedStreams removeAllObjects];
 	
 	_updating = NO;
-	
-	[indexes release];
+}
+
+- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key
+{
+	[self willChangeValueForKey:key];
+}
+
+- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key
+{
+	[self saveStream:stream];
+	[self didChangeValueForKey:key];
 }
 
 @end
@@ -872,7 +879,7 @@
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_stream"];
 	int				result			= SQLITE_OK;
-	NSDictionary	*changes		= [stream changes];
+	NSDictionary	*changes		= [stream changedValues];
 	
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
@@ -975,6 +982,50 @@
 
 	// Deregister the object
 	NSMapRemove(_registeredStreams, (void *)objectID);
+}
+
+- (NSArray *) streamKeys
+{
+	@synchronized(self) {
+		if(nil == _streamKeys) {
+			_streamKeys	= [[NSArray alloc] initWithObjects:
+				ObjectIDKey, 
+				StreamURLKey,
+				
+				StatisticsDateAddedKey,
+				StatisticsFirstPlayedDateKey,
+				StatisticsLastPlayedDateKey,
+				StatisticsPlayCountKey,
+				
+				MetadataTitleKey,
+				MetadataAlbumTitleKey,
+				MetadataArtistKey,
+				MetadataAlbumArtistKey,
+				MetadataGenreKey,
+				MetadataComposerKey,
+				MetadataDateKey,
+				MetadataCompilationKey,
+				MetadataTrackNumberKey,
+				MetadataTrackTotalKey,
+				MetadataDiscNumberKey,
+				MetadataDiscTotalKey,
+				MetadataCommentKey,
+				MetadataISRCKey,
+				MetadataMCNKey,
+				
+				PropertiesFileTypeKey,
+				PropertiesFormatTypeKey,
+				PropertiesBitsPerChannelKey,
+				PropertiesChannelsPerFrameKey,
+				PropertiesSampleRateKey,
+				PropertiesTotalFramesKey,
+				PropertiesDurationKey,
+				PropertiesBitrateKey,
+				
+				nil];			
+		}
+	}
+	return _streamKeys;
 }
 
 @end

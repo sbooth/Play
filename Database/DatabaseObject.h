@@ -66,6 +66,9 @@ extern NSString * const		ObjectIDKey;
 // Change manaagement
 - (BOOL) hasChanges;
 
+- (id) changedValueForKey:(NSString *)key;
+- (id) savedValueForKey:(NSString *)key;
+
 - (NSDictionary *) changedValues;
 - (NSDictionary *) savedValues;
 

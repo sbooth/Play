@@ -71,7 +71,8 @@
 - (void) deleteObject:(DatabaseObject *)object;
 - (void) revertObject:(DatabaseObject *)object;
 
-- (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key;
+- (void) databaseObject:(DatabaseObject *)object willChangeValueForKey:(NSString *)key;
+- (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key;
 
 // ========================================
 // Playlist support

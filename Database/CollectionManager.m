@@ -34,6 +34,9 @@
 - (void) beginUpdate;
 - (void) finishUpdate;
 - (void) cancelUpdate;
+
+- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
+- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
 @end
 
 @interface CollectionManager (Private)
@@ -224,25 +227,26 @@ static CollectionManager *collectionManagerInstance = nil;
 #pragma mark DatabaseObject support
 
 - (void) saveObject:(DatabaseObject *)object
-{
-	
-}
+{}
 
 - (void) revertObject:(DatabaseObject *)object
-{
-	
-}
+{}
 
 - (void) deleteObject:(DatabaseObject *)object
-{
-	
-}
+{}
 
-// This method is ugly right now because it relies on knowing the names of the subclasses
-- (void) databaseObject:(DatabaseObject *)object didChangeForKey:(NSString *)key
+// These methods are ugly right now because it relies on knowing the names of the subclasses
+- (void) databaseObject:(DatabaseObject *)object willChangeValueForKey:(NSString *)key
 {
 	if([object isKindOfClass:[AudioStream class]]) {
-		[[self streamManager] saveStream:(AudioStream *)object];
+		[[self streamManager] stream:(AudioStream *)object willChangeValueForKey:key];
+	}
+}
+
+- (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key
+{
+	if([object isKindOfClass:[AudioStream class]]) {
+		[[self streamManager] stream:(AudioStream *)object didChangeValueForKey:key];
 	}
 /*	else if([object isKindOfClass:[Playlist class]]) {
 		[self savePlaylist:(Playlist *)object];
