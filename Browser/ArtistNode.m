@@ -30,7 +30,14 @@
 
 @implementation ArtistNode
 
-- (void) refreshData
+- (void) loadStreams
+{
+	[self willChangeValueForKey:@"streams"];
+	[[self streamsArray] addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForArtist:[self name]]];
+	[self didChangeValueForKey:@"streams"];
+}
+
+- (void) refreshStreams
 {
 	[self willChangeValueForKey:@"streams"];
 	[[self streamsArray] removeAllObjects];

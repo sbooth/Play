@@ -40,7 +40,10 @@
 	[super dealloc];
 }
 
-- (void) refreshData
+- (void) loadStreams
+{}
+
+- (void) refreshStreams
 {}
 
 #pragma mark State management
@@ -77,7 +80,7 @@
 	@synchronized(self) {
 		if(nil == _streams) {
 			_streams = [[NSMutableArray alloc] init];
-			[self refreshData];
+			[self loadStreams];
 		}
 	}
 	return _streams;

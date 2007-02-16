@@ -30,7 +30,14 @@
 
 @implementation AlbumNode
 
-- (void) refreshData
+- (void) loadStreams
+{
+	[self willChangeValueForKey:@"streams"];
+	[[self streamsArray] addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForAlbumTitle:[self name]]];
+	[self didChangeValueForKey:@"streams"];
+}
+
+- (void) refreshStreams
 {
 	[self willChangeValueForKey:@"streams"];
 	[[self streamsArray] removeAllObjects];
@@ -44,7 +51,7 @@
 {
 	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable AlbumNode");
 
-	// Only add streams that match our albm
+	// Only add streams that match our album
 	if([[stream valueForKey:MetadataAlbumTitleKey] isEqualToString:[self name]]) {
 		[[self streamsArray] insertObject:stream atIndex:index];
 	}

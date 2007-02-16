@@ -31,12 +31,13 @@
 @interface AudioStreamCollectionNode : BrowserNode
 {
 	@protected
-	NSMutableArray *_streams;
+	NSMutableArray	*_streams;
 }
 
 // ========================================
-// Subclasses must override this method!
-- (void) refreshData;
+// Subclasses must override these methods!
+- (void) loadStreams;
+- (void) refreshStreams;
 
 // ========================================
 // State management
