@@ -79,10 +79,10 @@ NSString * const	PlaylistEntryPositionKey				= @"position";
 
 #pragma mark Reimplementations
 
-- (NSArray *) databaseKeys
+- (NSArray *) supportedKeys
 {
-	if(nil == _databaseKeys) {
-		_databaseKeys	= [[NSArray alloc] initWithObjects:
+	if(nil == _supportedKeys) {
+		_supportedKeys	= [[NSArray alloc] initWithObjects:
 			ObjectIDKey, 
 			
 			PlaylistObjectIDKey, 			
@@ -91,7 +91,7 @@ NSString * const	PlaylistEntryPositionKey				= @"position";
 			
 			nil];
 	}	
-	return _databaseKeys;
+	return _supportedKeys;
 }
 
 @end

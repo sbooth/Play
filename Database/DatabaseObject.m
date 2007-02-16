@@ -35,7 +35,7 @@ NSString * const	ObjectIDKey								= @"id";
 {
 	[[[CollectionManager manager] undoManager] removeAllActionsWithTarget:self];
 
-	[_databaseKeys release], _databaseKeys = nil;
+	[_supportedKeys release], _supportedKeys = nil;
 	
 	[_savedValues release], _savedValues = nil;
 	[_changedValues release], _changedValues = nil;
@@ -45,7 +45,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (id) valueForKey:(NSString *)key
 {
-	if([[self databaseKeys] containsObject:key]) {
+	if([[self supportedKeys] containsObject:key]) {
 		id value = [_changedValues valueForKey:key];
 		if(nil == value) {
 			value = [_savedValues valueForKey:key];
@@ -62,7 +62,7 @@ NSString * const	ObjectIDKey								= @"id";
 {
 	NSParameterAssert(nil != key);
 	
-	if([[self databaseKeys] containsObject:key]) {
+	if([[self supportedKeys] containsObject:key]) {
 
 		[[[[CollectionManager manager] undoManager] prepareWithInvocationTarget:self] mySetValue:[self valueForKey:key] forKey:key];
 		
@@ -158,9 +158,14 @@ NSString * const	ObjectIDKey								= @"id";
 	return 0 != [_changedValues count];
 }
 
-- (NSDictionary *) changes
+- (NSDictionary *) changedValues
 {
-	return _changedValues;
+	return [[_changedValues copy] autorelease];
+}
+
+- (NSDictionary *) savedValues
+{
+	return [[_savedValues copy] autorelease];
 }
 
 #pragma mark Callbacks
@@ -174,14 +179,14 @@ NSString * const	ObjectIDKey								= @"id";
 
 #pragma mark Subclass Methods
 
-- (NSArray *) databaseKeys
+- (NSArray *) supportedKeys
 {
 	@synchronized(self) {
-		if(nil == _databaseKeys) {
-			_databaseKeys = [[NSArray alloc] initWithObjects:ObjectIDKey, nil];
+		if(nil == _supportedKeys) {
+			_supportedKeys = [[NSArray alloc] initWithObjects:ObjectIDKey, nil];
 		}
 	}
-	return _databaseKeys;
+	return _supportedKeys;
 }
 
 @end

@@ -39,12 +39,12 @@ extern NSString * const		ObjectIDKey;
 
 // ========================================
 // KVC-compliant object whose persistent properties are stored in a database
-// An instance of this class represents a single row in a table
+// An instance of this class typically represents a single row in a table
 // ========================================
 @interface DatabaseObject : NSObject
 {
 	@protected
-	NSArray					*_databaseKeys;
+	NSArray					*_supportedKeys;
 	
 	@private
 	NSMutableDictionary		*_savedValues;
@@ -62,11 +62,15 @@ extern NSString * const		ObjectIDKey;
 - (void) initValue:(id)value forKey:(NSString *)key;
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues;
 
+// ========================================
+// Change manaagement
 - (BOOL) hasChanges;
-- (NSDictionary *) changes;
+
+- (NSDictionary *) changedValues;
+- (NSDictionary *) savedValues;
 
 // ========================================
 // Returns a list of KVC keys for this object's persistent properties
-- (NSArray *) databaseKeys;
+- (NSArray *) supportedKeys;
 
 @end
