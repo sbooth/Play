@@ -32,6 +32,7 @@
 - (void) reset;
 
 - (void) beginUpdate;
+- (void) processUpdate;
 - (void) finishUpdate;
 - (void) cancelUpdate;
 
@@ -133,13 +134,6 @@ static CollectionManager *collectionManagerInstance = nil;
 	return _streamManager;
 }
 
-- (void) reset
-{
-	[_streamManager reset];
-//	NSResetMapTable(_playlists);
-//	NSResetMapTable(_playlistEntries);
-}
-
 - (NSUndoManager *) undoManager
 {
 	@synchronized(self) {
@@ -148,6 +142,13 @@ static CollectionManager *collectionManagerInstance = nil;
 		}
 	}
 	return _undoManager;
+}
+
+- (void) reset
+{
+	[_streamManager reset];
+	//	NSResetMapTable(_playlists);
+	//	NSResetMapTable(_playlistEntries);
 }
 
 #pragma mark Database connections
@@ -205,8 +206,9 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
-	[_streamManager finishUpdate];
+	[_streamManager processUpdate];
 	[self doCommitTransaction];
+	[_streamManager finishUpdate];
 	_updating = NO;	
 }
 
@@ -235,9 +237,11 @@ static CollectionManager *collectionManagerInstance = nil;
 - (void) deleteObject:(DatabaseObject *)object
 {}
 
-// These methods are ugly right now because it relies on knowing the names of the subclasses
+// These methods are ugly right now because they rely on knowing the names of the subclasses
 - (void) databaseObject:(DatabaseObject *)object willChangeValueForKey:(NSString *)key
 {
+	[[[self undoManager] prepareWithInvocationTarget:object] mySetValue:[object valueForKey:key] forKey:key];
+	
 	if([object isKindOfClass:[AudioStream class]]) {
 		[[self streamManager] stream:(AudioStream *)object willChangeValueForKey:key];
 	}

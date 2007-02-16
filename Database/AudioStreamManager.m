@@ -31,6 +31,7 @@
 - (void) reset;
 
 - (void) beginUpdate;
+- (void) processUpdate;
 - (void) finishUpdate;
 - (void) cancelUpdate;
 
@@ -180,74 +181,16 @@
 
 - (NSArray *) streamsForArtist:(NSString *)artist
 {
-	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_artist"];
-	int				result			= SQLITE_OK;
-	AudioStream		*stream			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-
-	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":artist"), [artist UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		stream = [self loadStream:statement];
-		[streams addObject:stream];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
-#endif
-	
-	return [streams autorelease];
+	NSParameterAssert(nil != artist);
+		
+	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataArtistKey, artist]];
 }
 
 - (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle
 {
-	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_streams_for_album_title"];
-	int				result			= SQLITE_OK;
-	AudioStream		*stream			= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":album_title"), [albumTitle UTF8String], -1, SQLITE_TRANSIENT);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		stream = [self loadStream:statement];
-		[streams addObject:stream];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
-#endif
-	
-	return [streams autorelease];
+	NSParameterAssert(nil != albumTitle);
+
+	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataAlbumTitleKey, albumTitle]];
 }
 
 /*- (NSArray *) streamsForPlaylist:(Playlist *)playlist
@@ -506,6 +449,43 @@
 	[_deletedStreams removeAllObjects];
 }
 
+- (void) processUpdate
+{
+	NSAssert(YES == _updating, @"No update in progress");
+	
+	NSEnumerator 		*enumerator 	= nil;
+	AudioStream 		*stream 		= nil;
+	
+	// ========================================
+	// Process updates first
+	if(0 != [_updatedStreams count]) {
+		enumerator = [_updatedStreams objectEnumerator];
+		while((stream = [enumerator nextObject])) {
+			[self doUpdateStream:stream];
+		}
+	}
+	
+	// ========================================
+	// Processes deletes next
+	if(0 != [_deletedStreams count]) {
+		enumerator = [_deletedStreams objectEnumerator];
+		while((stream = [enumerator nextObject])) {
+			[self doDeleteStream:stream];
+		}
+	}
+	
+	// ========================================
+	// Finally, process inserts, removing any that fail
+	if(0 != [_insertedStreams count]) {
+		enumerator = [[_insertedStreams allObjects] objectEnumerator];
+		while((stream = [enumerator nextObject])) {
+			if(NO == [self doInsertStream:stream]) {
+				[_insertedStreams removeObject:stream];
+			}
+		}
+	}	
+}
+
 - (void) finishUpdate
 {
 	NSAssert(YES == _updating, @"No update in progress");
@@ -515,16 +495,8 @@
 	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
 	
 	// ========================================
-	// Process updates first
+	// Broadcast the notifications
 	if(0 != [_updatedStreams count]) {
-		
-		// First determine the indexes of the objects we are updating
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
-			[self doUpdateStream:stream];
-		}
-		
-		// Broadcast the notifications
 		enumerator = [_updatedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
@@ -532,13 +504,11 @@
 															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];		
 		}		
 	
-		// Clean up
 		[_updatedStreams removeAllObjects];
-		[indexes removeAllIndexes];
 	}
 
 	// ========================================
-	// Processes deletes next
+	// Handle deletes
 	if(0 != [_deletedStreams count]) {
 		enumerator = [_deletedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
@@ -548,46 +518,33 @@
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [_deletedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
-			[self doDeleteStream:stream];
 			[_cachedStreams removeObject:stream];
-		}
-		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];		
 
-		enumerator = [_deletedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 		}
+		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];		
 		
 		[_deletedStreams removeAllObjects];
 		[indexes removeAllIndexes];
 	}
 
 	// ========================================
-	// Finally, process inserts
+	// And finally inserts
 	if(0 != [_insertedStreams count]) {
 		[indexes addIndexesInRange:NSMakeRange(0, [_insertedStreams count])];
 
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [[_insertedStreams allObjects] objectEnumerator];
 		while((stream = [enumerator nextObject])) {
-
-			if(NO == [self doInsertStream:stream]) {
-				[_insertedStreams removeObject:stream];
-				continue;
-			}
-			
 			[_cachedStreams addObject:stream];
-		}
-		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
-
-		enumerator = [_insertedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+			
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 		}
+		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		
 		[_insertedStreams removeAllObjects];
 	}
@@ -600,7 +557,6 @@
 - (void) cancelUpdate
 {
 	NSAssert(YES == _updating, @"No update in progress");
-	
 
 	// For a canceled update, revert the updated streams and forget about anything else
 	if(0 != [_updatedStreams count]) {		
@@ -622,13 +578,30 @@
 
 - (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key
 {
-	[self willChangeValueForKey:key];
+	id			value	= [stream valueForKey:key];
+	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
+	
+	if(NSNotFound == index) {
+		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
+	}
+	else {
+		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key
 {
+	id			value	= [stream valueForKey:key];
+	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
+	
 	[self saveStream:stream];
-	[self didChangeValueForKey:key];
+	
+	if(NSNotFound == index) {
+		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
+	}
+	else {
+		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 @end
@@ -644,8 +617,7 @@
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
-		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"insert_stream", @"update_stream", @"delete_stream", 
-		@"select_streams_for_artist", @"select_streams_for_album_title", nil];
+		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"insert_stream", @"update_stream", @"delete_stream", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	int				result				= SQLITE_OK;
