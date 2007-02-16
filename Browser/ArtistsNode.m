@@ -25,7 +25,7 @@
 #import "ArtistNode.h"
 
 @interface ArtistsNode (Private)
-- (void) refreshData;
+- (void) loadChildren;
 @end
 
 @implementation ArtistsNode
@@ -33,7 +33,7 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")])) {
-		[self refreshData];
+		[self loadChildren];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataArtistKey
 														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
@@ -53,36 +53,42 @@
 {
 	NSSet 			*old 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeOldKey]];
 	NSSet 			*new 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeNewKey]];
-	NSMutableSet 	*added 		= [NSMutableSet setWithSet:new];
-	NSMutableSet 	*removed 	= [NSMutableSet setWithSet:old];
+	BOOL			needsSort	= NO;
 	
-	[added minusSet:old];
-	[removed minusSet:new];
-	
-	// Remove the empty artists from our children
+	// Remove any modified nodes with empty streams from our children
 	NSEnumerator 	*enumerator 	= nil;
 	NSString 		*artist 		= nil;
 	BrowserNode 	*node 			= nil;
 
-	if(0 != [removed count]) {
-		enumerator = [removed objectEnumerator];
+	if(0 != [old count]) {
+		enumerator = [old objectEnumerator];
 		while((artist = [enumerator nextObject])) {
 			node = [self findChildWithName:artist];
-			[self removeChild:node];
+			if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
+				[(AudioStreamCollectionNode *)node refreshStreams];
+				if(0 == [(AudioStreamCollectionNode *)node countOfStreams]) {
+					[self removeChild:node];
+					needsSort = YES;
+				}
+			}
 		}
 	}
 	
-	// Add the new artists
-	if(0 != [added count]) {
-		enumerator = [added objectEnumerator];
-		[self willChangeValueForKey:@"children"];
+	// Add the new artists if they don't already exist
+	if(0 != [new count]) {
+		enumerator = [new objectEnumerator];
 		while((artist = [enumerator nextObject])) {
-			node = [[ArtistNode alloc] initWithName:artist];
-			[node setParent:self];
-			[_children addObject:node];
+			node = [self findChildWithName:artist];
+			if(nil == node) {
+				node = [[ArtistNode alloc] initWithName:artist];
+				[self addChild:[node autorelease]];
+				node = nil;
+				needsSort = YES;
+			}
 		}
-		[self didChangeValueForKey:@"children"];
-		
+	}
+	
+	if(needsSort) {
 		[self sortChildren];
 	}
 }
@@ -91,7 +97,7 @@
 
 @implementation ArtistsNode (Private)
 
-- (void) refreshData
+- (void) loadChildren
 {
 	NSArray			*artists		= [[[CollectionManager manager] streamManager] valueForKey:MetadataArtistKey];
 	NSEnumerator	*enumerator		= [artists objectEnumerator];
@@ -104,7 +110,7 @@
 	while((artist = [enumerator nextObject])) {
 		node = [[ArtistNode alloc] initWithName:artist];
 		[node setParent:self];
-		[_children addObject:node];
+		[_children addObject:[node autorelease]];
 	}
 	[self didChangeValueForKey:@"children"];
 }

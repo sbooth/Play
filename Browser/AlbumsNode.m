@@ -25,7 +25,7 @@
 #import "AlbumNode.h"
 
 @interface AlbumsNode (Private)
-- (void) refreshData;
+- (void) loadChildren;
 @end
 
 @implementation AlbumsNode
@@ -33,7 +33,7 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Albums", @"General", @"")])) {
-		[self refreshData];
+		[self loadChildren];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataAlbumTitleKey
 														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
@@ -53,45 +53,53 @@
 {
 	NSSet 			*old 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeOldKey]];
 	NSSet 			*new 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeNewKey]];
-	NSMutableSet 	*added 		= [NSMutableSet setWithSet:new];
-	NSMutableSet 	*removed 	= [NSMutableSet setWithSet:old];
+	BOOL			needsSort	= NO;
 	
-	[added minusSet:old];
-	[removed minusSet:new];
-	
-	// Remove the empty artists from our children
+	// Remove any modified nodes with empty streams from our children
 	NSEnumerator 	*enumerator 	= nil;
-	NSString 		*album	 		= nil;
+	NSString 		*album			= nil;
 	BrowserNode 	*node 			= nil;
-
-	if(0 != [removed count]) {
-		enumerator = [removed objectEnumerator];
+	
+	if(0 != [old count]) {
+		enumerator = [old objectEnumerator];
 		while((album = [enumerator nextObject])) {
 			node = [self findChildWithName:album];
-			[self removeChild:node];
+			if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
+				[(AudioStreamCollectionNode *)node refreshStreams];
+				if(0 == [(AudioStreamCollectionNode *)node countOfStreams]) {
+					[self removeChild:node];
+					needsSort = YES;
+				}
+			}
 		}
 	}
 	
 	// Add the new albums
-	if(0 != [added count]) {
-		enumerator = [added objectEnumerator];
-		[self willChangeValueForKey:@"children"];
+	if(0 != [new count]) {
+		enumerator = [new objectEnumerator];
 		while((album = [enumerator nextObject])) {
-			node = [[AlbumNode alloc] initWithName:album];
-			[node setParent:self];
-			[_children addObject:node];
+			node = [self findChildWithName:album];
+
+			if(nil == node) {
+				node = [[AlbumNode alloc] initWithName:album];
+				[self addChild:[node autorelease]];
+				node = nil;
+				needsSort = YES;
+			}
 		}
-		[self didChangeValueForKey:@"children"];
-		
+	}
+	
+	if(needsSort) {
 		[self sortChildren];
 	}
 }
+
 
 @end
 
 @implementation AlbumsNode (Private)
 
-- (void) refreshData
+- (void) loadChildren
 {
 	NSArray			*albums			= [[[CollectionManager manager] streamManager] valueForKey:MetadataAlbumTitleKey];
 	NSEnumerator	*enumerator		= [albums objectEnumerator];
@@ -104,7 +112,7 @@
 	while((album = [enumerator nextObject])) {
 		node = [[AlbumNode alloc] initWithName:album];
 		[node setParent:self];
-		[_children addObject:node];
+		[_children addObject:[node autorelease]];
 	}
 	[self didChangeValueForKey:@"children"];
 }
