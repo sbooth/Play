@@ -35,8 +35,8 @@
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")])) {
 		[self refreshData];
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams" 
-														 options:nil
+													  forKeyPath:MetadataArtistKey
+														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
 														 context:nil];
 	}
 	return self;
@@ -44,14 +44,47 @@
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:MetadataArtistKey];
 	
 	[super dealloc];
 }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	[self refreshData];
+	NSSet 			*old 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeOldKey]];
+	NSSet 			*new 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeNewKey]];
+	NSMutableSet 	*added 		= [NSMutableSet setWithSet:new];
+	NSMutableSet 	*removed 	= [NSMutableSet setWithSet:old];
+	
+	[added minusSet:old];
+	[removed minusSet:new];
+	
+	// Remove the empty artists from our children
+	NSEnumerator 	*enumerator 	= nil;
+	NSString 		*artist 		= nil;
+	BrowserNode 	*node 			= nil;
+
+	if(0 != [removed count]) {
+		enumerator = [removed objectEnumerator];
+		while((artist = [enumerator nextObject])) {
+			node = [self findChildWithName:artist];
+			[self removeChild:node];
+		}
+	}
+	
+	// Add the new artists
+	if(0 != [added count]) {
+		enumerator = [added objectEnumerator];
+		[self willChangeValueForKey:@"children"];
+		while((artist = [enumerator nextObject])) {
+			node = [[ArtistNode alloc] initWithName:artist];
+			[node setParent:self];
+			[_children addObject:node];
+		}
+		[self didChangeValueForKey:@"children"];
+		
+		[self sortChildren];
+	}
 }
 
 @end
@@ -60,8 +93,7 @@
 
 - (void) refreshData
 {
-	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
-	NSArray			*artists		= [[[[[CollectionManager manager] streamManager] streams] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+	NSArray			*artists		= [[[CollectionManager manager] streamManager] valueForKey:MetadataArtistKey];
 	NSEnumerator	*enumerator		= [artists objectEnumerator];
 	NSString		*artist			= nil;
 	ArtistNode		*node			= nil;
@@ -70,7 +102,7 @@
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
 	while((artist = [enumerator nextObject])) {
-		node = [[ArtistNode alloc] initWithArtist:artist];
+		node = [[ArtistNode alloc] initWithName:artist];
 		[node setParent:self];
 		[_children addObject:node];
 	}
