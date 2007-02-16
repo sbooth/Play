@@ -30,36 +30,6 @@
 
 @implementation AlbumNode
 
-- (id) initWithAlbum:(NSString *)album
-{
-	NSParameterAssert(nil != album);
-	
-	if((self = [super initWithName:album])) {
-		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams" 
-														 options:nil
-														 context:nil];
-	}
-	return self;
-}
-
-- (void) dealloc
-{
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
-
-	[super dealloc];
-}
-
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
-	
-	// Any other change kind than NSKeyValueChangeSetting will result in AlbumsNode blowing us away so don't waste our time
-	if(NSKeyValueChangeSetting == changeKind) {
-		[self refreshData];
-	}
-}
-
 - (void) refreshData
 {
 	[self willChangeValueForKey:@"streams"];

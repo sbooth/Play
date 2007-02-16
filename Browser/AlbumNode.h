@@ -22,12 +22,11 @@
 #import "AudioStreamCollectionNode.h"
 
 // ========================================
-// A node representing a collection of AudioStreams in the specified album
+// A node representing a collection of AudioStreams in the album
+// specified by the node's name
 // ========================================
 @interface AlbumNode : AudioStreamCollectionNode
 {
 }
-
-- (id) initWithAlbum:(NSString *)album;
 
 @end

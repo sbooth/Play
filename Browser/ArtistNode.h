@@ -28,6 +28,4 @@
 {
 }
 
-- (id) initWithArtist:(NSString *)artist;
-
 @end
