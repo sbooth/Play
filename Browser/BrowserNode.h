@@ -68,6 +68,8 @@
 - (BrowserNode *) 	childAtIndex:(unsigned)index;
 - (unsigned) 		indexOfChild:(BrowserNode *)child;
 
+- (BrowserNode *) 	findChildWithName:(NSString *)name;
+
 - (BrowserNode *) 	nextSibling;
 - (BrowserNode *) 	previousSibling;
 
@@ -85,6 +87,9 @@
 
 - (void) removeChildrenAtIndexes:(NSIndexSet *)indexes;
 - (void) removeAllChildren;
+
+- (void) sortChildren;
+- (void) sortChildrenRecursively;
 
 // ========================================
 // KVC Accessors

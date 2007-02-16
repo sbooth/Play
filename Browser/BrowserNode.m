@@ -87,6 +87,11 @@
 	[super dealloc];
 }
 
+- (NSComparisonResult) compare:(BrowserNode *)node
+{
+	return [[self name] compare:[node name]];
+}
+
 #pragma mark View properties
 
 - (NSString *) name
@@ -152,6 +157,31 @@
 	NSParameterAssert(nil != child);
 
 	return [_children indexOfObject:child];
+}
+
+- (BrowserNode *) findChildWithName:(NSString *)name
+{
+	// Breadth-first search
+	NSEnumerator 	*enumerator = [_children objectEnumerator];
+	BrowserNode 	*child 		= nil;
+	BrowserNode 	*match 		= nil;
+	
+	while(match == nil && (child = [enumerator nextObject])) {
+		if([[child name] isEqualToString:name]) {
+			match = child;
+		}
+	}
+	
+	if(nil == match) {
+		enumerator 	= [_children objectEnumerator];
+		child 		= nil;
+
+		while(match == nil && (child = [enumerator nextObject])) {
+			match = [child findChildWithName:name];
+		}
+	}
+	
+	return match;
 }
 
 - (BrowserNode *) nextSibling
@@ -238,6 +268,21 @@
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[self willChangeValueForKey:@"children"];
 	[_children removeAllObjects];
+	[self didChangeValueForKey:@"children"];
+}
+
+- (void) sortChildren
+{
+	[self willChangeValueForKey:@"children"];
+	[_children sortUsingSelector:@selector(compare:)];
+	[self didChangeValueForKey:@"children"];
+}
+
+- (void) sortChildrenRecursively
+{
+	[self willChangeValueForKey:@"children"];
+	[_children sortUsingSelector:@selector(compare:)];
+	[_children makeObjectsPerformSelector:@selector(sortChildrenRecursivelyUsingSelector:)];
 	[self didChangeValueForKey:@"children"];
 }
 
