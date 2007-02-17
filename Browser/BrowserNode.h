@@ -50,6 +50,7 @@
 // View properties
 - (NSString *) 	name;
 - (void) 		setName:(NSString *)name;
+- (BOOL)		nameIsEditable;
 
 - (NSImage *) 	icon;
 - (void) 		setIcon:(NSImage *)icon;

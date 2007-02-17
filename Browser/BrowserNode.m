@@ -105,6 +105,11 @@
 	_name = [name retain];
 }
 
+- (BOOL) nameIsEditable
+{
+	return NO;
+}
+
 - (NSImage *) icon
 {
 	return _icon;
