@@ -216,40 +216,22 @@
 
 - (void) addChild:(BrowserNode *)child
 {
-	NSParameterAssert(nil != child);
-	
-	[child setParent:self];
-	[self willChangeValueForKey:@"children"];
-	[_children addObject:child];
-	[self didChangeValueForKey:@"children"];
+	[self insertObject:child inChildrenAtIndex:[_children count]];
 }
 
-- (void) addChild:(BrowserNode *)child atIndex:(unsigned)index
+- (void) insertChild:(BrowserNode *)child atIndex:(unsigned)index
 {
-	NSParameterAssert(nil != child);
-	
-	[child setParent:self];
-	[self willChangeValueForKey:@"children"];
-	[_children insertObject:child atIndex:index];
-	[self didChangeValueForKey:@"children"];
+	[self insertObject:child inChildrenAtIndex:index];
 }
 
 - (void) removeChild:(BrowserNode *)child
 {
-	NSParameterAssert(nil != child);
-	
-	[child setParent:nil];
-	[self willChangeValueForKey:@"children"];
-	[_children removeObject:child];
-	[self didChangeValueForKey:@"children"];
+	[self removeObjectFromChildrenAtIndex:[self indexOfChild:child]];
 }
 
 - (void) removeChildAtIndex:(unsigned)index
 {
-	[[_children objectAtIndex:index] setParent:nil];
-	[self willChangeValueForKey:@"children"];
-	[_children removeObjectAtIndex:index];
-	[self didChangeValueForKey:@"children"];
+	[self removeObjectFromChildrenAtIndex:index];
 }
 
 - (void) removeChildrenAtIndexes:(NSIndexSet *)indexes
@@ -309,7 +291,7 @@
 	[_children insertObject:object atIndex:index];
 }
 
-- (void) removObjectFromChildrenAtIndex:(unsigned)index
+- (void) removeObjectFromChildrenAtIndex:(unsigned)index
 {
 	[[_children objectAtIndex:index] setParent:nil];
 	[_children removeObjectAtIndex:index];

@@ -80,7 +80,7 @@
 - (void) setParent:(BrowserNode *)parent;
 
 - (void) addChild:(BrowserNode *)child;
-- (void) addChild:(BrowserNode *)child atIndex:(unsigned)index;
+- (void) insertChild:(BrowserNode *)child atIndex:(unsigned)index;
 
 - (void) removeChild:(BrowserNode *)child;
 - (void) removeChildAtIndex:(unsigned)index;
@@ -100,6 +100,6 @@
 // ========================================
 // KVC Mutators
 - (void) insertObject:(BrowserNode *)object inChildrenAtIndex:(unsigned)index;
-- (void) removObjectFromChildrenAtIndex:(unsigned)index;
+- (void) removeObjectFromChildrenAtIndex:(unsigned)index;
 
 @end
