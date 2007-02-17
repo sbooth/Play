@@ -23,6 +23,8 @@
 #import "AudioLibrary.h"
 #import "SecondsFormatter.h"
 
+#import "CTBadge.h"
+
 @interface AudioStreamTableView (Private)
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
@@ -64,13 +66,25 @@
 	}
 }
 
-// TODO: provide prettier dragging images for files (larger icons ??)
-/*
- - (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
- {
-	 return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
- }
- */
+- (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
+{
+	if(1 < [dragRows count]) {
+		NSImage		*badgeImage		= [[CTBadge systemBadge] smallBadgeForValue:[dragRows count]];
+		NSSize		badgeSize		= [badgeImage size];
+		NSImage		*dragImage		= [[NSImage alloc] initWithSize:NSMakeSize(48, 48)];
+		NSImage		*genericIcon	= [NSImage imageNamed:@"Generic"];
+
+		[genericIcon setSize:NSMakeSize(48, 48)];
+		
+		[dragImage lockFocus];
+		[badgeImage compositeToPoint:NSMakePoint(48 - badgeSize.width, 48 - badgeSize.height) operation:NSCompositeSourceOver];  
+		[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver];
+		[dragImage unlockFocus];
+				
+		return dragImage;
+	}
+	return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
+}
 
 - (NSMenu *) menuForEvent:(NSEvent *)event
 {
