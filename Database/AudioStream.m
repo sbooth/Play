@@ -64,7 +64,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	
 	AudioStream *stream = [[AudioStream alloc] init];
 	
-	// Call init: methods here to avoid sending change notifications to the context
+	// Call init: methods here to avoid sending change notifications
 	[stream initValue:URL forKey:StreamURLKey];
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];

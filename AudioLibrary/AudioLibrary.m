@@ -58,6 +58,7 @@
 #import "LibraryNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
+#import "PlaylistsNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -259,14 +260,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// Setup drag and drop
 	[_streamTable registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
-//	[_playlistTable registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
+	[_browserOutlineView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
 	
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
+		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
 
 /*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
@@ -562,43 +563,41 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) insertPlaylist:(id)sender;
 {
-/*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
-		[_playlistController addObject:playlist];
+/*		[_playlistController addObject:playlist];
 
 		[_browserDrawer open:self];
 		
 		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
 			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
-		}
-
-		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
-															object:self 
-														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
-	}*/
+		}*/
+	}
+	else {
+		NSLog(@"Unable to insert playlist.");
+	}
 }
 
 - (IBAction) insertPlaylistWithSelection:(id)sender;
 {
-/*	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
 		[playlist addStreams:[_streamController selectedObjects]];
-		[_playlistController addObject:playlist];
+/*		[_playlistController addObject:playlist];
 		
 		[_browserDrawer open:self];
 		
 		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
 			// The playlist table has only one column for now
-			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
-		}
-		
-		[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
-															object:self 
-														  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
-	}*/
+			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];
+		}*/
+	}
+	else {
+		NSLog(@"Unable to insert playlist.");
+	}
 }
 
 - (IBAction) nextPlaylist:(id)sender
@@ -1141,7 +1140,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[aCell setDrawsBackground:YES];
 			
 			// Emacs "NavajoWhite" -> 255, 222, 173
-			//				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
+//			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
 			// Emacs "LightSteelBlue" -> 176, 196, 222
 			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
 		}
@@ -1452,7 +1451,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[albumsNode addObserver:self forKeyPath:@"children" options:nil context:nil];
 	
-	BrowserNode *playlistsNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Playlists", @"General", @"")];
+	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
 	[playlistsNode setIcon:folderIcon];
 
 	BrowserNode *watchedFoldersNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")];

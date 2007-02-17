@@ -21,40 +21,12 @@
 #import <Cocoa/Cocoa.h>
 #import "BrowserNode.h"
 
-@class AudioStream;
-
 // ========================================
-// An object that is KVC-compliant for a set of AudioStreams
-// Subclasses may access _streams directly, provided they do so
-// in a KVC-compliant way
+// A node that has as children a PlaylistNode for each playlist
+// in the collection
 // ========================================
-@interface AudioStreamCollectionNode : BrowserNode
+@interface PlaylistsNode : BrowserNode
 {
-	@protected
-	NSMutableArray	*_streams;
 }
-
-// ========================================
-// Subclasses must override these methods!
-- (void) loadStreams;
-- (void) refreshStreams;
-
-- (BOOL) streamsAreOrdered;
-
-// ========================================
-// State management
-- (BOOL) canInsertStream;
-- (BOOL) canRemoveStream;
-
-// ========================================
-// KVC Accessors
-- (unsigned)		countOfStreams;
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index;
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange;
-
-// ========================================
-// KVC Mutators
-- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index;
-- (void) removeObjectFromStreamsAtIndex:(unsigned)index;
 
 @end

@@ -8,3 +8,4 @@ UPDATE 'playlists' SET
 		play_count = :play_count
 		
 	WHERE id == :id;
+	

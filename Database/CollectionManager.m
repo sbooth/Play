@@ -20,6 +20,7 @@
 
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "PlaylistManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
 #import "PlaylistEntry.h"
@@ -38,6 +39,20 @@
 
 - (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
+@end
+
+@interface PlaylistManager (CollectionManagerMethods)
+- (void) connectedToDatabase:(sqlite3 *)db;
+- (void) disconnectedFromDatabase;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) playlist:(Playlist *)playlist willChangeValueForKey:(NSString *)key;
+- (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key;
 @end
 
 @interface CollectionManager (Private)
@@ -96,10 +111,6 @@ static CollectionManager *collectionManagerInstance = nil;
 - (id) init
 {
 	if((self = [super init])) {
-		
-//		_playlists			= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 512);
-//		_playlistEntries	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 1024);
-		
 		_sql			= [[NSMutableDictionary alloc] init];
 	}
 	return self;
@@ -107,9 +118,6 @@ static CollectionManager *collectionManagerInstance = nil;
 
 - (void) dealloc
 {
-//	NSFreeMapTable(_playlists), _playlists = NULL;
-//	NSFreeMapTable(_playlistEntries), _playlistEntries = NULL;
-	
 	[_sql release], _sql = nil;
 	[_streamManager release], _streamManager = nil;
 
@@ -134,6 +142,16 @@ static CollectionManager *collectionManagerInstance = nil;
 	return _streamManager;
 }
 
+- (PlaylistManager *) playlistManager
+{
+	@synchronized(self) {
+		if(nil == _playlistManager) {
+			_playlistManager = [[PlaylistManager alloc] init];
+		}
+	}
+	return _playlistManager;
+}
+
 - (NSUndoManager *) undoManager
 {
 	@synchronized(self) {
@@ -147,8 +165,7 @@ static CollectionManager *collectionManagerInstance = nil;
 - (void) reset
 {
 	[_streamManager reset];
-	//	NSResetMapTable(_playlists);
-	//	NSResetMapTable(_playlistEntries);
+	[_playlistManager reset];
 }
 
 #pragma mark Database connections
@@ -169,6 +186,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	[self prepareSQL];
 	
 	[[self streamManager] connectedToDatabase:_db];
+	[[self playlistManager] connectedToDatabase:_db];
 }
 
 - (void) disconnectFromDatabase
@@ -176,6 +194,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
 	[[self streamManager] disconnectedFromDatabase];
+	[[self playlistManager] disconnectedFromDatabase];
 
 	[self finalizeSQL];
 	
@@ -200,6 +219,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	_updating = YES;
 	[self doBeginTransaction];
 	[_streamManager beginUpdate];
+	[_playlistManager beginUpdate];
 }
 
 - (void) finishUpdate
@@ -207,8 +227,10 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
 	[_streamManager processUpdate];
+	[_playlistManager processUpdate];
 	[self doCommitTransaction];
 	[_streamManager finishUpdate];
+	[_playlistManager finishUpdate];
 	_updating = NO;	
 }
 
@@ -217,6 +239,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
 	[_streamManager cancelUpdate];
+	[_playlistManager cancelUpdate];
 	[self doRollbackTransaction];
 	_updating = NO;
 }
@@ -245,6 +268,10 @@ static CollectionManager *collectionManagerInstance = nil;
 	if([object isKindOfClass:[AudioStream class]]) {
 		[[self streamManager] stream:(AudioStream *)object willChangeValueForKey:key];
 	}
+	else if([object isKindOfClass:[Playlist class]]) {
+		[[self playlistManager] playlist:(Playlist *)object willChangeValueForKey:key];
+	}
+	
 }
 
 - (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key
@@ -252,13 +279,9 @@ static CollectionManager *collectionManagerInstance = nil;
 	if([object isKindOfClass:[AudioStream class]]) {
 		[[self streamManager] stream:(AudioStream *)object didChangeValueForKey:key];
 	}
-/*	else if([object isKindOfClass:[Playlist class]]) {
-		[self savePlaylist:(Playlist *)object];
+	else if([object isKindOfClass:[Playlist class]]) {
+		[[self playlistManager] playlist:(Playlist *)object didChangeValueForKey:key];
 	}
-	else if([object isKindOfClass:[PlaylistEntry class]]) {
-		[self savePlaylistEntry:(PlaylistEntry *)object];
-	}
-	*/
 }
 
 /*
@@ -300,116 +323,8 @@ static CollectionManager *collectionManagerInstance = nil;
 	return [streams autorelease];
 }
 */
-#pragma mark Playlist support
 
-// ========================================
-// Retrieve all playlists from the database
-
-/*- (NSArray *) allPlaylists
-{
-	NSMutableArray	*playlists		= [[NSMutableArray alloc] init];
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_all_playlists"];
-	int				result			= SQLITE_OK;
-	Playlist		*playlist		= nil;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		playlist = [self loadPlaylist:statement];
-		[playlists addObject:playlist];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i playlists in %f seconds (%i per second)", [playlists count], elapsed, (double)[playlists count] / elapsed);
-#endif
-	
-	return [playlists autorelease];
-}
-
-- (Playlist *) playlistForID:(NSNumber *)objectID
-{
-	NSParameterAssert(nil != objectID);
-	
-	Playlist *playlist = (Playlist *)NSMapGet(_playlists, (void *)[objectID unsignedIntValue]);
-	if(nil != playlist) {
-		return playlist;
-	}
-	
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_playlist_by_id"];
-	int				result			= SQLITE_OK;
-				
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
-		playlist = [self loadPlaylist:statement];
-	}
-	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded playlist in %f seconds", elapsed);
-#endif
-	
-	return playlist;
-}
-
-- (BOOL) insertPlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	
-	return [self doInsertPlaylist:playlist];
-}
-
-- (void) savePlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	
-	if(NO == [playlist hasChanges]) {
-		return;
-	}
-	
-	[self doUpdatePlaylist:playlist];	
-	[playlist didSave];
-}
-
-- (void) deletePlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	
-	[self doDeletePlaylist:playlist];	
-}
-
-- (void) revertPlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	
-	[playlist revert];
-}
+/*
 
 - (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist
 {
@@ -740,264 +655,4 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 }
 
-#pragma mark Object Loading
-
-/*- (Playlist *) loadPlaylist:(sqlite3_stmt *)statement
-{
-	const char		*rawText		= NULL;
-	NSString		*text			= nil;
-	Playlist		*playlist		= nil;
-	unsigned		objectID;
-	
-	// The ID should never be NULL
-	NSAssert(SQLITE_NULL != sqlite3_column_type(statement, 0), @"No ID found for playlist");
-	objectID = sqlite3_column_int(statement, 0);
-	
-	playlist = (Playlist *)NSMapGet(_playlists, (void *)objectID);
-	if(nil != playlist) {
-		return playlist;
-	}
-	
-	playlist = [[Playlist alloc] initWithCollectionManager:self];
-	
-	// Playlist ID and name
-	[playlist initValue:[NSNumber numberWithInt:objectID] forKey:ObjectIDKey];
-	if(NULL != (rawText = (const char *)sqlite3_column_text(statement, 1))) {
-		text = [NSString stringWithCString:rawText encoding:NSUTF8StringEncoding];
-		[playlist initValue:text forKey:PlaylistNameKey];
-	}
-	
-	// Statistics
-	if(SQLITE_NULL != sqlite3_column_type(statement, 2)) {
-		[playlist initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 2)] forKey:StatisticsDateCreatedKey];
-	}
-	if(SQLITE_NULL != sqlite3_column_type(statement, 3)) {
-		[playlist initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 3)] forKey:StatisticsFirstPlayedDateKey];
-	}
-	if(SQLITE_NULL != sqlite3_column_type(statement, 4)) {
-		[playlist initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, 4)] forKey:StatisticsLastPlayedDateKey];
-	}
-	if(SQLITE_NULL != sqlite3_column_type(statement, 5)) {
-		[playlist initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, 5)] forKey:StatisticsPlayCountKey];
-	}
-		
-	// Register the object	
-	NSMapInsert(_playlists, (void *)objectID, (void *)playlist);
-	
-	return [playlist autorelease];
-}
-
-- (PlaylistEntry *) loadPlaylistEntry:(sqlite3_stmt *)statement
-{
-	PlaylistEntry	*entry			= nil;
-	unsigned		objectID;
-	
-	// The ID should never be NULL
-	NSAssert(SQLITE_NULL != sqlite3_column_type(statement, 0), @"No ID found for playlist");
-	objectID = sqlite3_column_int(statement, 0);
-	
-	entry = (PlaylistEntry *)NSMapGet(_playlistEntries, (void *)objectID);
-	if(nil != entry) {
-		return entry;
-	}
-	
-	entry = [[PlaylistEntry alloc] initWithCollectionManager:self];
-	
-	// Playlist ID and name
-	[entry initValue:[NSNumber numberWithInt:objectID] forKey:ObjectIDKey];
-	
-	// Statistics
-	if(SQLITE_NULL != sqlite3_column_type(statement, 1)) {
-		[entry initValue:[NSNumber numberWithUnsignedInt:sqlite3_column_int(statement, 1)] forKey:PlaylistObjectIDKey];
-	}
-	if(SQLITE_NULL != sqlite3_column_type(statement, 2)) {
-		[entry initValue:[NSNumber numberWithUnsignedInt:sqlite3_column_int(statement, 2)] forKey:AudioStreamObjectIDKey];
-	}
-	if(SQLITE_NULL != sqlite3_column_type(statement, 3)) {
-		[entry initValue:[NSNumber numberWithUnsignedInt:sqlite3_column_int(statement, 3)] forKey:PlaylistEntryPositionKey];
-	}
-	
-	// Register the object	
-	NSMapInsert(_playlistEntries, (void *)objectID, (void *)entry);
-	
-	return [entry autorelease];
-}
-*/
-
-/*#pragma mark Playlists
-
-- (BOOL) doInsertPlaylist:(Playlist *)playlist
-{
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"insert_playlist"];
-	int				result			= SQLITE_OK;
-	id				value			= nil;
-	BOOL			success			= YES;
-	
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	@try {
-		// Playlist ID and name
-		if(nil != (value = [playlist valueForKey:PlaylistNameKey])) {
-			result = sqlite3_bind_text(statement, 1, [value UTF8String], -1, SQLITE_TRANSIENT);
-			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		}
-		
-		// Statistics
-		if(nil != (value = [playlist valueForKey:StatisticsDateCreatedKey])) {
-			result = sqlite3_bind_double(statement, 2, [value timeIntervalSinceReferenceDate]);
-			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		}
-		if(nil != (value = [playlist valueForKey:StatisticsPlayCountKey])) {
-			result = sqlite3_bind_int(statement, 5, [value intValue]);
-			NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		}
-		
-		result = sqlite3_step(statement);
-		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", playlist, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		[playlist initValue:[NSNumber numberWithInt:sqlite3_last_insert_rowid(_db)] forKey:ObjectIDKey];
-		
-		result = sqlite3_reset(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		result = sqlite3_clear_bindings(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-	
-	@catch(NSException *exception) {
-		NSLog(@"%@",exception);
-		
-		// Ignore the result code, because it will always be an error in this case
-		// (sqlite3_reset returns the result of the previous operation and we are in a catch block)
-		/*result = sqlite3_reset(statement);
-		
-		success = NO;
-	}
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Playlist insertion time = %f seconds", elapsed);
-#endif
-	
-	return success;
-}
-
-- (void) doUpdatePlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	//	NSParameterAssert(nil != [stream valueForKey:ObjectIDKey]);
-	
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_playlist"];
-	int				result			= SQLITE_OK;
-	unsigned		objectID		= [[playlist valueForKey:ObjectIDKey] unsignedIntValue];
-	NSDictionary	*changes		= [playlist changes];
-	
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), objectID);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	[self bindPlaylistValues:playlist toStatement:statement];
-	
-	result = sqlite3_step(statement);
-	NSAssert2(SQLITE_DONE == result, @"Unable to update the record for %@ (%@).", playlist, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_clear_bindings(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream update time = %f seconds", elapsed);
-#endif
-	
-	// Reset the object with the stored values
-	[playlist initValuesForKeysWithDictionary:changes];
-}
-
-- (void) doDeletePlaylist:(Playlist *)playlist
-{
-	NSParameterAssert(nil != playlist);
-	//	NSParameterAssert(nil != [playlist valueForKey:ObjectIDKey]);
-	
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"delete_playlist"];
-	int				result			= SQLITE_OK;
-	unsigned		objectID		= [[playlist valueForKey:ObjectIDKey] unsignedIntValue];
-	
-	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
-	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
-	
-#if SQL_DEBUG
-	clock_t start = clock();
-#endif
-	
-	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), objectID);
-	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert2(SQLITE_DONE == result, @"Unable to delete the record for %@ (%@).", playlist, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_reset(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_clear_bindings(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-#if SQL_DEBUG
-	clock_t end = clock();
-	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream delete time = %f seconds", elapsed);
-#endif
-	
-	// Deregister the object
-	NSMapRemove(_playlists, (void *)objectID);
-}
-
-- (void) bindPlaylistValues:(Playlist *)playlist toStatement:(sqlite3_stmt *)statement
-{
-	NSParameterAssert(nil != playlist);
-	NSParameterAssert(NULL != statement);
-	
-	int				result			= SQLITE_OK;
-	id				value			= nil;
-	
-	// Location
-	if(nil != (value = [playlist valueForKey:PlaylistNameKey])) {
-		result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":name"), [value UTF8String], -1, SQLITE_TRANSIENT);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-	
-	// Statistics
-	if(nil != (value = [playlist valueForKey:StatisticsDateCreatedKey])) {
-		result = sqlite3_bind_double(statement, sqlite3_bind_parameter_index(statement, ":date_created"), [value timeIntervalSinceReferenceDate]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-	if(nil != (value = [playlist valueForKey:StatisticsFirstPlayedDateKey])) {
-		result = sqlite3_bind_double(statement, sqlite3_bind_parameter_index(statement, ":first_played_date"), [value timeIntervalSinceReferenceDate]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-	if(nil != (value = [playlist valueForKey:StatisticsLastPlayedDateKey])) {
-		result = sqlite3_bind_double(statement, sqlite3_bind_parameter_index(statement, ":last_played_date"), [value timeIntervalSinceReferenceDate]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-	if(nil != (value = [playlist valueForKey:StatisticsPlayCountKey])) {
-		result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":play_count"), [value intValue]);
-		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
-}
-*/
 @end

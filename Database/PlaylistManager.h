@@ -21,49 +21,44 @@
 #import <Cocoa/Cocoa.h>
 #include "sqlite3.h"
 
-@class AudioStream;
 @class Playlist;
 
 // ========================================
-// Class that provides access to the AudioStream objects contained
+// Class that provides access to the Playlist objects contained
 // in the database managed by the CollectionManager
 // Provides a single, unique object for each stream
 // This class does not guarantee fast access!
-// This class is KVC-compliant (read only) for the key "streams" and all
-// keys supported by AudioStream
+// This class is KVC-compliant (read only) for the key "playlists" and all
+// keys supported by Playlist
 // ========================================
-@interface AudioStreamManager : NSObject
+@interface PlaylistManager : NSObject
 {
 	@private
 	sqlite3					*_db;					// The database to use, owned by CollectionManager
 	NSMutableDictionary		*_sql;					// Prepared SQL statements
 	
-	NSMapTable 				*_registeredStreams;	// Registered streams
-	NSMutableArray			*_cachedStreams;		// Current state of all streams from the database
+	NSMapTable 				*_registeredPlaylists;	// Registered playlists
+	NSMutableArray			*_cachedPlaylists;		// Current state of all playlists from the database
 	
-	NSMutableSet			*_insertedStreams;		// Streams inserted during a transaction
-	NSMutableSet			*_updatedStreams;		// Streams updated during a transaction
-	NSMutableSet			*_deletedStreams;		// Streams deleted during a transaction
+	NSMutableSet			*_insertedPlaylists;	// Playlists inserted during a transaction
+	NSMutableSet			*_updatedPlaylists;		// Playlists updated during a transaction
+	NSMutableSet			*_deletedPlaylists;		// Playlists deleted during a transaction
 	
 	BOOL					_updating;				// Indicates if a transaction is in progress
 	
-	NSArray					*_streamKeys;			// AudioStream (aggregate) keys this object supports
+	NSArray					*_playlistKeys;			// Playlist (aggregate) keys this object supports
 }
 
 // ========================================
-// AudioStream support
-- (NSArray *) streams;
+// Playlist support
+- (NSArray *) playlists;
 
-- (AudioStream *) streamForID:(NSNumber *)objectID;
-- (AudioStream *) streamForURL:(NSURL *)url;
+- (Playlist *) playlistForID:(NSNumber *)objectID;
 
-- (NSArray *) streamsForArtist:(NSString *)artist;
-- (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
-
-- (BOOL) insertStream:(AudioStream *)stream;
-- (void) saveStream:(AudioStream *)stream;
-- (void) deleteStream:(AudioStream *)stream;
-- (void) revertStream:(AudioStream *)stream;
+- (BOOL) insertPlaylist:(Playlist *)playlist;
+- (void) savePlaylist:(Playlist *)playlist;
+- (void) deletePlaylist:(Playlist *)playlist;
+- (void) revertPlaylist:(Playlist *)playlist;
 
 // ========================================
 // Metadata support

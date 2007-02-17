@@ -13,6 +13,9 @@
 		8C06F02E0B866F2D00E8ADB6 /* CTBadge_4.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0280B866F2D00E8ADB6 /* CTBadge_4.pdf */; };
 		8C06F02F0B866F2D00E8ADB6 /* CTBadge_5.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0290B866F2D00E8ADB6 /* CTBadge_5.pdf */; };
 		8C06F0310B866F2D00E8ADB6 /* CTBadge.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F02B0B866F2D00E8ADB6 /* CTBadge.m */; };
+		8C06F19A0B86B2BC00E8ADB6 /* PlaylistsNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F1980B86B2BC00E8ADB6 /* PlaylistsNode.m */; };
+		8C06F7D40B86BE8100E8ADB6 /* PlaylistManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F7D20B86BE8100E8ADB6 /* PlaylistManager.m */; };
+		8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
 		8C1A634B0B7E8873008A04AB /* BrowserOutlineViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63450B7E8872008A04AB /* BrowserOutlineViewDataSource.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
@@ -261,6 +264,12 @@
 		8C06F0290B866F2D00E8ADB6 /* CTBadge_5.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_5.pdf; sourceTree = "<group>"; };
 		8C06F02A0B866F2D00E8ADB6 /* CTBadge.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTBadge.h; path = ThirdParty/CTBadge/CTBadge.h; sourceTree = "<group>"; };
 		8C06F02B0B866F2D00E8ADB6 /* CTBadge.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CTBadge.m; path = ThirdParty/CTBadge/CTBadge.m; sourceTree = "<group>"; };
+		8C06F1970B86B2BC00E8ADB6 /* PlaylistsNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistsNode.h; path = Browser/PlaylistsNode.h; sourceTree = "<group>"; };
+		8C06F1980B86B2BC00E8ADB6 /* PlaylistsNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistsNode.m; path = Browser/PlaylistsNode.m; sourceTree = "<group>"; };
+		8C06F7D10B86BE8100E8ADB6 /* PlaylistManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistManager.h; path = Database/PlaylistManager.h; sourceTree = "<group>"; };
+		8C06F7D20B86BE8100E8ADB6 /* PlaylistManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistManager.m; path = Database/PlaylistManager.m; sourceTree = "<group>"; };
+		8C06F8770B86C9D800E8ADB6 /* PlaylistNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistNode.h; path = Browser/PlaylistNode.h; sourceTree = "<group>"; };
+		8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistNode.m; path = Browser/PlaylistNode.m; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
 		8C1A63410B7E8872008A04AB /* BrowserNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserNode.m; path = Browser/BrowserNode.m; sourceTree = "<group>"; };
 		8C1A63440B7E8872008A04AB /* BrowserOutlineViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserOutlineViewDataSource.h; path = Browser/BrowserOutlineViewDataSource.h; sourceTree = "<group>"; };
@@ -556,8 +565,6 @@
 		8CC1B6C20B7BB1E5006BF010 /* Playlist.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Playlist.m; path = Database/Playlist.m; sourceTree = "<group>"; };
 		8CC1B7F70B7C4D03006BF010 /* delete_playlist_trigger.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_playlist_trigger.sql; path = SQL/delete_playlist_trigger.sql; sourceTree = "<group>"; };
 		8CC1B7FF0B7C4D1D006BF010 /* delete_stream_trigger.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_stream_trigger.sql; path = SQL/delete_stream_trigger.sql; sourceTree = "<group>"; };
-		8CC1B82E0B7C58C6006BF010 /* PlaylistEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaylistEntry.h; path = Database/PlaylistEntry.h; sourceTree = "<group>"; };
-		8CC1B82F0B7C58C6006BF010 /* PlaylistEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistEntry.m; path = Database/PlaylistEntry.m; sourceTree = "<group>"; };
 		8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseObject.h; path = Database/DatabaseObject.h; sourceTree = "<group>"; };
 		8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseObject.m; path = Database/DatabaseObject.m; sourceTree = "<group>"; };
 		8CC1B9BC0B7C6C67006BF010 /* select_playlist_entries_for_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_entries_for_playlist.sql; path = SQL/select_playlist_entries_for_playlist.sql; sourceTree = "<group>"; };
@@ -744,6 +751,10 @@
 				8CB3E4CD0B84592100B5F8A3 /* AlbumsNode.m */,
 				8CB3E4D40B84592D00B5F8A3 /* AlbumNode.h */,
 				8CB3E4D50B84592D00B5F8A3 /* AlbumNode.m */,
+				8C06F1970B86B2BC00E8ADB6 /* PlaylistsNode.h */,
+				8C06F1980B86B2BC00E8ADB6 /* PlaylistsNode.m */,
+				8C06F8770B86C9D800E8ADB6 /* PlaylistNode.h */,
+				8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */,
 			);
 			name = Browser;
 			sourceTree = "<group>";
@@ -759,10 +770,10 @@
 				8CC1B6C00B7BB1E5006BF010 /* AudioStream.m */,
 				8CC1B6C10B7BB1E5006BF010 /* Playlist.h */,
 				8CC1B6C20B7BB1E5006BF010 /* Playlist.m */,
-				8CC1B82E0B7C58C6006BF010 /* PlaylistEntry.h */,
-				8CC1B82F0B7C58C6006BF010 /* PlaylistEntry.m */,
 				8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */,
 				8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */,
+				8C06F7D10B86BE8100E8ADB6 /* PlaylistManager.h */,
+				8C06F7D20B86BE8100E8ADB6 /* PlaylistManager.m */,
 			);
 			name = Database;
 			sourceTree = "<group>";
@@ -1419,6 +1430,9 @@
 				8CB3E4D70B84592D00B5F8A3 /* AlbumNode.m in Sources */,
 				8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */,
 				8C06F0310B866F2D00E8ADB6 /* CTBadge.m in Sources */,
+				8C06F19A0B86B2BC00E8ADB6 /* PlaylistsNode.m in Sources */,
+				8C06F7D40B86BE8100E8ADB6 /* PlaylistManager.m in Sources */,
+				8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

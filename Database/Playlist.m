@@ -20,6 +20,7 @@
 
 #import "Playlist.h"
 #import "CollectionManager.h"
+#import "PlaylistManager.h"
 #import "AudioStreamManager.h"
 
 NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
@@ -28,38 +29,69 @@ NSString * const	PlaylistNameKey							= @"name";
 
 NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
+@interface AudioStreamManager (PlaylistManagerMethods)
+- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+@end
+
+@interface Playlist (PlaylistNodeMethods)
+- (void) loadStreams;
+@end
+
 @implementation Playlist
+
++ (void) initialize
+{
+	[self exposeBinding:@"streams"];
+}
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues
 {
 	Playlist *playlist = [[Playlist alloc] init];
 	
-	// Call init: methods here to avoid sending change notifications to the context
+	// Call init: methods here to avoid sending change notifications
 	[playlist initValue:[NSDate date] forKey:StatisticsDateCreatedKey];
 	[playlist initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[CollectionManager playlistManager] insertPlaylist:playlist]) {
+	if(NO == [[[CollectionManager manager] playlistManager] insertPlaylist:playlist]) {
 		[playlist release], playlist = nil;
 	}
 	
 	return [playlist autorelease];
 }
 
-- (NSArray *) entries
+- (id) init
 {
-	return [[CollectionManager playlistManager] playlistEntriesForPlaylist:self];
+	if((self = [super init])) {
+		_streams = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
+
+- (void) dealloc
+{
+	[_streams release], _streams = nil;
+	
+	[super dealloc];
 }
 
 - (NSArray *) streams
 {
-	return [[CollectionManager playlistManager] streamsForPlaylist:self];
+	return _streams;
+}
+
+- (AudioStream *) streamAtIndex:(unsigned)index
+{
+	return [self objectInStreamsAtIndex:index];
 }
 
 - (void) addStream:(AudioStream *)stream
 {
-	NSParameterAssert(nil != stream);
-	
-	[self addStreams:[NSArray arrayWithObject:stream]];
+	[self insertObject:stream inStreamsAtIndex:[_streams count]];
+}
+
+- (void) insertStream:(AudioStream *)stream atIndex:(unsigned)index
+{
+	[self insertObject:stream inStreamsAtIndex:index];
 }
 
 - (void) addStreams:(NSArray *)streams
@@ -69,52 +101,81 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	
 	NSEnumerator	*enumerator		= [streams objectEnumerator];
 	AudioStream		*stream			= nil;
-
+	
 	[[CollectionManager manager] beginUpdate];
 	
 	while((stream = [enumerator nextObject])) {
-		[[CollectionManager playlistManager] addStream:stream toPlaylist:self];
+		[self addStream:stream];
 	}
-
+	
 	[[CollectionManager manager] finishUpdate];
 }
 
+- (void) insertStreams:(NSArray *)streams atIndexes:(NSIndexSet *)indexes
+{
+	NSParameterAssert(nil != streams);
+	NSParameterAssert(nil != indexes);
+	NSParameterAssert(0 != [streams count]);
+	NSParameterAssert([streams count] == [indexes count]);
+	
+	unsigned i;
+	
+	[[CollectionManager manager] beginUpdate];
+
+	for(i = 0; i < [streams count]; ++i) {
+		[self insertObject:[streams objectAtIndex:i] inStreamsAtIndex:[indexes objectAtIndex:i]];
+	}
+	
+	[[CollectionManager manager] finishUpdate];
+}
 
 - (void) addStreamWithID:(NSNumber *)objectID
 {
-	NSParameterAssert(nil != objectID);
-
 	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-	if(nil != stream) {
-		[self addStream:stream];
-	}
+	[self insertObject:stream inStreamsAtIndex:[_streams count]];
 }
 
-- (void) addStreamsWithIDs:(NSArray *)objectIDs
+- (void) insertStreamWithID:(NSNumber *)objectID atIndex:(unsigned)index
 {
-	NSParameterAssert(nil != objectIDs);
-	NSParameterAssert(0 != [objectIDs count]);
-	
-	NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
-	NSNumber		*objectID		= nil;
-	AudioStream		*stream			= nil;
-	NSMutableArray	*streams		= [NSMutableArray array];
-	
-	while((objectID = [enumerator nextObject])) {
-		stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-		if(nil != stream) {
-			[streams addObject:stream];
-		}
-	}
-	
-	if(0 != [streams count]) {
-		[self addStreams:streams];
-	}
+	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
+	[self insertObject:stream inStreamsAtIndex:index];
+}
 
-/*	NSArray *streams = [[self databaseContext] streamsForIDs:objectIDs];
-	if(nil != streams && 0 != [streams count]) {
-		[self addStreams:streams];
-	}*/
+//- (void) addStreamsWithIDs:(NSArray *)objectIDs;
+//- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes;
+
+- (void) removeStreamAtIndex:(unsigned)index
+{
+	[self removeObjectFromStreamsAtIndex:index];
+}
+
+#pragma mark KVC Accessors
+
+- (unsigned) countOfStreams
+{
+	return [_streams count];
+}
+
+- (AudioStream *) objectInStreamsAtIndex:(unsigned)index
+{
+	return [_streams objectAtIndex:index];
+}
+
+- (void) getStreams:(id *)buffer range:(NSRange)range
+{
+	return [_streams getObjects:buffer range:range];
+}
+
+#pragma mark KVC Mutators
+
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
+{
+	[_streams insertObject:stream atIndex:index];
+}
+
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index
+{
+	[_streams removeObjectAtIndex:index];
 }
 
 - (BOOL) isPlaying							{ return _playing; }
@@ -157,6 +218,18 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 			nil];
 	}	
 	return _supportedKeys;
+}
+
+@end
+
+@implementation Playlist (PlaylistNodeMethods)
+
+- (void) loadStreams
+{
+	[self willChangeValueForKey:@"streams"];
+	[_streams removeAllObjects];
+	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForPlaylist:self]];
+	[self didChangeValueForKey:@"streams"];
 }
 
 @end

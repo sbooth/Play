@@ -32,10 +32,8 @@
 	sqlite3					*_db;				// The database
 	NSMutableDictionary		*_sql;				// Prepared SQL statements
 	
-//	NSMapTable				*_playlists;		// Registered playlists
-//	NSMapTable				*_playlistEntries;	// Registered playlist entries
-	
 	AudioStreamManager		*_streamManager;
+	PlaylistManager			*_playlistManager;
 	
 	NSUndoManager			*_undoManager;		// For undo/redo management
 	
@@ -49,7 +47,7 @@
 // ========================================
 // Access to the collection
 - (AudioStreamManager *) 	streamManager;
-//- (PlaylistManager *) 		playlistManager;
+- (PlaylistManager *) 		playlistManager;
 
 // ========================================
 // Database connection
@@ -73,31 +71,6 @@
 
 - (void) databaseObject:(DatabaseObject *)object willChangeValueForKey:(NSString *)key;
 - (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key;
-
-// ========================================
-// Playlist support
-/*- (NSArray *) allPlaylists;
-- (Playlist *) playlistForID:(NSNumber *)objectID;
-
-- (BOOL) insertPlaylist:(Playlist *)playlist;
-- (void) savePlaylist:(Playlist *)playlist;
-- (void) deletePlaylist:(Playlist *)playlist;
-- (void) revertPlaylist:(Playlist *)playlist;
-
-- (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
-
-// ========================================
-// PlaylistEntry support
-- (NSArray *) playlistEntriesForPlaylist:(Playlist *)playlist;
-- (PlaylistEntry *) playlistEntryForID:(NSNumber *)objectID;
-
-//- (BOOL) insertPlaylist:(Playlist *)playlist;
-//- (void) savePlaylist:(Playlist *)playlist;
-//- (void) deletePlaylist:(Playlist *)playlist;
-//- (void) revertPlaylist:(Playlist *)playlist;
-
-//- (void) addStream:(AudioStream *)stream toPlaylist:(Playlist *)playlist;
-*/
 
 // ========================================
 // UndoManager for tracking changes to registered objects

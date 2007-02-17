@@ -46,27 +46,45 @@ extern NSString * const		StatisticsPlayCountKey;
 
 @interface Playlist : DatabaseObject
 {
-	BOOL	_playing;
+	@private
+	NSMutableArray	*_streams;
+	BOOL			_playing;
 }
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues;
 
 // ========================================
-// Returns an array of PlaylistEntries contained in this Playlist
-- (NSArray *) entries;
-
-
+// Stream management
 - (NSArray *) streams;
+- (AudioStream *) streamAtIndex:(unsigned)index;
 
 - (void) addStream:(AudioStream *)stream;
+- (void) insertStream:(AudioStream *)stream atIndex:(unsigned)index;
+
 - (void) addStreams:(NSArray *)streams;
+- (void) insertStreams:(NSArray *)streams atIndexes:(NSIndexSet *)indexes;
 
 - (void) addStreamWithID:(NSNumber *)objectID;
-- (void) addStreamsWithIDs:(NSArray *)objectIDs;
+- (void) insertStreamWithID:(NSNumber *)objectID atIndex:(unsigned)index;
 
-- (void) removeStream:(AudioStream *)stream;
-- (void) removeStreams:(NSArray *)streams;
+//- (void) addStreamsWithIDs:(NSArray *)objectIDs;
+//- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes;
 
+- (void) removeStreamAtIndex:(unsigned)index;
+
+// ========================================
+// KVC Accessors
+- (unsigned)		countOfStreams;
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index;
+- (void)			getStreams:(id *)buffer range:(NSRange)range;
+
+// ========================================
+// KVC Mutators
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index;
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index;
+
+// ========================================
+// Object state
 - (BOOL) isPlaying;
 - (void) setPlaying:(BOOL)playing;
 

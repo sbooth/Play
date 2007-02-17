@@ -19,6 +19,7 @@
  */
 
 #import "BrowserOutlineViewDataSource.h"
+#import "BrowserNode.h"
 
 @implementation BrowserOutlineViewDataSource
 
@@ -45,5 +46,24 @@
 
 - (void) outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {}
+
+#pragma mark Drag and Drop
+
+- (NSDragOperation) outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
+{
+	BrowserNode *node = [item observedObject];
+	
+	return NSDragOperationCopy;
+}
+
+- (void) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
+{
+	
+}
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
+{
+	return NO;
+}
 
 @end

@@ -46,6 +46,8 @@
 - (void) refreshStreams
 {}
 
+- (BOOL) streamsAreOrdered		{ return NO; }
+
 #pragma mark State management
 
 - (BOOL) canInsertStream		{ return YES; }
