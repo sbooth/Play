@@ -264,10 +264,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
-		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:PropertiesFormatTypeKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
 
 /*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
@@ -576,7 +577,17 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}*/
 	}
 	else {
-		NSLog(@"Unable to insert playlist.");
+/*		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:NSLocalizedStringFromTable(@"OK", @"General", @"")];
+		[alert setMessageText:NSLocalizedStringFromTable(@"Unable to create the playlist.", @"Errors", @"")];
+		[alert setInformativeText:@"Playlists must have a unique name."];
+		[alert setAlertStyle:NSInformationalAlertStyle];
+		
+		if(NSAlertFirstButtonReturn == [alert runModal]) {
+		} 
+		
+		[alert release];*/
+		NSLog(@"Unable to create the playlist.");
 	}
 }
 
@@ -1185,10 +1196,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return (NO == [selectedNode isDescendantOfNode:item]);
 }*/
 
-/*- (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
+- (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-	return NO;
-}*/
+	BrowserNode *node = [item observedObject];
+	return [node nameIsEditable];
+}
 
 - (NSString *) outlineView:(NSOutlineView *)ov toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)tc item:(id)item mouseLocation:(NSPoint)mouseLocation
 {
