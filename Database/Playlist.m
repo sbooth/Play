@@ -29,8 +29,16 @@ NSString * const	PlaylistNameKey							= @"name";
 
 NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
-@interface AudioStreamManager (PlaylistManagerMethods)
+@interface AudioStreamManager (PlaylistMethods)
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+@end
+
+@interface PlaylistManager (PlaylistMethods)
+- (void) playlist:(Playlist *)playlist willInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+
+- (void) playlist:(Playlist *)playlist willRemoveStreamAtIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didRemoveStreamAtIndex:(unsigned)index;
 @end
 
 @interface Playlist (PlaylistNodeMethods)
@@ -170,12 +178,16 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
+	[[[CollectionManager manager] playlistManager] playlist:self willInsertStream:stream atIndex:index];
 	[_streams insertObject:stream atIndex:index];
+	[[[CollectionManager manager] playlistManager] playlist:self didInsertStream:stream atIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
+	[[[CollectionManager manager] playlistManager] playlist:self willRemoveStreamAtIndex:index];
 	[_streams removeObjectAtIndex:index];
+	[[[CollectionManager manager] playlistManager] playlist:self didRemoveStreamAtIndex:index];
 }
 
 - (BOOL) isPlaying							{ return _playing; }

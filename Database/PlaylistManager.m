@@ -39,6 +39,14 @@
 - (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key;
 @end
 
+@interface PlaylistManager (PlaylistMethods)
+- (void) playlist:(Playlist *)playlist willInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+
+- (void) playlist:(Playlist *)playlist willRemoveStreamAtIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didRemoveStreamAtIndex:(unsigned)index;
+@end
+
 @interface PlaylistManager (Private)
 - (void) 			prepareSQL;
 - (void) 			finalizeSQL;
@@ -54,6 +62,8 @@
 - (BOOL) doInsertPlaylist:(Playlist *)playlist;
 - (void) doUpdatePlaylist:(Playlist *)playlist;
 - (void) doDeletePlaylist:(Playlist *)playlist;
+
+- (void) doUpdatePlaylistEntriesForPlaylist:(Playlist *)playlist;
 
 - (NSArray *) playlistKeys;
 @end
@@ -438,6 +448,26 @@
 
 @end
 
+@implementation PlaylistManager (PlaylistMethods)
+
+- (void) playlist:(Playlist *)playlist willInsertStream:(AudioStream *)stream atIndex:(unsigned)index
+{}
+
+- (void) playlist:(Playlist *)playlist didInsertStream:(AudioStream *)stream atIndex:(unsigned)index
+{
+	[self doUpdatePlaylistEntriesForPlaylist:playlist];
+}
+
+- (void) playlist:(Playlist *)playlist willRemoveStreamAtIndex:(unsigned)index
+{}
+
+- (void) playlist:(Playlist *)playlist didRemoveStreamAtIndex:(unsigned)index
+{
+	[self doUpdatePlaylistEntriesForPlaylist:playlist];
+}
+
+@end
+
 @implementation PlaylistManager (Private)
 
 #pragma mark Prepared SQL Statements
@@ -449,7 +479,8 @@
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
-		@"select_all_playlists", @"select_playlist_by_id", @"insert_playlist", @"update_playlist", @"delete_playlist", nil];
+		@"select_all_playlists", @"select_playlist_by_id", @"insert_playlist", @"update_playlist", @"delete_playlist", 
+		@"delete_playlist_entries_for_playlist", @"insert_playlist_entry", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	int				result				= SQLITE_OK;
@@ -703,6 +734,70 @@
 	
 	// Deregister the object
 	NSMapRemove(_registeredPlaylists, (void *)objectID);
+}
+
+// TODO: Would it be better to update the rows instead of deleting and re-inserting them?
+- (void) doUpdatePlaylistEntriesForPlaylist:(Playlist *)playlist
+{
+	NSParameterAssert(nil != playlist);
+	//	NSParameterAssert(nil != [playlist valueForKey:ObjectIDKey]);
+	
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"delete_playlist_entries_for_playlist"];
+	int				result			= SQLITE_OK;
+	unsigned		objectID		= [[playlist valueForKey:ObjectIDKey] unsignedIntValue];
+	
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+#if SQL_DEBUG
+	clock_t start = clock();
+#endif*/
+	
+	// First delete the old playlist entries for the playlist
+	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":playlist_id"), objectID);
+	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_step(statement);
+	NSAssert2(SQLITE_DONE == result, @"Unable to delete the record for %@ (%@).", playlist, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_reset(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_clear_bindings(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+	// And then insert the new ones
+	statement = [self preparedStatementForAction:@"insert_playlist_entry"];
+	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
+	
+	unsigned		index		= 0;
+	NSArray			*streams	= [playlist streams];
+	AudioStream		*stream		= nil;
+	
+	for(index = 0; index < [streams count]; ++index) {
+		stream = [streams objectAtIndex:index];
+		
+		bindParameter(statement, 1, playlist, ObjectIDKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 2, stream, ObjectIDKey, eObjectTypeUnsignedInteger);
+//		bindParameter(statement, 3, playlist, StatisticsLastPlayedDateKey, eObjectTypeDate);
+		result = sqlite3_bind_int(statement, 3, index);	
+		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter %i to sql statement.", 3/*, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]*/);
+
+		result = sqlite3_step(statement);
+		NSAssert4(SQLITE_DONE == result, @"Unable to insert a record for %@ in %@ at index %i (%@).", stream, playlist, index, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_reset(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		
+		result = sqlite3_clear_bindings(statement);
+		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	}
+	
+#if SQL_DEBUG
+	clock_t end = clock();
+	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
+	NSLog(@"Playlist stream update time = %f seconds", elapsed);
+#endif
 }
 
 - (NSArray *) playlistKeys
