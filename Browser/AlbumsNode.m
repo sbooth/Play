@@ -51,8 +51,8 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSSet 			*old 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeOldKey]];
-	NSSet 			*new 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeNewKey]];
+	NSArray			*old 		= [change valueForKey:NSKeyValueChangeOldKey];
+	NSArray			*new 		= [change valueForKey:NSKeyValueChangeNewKey];
 	BOOL			needsSort	= NO;
 	
 	// Remove any modified nodes with empty streams from our children
