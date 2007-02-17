@@ -58,6 +58,14 @@
 	[self refreshStreams];
 }
 
+- (void) setName:(NSString *)name
+{
+	[_name release];
+	_name = [name retain];
+	[[self playlist] setValue:_name forKey:PlaylistNameKey];
+}
+
+- (BOOL) nameIsEditable			{ return YES; }
 - (BOOL) streamsAreOrdered		{ return YES; }
 
 - (void) loadStreams
