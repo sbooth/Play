@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F0220B866F1900E8ADB6 /* CTGradient.m */; };
+		8C06F02C0B866F2D00E8ADB6 /* CTBadge_1.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */; };
+		8C06F02D0B866F2D00E8ADB6 /* CTBadge_3.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0270B866F2D00E8ADB6 /* CTBadge_3.pdf */; };
+		8C06F02E0B866F2D00E8ADB6 /* CTBadge_4.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0280B866F2D00E8ADB6 /* CTBadge_4.pdf */; };
+		8C06F02F0B866F2D00E8ADB6 /* CTBadge_5.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0290B866F2D00E8ADB6 /* CTBadge_5.pdf */; };
+		8C06F0310B866F2D00E8ADB6 /* CTBadge.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F02B0B866F2D00E8ADB6 /* CTBadge.m */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
 		8C1A634B0B7E8873008A04AB /* BrowserOutlineViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63450B7E8872008A04AB /* BrowserOutlineViewDataSource.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
@@ -247,6 +253,14 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Play_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Play_Prefix.pch; sourceTree = "<group>"; };
+		8C06F0210B866F1900E8ADB6 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ThirdParty/CTGradient/CTGradient.h; sourceTree = "<group>"; };
+		8C06F0220B866F1900E8ADB6 /* CTGradient.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CTGradient.m; path = ThirdParty/CTGradient/CTGradient.m; sourceTree = "<group>"; };
+		8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_1.pdf; sourceTree = "<group>"; };
+		8C06F0270B866F2D00E8ADB6 /* CTBadge_3.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_3.pdf; sourceTree = "<group>"; };
+		8C06F0280B866F2D00E8ADB6 /* CTBadge_4.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_4.pdf; sourceTree = "<group>"; };
+		8C06F0290B866F2D00E8ADB6 /* CTBadge_5.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_5.pdf; sourceTree = "<group>"; };
+		8C06F02A0B866F2D00E8ADB6 /* CTBadge.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTBadge.h; path = ThirdParty/CTBadge/CTBadge.h; sourceTree = "<group>"; };
+		8C06F02B0B866F2D00E8ADB6 /* CTBadge.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CTBadge.m; path = ThirdParty/CTBadge/CTBadge.m; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
 		8C1A63410B7E8872008A04AB /* BrowserNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserNode.m; path = Browser/BrowserNode.m; sourceTree = "<group>"; };
 		8C1A63440B7E8872008A04AB /* BrowserOutlineViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserOutlineViewDataSource.h; path = Browser/BrowserOutlineViewDataSource.h; sourceTree = "<group>"; };
@@ -680,6 +694,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8C06F0190B866EA700E8ADB6 /* CTGradient */ = {
+			isa = PBXGroup;
+			children = (
+				8C06F0210B866F1900E8ADB6 /* CTGradient.h */,
+				8C06F0220B866F1900E8ADB6 /* CTGradient.m */,
+			);
+			name = CTGradient;
+			sourceTree = "<group>";
+		};
+		8C06F01C0B866EB500E8ADB6 /* CTBadge */ = {
+			isa = PBXGroup;
+			children = (
+				8C06F0250B866F2D00E8ADB6 /* badges */,
+				8C06F02A0B866F2D00E8ADB6 /* CTBadge.h */,
+				8C06F02B0B866F2D00E8ADB6 /* CTBadge.m */,
+			);
+			name = CTBadge;
+			sourceTree = "<group>";
+		};
+		8C06F0250B866F2D00E8ADB6 /* badges */ = {
+			isa = PBXGroup;
+			children = (
+				8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */,
+				8C06F0270B866F2D00E8ADB6 /* CTBadge_3.pdf */,
+				8C06F0280B866F2D00E8ADB6 /* CTBadge_4.pdf */,
+				8C06F0290B866F2D00E8ADB6 /* CTBadge_5.pdf */,
+			);
+			name = badges;
+			path = ThirdParty/CTBadge/badges;
+			sourceTree = "<group>";
+		};
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
@@ -737,6 +782,8 @@
 			isa = PBXGroup;
 			children = (
 				8C9C23FA0B7249E000CE799A /* AIPlasticButton */,
+				8C06F01C0B866EB500E8ADB6 /* CTBadge */,
+				8C06F0190B866EA700E8ADB6 /* CTGradient */,
 				8C5BD5F50B7EFBCB000DE945 /* IconFamily */,
 				8C9C24F80B724AE500CE799A /* ImageAndTextCell */,
 				8C9C30C60B73277000CE799A /* SFMT */,
@@ -1237,6 +1284,10 @@
 				8C6639070B7FAAAD00A226F0 /* Ogg.icns in Resources */,
 				8C6639080B7FAAAD00A226F0 /* WAV.icns in Resources */,
 				8C663A210B7FB1C800A226F0 /* Library.icns in Resources */,
+				8C06F02C0B866F2D00E8ADB6 /* CTBadge_1.pdf in Resources */,
+				8C06F02D0B866F2D00E8ADB6 /* CTBadge_3.pdf in Resources */,
+				8C06F02E0B866F2D00E8ADB6 /* CTBadge_4.pdf in Resources */,
+				8C06F02F0B866F2D00E8ADB6 /* CTBadge_5.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1366,6 +1417,8 @@
 				8CB3DEFF0B837FAE00B5F8A3 /* ArtistNode.m in Sources */,
 				8CB3E4CF0B84592100B5F8A3 /* AlbumsNode.m in Sources */,
 				8CB3E4D70B84592D00B5F8A3 /* AlbumNode.m in Sources */,
+				8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */,
+				8C06F0310B866F2D00E8ADB6 /* CTBadge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1430,8 +1483,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1469,8 +1524,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
