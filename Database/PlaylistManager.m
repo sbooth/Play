@@ -149,24 +149,20 @@
 {
 	NSParameterAssert(nil != playlist);
 	
-	BOOL result = YES;
+	BOOL result;
 	
 	if([self updateInProgress]) {
 		[_insertedPlaylists addObject:playlist];
 	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:0];
-		
-		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
-		
+	
 		result = [self doInsertPlaylist:playlist];
 		if(result) {
+			[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
 			[_cachedPlaylists addObject:playlist];	
-		}
-		
-		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
-		
-		if(result) {
+			[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
+
 			[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
@@ -210,8 +206,8 @@
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedPlaylists indexOfObject:playlist]];
 		
-		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"playlists"];
 		[self doDeletePlaylist:playlist];
+		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"playlists"];
 		[_cachedPlaylists removeObject:playlist];	
 		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"playlists"];
 		

@@ -203,24 +203,20 @@
 {
 	NSParameterAssert(nil != stream);
 
-	BOOL result = YES;
+	BOOL result;
 	
 	if([self updateInProgress]) {
 		[_insertedStreams addObject:stream];
 	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:0];
-		
-		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 
 		result = [self doInsertStream:stream];
 		if(result) {
+			[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 			[_cachedStreams addObject:stream];	
-		}
+			[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		
-		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
-		
-		if(result) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
