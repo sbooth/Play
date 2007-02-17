@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS 'playlists' (
 
 	'id' 					INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	
-	'name' 					TEXT,
+	'name' 					TEXT UNIQUE,
 
 	'date_created' 			REAL,
 	'first_played_date' 	REAL,
