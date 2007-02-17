@@ -39,7 +39,7 @@
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
 @end
 
-@interface AudioStreamManager (PlaylistManagerMethods)
+@interface AudioStreamManager (PlaylistMethods)
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist;
 @end
 
@@ -492,7 +492,7 @@
 
 @end
 
-@implementation AudioStreamManager (PlaylistManagerMethods)
+@implementation AudioStreamManager (PlaylistMethods)
 
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist
 {
