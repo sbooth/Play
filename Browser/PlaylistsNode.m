@@ -51,13 +51,72 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	BOOL			needsSort	= NO;
+	NSArray			*old			= [change valueForKey:NSKeyValueChangeOldKey];
+	NSArray			*new			= [change valueForKey:NSKeyValueChangeNewKey];
+	int				changeKind		= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
+	BOOL			needsSort		= NO;
+	NSEnumerator	*enumerator		= nil;
+	BrowserNode		*node			= nil;
+	Playlist		*playlist		= nil;
+	unsigned		i;
+	
+	NSLog(@"changeKind = %@",[change valueForKey:NSKeyValueChangeKindKey]);
+	NSLog(@"old = %@",[change valueForKey:NSKeyValueChangeOldKey]);
+	NSLog(@"new = %@",[change valueForKey:NSKeyValueChangeNewKey]);
+	
+	switch(changeKind) {
+		case NSKeyValueChangeInsertion:
+			enumerator = [new objectEnumerator];
+			while((playlist = [enumerator nextObject])) {
+				node = [[PlaylistNode alloc] initWithPlaylist:playlist];
+				[self addChild:node];
+			}
+			break;
+
+		case NSKeyValueChangeRemoval:
+			enumerator = [old objectEnumerator];
+			while((playlist = [enumerator nextObject])) {
+				node = [self findChildWithName:[playlist valueForKey:PlaylistNameKey]];
+				if(nil != node) {
+					[self removeChild:node];
+				}
+			}
+			break;
+
+		case NSKeyValueChangeSetting:
+			for(i = 0; i < [new count]; ++i) {
+				playlist = [old objectAtIndex:i];
+				node = [self findChildWithName:[playlist valueForKey:PlaylistNameKey]];
+				if(nil != node) {
+					playlist = [new objectAtIndex:i];
+					[node setName:[playlist valueForKey:PlaylistNameKey]];
+				}
+			}
+			break;
+			
+		case NSKeyValueChangeReplacement:
+			NSLog(@"PlaylistsNode REPLACEMENT !! (?)");
+			break;
+	}
 	
 	if(needsSort) {
 		[self sortChildren];
 	}
 }
 
+#pragma mark KVC Mutator Overrides
+
+- (void) removeObjectFromChildrenAtIndex:(unsigned)index
+{
+	BrowserNode *node = [self childAtIndex:index];
+	
+/*	if([node isPlaying]) {
+		[[AudioLibrary library] stop:self];
+	}*/
+	
+	[[node playlist] delete];
+	[super removeObjectFromChildrenAtIndex:index];
+}
 
 @end
 
