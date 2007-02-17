@@ -1117,31 +1117,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 @implementation AudioLibrary (NSTableViewDelegateMethods)
 
-- (void) tableViewSelectionDidChange:(NSNotification *)aNotification
-{
-/*	if([[aNotification object] isEqual:_playlistTable]) {
-		
-		unsigned count = [[_playlistController selectedObjects] count];
-		
-		if(0 == count) {
-			[self willChangeValueForKey:@"streams"];
-			[_streams removeAllObjects];
-			[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streams]];
-			[self didChangeValueForKey:@"streams"];
-		}
-		else if(1 == count) {
-			Playlist *playlist = [[_playlistController selectedObjects] objectAtIndex:0];
-			[self willChangeValueForKey:@"streams"];
-			[_streams removeAllObjects];
-			[_streams addObjectsFromArray:[[playlist entries] valueForKey:@"stream"]];
-			[self didChangeValueForKey:@"streams"];
-		}
-		else {
-			// SELECT [...] FROM streams WHERE id IN (SELECT stream_id FROM _playlist_9) OR id IN (SELECT stream_id FROM _playlist_10)
-		}		
-	}*/
-}
-
 - (NSString *) tableView:(NSTableView *)aTableView toolTipForCell:(NSCell *)aCell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
 {
     if([aCell isKindOfClass:[NSTextFieldCell class]]) {
@@ -1155,59 +1130,43 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
-/*	if([aTableView isEqual:_playlistTable] && [[aTableColumn identifier] isEqualToString:@"name"]) {
-		NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
+	NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
 
-		if(nil != infoForBinding) {
-			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
-			Playlist			*playlist			= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+	if(nil != infoForBinding && [aCell respondsToSelector:@selector(setDrawsBackground:)]) {
+		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
+		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+		
+		// Highlight the currently playing stream (doesn't work for NSButtonCell)
+		if([stream isPlaying]) {
+			[aCell setDrawsBackground:YES];
 			
-//			[aCell setImage:[playlistObject imageScaledToSize:NSMakeSize(16.0, 16.0)]];
+			// Emacs "NavajoWhite" -> 255, 222, 173
+			//				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
+			// Emacs "LightSteelBlue" -> 176, 196, 222
+			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
 		}
-	}
-	else*/ if([aTableView isEqual:_streamTable]) {
-		NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
-
-		if(nil != infoForBinding && [aCell respondsToSelector:@selector(setDrawsBackground:)]) {
-			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
-			AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
-			
-			// Highlight the currently playing stream (doesn't work for NSButtonCell)
-			if([stream isPlaying]) {
-				[aCell setDrawsBackground:YES];
-				
-				// Emacs "NavajoWhite" -> 255, 222, 173
-				//				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
-				// Emacs "LightSteelBlue" -> 176, 196, 222
-				[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
-			}
-			else {
-				[aCell setDrawsBackground:NO];
-			}
+		else {
+			[aCell setDrawsBackground:NO];
 		}
 	}
 }
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
 {
-	if([[aNotification object] isEqual:_streamTable]) {
-		[self saveStreamTableColumnOrder];
-	}
+	[self saveStreamTableColumnOrder];
 }
 
 - (void) tableViewColumnDidResize:(NSNotification *)aNotification
 {
-	if([[aNotification object] isEqual:_streamTable]) {
-		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
-		NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
-		id						column;
-		
-		while((column = [enumerator nextObject])) {
-			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
-		}
-		
-		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
+	NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
+	NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
+	id						column;
+	
+	while((column = [enumerator nextObject])) {
+		[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
 	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
 }
 
 @end
@@ -1251,33 +1210,29 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
 {
-	NSOutlineView *outlineView = [notification object];
-	
-	if([[notification object] isEqual:_browserOutlineView]) {
-		
-		int					selectedRow		= [outlineView selectedRow];
-		id					opaqueNode		= [outlineView itemAtRow:selectedRow];
-		BrowserNode			*node			= [opaqueNode observedObject];
+	NSOutlineView		*outlineView	= [notification object];
+	int					selectedRow		= [outlineView selectedRow];
+	id					opaqueNode		= [outlineView itemAtRow:selectedRow];
+	BrowserNode			*node			= [opaqueNode observedObject];
 
-		if(nil == node) {
-			return;
-		}
+	if(nil == node) {
+		return;
+	}
+	
+	NSArray				*selected		= [_streamController selectedObjects];
+	
+	// Display the appropriate set of streams if the selected node supports it
+	if([[node exposedBindings] containsObject:@"streams"]) {
 		
-		NSArray				*selected		= [_streamController selectedObjects];
-		
-		// Display the appropriate set of streams if the selected node supports it
-		if([[node exposedBindings] containsObject:@"streams"]) {
+		// Don't re-bind to the same data source
+		NSDictionary *bindingInfo = [_streamController infoForBinding:@"contentArray"];
+		if(NO == [[bindingInfo valueForKey:NSObservedObjectKey] isEqual:node]) {
+			[_streamController unbind:@"contentArray"];
+			[_streamController setContent:nil];
 			
-			// Don't re-bind to the same data source
-			NSDictionary *bindingInfo = [_streamController infoForBinding:@"contentArray"];
-			if(NO == [[bindingInfo valueForKey:NSObservedObjectKey] isEqual:node]) {
-				[_streamController unbind:@"contentArray"];
-				[_streamController setContent:nil];
-				
-				[_streamController bind:@"contentArray" toObject:node withKeyPath:@"streams" options:nil];
-				[_streamController setSelectedObjects:selected];
-			}			
-		}
+			[_streamController bind:@"contentArray" toObject:node withKeyPath:@"streams" options:nil];
+			[_streamController setSelectedObjects:selected];
+		}			
 	}
 }
 
