@@ -164,7 +164,14 @@
 	return [_children indexOfObject:child];
 }
 
-- (BrowserNode *) findChildWithName:(NSString *)name
+- (unsigned) indexOfChildIdenticalTo:(BrowserNode *)child
+{
+	NSParameterAssert(nil != child);
+	
+	return [_children indexOfObjectIdenticalTo:child];
+}
+
+- (BrowserNode *) findChildNamed:(NSString *)name
 {
 	// Breadth-first search
 	NSEnumerator 	*enumerator = [_children objectEnumerator];
@@ -182,7 +189,7 @@
 		child 		= nil;
 
 		while(match == nil && (child = [enumerator nextObject])) {
-			match = [child findChildWithName:name];
+			match = [child findChildNamed:name];
 		}
 	}
 	

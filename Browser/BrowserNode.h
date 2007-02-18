@@ -68,8 +68,9 @@
 
 - (BrowserNode *) 	childAtIndex:(unsigned)index;
 - (unsigned) 		indexOfChild:(BrowserNode *)child;
+- (unsigned) 		indexOfChildIdenticalTo:(BrowserNode *)child;
 
-- (BrowserNode *) 	findChildWithName:(NSString *)name;
+- (BrowserNode *) 	findChildNamed:(NSString *)name;
 
 - (BrowserNode *) 	nextSibling;
 - (BrowserNode *) 	previousSibling;
