@@ -30,11 +30,6 @@
 
 @implementation AudioStreamArrayController
 
-- (void) awakeFromNib
-{
-	[_tableView registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
-}
-
 - (BOOL) tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
 	NSArray				*objects		= [[self arrangedObjects] objectsAtIndexes:rowIndexes];
@@ -64,12 +59,13 @@
 {
 	NSDragOperation dragOperation = NSDragOperationNone;
 	
-	// Move rows if this is an internal drag
-	if(tableView == [info draggingSource] /* && [streamsAreOrdered] */) {
+	// Move rows if this is an internal drag and the library is displaying an ordered set of streams
+	if(tableView == [info draggingSource] && [[AudioLibrary library] streamsAreOrdered]) {
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 		dragOperation = NSDragOperationMove;
-	}	
-	else {
+	}
+	// Otherwise it is a copy if the drag isn't internal
+	else if(tableView != [info draggingSource]) {
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 		dragOperation = NSDragOperationCopy;
 	}
@@ -79,17 +75,15 @@
 
 - (BOOL) tableView:(NSTableView*)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
 {
-
-	
     if(0 > row) {
 		row = 0;
 	}
 	
 	// First handle internal drops
     if(_tableView == [info draggingSource]) {
-		/*if(NO == [streamsAreOrdered]) {
+		if(NO == [[AudioLibrary library] streamsAreOrdered]) {
 			return NO;
-		}*/
+		}
 		
 		NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:@"AudioStreamPboardType"];
 		NSIndexSet		*indexSet		= [self indexSetForRows:objectIDs];
