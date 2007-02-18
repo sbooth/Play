@@ -34,16 +34,16 @@
                 "_addPlaylistButton" = NSButton; 
                 "_addStreamsButton" = NSButton; 
                 "_albumArtImageView" = NSImageView; 
-                "_browserController" = NSTreeController; 
+                "_browserController" = BrowserTreeController; 
                 "_browserDrawer" = NSDrawer; 
-                "_browserOutlineView" = NSOutlineView; 
+                "_browserOutlineView" = BrowserOutlineView; 
                 "_playPauseButton" = NSButton; 
                 "_playlistInfoButton" = NSButton; 
                 "_removePlaylistsButton" = NSButton; 
                 "_removeStreamsButton" = NSButton; 
-                "_streamController" = NSArrayController; 
+                "_streamController" = AudioStreamArrayController; 
                 "_streamInfoButton" = NSButton; 
-                "_streamTable" = NSTableView; 
+                "_streamTable" = AudioStreamTableView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
@@ -52,6 +52,12 @@
             LANGUAGE = ObjC; 
             OUTLETS = {"_library" = AudioLibrary; }; 
             SUPERCLASS = NSWindow; 
+        }, 
+        {
+            CLASS = AudioStreamArrayController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_tableView" = NSTableView; }; 
+            SUPERCLASS = NSArrayController; 
         }, 
         {
             ACTIONS = {
@@ -66,14 +72,16 @@
             SUPERCLASS = NSTableView; 
         }, 
         {
-            CLASS = AudioStreamTableViewDataSource; 
+            CLASS = BrowserOutlineView; 
             LANGUAGE = ObjC; 
-            SUPERCLASS = NSObject; 
+            OUTLETS = {"_browserController" = NSTreeController; }; 
+            SUPERCLASS = NSOutlineView; 
         }, 
         {
-            CLASS = BrowserOutlineViewDataSource; 
+            CLASS = BrowserTreeController; 
             LANGUAGE = ObjC; 
-            SUPERCLASS = NSObject; 
+            OUTLETS = {"_outlineView" = NSOutlineView; }; 
+            SUPERCLASS = NSTreeController; 
         }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
