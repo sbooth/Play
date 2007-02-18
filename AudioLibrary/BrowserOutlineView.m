@@ -22,27 +22,11 @@
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 
-#import "CTBadge.h"
-
-/*@interface AudioStreamTableView (Private)
-- (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-@end*/
-
 @implementation BrowserOutlineView
 
 - (void) awakeFromNib
 {
 	[self registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
-}
-
-/*- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
-{
-	if([menuItem action] == @selector(convertWithMax:)) {
-		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"]);
-	}
-	else {
-		return YES;
-	}
 }
 
 - (void) keyDown:(NSEvent *)event
@@ -51,36 +35,16 @@
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
 	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
-		if(-1 == [self selectedRow]) {
+		if(-1 == [self selectedRow] || NO == [_browserController canRemove]) {
 			NSBeep();
 		}
 		else {
-			[[AudioLibrary library] removeSelectedStreams:event];
+			[_browserController remove:event];
 		}
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 
 	}
-}*/
-
-- (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
-{
-	if(1 < [dragRows count]) {
-		NSImage		*badgeImage		= [[CTBadge systemBadge] smallBadgeForValue:[dragRows count]];
-		NSSize		badgeSize		= [badgeImage size];
-		NSImage		*dragImage		= [[NSImage alloc] initWithSize:NSMakeSize(48, 48)];
-		NSImage		*genericIcon	= [NSImage imageNamed:@"Generic"];
-		
-		[genericIcon setSize:NSMakeSize(48, 48)];
-		
-		[dragImage lockFocus];
-		[badgeImage compositeToPoint:NSMakePoint(48 - badgeSize.width, 48 - badgeSize.height) operation:NSCompositeSourceOver];  
-		[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver];
-		[dragImage unlockFocus];
-		
-		return dragImage;
-	}
-	return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
 }
 
 /*- (NSMenu *) menuForEvent:(NSEvent *)event
@@ -96,58 +60,6 @@
 	
 	return nil;
 }
-
-- (IBAction) openWithFinder:(id)sender
-{
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] openFile:path];
-}
-
-- (IBAction) revealInFinder:(id)sender
-{
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
-}
-
-- (IBAction) convertWithMax:(id)sender
-{
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
-}
-
-- (IBAction) openWith:(id)sender
-{
-	NSOpenPanel		*panel				= [NSOpenPanel openPanel];
-	NSArray			*paths				= NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSLocalDomainMask, YES);
-	NSString		*applicationFolder	= (0 == [paths count] ? nil : [paths objectAtIndex:0]);
-	
-	[panel beginSheetForDirectory:applicationFolder 
-							 file:nil
-							types:[NSArray arrayWithObject:@"app"] 
-				   modalForWindow:[self window] 
-					modalDelegate:self 
-				   didEndSelector:@selector(openWithPanelDidEnd:returnCode:contextInfo:) 
-					  contextInfo:NULL];	
-}
 */
-@end
-/*
-@implementation AudioStreamTableView (Private)
-
-- (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{	
-	if(NSOKButton == returnCode) {
-		NSString		*path				= [[[_streamController selection] valueForKey:StreamURLKey] path];
-		NSArray			*applications		= [panel filenames];
-		NSString		*applicationPath	= nil;
-		unsigned		i;
-		
-		for(i = 0; i < [applications count]; ++i) {
-			applicationPath = [applications objectAtIndex:i];
-			[[NSWorkspace sharedWorkspace] openFile:path withApplication:applicationPath];
-		}
-	}
-}
 
 @end
-*/
