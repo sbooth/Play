@@ -25,4 +25,6 @@
 	IBOutlet NSOutlineView *_outlineView;
 }
 
+- (BOOL) canInsertPlaylist;
+
 @end

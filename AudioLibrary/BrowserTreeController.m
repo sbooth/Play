@@ -56,7 +56,31 @@
 	return nil;
 }
 
-#pragma mark Delegate Methods
+#pragma mark Overrides
+
+- (BOOL) canInsertPlaylist
+{
+	return [self canInsert];
+}
+
+// Allow removal if all selected items are PlaylistNodes or subclasses
+- (BOOL) canRemove
+{
+	NSEnumerator	*enumerator		= [[self selectedObjects] objectEnumerator];
+	BrowserNode		*node			= nil;
+	
+	while((node = [enumerator nextObject])) {
+		if(NO == [node isKindOfClass:[PlaylistNode class]]) {
+			return NO;
+		}
+	}
+	return YES;
+}
+
+- (BOOL) canInsert
+{
+	return YES;
+}
 
 #pragma mark Drag and Drop
 
