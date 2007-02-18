@@ -26,7 +26,7 @@
 
 - (void) awakeFromNib
 {
-	[self registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
+	[self registerForDraggedTypes:[NSArray arrayWithObject:AudioStreamPboardType]];
 }
 
 - (void) keyDown:(NSEvent *)event

@@ -20,6 +20,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+// ========================================
+// Pboard Types
+// ========================================
+extern NSString * const		AudioStreamPboardType;
+
 @interface BrowserTreeController : NSTreeController
 {
 	IBOutlet NSOutlineView *_outlineView;

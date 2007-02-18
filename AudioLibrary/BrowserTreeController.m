@@ -100,7 +100,7 @@
 	}
 	
 	PlaylistNode	*playlistNode	= (PlaylistNode *)node;
-	NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:@"AudioStreamPboardType"];
+	NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:AudioStreamPboardType];
 	
 	[[playlistNode playlist] addStreamsWithIDs:objectIDs];
 	

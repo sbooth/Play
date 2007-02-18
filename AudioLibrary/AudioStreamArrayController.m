@@ -22,6 +22,12 @@
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 
+// ========================================
+// Pboard Types
+// ========================================
+NSString * const AudioStreamPboardType					= @"org.sbooth.Play.AudioStream.PboardType";
+NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibrary.AudioStreamTable.MovedRowsPboardType";
+
 @interface AudioStreamArrayController (Private)
 - (void) moveObjectsInArrangedObjectsFromIndexes:(NSIndexSet *)indexSet toIndex:(unsigned)insertIndex;
 - (NSIndexSet *) indexSetForRows:(NSArray *)rows;
@@ -46,11 +52,15 @@
 		[filenames addObject:[[stream valueForKey:StreamURLKey] path]];
 	}
 	
-	[pboard declareTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
-	[pboard addTypes:[NSArray arrayWithObjects:@"AudioStreamPboardType", NSFilenamesPboardType, nil] owner:nil];
+	[pboard declareTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, nil] owner:nil];
+	[pboard addTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, nil] owner:nil];
 	
-	success = [pboard setPropertyList:objectIDs forType:@"AudioStreamPboardType"];
+	success = [pboard setPropertyList:objectIDs forType:AudioStreamPboardType];
 	success &= [pboard setPropertyList:filenames forType:NSFilenamesPboardType];
+	
+	// Copy the row numbers to the pasteboard
+    NSData *indexData = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
+	success &= [pboard setData:indexData forType:AudioStreamTableMovedRowsPboardType];
 	
 	return success;
 }
@@ -85,18 +95,18 @@
 			return NO;
 		}
 		
-		NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:@"AudioStreamPboardType"];
-		NSIndexSet		*indexSet		= [self indexSetForRows:objectIDs];
+		NSData			*indexData		= [[info draggingPasteboard] dataForType:AudioStreamTableMovedRowsPboardType];
+		NSIndexSet		*rowIndexes		= [NSKeyedUnarchiver unarchiveObjectWithData:indexData];
 		int				rowsAbove;
 		NSRange			range;
 		
-		[self moveObjectsInArrangedObjectsFromIndexes:indexSet toIndex:row];
+		[self moveObjectsInArrangedObjectsFromIndexes:rowIndexes toIndex:row];
 		
-		rowsAbove	= [self rowsAboveRow:row inIndexSet:indexSet];
-		range		= NSMakeRange(row - rowsAbove, [indexSet count]);
-		indexSet	= [NSIndexSet indexSetWithIndexesInRange:range];
+		rowsAbove	= [self rowsAboveRow:row inIndexSet:rowIndexes];
+		range		= NSMakeRange(row - rowsAbove, [rowIndexes count]);
+		rowIndexes	= [NSIndexSet indexSetWithIndexesInRange:range];
 		
-		[self setSelectionIndexes:indexSet];
+		[self setSelectionIndexes:rowIndexes];
 		
 		return YES;
 	}

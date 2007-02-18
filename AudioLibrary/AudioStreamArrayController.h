@@ -20,6 +20,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+// ========================================
+// Pboard Types
+// ========================================
+extern NSString * const		AudioStreamPboardType;
+extern NSString * const		AudioStreamTableMovedRowsPboardType;
+
 @interface AudioStreamArrayController : NSArrayController
 {
 	IBOutlet NSTableView *_tableView;
