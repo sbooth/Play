@@ -19,13 +19,42 @@
  */
 
 #import "BrowserTreeController.h"
+#import "BrowserNode.h"
+
+// ========================================
+// Completely bogus NSTreeController bindings hack
+// ========================================
+@interface NSObject (NSTreeControllerBogosity)
+- (id) observedObject;
+@end
 
 @implementation BrowserTreeController
 
-- (void) awakeFromNib
+// An outline view data source MUST implement these methods
+// Just return 0 and nil to fall back to bindings
+#pragma mark Required data source methods
+
+- (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	[_outlineView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
+	return 0;
 }
+
+- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
+{
+	return NO;
+}
+
+- (id) outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
+{
+	return nil;
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
+{
+	return nil;
+}
+
+#pragma mark Drag and Drop
 
 - (NSDragOperation) outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
 {
@@ -37,11 +66,6 @@
 - (void) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
 {
 	
-}
-
-- (BOOL) outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
-{
-	return NO;
 }
 
 @end
