@@ -36,7 +36,7 @@
 		[self loadChildren];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataAlbumTitleKey
-														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
+														 options:nil
 														 context:nil];
 	}
 	return self;
@@ -51,49 +51,8 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSArray			*old 		= [change valueForKey:NSKeyValueChangeOldKey];
-	NSArray			*new 		= [change valueForKey:NSKeyValueChangeNewKey];
-	BOOL			needsSort	= NO;
-	
-	// Remove any modified nodes with empty streams from our children
-	NSEnumerator 	*enumerator 	= nil;
-	NSString 		*album			= nil;
-	BrowserNode 	*node 			= nil;
-	
-	if(0 != [old count]) {
-		enumerator = [old objectEnumerator];
-		while((album = [enumerator nextObject])) {
-			node = [self findChildWithName:album];
-			if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
-				[(AudioStreamCollectionNode *)node refreshStreams];
-				if(0 == [(AudioStreamCollectionNode *)node countOfStreams]) {
-					[self removeChild:node];
-					needsSort = YES;
-				}
-			}
-		}
-	}
-	
-	// Add the new albums
-	if(0 != [new count]) {
-		enumerator = [new objectEnumerator];
-		while((album = [enumerator nextObject])) {
-			node = [self findChildWithName:album];
-
-			if(nil == node) {
-				node = [[AlbumNode alloc] initWithName:album];
-				[self addChild:[node autorelease]];
-				node = nil;
-				needsSort = YES;
-			}
-		}
-	}
-	
-	if(needsSort) {
-		[self sortChildren];
-	}
+	[self loadChildren];
 }
-
 
 @end
 
@@ -101,7 +60,9 @@
 
 - (void) loadChildren
 {
-	NSArray			*albums			= [[[CollectionManager manager] streamManager] valueForKey:MetadataAlbumTitleKey];
+	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataAlbumTitleKey];
+	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
+	NSArray			*albums			= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
 	NSEnumerator	*enumerator		= [albums objectEnumerator];
 	NSString		*album			= nil;
 	AlbumNode		*node			= nil;

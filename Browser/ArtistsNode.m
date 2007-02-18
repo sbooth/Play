@@ -36,7 +36,7 @@
 		[self loadChildren];
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataArtistKey
-														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
+														 options:nil
 														 context:nil];
 	}
 	return self;
@@ -51,46 +51,7 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	NSSet 			*old 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeOldKey]];
-	NSSet 			*new 		= [NSSet setWithArray:[change valueForKey:NSKeyValueChangeNewKey]];
-	BOOL			needsSort	= NO;
-	
-	// Remove any modified nodes with empty streams from our children
-	NSEnumerator 	*enumerator 	= nil;
-	NSString 		*artist 		= nil;
-	BrowserNode 	*node 			= nil;
-
-	if(0 != [old count]) {
-		enumerator = [old objectEnumerator];
-		while((artist = [enumerator nextObject])) {
-			node = [self findChildWithName:artist];
-			if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
-				[(AudioStreamCollectionNode *)node refreshStreams];
-				if(0 == [(AudioStreamCollectionNode *)node countOfStreams]) {
-					[self removeChild:node];
-					needsSort = YES;
-				}
-			}
-		}
-	}
-	
-	// Add the new artists if they don't already exist
-	if(0 != [new count]) {
-		enumerator = [new objectEnumerator];
-		while((artist = [enumerator nextObject])) {
-			node = [self findChildWithName:artist];
-			if(nil == node) {
-				node = [[ArtistNode alloc] initWithName:artist];
-				[self addChild:[node autorelease]];
-				node = nil;
-				needsSort = YES;
-			}
-		}
-	}
-	
-	if(needsSort) {
-		[self sortChildren];
-	}
+	[self loadChildren];
 }
 
 @end
@@ -99,11 +60,13 @@
 
 - (void) loadChildren
 {
-	NSArray			*artists		= [[[CollectionManager manager] streamManager] valueForKey:MetadataArtistKey];
+	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
+	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
+	NSArray			*artists		= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
 	NSEnumerator	*enumerator		= [artists objectEnumerator];
 	NSString		*artist			= nil;
 	ArtistNode		*node			= nil;
-	
+
 	[self willChangeValueForKey:@"children"];
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
