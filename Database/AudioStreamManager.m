@@ -209,7 +209,7 @@
 		[_insertedStreams addObject:stream];
 	}
 	else {
-		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:0];
+		NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([_cachedStreams count], 1)];
 
 		result = [self doInsertStream:stream];
 		if(result) {
@@ -293,8 +293,7 @@
 - (id) valueForKey:(NSString *)key
 {
 	if([[self streamKeys] containsObject:key]) {
-		NSString *keyName = [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", key];
-		return [[[self streams] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+		return [[self streams] valueForKey:key];
 	}
 	else {
 		return [super valueForKey:key];
@@ -419,7 +418,7 @@
 	// ========================================
 	// And finally inserts
 	if(0 != [_insertedStreams count]) {
-		[indexes addIndexesInRange:NSMakeRange(0, [_insertedStreams count])];
+		[indexes addIndexesInRange:NSMakeRange([_cachedStreams count], [_insertedStreams count])];
 
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [[_insertedStreams allObjects] objectEnumerator];
@@ -464,30 +463,22 @@
 
 - (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key
 {
-	id			value	= [stream valueForKey:key];
-	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
+	unsigned index = [_cachedStreams indexOfObject:stream];
 	
-	if(NSNotFound == index) {
-		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
-	}
-	else {
-		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
+	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown stream passed to stream:willChangeValueForKey:", @"Errors", @""));
+	
+	[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
 }
 
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key
 {
-	id			value	= [stream valueForKey:key];
-	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
-	
+	unsigned	index	= [_cachedStreams indexOfObject:stream];
+
+	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown stream passed to stream:didChangeValueForKey:", @"Errors", @""));
+
 	[self saveStream:stream];
 	
-	if(NSNotFound == index) {
-		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
-	}
-	else {
-		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
+	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
 }
 
 @end

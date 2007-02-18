@@ -165,7 +165,7 @@
 		[_insertedPlaylists addObject:playlist];
 	}
 	else {
-		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:0];
+		NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([_cachedPlaylists count], 1)];
 	
 		result = [self doInsertPlaylist:playlist];
 		if(result) {
@@ -249,8 +249,7 @@
 - (id) valueForKey:(NSString *)key
 {
 	if([[self playlistKeys] containsObject:key]) {
-		NSString *keyName = [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", key];
-		return [[[self playlists] valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+		return [[self playlists] valueForKey:key];
 	}
 	else {
 		return [super valueForKey:key];
@@ -375,7 +374,7 @@
 	// ========================================
 	// And finally inserts
 	if(0 != [_insertedPlaylists count]) {
-		[indexes addIndexesInRange:NSMakeRange(0, [_insertedPlaylists count])];
+		[indexes addIndexesInRange:NSMakeRange([_cachedPlaylists count], [_insertedPlaylists count])];
 		
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
 		enumerator = [[_insertedPlaylists allObjects] objectEnumerator];
@@ -420,30 +419,22 @@
 
 - (void) playlist:(Playlist *)playlist willChangeValueForKey:(NSString *)key
 {
-	id			value	= [playlist valueForKey:key];
-	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
+	unsigned index = [_cachedPlaylists indexOfObject:playlist];
 	
-	if(NSNotFound == index) {
-		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
-	}
-	else {
-		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
+	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown playlist passed to playlist:willChangeValueForKey:", @"Errors", @""));
+	
+	[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
 }
 
 - (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key
 {
-	id			value	= [playlist valueForKey:key];
-	unsigned	index	= [[self valueForKey:key] indexOfObject:value];
+	unsigned index = [_cachedPlaylists indexOfObject:playlist];
 	
+	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown playlist passed to playlist:didChangeValueForKey:", @"Errors", @""));
+
 	[self savePlaylist:playlist];
 	
-	if(NSNotFound == index) {
-		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:[NSIndexSet indexSetWithIndex:0] forKey:key];
-	}
-	else {
-		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
+	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
 }
 
 @end
