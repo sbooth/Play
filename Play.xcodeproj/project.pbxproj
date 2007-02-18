@@ -19,7 +19,6 @@
 		8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */; };
 		8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
-		8C1A634B0B7E8873008A04AB /* BrowserOutlineViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63450B7E8872008A04AB /* BrowserOutlineViewDataSource.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
@@ -193,7 +192,9 @@
 		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
 		8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */; };
-		8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */; };
+		8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */; };
+		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
+		8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */; };
 		8CB3DC240B82E0E400B5F8A3 /* LibraryNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DC220B82E0E400B5F8A3 /* LibraryNode.m */; };
 		8CB3DDE90B83058C00B5F8A3 /* AudioStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DDE50B83058C00B5F8A3 /* AudioStreamManager.m */; };
 		8CB3DDEB0B83058C00B5F8A3 /* CollectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DDE70B83058C00B5F8A3 /* CollectionManager.m */; };
@@ -205,7 +206,6 @@
 		8CBEF1B50B7733770067CAE1 /* begin_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */; };
 		8CBEF1BB0B77338C0067CAE1 /* commit_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1BA0B77338C0067CAE1 /* commit_transaction.sql */; };
 		8CBEF1C70B7735140067CAE1 /* rollback_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1C60B7735140067CAE1 /* rollback_transaction.sql */; };
-		8CBEF7720B780B780067CAE1 /* PlaylistTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CBEF7700B780B780067CAE1 /* PlaylistTableViewDataSource.m */; };
 		8CBEF7FE0B78374B0067CAE1 /* create_playlist_table.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3DD40B741F4300CE799A /* create_playlist_table.sql */; };
 		8CBEF8080B7837A70067CAE1 /* select_all_playlists.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF8070B7837A70067CAE1 /* select_all_playlists.sql */; };
 		8CBEF8350B785BA80067CAE1 /* insert_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF8340B785BA80067CAE1 /* insert_playlist.sql */; };
@@ -274,8 +274,6 @@
 		8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_playlist_entry.sql; path = SQL/insert_playlist_entry.sql; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
 		8C1A63410B7E8872008A04AB /* BrowserNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserNode.m; path = Browser/BrowserNode.m; sourceTree = "<group>"; };
-		8C1A63440B7E8872008A04AB /* BrowserOutlineViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserOutlineViewDataSource.h; path = Browser/BrowserOutlineViewDataSource.h; sourceTree = "<group>"; };
-		8C1A63450B7E8872008A04AB /* BrowserOutlineViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserOutlineViewDataSource.m; path = Browser/BrowserOutlineViewDataSource.m; sourceTree = "<group>"; };
 		8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_url.sql; path = SQL/select_stream_by_url.sql; sourceTree = "<group>"; };
 		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
@@ -531,8 +529,12 @@
 		8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioMetadataEditingSheet.h; path = AudioLibrary/AudioMetadataEditingSheet.h; sourceTree = "<group>"; };
 		8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataEditingSheet.m; path = AudioLibrary/AudioMetadataEditingSheet.m; sourceTree = "<group>"; };
 		8C9C40210B745B4700CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioMetadataEditingSheet.nib; sourceTree = "<group>"; };
-		8C9C406B0B74655B00CE799A /* AudioStreamTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamTableViewDataSource.h; path = AudioLibrary/AudioStreamTableViewDataSource.h; sourceTree = "<group>"; };
-		8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamTableViewDataSource.m; path = AudioLibrary/AudioStreamTableViewDataSource.m; sourceTree = "<group>"; };
+		8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamArrayController.h; path = AudioLibrary/AudioStreamArrayController.h; sourceTree = "<group>"; };
+		8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamArrayController.m; path = AudioLibrary/AudioStreamArrayController.m; sourceTree = "<group>"; };
+		8CAFB6530B87A35800B3A0EB /* BrowserTreeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BrowserTreeController.h; path = AudioLibrary/BrowserTreeController.h; sourceTree = "<group>"; };
+		8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BrowserTreeController.m; path = AudioLibrary/BrowserTreeController.m; sourceTree = "<group>"; };
+		8CAFB6980B87A6AB00B3A0EB /* BrowserOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BrowserOutlineView.h; path = AudioLibrary/BrowserOutlineView.h; sourceTree = "<group>"; };
+		8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BrowserOutlineView.m; path = AudioLibrary/BrowserOutlineView.m; sourceTree = "<group>"; };
 		8CB3DC210B82E0E400B5F8A3 /* LibraryNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibraryNode.h; path = Browser/LibraryNode.h; sourceTree = "<group>"; };
 		8CB3DC220B82E0E400B5F8A3 /* LibraryNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LibraryNode.m; path = Browser/LibraryNode.m; sourceTree = "<group>"; };
 		8CB3DDE40B83058C00B5F8A3 /* AudioStreamManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamManager.h; path = Database/AudioStreamManager.h; sourceTree = "<group>"; };
@@ -550,8 +552,6 @@
 		8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = begin_transaction.sql; path = SQL/begin_transaction.sql; sourceTree = "<group>"; };
 		8CBEF1BA0B77338C0067CAE1 /* commit_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = commit_transaction.sql; path = SQL/commit_transaction.sql; sourceTree = "<group>"; };
 		8CBEF1C60B7735140067CAE1 /* rollback_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = rollback_transaction.sql; path = SQL/rollback_transaction.sql; sourceTree = "<group>"; };
-		8CBEF76F0B780B780067CAE1 /* PlaylistTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlaylistTableViewDataSource.h; path = AudioLibrary/PlaylistTableViewDataSource.h; sourceTree = "<group>"; };
-		8CBEF7700B780B780067CAE1 /* PlaylistTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlaylistTableViewDataSource.m; path = AudioLibrary/PlaylistTableViewDataSource.m; sourceTree = "<group>"; };
 		8CBEF8070B7837A70067CAE1 /* select_all_playlists.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_all_playlists.sql; path = SQL/select_all_playlists.sql; sourceTree = "<group>"; };
 		8CBEF8340B785BA80067CAE1 /* insert_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_playlist.sql; path = SQL/insert_playlist.sql; sourceTree = "<group>"; };
 		8CBEF8710B785E8F0067CAE1 /* update_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = update_playlist.sql; path = SQL/update_playlist.sql; sourceTree = "<group>"; };
@@ -737,8 +737,6 @@
 			children = (
 				8C1A63400B7E8872008A04AB /* BrowserNode.h */,
 				8C1A63410B7E8872008A04AB /* BrowserNode.m */,
-				8C1A63440B7E8872008A04AB /* BrowserOutlineViewDataSource.h */,
-				8C1A63450B7E8872008A04AB /* BrowserOutlineViewDataSource.m */,
 				8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */,
 				8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */,
 				8CB3DC210B82E0E400B5F8A3 /* LibraryNode.h */,
@@ -957,10 +955,6 @@
 		8C9C2DC20B72AEEF00CE799A /* AudioLibrary */ = {
 			isa = PBXGroup;
 			children = (
-				8CBEF76F0B780B780067CAE1 /* PlaylistTableViewDataSource.h */,
-				8CBEF7700B780B780067CAE1 /* PlaylistTableViewDataSource.m */,
-				8C9C406B0B74655B00CE799A /* AudioStreamTableViewDataSource.h */,
-				8C9C406C0B74655B00CE799A /* AudioStreamTableViewDataSource.m */,
 				8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */,
 				8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */,
 				8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */,
@@ -973,6 +967,12 @@
 				8C9C2DC60B72AF0400CE799A /* AudioLibrary.m */,
 				8CBEFC090B79B92F0067CAE1 /* StaticPlaylistInformationSheet.h */,
 				8CBEFC0A0B79B92F0067CAE1 /* StaticPlaylistInformationSheet.m */,
+				8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */,
+				8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */,
+				8CAFB6530B87A35800B3A0EB /* BrowserTreeController.h */,
+				8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */,
+				8CAFB6980B87A6AB00B3A0EB /* BrowserOutlineView.h */,
+				8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */,
 			);
 			name = AudioLibrary;
 			sourceTree = "<group>";
@@ -1406,16 +1406,13 @@
 				8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */,
 				8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */,
 				8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */,
-				8C9C406E0B74655C00CE799A /* AudioStreamTableViewDataSource.m in Sources */,
 				8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */,
 				8C30A0770B74F8630007204B /* main.m in Sources */,
 				8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */,
-				8CBEF7720B780B780067CAE1 /* PlaylistTableViewDataSource.m in Sources */,
 				8CBEFC0C0B79B92F0067CAE1 /* StaticPlaylistInformationSheet.m in Sources */,
 				8CC1B6C40B7BB1E5006BF010 /* AudioStream.m in Sources */,
 				8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */,
 				8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */,
-				8C1A634B0B7E8873008A04AB /* BrowserOutlineViewDataSource.m in Sources */,
 				8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */,
 				8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */,
 				8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */,
@@ -1433,6 +1430,9 @@
 				8C06F19A0B86B2BC00E8ADB6 /* PlaylistsNode.m in Sources */,
 				8C06F7D40B86BE8100E8ADB6 /* PlaylistManager.m in Sources */,
 				8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */,
+				8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */,
+				8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */,
+				8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
