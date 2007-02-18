@@ -67,8 +67,8 @@ extern NSString * const		StatisticsPlayCountKey;
 - (void) addStreamWithID:(NSNumber *)objectID;
 - (void) insertStreamWithID:(NSNumber *)objectID atIndex:(unsigned)index;
 
-//- (void) addStreamsWithIDs:(NSArray *)objectIDs;
-//- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes;
+- (void) addStreamsWithIDs:(NSArray *)objectIDs;
+- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes;
 
 - (void) removeStreamAtIndex:(unsigned)index;
 

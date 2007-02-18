@@ -126,15 +126,22 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSParameterAssert(0 != [streams count]);
 	NSParameterAssert([streams count] == [indexes count]);
 	
-	unsigned i;
+	unsigned	i, count;
+	unsigned	*indexBuffer	= (unsigned *)calloc([indexes count], sizeof(unsigned));
+	NSAssert(NULL != indexBuffer, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+	
+	count = [indexes getIndexes:indexBuffer maxCount:[indexes count] inIndexRange:nil];
+	NSAssert(count == [indexes count], @"Unable to extract all indexes.");
 	
 	[[CollectionManager manager] beginUpdate];
 
 	for(i = 0; i < [streams count]; ++i) {
-		[self insertObject:[streams objectAtIndex:i] inStreamsAtIndex:[indexes objectAtIndex:i]];
+		[self insertObject:[streams objectAtIndex:i] inStreamsAtIndex:indexBuffer[i]];
 	}
 	
 	[[CollectionManager manager] finishUpdate];
+
+	free(indexBuffer);
 }
 
 - (void) addStreamWithID:(NSNumber *)objectID
@@ -149,8 +156,49 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	[self insertObject:stream inStreamsAtIndex:index];
 }
 
-//- (void) addStreamsWithIDs:(NSArray *)objectIDs;
-//- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes;
+- (void) addStreamsWithIDs:(NSArray *)objectIDs
+{
+	NSParameterAssert(nil != objectIDs);
+	NSParameterAssert(0 != [objectIDs count]);
+
+	NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
+	NSNumber		*objectID		= nil;
+	AudioStream		*stream			= nil;
+	
+	[[CollectionManager manager] beginUpdate];
+
+	while((objectID = [enumerator nextObject])) {
+		stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
+		[self addStream:stream];
+	}
+
+	[[CollectionManager manager] finishUpdate];	
+}
+
+- (void) insertStreamWithIDs:(NSArray *)objectIDs atIndexes:(NSIndexSet *)indexes
+{
+	NSParameterAssert(nil != objectIDs);
+	NSParameterAssert(nil != indexes);
+	NSParameterAssert(0 != [objectIDs count]);
+	NSParameterAssert([objectIDs count] == [indexes count]);
+	
+	unsigned	i, count;
+	unsigned	*indexBuffer	= (unsigned *)calloc([indexes count], sizeof(unsigned));
+	NSAssert(NULL != indexBuffer, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+	
+	count = [indexes getIndexes:indexBuffer maxCount:[indexes count] inIndexRange:nil];
+	NSAssert(count == [indexes count], @"Unable to extract all indexes.");
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	for(i = 0; i < [objectIDs count]; ++i) {
+		[self insertStreamWithID:[objectIDs objectAtIndex:i] atIndex:indexBuffer[i]];
+	}
+	
+	[[CollectionManager manager] finishUpdate];	
+	
+	free(indexBuffer);
+}
 
 - (void) removeStreamAtIndex:(unsigned)index
 {
