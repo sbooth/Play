@@ -19,9 +19,6 @@
  */
 
 #import "PlaylistNode.h"
-#import "AudioLibrary.h"
-#import "CollectionManager.h"
-#import "AudioStreamManager.h"
 #import "Playlist.h"
 
 @interface AudioStreamCollectionNode (Private)
