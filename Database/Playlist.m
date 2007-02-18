@@ -82,6 +82,8 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	[super dealloc];
 }
 
+#pragma mark Stream Management
+
 - (NSArray *) streams
 {
 	return _streams;
@@ -240,6 +242,16 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (BOOL) isPlaying							{ return _playing; }
 - (void) setPlaying:(BOOL)playing			{ _playing = playing; }
+
+- (void) save
+{
+	[[[CollectionManager manager] playlistManager] savePlaylist:self];
+}
+
+- (void) delete
+{
+	[[[CollectionManager manager] playlistManager] deletePlaylist:self];
+}
 
 - (NSString *) description
 {
