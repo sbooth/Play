@@ -1,7 +1,7 @@
 /*
- *  $Id$
+ *  $I$
  *
- *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface AudioStreamTableViewDataSource : NSObject
+@interface AudioStreamArrayController : NSArrayController
 {
+	IBOutlet NSTableView		*_tableView;
 }
+
+- (BOOL) tableView:(NSTableView *)tv writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard;
+- (NSDragOperation) tableView:(NSTableView *)tv validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op;
+- (BOOL) tableView:(NSTableView *)tv acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op;
 
 @end
