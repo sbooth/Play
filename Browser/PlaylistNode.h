@@ -25,6 +25,7 @@
 
 // ========================================
 // A node representing a collection of ordered AudioStreams in a playlist
+// TODO: Allow hierarchical playlists
 // ========================================
 @interface PlaylistNode : AudioStreamCollectionNode
 {

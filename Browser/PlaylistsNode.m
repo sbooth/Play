@@ -26,6 +26,7 @@
 
 @interface PlaylistsNode (Private)
 - (void) loadChildren;
+- (PlaylistNode *) findChildForPlaylist:(Playlist *)playlist;
 @end
 
 @implementation PlaylistsNode
@@ -60,10 +61,6 @@
 	Playlist		*playlist		= nil;
 	unsigned		i;
 	
-	NSLog(@"changeKind = %@",[change valueForKey:NSKeyValueChangeKindKey]);
-	NSLog(@"old = %@",[change valueForKey:NSKeyValueChangeOldKey]);
-	NSLog(@"new = %@",[change valueForKey:NSKeyValueChangeNewKey]);
-	
 	switch(changeKind) {
 		case NSKeyValueChangeInsertion:
 			enumerator = [new objectEnumerator];
@@ -76,7 +73,7 @@
 		case NSKeyValueChangeRemoval:
 			enumerator = [old objectEnumerator];
 			while((playlist = [enumerator nextObject])) {
-				node = [self findChildWithName:[playlist valueForKey:PlaylistNameKey]];
+				node = [self findChildForPlaylist:playlist];
 				if(nil != node) {
 					[self removeChild:node];
 				}
@@ -86,7 +83,7 @@
 		case NSKeyValueChangeSetting:
 			for(i = 0; i < [new count]; ++i) {
 				playlist = [old objectAtIndex:i];
-				node = [self findChildWithName:[playlist valueForKey:PlaylistNameKey]];
+				node = [self findChildForPlaylist:playlist];
 				if(nil != node) {
 					playlist = [new objectAtIndex:i];
 					[node setName:[playlist valueForKey:PlaylistNameKey]];
@@ -108,14 +105,15 @@
 
 - (void) removeObjectFromChildrenAtIndex:(unsigned)index
 {
-	BrowserNode *node = [self childAtIndex:index];
+	PlaylistNode *node = [[self childAtIndex:index] retain];
 	
 /*	if([node isPlaying]) {
 		[[AudioLibrary library] stop:self];
 	}*/
 	
-	[[node playlist] delete];
 	[super removeObjectFromChildrenAtIndex:index];
+	[[node playlist] delete];
+	[node release];
 }
 
 @end
@@ -138,6 +136,32 @@
 		[_children addObject:[node autorelease]];
 	}
 	[self didChangeValueForKey:@"children"];
+}
+
+- (PlaylistNode *) findChildForPlaylist:(Playlist *)playlist
+{
+	// Breadth-first search
+	NSEnumerator 	*enumerator = [_children objectEnumerator];
+	PlaylistNode 	*child 		= nil;
+	PlaylistNode 	*match 		= nil;
+	
+	while(match == nil && (child = [enumerator nextObject])) {
+		if([[child playlist] isEqual:playlist]) {
+			match = child;
+		}
+	}
+
+	// Hierarchical playlists aren't implemented yet
+/*	if(nil == match) {
+		enumerator 	= [_children objectEnumerator];
+		child 		= nil;
+		
+		while(match == nil && (child = [enumerator nextObject])) {
+			match = [child findChildForPlaylist:playlist];
+		}
+	}*/
+	
+	return match;
 }
 
 @end
