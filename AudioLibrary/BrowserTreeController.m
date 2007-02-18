@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "BrowserOutlineViewDataSource.h"
-#import "BrowserNode.h"
+#import "BrowserTreeController.h"
 
-@implementation BrowserOutlineViewDataSource
+@implementation BrowserTreeController
 
-// Fall back to bindings
-- (id) outlineView:(NSOutlineView *)outlineView child:(int)index ofItem:(id)item
+- (void) awakeFromNib
 {
-	return nil;
+	[_outlineView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
 }
-
-- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
-{
-	return NO;
-}
-
-- (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
-{
-	return 0;
-}
-
-- (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-	return nil;
-}
-
-- (void) outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{}
-
-#pragma mark Drag and Drop
 
 - (NSDragOperation) outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
 {
