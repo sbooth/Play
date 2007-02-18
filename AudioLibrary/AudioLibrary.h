@@ -20,11 +20,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioPlayer;
-@class CollectionManager;
 @class AudioStream;
 @class Playlist;
-
+@class AudioPlayer;
+@class CollectionManager;
+@class AudioStreamTableView;
+@class AudioStreamArrayController;
+@class BrowserOutlineView;
+@class BrowserTreeController;
 @class BrowserNode;
 
 // ========================================
@@ -48,40 +51,42 @@ extern NSString * const		PlaylistObjectKey;
 
 @interface AudioLibrary : NSWindowController
 {
-	IBOutlet NSArrayController	*_streamController;
-	IBOutlet NSTreeController	*_browserController;
+	IBOutlet AudioStreamArrayController		*_streamController;
+	IBOutlet BrowserTreeController			*_browserController;
 	
-	IBOutlet NSTableView		*_streamTable;
-	IBOutlet NSOutlineView		*_browserOutlineView;
+	IBOutlet AudioStreamTableView			*_streamTable;
+	IBOutlet BrowserOutlineView				*_browserOutlineView;
 	
-	IBOutlet NSButton			*_playPauseButton;
+	IBOutlet NSButton		*_playPauseButton;
 	
-	IBOutlet NSButton			*_addStreamsButton;
-	IBOutlet NSButton			*_removeStreamsButton;
-	IBOutlet NSButton			*_streamInfoButton;
+	IBOutlet NSButton		*_addStreamsButton;
+	IBOutlet NSButton		*_removeStreamsButton;
+	IBOutlet NSButton		*_streamInfoButton;
 	
-	IBOutlet NSButton			*_addPlaylistButton;
-	IBOutlet NSButton			*_removePlaylistsButton;
-	IBOutlet NSButton			*_playlistInfoButton;
+	IBOutlet NSButton		*_addPlaylistButton;
+	IBOutlet NSButton		*_removePlaylistsButton;
+	IBOutlet NSButton		*_playlistInfoButton;
 	
-	IBOutlet NSImageView		*_albumArtImageView;
-	IBOutlet NSDrawer			*_browserDrawer;
+	IBOutlet NSImageView	*_albumArtImageView;
+	IBOutlet NSDrawer		*_browserDrawer;
 	
 	@private
-	AudioPlayer					*_player;
-	AudioStream					*_nowPlaying;
+	AudioPlayer				*_player;
+	AudioStream				*_nowPlaying;
 	
-	BOOL						_randomizePlayback;
-	BOOL						_loopPlayback;
-	BOOL						_playButtonEnabled;
+	BOOL					_randomizePlayback;
+	BOOL					_loopPlayback;
+	BOOL					_playButtonEnabled;
 	
-	NSMutableSet				*_streamTableVisibleColumns;
-	NSMutableSet				*_streamTableHiddenColumns;
-	NSMenu						*_streamTableHeaderContextMenu;
+	NSMutableSet			*_streamTableVisibleColumns;
+	NSMutableSet			*_streamTableHiddenColumns;
+	NSMenu					*_streamTableHeaderContextMenu;
+	NSArray					*_streamTableSavedSortDescriptors;
 
-	NSArray						*_playbackContext;	
+	BOOL					_streamsAreOrdered;
+	NSArray					*_playbackContext;	
 	
-	BrowserNode					*_browserRoot;
+	BrowserNode				*_browserRoot;
 }
 
 // ========================================
@@ -152,6 +157,8 @@ extern NSString * const		PlaylistObjectKey;
 
 - (NSArray *)	playbackContext;
 - (void)		setPlaybackContext:(NSArray *)playbackContext;
+
+- (BOOL)		streamsAreOrdered;
 
 // ========================================
 // Undo/redo support

@@ -53,12 +53,18 @@
 #import "AudioMetadataEditingSheet.h"
 #import "StaticPlaylistInformationSheet.h"
 
+#import "AudioStreamArrayController.h"
+#import "BrowserTreeController.h"
+#import "AudioStreamTableView.h"
+#import "BrowserOutlineView.h"
+
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
 #import "PlaylistsNode.h"
+#import "PlaylistNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -110,7 +116,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 // Private Methods
 // ========================================
 @interface AudioLibrary (Private)
-
 - (AudioPlayer *) player;
 
 - (void) playStream:(AudioStream *)stream;
@@ -120,11 +125,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) setupBrowser;
 
 - (void) setupStreamButtons;
+- (void) setupPlaylistButtons;
+
 - (void) setupStreamTableColumns;
 
 - (void) saveStreamTableColumnOrder;
 - (IBAction) streamTableHeaderContextMenuSelected:(id)sender;
-
 @end
 
 @implementation AudioLibrary
@@ -237,6 +243,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamTableVisibleColumns release], _streamTableVisibleColumns = nil;
 	[_streamTableHiddenColumns release], _streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release], _streamTableHeaderContextMenu = nil;
+	[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 
 	[_nowPlaying release], _nowPlaying = nil;
 
@@ -258,10 +265,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	// Setup browser
 	[self setupBrowser];
 	
-	// Setup drag and drop
-	[_streamTable registerForDraggedTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil]];
-	[_browserOutlineView registerForDraggedTypes:[NSArray arrayWithObject:@"AudioStreamPboardType"]];
-	
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
@@ -281,6 +284,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[self setupStreamButtons];
 	[self setupStreamTableColumns];
+
+	[self setupPlaylistButtons];
 }
 
 - (void) windowDidLoad
@@ -326,15 +331,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	else if([anItem action] == @selector(previousPlaylist:)) {
 		return [_playlistController canSelectPrevious];
-	}
+	}*/
 	else if([anItem action] == @selector(insertPlaylist:)
-			|| [anItem action] == @selector(insertDynamicPlaylist:)
-			|| [anItem action] == @selector(insertFolderPlaylist:)) {
-		return [_playlistController canInsert];
+/*			|| [anItem action] == @selector(insertDynamicPlaylist:)
+			|| [anItem action] == @selector(insertFolderPlaylist:)*/) {
+		return [_browserController canInsertPlaylist];
 	}
 	else if([anItem action] == @selector(insertPlaylistWithSelection:)) {
-		return ([_playlistController canInsert] && 0 != [[_streamController selectedObjects] count]);
-	}*/
+		return ([_browserController canInsertPlaylist] && 0 != [[_streamController selectedObjects] count]);
+	}
 	else if([anItem action] == @selector(scrollNowPlayingToVisible:)) {
 		return (nil != [self nowPlaying] && [[_streamController arrangedObjects] containsObject:[self nowPlaying]]);
 	}
@@ -349,12 +354,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 
 	return YES;
-}
-
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-	NSLog(@"AudioLibrary observeValueForKeyPath:%@ object:%@",keyPath,object);
-	[_browserOutlineView reloadItem:object reloadChildren:YES];
 }
 
 #pragma mark Action Methods
@@ -567,14 +566,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
-/*		[_playlistController addObject:playlist];
-
 		[_browserDrawer open:self];
 		
-		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
-			// The playlist table has only one column for now
-			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
-		}*/
+		NSIndexPath *path = [_browserController selectionIndexPath];
+		NSLog(@"path=%@",path);
+		
+//		if(nil != path && [_browserController setSelectionIndexPath:path]) {
+//			[_browserOutlineView editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
+//		}
 	}
 	else {
 /*		NSAlert *alert = [[NSAlert alloc] init];
@@ -587,26 +586,42 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		} 
 		
 		[alert release];*/
+		NSBeep();
 		NSLog(@"Unable to create the playlist.");
 	}
 }
 
 - (IBAction) insertPlaylistWithSelection:(id)sender;
 {
-	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
-	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
+	// For some reason the call to insertPlaylistWithInitialValues: causes the _streamController selectedObjects to become nil
+	// ?? !!
+	NSDictionary	*initialValues		= [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSArray			*streamsToInsert	= [_streamController selectedObjects];
+	Playlist		*playlist			= [Playlist insertPlaylistWithInitialValues:initialValues];
+
+	NSLog(@"streams = %@",streamsToInsert);
+	
 	if(nil != playlist) {
-		[playlist addStreams:[_streamController selectedObjects]];
-/*		[_playlistController addObject:playlist];
-		
-		[_browserDrawer open:self];
-		
-		if([_playlistController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
-			// The playlist table has only one column for now
-			[_playlistTable editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];
+		[playlist addStreams:streamsToInsert];
+
+/*		[_browserDrawer open:self];
+
+		NSEnumerator *enumerator = [[_browserController arrangedObjects] objectEnumerator];
+		id opaqueNode;
+		while((opaqueNode = [enumerator nextObject])) {
+			id node = [opaqueNode observedObject];
+			if([node isKindOfClass:[PlaylistNode class]] && [node playlist] == playlist) {
+				NSLog(@"found node:%@",opaqueNode);
+			} 
 		}*/
+		
+//		if([_browserController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
+//			// The playlist table has only one column for now
+//			[_browserOutlineView editColumn:0 row:[_browserOutlineView selectedRow] withEvent:nil select:YES];
+//		}
 	}
 	else {
+		NSBeep();
 		NSLog(@"Unable to insert playlist.");
 	}
 }
@@ -962,55 +977,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	_playbackContext = [playbackContext copy];
 }
 
-/*#pragma mark Playlist KVC Accessor Methods
-
-- (unsigned int) countOfPlaylists
+- (BOOL) streamsAreOrdered
 {
-	return [_playlists count];
+	return _streamsAreOrdered;
 }
 
-- (id) objectInPlaylistsAtIndex:(unsigned int)index
-{
-	// The playlist in question already exists in the database if it is in the array
-	return [_playlists objectAtIndex:index];
-}
-
-- (void) getPlaylists:(id *)buffer range:(NSRange)aRange
-{
-	// The playlists in question already exist in the database if they are in the array
-	return [_playlists getObjects:buffer range:aRange];
-}
-
-#pragma mark Playlist KVC Mutator Methods
-
-- (void) insertObject:(id)playlist inPlaylistsAtIndex:(unsigned int)index
-{
-	// The playlist represented must already be added to the database	
-	[_playlists insertObject:playlist atIndex:index];
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:AudioStreamObjectKey]];
-}
-
-- (void) removeObjectFromPlaylistsAtIndex:(unsigned int)index
-{
-	Playlist *playlist = [_playlists objectAtIndex:index];
-		
-	// Just in case the notification's receiver mucks with the object
-//	[playlist setNotificationsEnabled:NO];
-
-	// To keep the database and in-memory representation in sync, remove the 
-	// playlist from the database first and then from the array if the removal
-	// was successful
-	[playlist delete];		
-	[_playlists removeObjectAtIndex:index];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistRemovedFromLibraryNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];	
-}
-*/
 #pragma mark AudioPlayer Callbacks
 
 - (void) streamPlaybackDidStart:(AudioStream *)startedStream
@@ -1183,19 +1154,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 @implementation AudioLibrary (NSOutlineViewDelegateMethods)
 
-/*- (BOOL) outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item
-{
-	return [[(BrowserNode *)item representedObject] isSelectable];
-}*/
-
-/*- (BOOL) outlineView:(NSOutlineView *)outlineView shouldCollapseItem:(id)item
-{
-	int				selectedRow		= [outlineView selectedRow];
-	BrowserNode		*selectedNode	= [outlineView itemAtRow:selectedRow];
-	
-	return (NO == [selectedNode isDescendantOfNode:item]);
-}*/
-
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
 	BrowserNode *node = [item observedObject];
@@ -1227,6 +1185,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode			*node			= [opaqueNode observedObject];
 
 	if(nil == node) {
+		[_streamController unbind:@"contentArray"];
+		[_streamController setContent:nil];
 		return;
 	}
 	
@@ -1234,16 +1194,34 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// Display the appropriate set of streams if the selected node supports it
 	if([[node exposedBindings] containsObject:@"streams"]) {
-		
 		// Don't re-bind to the same data source
-		NSDictionary *bindingInfo = [_streamController infoForBinding:@"contentArray"];
-		if(NO == [[bindingInfo valueForKey:NSObservedObjectKey] isEqual:node]) {
+		NSDictionary				*bindingInfo		= [_streamController infoForBinding:@"contentArray"];
+		AudioStreamCollectionNode	*oldStreamsNode		= [bindingInfo valueForKey:NSObservedObjectKey];
+		AudioStreamCollectionNode	*newStreamsNode		= (AudioStreamCollectionNode *)node;
+		
+		if(NO == [oldStreamsNode isEqual:newStreamsNode]) {			
+			// For ordered nodes such as playlists, don't use sort descriptors initially
+			if(NO == [oldStreamsNode streamsAreOrdered] && [newStreamsNode streamsAreOrdered]) {
+				_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
+				[_streamController setSortDescriptors:nil];
+			}
+			else if([oldStreamsNode streamsAreOrdered] && NO == [newStreamsNode streamsAreOrdered]) {
+				[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
+				[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
+			}
+			
 			[_streamController unbind:@"contentArray"];
 			[_streamController setContent:nil];
 			
-			[_streamController bind:@"contentArray" toObject:node withKeyPath:@"streams" options:nil];
+			[_streamController bind:@"contentArray" toObject:newStreamsNode withKeyPath:@"streams" options:nil];
 			[_streamController setSelectedObjects:selected];
-		}			
+			
+			_streamsAreOrdered = [newStreamsNode streamsAreOrdered];
+		}
+	}
+	else {
+		[_streamController unbind:@"contentArray"];
+		[_streamController setContent:nil];
 	}
 }
 
@@ -1456,13 +1434,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
 
-	[artistsNode addObserver:self forKeyPath:@"children" options:nil context:nil];
-	
 	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
 	[albumsNode setIcon:folderIcon];
 
-	[albumsNode addObserver:self forKeyPath:@"children" options:nil context:nil];
-	
 	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
 	[playlistsNode setIcon:folderIcon];
 
@@ -1474,6 +1448,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_browserRoot addChild:[albumsNode autorelease]];
 	[_browserRoot addChild:[playlistsNode autorelease]];
 	[_browserRoot addChild:[watchedFoldersNode autorelease]];
+
 	[_browserController setContent:_browserRoot];
 	
 	// Select the LibraryNode
@@ -1521,7 +1496,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamInfoButton setTarget:self];
 }
 
-/* - (void) setupPlaylistButtons
+ - (void) setupPlaylistButtons
 {
 	NSMenu			*buttonMenu;
 	NSMenuItem		*buttonMenuItem;
@@ -1529,7 +1504,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	// Bind playlist addition/removal button actions and state
 	[_addPlaylistButton setToolTip:NSLocalizedStringFromTable(@"Add a new playlist to the library", @"Player", @"")];
 	[_addPlaylistButton bind:@"enabled"
-					toObject:_playlistController
+					toObject:_browserController
 				 withKeyPath:@"canInsert"
 					 options:nil];
 	
@@ -1542,8 +1517,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[buttonMenuItem setAction:@selector(insertPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
 	[buttonMenuItem bind:@"enabled"
-				toObject:_playlistController
-			 withKeyPath:@"canInsert"
+				toObject:_browserController
+			 withKeyPath:@"canInsertPlaylist"
 				 options:nil];
 	[buttonMenuItem release];
 	
@@ -1554,8 +1529,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[buttonMenuItem setAction:@selector(insertPlaylistWithSelection:)];
 	[buttonMenu addItem:buttonMenuItem];
 	[buttonMenuItem bind:@"enabled"
-				toObject:_playlistController
-			 withKeyPath:@"canInsert"
+				toObject:_browserController
+			 withKeyPath:@"canInsertPlaylist"
 				 options:nil];
 	[buttonMenuItem bind:@"enabled2"
 				toObject:_streamController
@@ -1563,7 +1538,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 				 options:nil];
 	[buttonMenuItem release];
 	
-	buttonMenuItem		= [[NSMenuItem alloc] init];
+/*	buttonMenuItem		= [[NSMenuItem alloc] init];
 	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"New Dynamic Playlist", @"Player", @"")];
 	//	[buttonMenuItem setImage:[NSImage imageNamed:@"DynamicPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
@@ -1578,26 +1553,26 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[buttonMenuItem setAction:@selector(insertFolderPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
 	[buttonMenuItem release];
-	
+	*/
 	[_addPlaylistButton setMenu:buttonMenu];
 	[buttonMenu release];
 	
 	[_removePlaylistsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected playlists from the library", @"Player", @"")];
 	[_removePlaylistsButton bind:@"enabled"
-						toObject:_playlistController
+						toObject:_browserController
 					 withKeyPath:@"canRemove"
 						 options:nil];
 	[_removePlaylistsButton setAction:@selector(remove:)];
-	[_removePlaylistsButton setTarget:_playlistController];
+	[_removePlaylistsButton setTarget:_browserController];
 	
 	[_playlistInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected playlist", @"Player", @"")];
 	[_playlistInfoButton bind:@"enabled"
-					 toObject:_playlistController
+					 toObject:_browserController
 				  withKeyPath:@"selectedObjects.@count"
 					  options:nil];
 	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
 	[_playlistInfoButton setTarget:self];
-}*/
+}
 
 - (void) setupStreamTableColumns
 {
