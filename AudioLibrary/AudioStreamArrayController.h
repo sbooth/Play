@@ -1,5 +1,5 @@
 /*
- *  $I$
+ *  $Id$
  *
  *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
  *
@@ -22,11 +22,7 @@
 
 @interface AudioStreamArrayController : NSArrayController
 {
-	IBOutlet NSTableView		*_tableView;
+	IBOutlet NSTableView *_tableView;
 }
-
-- (BOOL) tableView:(NSTableView *)tv writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard;
-- (NSDragOperation) tableView:(NSTableView *)tv validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op;
-- (BOOL) tableView:(NSTableView *)tv acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op;
 
 @end
