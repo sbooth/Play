@@ -20,6 +20,8 @@
 
 #import "BrowserTreeController.h"
 #import "BrowserNode.h"
+#import "PlaylistNode.h"
+#import "Playlist.h"
 
 // ========================================
 // Completely bogus NSTreeController bindings hack
@@ -54,18 +56,32 @@
 	return nil;
 }
 
+#pragma mark Delegate Methods
+
 #pragma mark Drag and Drop
 
 - (NSDragOperation) outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
 {
 	BrowserNode *node = [item observedObject];
 	
-	return NSDragOperationCopy;
+	return ([node isKindOfClass:[PlaylistNode class]] ? NSDragOperationCopy : NSDragOperationNone);
 }
 
-- (void) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
+- (BOOL) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
 {
+	BrowserNode *node = [item observedObject];
+
+	if(NO == [node isKindOfClass:[PlaylistNode class]]) {
+		return NO;
+	}
 	
+	PlaylistNode	*playlistNode	= (PlaylistNode *)node;
+	NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:@"AudioStreamPboardType"];
+	
+	[[playlistNode playlist] addStreamsWithIDs:objectIDs];
+	
+	return YES;
 }
+
 
 @end
