@@ -54,27 +54,33 @@
 - (void) loadStreams
 {
 	[self willChangeValueForKey:@"streams"];
-	[[self streamsArray] addObjectsFromArray:[[AudioLibrary library] playbackContext]];
 	[self didChangeValueForKey:@"streams"];
 }
 
 - (void) refreshStreams
 {
 	[self willChangeValueForKey:@"streams"];
-	[[self streamsArray] removeAllObjects];
-	[[self streamsArray] addObjectsFromArray:[[AudioLibrary library] playbackContext]];
 	[self didChangeValueForKey:@"streams"];
 }
+
+#pragma mark KVC Accessor Overrides
+
+- (unsigned)		countOfStreams											{ return [[AudioLibrary library] countOfCurrentStreams]; }
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [[AudioLibrary library] objectInCurrentStreamsAtIndex:index]; }
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [[AudioLibrary library] getCurrentStreams:buffer range:aRange]; }
 
 #pragma mark KVC Mutators Overrides
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
-	[super insertObject:stream inStreamsAtIndex:index];
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable PlaylistNode");
+	[[AudioLibrary library] insertObject:stream inCurrentStreamsAtIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable PlaylistNode");	
+	[[AudioLibrary library] removeObjectFromCurrentStreamsAtIndex:index];
 }
 
 @end
