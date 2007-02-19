@@ -159,7 +159,7 @@
 {
 	NSParameterAssert(nil != playlist);
 	
-	BOOL result;
+	BOOL result = YES;
 	
 	if([self updateInProgress]) {
 		[_insertedPlaylists addObject:playlist];

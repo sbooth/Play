@@ -203,7 +203,7 @@
 {
 	NSParameterAssert(nil != stream);
 
-	BOOL result;
+	BOOL result = YES;
 	
 	if([self updateInProgress]) {
 		[_insertedStreams addObject:stream];
