@@ -25,7 +25,7 @@
 @class CollectionManager;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
-@class BrowserNode, LibraryNode, PlaybackContextNode;
+@class BrowserNode, LibraryNode, CurrentStreamsNode;
 
 // ========================================
 // Notification Names
@@ -46,6 +46,9 @@ extern NSString * const		PlaylistRemovedFromLibraryNotification;
 extern NSString * const		AudioStreamObjectKey;
 extern NSString * const		PlaylistObjectKey;
 
+// ========================================
+// KVC compliant for @"playbackContext"
+// ========================================
 @interface AudioLibrary : NSWindowController
 {
 	IBOutlet AudioStreamArrayController		*_streamController;
@@ -77,12 +80,12 @@ extern NSString * const		PlaylistObjectKey;
 	
 	BOOL					_streamsAreOrdered;
 
-	NSArray					*_playbackContext;	
+	NSMutableArray			*_currentStreams;	
 	unsigned				_playbackIndex;
 	unsigned				_nextPlaybackIndex;
 	
 	LibraryNode				*_libraryNode;
-	PlaybackContextNode		*_playbackContextNode;
+	CurrentStreamsNode		*_currentStreamsNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
@@ -134,22 +137,24 @@ extern NSString * const		PlaylistObjectKey;
 - (IBAction)	removeSelectedStreams:(id)sender;
 
 - (IBAction)	scrollNowPlayingToVisible:(id)sender;
-- (IBAction)	showPlaybackContext:(id)sender;
+- (IBAction)	showCurrentStreams:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
 - (IBAction)	showPlaylistInformationSheet:(id)sender;
 
 // ========================================
-// Playback Context
-- (NSArray *)	playbackContext;
-- (void)		setPlaybackContext:(NSArray *)playbackContext;
+// Current Streams
+- (unsigned)		countOfCurrentStreams;
+- (AudioStream *)	objectInCurrentStreamsAtIndex:(unsigned)index;
+- (void)			getCurrentStreams:(id *)buffer range:(NSRange)aRange;
 
-- (AudioStream *) streamInPlaybackContextAtIndex:(unsigned)index;
+- (void) insertObject:(AudioStream *)stream inCurrentStreamsAtIndex:(unsigned)index;
+- (void) removeObjectFromCurrentStreamsAtIndex:(unsigned)index;
 
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;
-- (BOOL)		selectPlaybackContextNode;
+- (BOOL)		selectCurrentStreamsNode;
 
 // ========================================
 // Library properties
@@ -167,7 +172,6 @@ extern NSString * const		PlaylistObjectKey;
 
 - (AudioStream *)	nowPlaying;
 - (void)			setNowPlaying:(AudioStream *)nowPlaying;
-
 
 - (BOOL)		streamsAreOrdered;
 

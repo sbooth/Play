@@ -18,26 +18,26 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "PlaybackContextNode.h"
+#import "CurrentStreamsNode.h"
 #import "AudioLibrary.h"
 
 @interface AudioStreamCollectionNode (Private)
 - (NSMutableArray *) streamsArray;
 @end
 
-@implementation PlaybackContextNode
+@implementation CurrentStreamsNode
 
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Current Streams", @"General", @"")])) {
-		[[AudioLibrary library] addObserver:self forKeyPath:@"playbackContext" options:nil context:NULL];
+		[[AudioLibrary library] addObserver:self forKeyPath:@"currentStreams" options:nil context:NULL];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[AudioLibrary library] removeObserver:self forKeyPath:@"playbackContext"];
+	[[AudioLibrary library] removeObserver:self forKeyPath:@"currentStreams"];
 	
 	[super dealloc];
 }
@@ -73,13 +73,13 @@
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable PlaylistNode");
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable CurrentStreamsNode");
 	[[AudioLibrary library] insertObject:stream inCurrentStreamsAtIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable PlaylistNode");	
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable CurrentStreamsNode");
 	[[AudioLibrary library] removeObjectFromCurrentStreamsAtIndex:index];
 }
 

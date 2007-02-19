@@ -29,6 +29,10 @@
 NSString * const AudioStreamPboardType					= @"org.sbooth.Play.AudioStream.PboardType";
 NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibrary.AudioStreamTable.MovedRowsPboardType";
 
+@interface AudioLibrary (Private)
+- (unsigned) playbackIndex;
+@end
+
 @interface AudioStreamArrayController (Private)
 - (void) moveObjectsInArrangedObjectsFromIndexes:(NSIndexSet *)indexSet toIndex:(unsigned)insertIndex;
 - (NSIndexSet *) indexSetForRows:(NSArray *)rows;
@@ -45,10 +49,18 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 	AudioStream			*stream			= nil;
 	BOOL				success			= NO;
 	unsigned			i;
+		
+	// Refuse to drag the currently playing stream
+	if([rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
+		NSNumber *playing = [objects valueForKeyPath:@"@sum.isPlaying"];
+		if([playing boolValue]) {
+			return NO;
+		}
+	}
 	
 	for(i = 0; i < [objects count]; ++i) {
 		stream = [objects objectAtIndex:i];
-		
+				
 		[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
 		[filenames addObject:[[stream valueForKey:StreamURLKey] path]];
 	}

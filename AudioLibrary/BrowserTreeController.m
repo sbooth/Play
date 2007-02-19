@@ -19,8 +19,11 @@
  */
 
 #import "BrowserTreeController.h"
+#import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "BrowserNode.h"
 #import "PlaylistNode.h"
+#import "CurrentStreamsNode.h"
 #import "Playlist.h"
 
 // ========================================
@@ -70,7 +73,7 @@
 	BrowserNode		*node			= nil;
 	
 	while((node = [enumerator nextObject])) {
-		if(NO == [node isKindOfClass:[PlaylistNode class]]) {
+		if(NO == [node isKindOfClass:[PlaylistNode class]] || NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
 			return NO;
 		}
 	}
@@ -88,24 +91,32 @@
 {
 	BrowserNode *node = [item observedObject];
 	
-	return ([node isKindOfClass:[PlaylistNode class]] ? NSDragOperationCopy : NSDragOperationNone);
+	return ([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[CurrentStreamsNode class]] ? NSDragOperationCopy : NSDragOperationNone);
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
 {
-	BrowserNode *node = [item observedObject];
+	BrowserNode		*node		= [item observedObject];
+	NSArray			*objectIDs	= [[info draggingPasteboard] propertyListForType:AudioStreamPboardType];
 
-	if(NO == [node isKindOfClass:[PlaylistNode class]]) {
-		return NO;
+	if([node isKindOfClass:[PlaylistNode class]]) {
+		[[(PlaylistNode *)node playlist] addStreamsWithIDs:objectIDs];		
+		return YES;
 	}
-	
-	PlaylistNode	*playlistNode	= (PlaylistNode *)node;
-	NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:AudioStreamPboardType];
-	
-	[[playlistNode playlist] addStreamsWithIDs:objectIDs];
-	
-	return YES;
+	if([node isKindOfClass:[CurrentStreamsNode class]]) {
+		NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
+		NSNumber		*objectID		= nil;
+		AudioStream		*stream			= nil;
+		
+		while((objectID = [enumerator nextObject])) {
+			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
+			[(CurrentStreamsNode *)node insertObject:stream inStreamsAtIndex:[(CurrentStreamsNode *)node countOfStreams]];
+		}
+		
+		return YES;
+	}
+		
+	return NO;
 }
-
 
 @end
