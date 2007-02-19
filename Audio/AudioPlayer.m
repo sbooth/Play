@@ -593,7 +593,10 @@ MyRenderNotification(void							*inRefCon,
 			[self stop];
 		}
 		
-		SInt64 seekedFrame = [streamDecoder seekToFrame:currentFrame];
+#if DEBUG
+		SInt64 seekedFrame = 
+#endif
+			[streamDecoder seekToFrame:currentFrame];
 
 #if DEBUG
 		if(seekedFrame != currentFrame) {
