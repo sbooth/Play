@@ -25,7 +25,7 @@
 @class CollectionManager;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
-@class BrowserNode, LibraryNode;
+@class BrowserNode, LibraryNode, PlaybackContextNode;
 
 // ========================================
 // Notification Names
@@ -82,6 +82,7 @@ extern NSString * const		PlaylistObjectKey;
 	unsigned				_nextPlaybackIndex;
 	
 	LibraryNode				*_libraryNode;
+	PlaybackContextNode		*_playbackContextNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
@@ -148,6 +149,7 @@ extern NSString * const		PlaylistObjectKey;
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;
+- (BOOL)		selectPlaybackContextNode;
 
 // ========================================
 // Library properties

@@ -61,6 +61,7 @@
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
+#import "PlaybackContextNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
 #import "PlaylistsNode.h"
@@ -258,6 +259,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_playbackContext release], _playbackContext = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
+	[_playbackContextNode release], _playbackContextNode = nil;
 	
 	[super dealloc];
 }
@@ -407,11 +409,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	if(nil == [self playbackContext]) {
 		return;
 	}
-	
-//	[self willChangeValueForKey:@"streams"];
-//	[_streams removeAllObjects];
-//	[_streams addObjectsFromArray:[self playbackContext]];
-//	[self didChangeValueForKey:@"streams"];
+
+	/*BOOL success =*/ [self selectPlaybackContextNode];
 }
 
 - (IBAction) showStreamInformationSheet:(id)sender
@@ -881,6 +880,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) selectLibraryNode
 {
 	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
+}
+
+- (BOOL) selectPlaybackContextNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_playbackContextNode]];
 }
 
 #pragma mark Properties
@@ -1425,6 +1429,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[self player] play];
 	
+	// TODO: Is this the desired behavior?
+	[self selectPlaybackContextNode];
+	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
@@ -1495,6 +1502,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	_libraryNode = [[LibraryNode alloc] init];
 	[_libraryNode setIcon:cdIcon];
 
+	_playbackContextNode = [[PlaybackContextNode alloc] init];
+//	[_playbackContextNode setIcon:cdIcon];
+
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
 
@@ -1508,6 +1518,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[watchedFoldersNode setIcon:folderIcon];
 
 	[browserRoot addChild:_libraryNode];
+	[browserRoot addChild:_playbackContextNode];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
