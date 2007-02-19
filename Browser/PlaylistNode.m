@@ -64,6 +64,7 @@
 
 - (BOOL) nameIsEditable			{ return YES; }
 - (BOOL) streamsAreOrdered		{ return YES; }
+- (BOOL) allowReordering		{ return YES; }
 
 - (void) loadStreams
 {

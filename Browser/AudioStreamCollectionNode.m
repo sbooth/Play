@@ -47,6 +47,7 @@
 {}
 
 - (BOOL) streamsAreOrdered		{ return NO; }
+- (BOOL) allowReordering		{ return NO; }
 
 #pragma mark State management
 
