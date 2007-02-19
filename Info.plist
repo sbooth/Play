@@ -211,8 +211,7 @@
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.apple.coreaudio-</string>
-				<string>format</string>
+				<string>com.apple.coreaudio-format</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<false/>
@@ -232,8 +231,7 @@
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.microsoft.waveform-</string>
-				<string>audio</string>
+				<string>com.microsoft.waveform-audio</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<false/>
