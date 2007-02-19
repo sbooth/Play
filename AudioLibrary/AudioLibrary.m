@@ -69,6 +69,8 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
+#import "NSTreeController_Extensions.h"
+
 #include "sfmt19937.h"
 
 // ========================================
@@ -118,7 +120,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 @interface AudioLibrary (Private)
 - (AudioPlayer *) player;
 
-- (void) playStream:(AudioStream *)stream;
+- (unsigned) playbackIndex;
+- (void) setPlaybackIndex:(unsigned)playbackIndex;
+
+- (unsigned) nextPlaybackIndex;
+- (void) setNextPlaybackIndex:(unsigned)nextPlaybackIndex;
+
+- (void) playStreamAtIndex:(unsigned)index;
 
 - (void) updatePlayButtonState;
 
@@ -248,6 +256,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_nowPlaying release], _nowPlaying = nil;
 
 	[_playbackContext release], _playbackContext = nil;
+	
+	[_libraryNode release], _libraryNode = nil;
 	
 	[super dealloc];
 }
@@ -639,8 +649,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (BOOL) playFile:(NSString *)filename
 {
 	// First try to find this file in our library
-	BOOL			success		= YES;
-	AudioStream		*stream		= [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+	BOOL			success			= YES;
+	AudioStream		*stream			= [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 
 	// If it wasn't found, try and add it
 	if(nil == stream) {
@@ -649,10 +659,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
 		}
 	}
-	
+		
 	// Play the file, if everything worked
 	if(nil != stream) {
-		[self playStream:stream];
+		[self setPlaybackContext:[NSArray arrayWithObject:stream]];
+		[self playStreamAtIndex:0];
 	}
 	
 	return success;
@@ -663,17 +674,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	if(NO == [[self player] hasValidStream]) {
 		if([self randomizePlayback]) {
 			NSArray				*streams;
-			AudioStream			*stream;	
 			double				randomNumber;
 			unsigned			randomIndex;
 			
 			streams				= [_streamController arrangedObjects];
 			randomNumber		= genrand_real2();
 			randomIndex			= (unsigned)(randomNumber * [streams count]);
-			stream				= [streams objectAtIndex:randomIndex];
 			
 			[self setPlaybackContext:[_streamController arrangedObjects]];			
-			[self playStream:stream];
+			[self playStreamAtIndex:randomIndex];
 		}
 		else {
 			[self playSelection:sender];
@@ -718,13 +727,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return;
 	}
 	
+	[self setPlaybackContext:[_streamController arrangedObjects]];		
+
 	if(0 == [[_streamController selectedObjects] count]) {
-		[self setPlaybackContext:[_streamController arrangedObjects]];		
-		[self playStream:[[_streamController arrangedObjects] objectAtIndex:0]];
+		[self playStreamAtIndex:0];
 	}
 	else {
-		[self setPlaybackContext:[_streamController arrangedObjects]];		
-		[self playStream:[[_streamController selectedObjects] objectAtIndex:0]];
+		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
 	
 	[self updatePlayButtonState];
@@ -791,28 +800,18 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		
 		randomNumber	= genrand_real2();
 		randomIndex		= (unsigned)(randomNumber * [streams count]);
-		stream			= [streams objectAtIndex:randomIndex];
 		
-		[self playStream:stream];
+		[self playStreamAtIndex:randomIndex];
 	}
 	else if([self loopPlayback]) {
-		streamIndex = [streams indexOfObject:stream];
-		
-		if(streamIndex + 1 < [streams count]) {
-			stream = [streams objectAtIndex:streamIndex + 1];			
-		}
-		else {
-			stream = [streams objectAtIndex:0];
-		}
-		
-		[self playStream:stream];
+		streamIndex = [self playbackIndex];
+		[self playStreamAtIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : 0)];
 	}
 	else {
-		streamIndex = [streams indexOfObject:stream];
+		streamIndex = [self playbackIndex];
 		
 		if(streamIndex + 1 < [streams count]) {
-			stream = [streams objectAtIndex:streamIndex + 1];
-			[self playStream:stream];
+			[self playStreamAtIndex:streamIndex + 1];
 		}
 		else {
 			[[self player] reset];
@@ -841,33 +840,47 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		
 		randomNumber	= genrand_real2();
 		randomIndex		= (unsigned)(randomNumber * [streams count]);
-		stream			= [streams objectAtIndex:randomIndex];
 		
-		[self playStream:stream];
+		[self playStreamAtIndex:randomIndex];
 	}
 	else if([self loopPlayback]) {
-		streamIndex = [streams indexOfObject:stream];
-		
-		if(1 <= streamIndex) {
-			stream = [streams objectAtIndex:streamIndex - 1];
-		}
-		else {
-			stream = [streams objectAtIndex:[streams count] - 1];
-		}
-		
-		[self playStream:stream];
+		streamIndex = [self playbackIndex];		
+		[self playStreamAtIndex:(1 <= streamIndex ? streamIndex - 1 : [streams count] - 1)];
 	}
 	else {
-		streamIndex = [streams indexOfObject:stream];
+		streamIndex = [self playbackIndex];		
 		
 		if(1 <= streamIndex) {
-			stream = [streams objectAtIndex:streamIndex - 1];
-			[self playStream:stream];
+			[self playStreamAtIndex:streamIndex - 1];
 		}
 		else {
 			[[self player] reset];	
 		}
 	}
+}
+
+#pragma mark Playback Context
+
+- (NSArray *) playbackContext
+{
+	return _playbackContext;
+}
+
+- (void) setPlaybackContext:(NSArray *)playbackContext
+{
+	[_playbackContext release]; _playbackContext = [playbackContext copy];
+}
+
+- (AudioStream *) streamInPlaybackContextAtIndex:(unsigned)index
+{
+	return [[self playbackContext] objectAtIndex:index];
+}
+
+#pragma mark Browser support
+
+- (BOOL) selectLibraryNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
 }
 
 #pragma mark Properties
@@ -883,11 +896,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (BOOL) canPlayNextStream
 {
-	AudioStream		*stream		= [self nowPlaying];
-	NSArray			*streams	= [self playbackContext];
-	BOOL			result;
+	NSArray		*streams	= [self playbackContext];
+	BOOL		result		= NO;
 	
-	if(nil == stream || 0 == [streams count]) {
+	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
 		result = NO;
 	}
 	else if([self randomizePlayback]) {
@@ -897,8 +909,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		result = YES;
 	}
 	else {
-		unsigned streamIndex = [streams indexOfObject:stream];
-		result = (streamIndex + 1 < [streams count]);
+		result = ([self playbackIndex] + 1 < [streams count]);
 	}
 	
 	return result;
@@ -906,11 +917,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (BOOL) canPlayPreviousStream
 {
-	AudioStream		*stream		= [self nowPlaying];
-	NSArray			*streams	= [self playbackContext];
-	BOOL			result;
+	NSArray		*streams	= [self playbackContext];
+	BOOL		result		= NO;
 	
-	if(nil == stream || 0 == [streams count]) {
+	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
 		result = NO;
 	}
 	else if([self randomizePlayback]) {
@@ -920,8 +930,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		result = YES;
 	}
 	else {
-		unsigned streamIndex = [streams indexOfObject:stream];
-		result = (1 <= streamIndex);
+		result = (1 <= [self playbackIndex]);
 	}
 	
 	return result;
@@ -964,17 +973,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return [[CollectionManager manager] undoManager];
 }
 
-- (NSArray *)	playbackContext
-{
-	return _playbackContext;
-}
-
-- (void) setPlaybackContext:(NSArray *)playbackContext
-{
-	[_playbackContext release];
-	_playbackContext = [playbackContext copy];
-}
-
 - (BOOL) streamsAreOrdered
 {
 	return _streamsAreOrdered;
@@ -982,11 +980,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 #pragma mark AudioPlayer Callbacks
 
-- (void) streamPlaybackDidStart:(AudioStream *)startedStream
+- (void) streamPlaybackDidStart
 {
-	NSParameterAssert(nil != startedStream);
-	
-	AudioStream		*stream		= [self nowPlaying];
+	AudioStream		*stream			= [self nowPlaying];
 	NSNumber		*playCount;
 	NSNumber		*newPlayCount;
 
@@ -1005,20 +1001,24 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	[[CollectionManager manager] finishUpdate];
+
+	[self setPlaybackIndex:[self nextPlaybackIndex]];
+	[self setNextPlaybackIndex:NSNotFound];
 	
-//	stream = [[[CollectionManager manager] streamManager] streamForURL:url];
-//	NSAssert(nil != stream, @"Playback started for stream not in library!");
+	stream = [[self playbackContext] objectAtIndex:[self playbackIndex]];
+	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
 	
-	[startedStream setPlaying:YES];
-	[self setNowPlaying:startedStream];
+	[stream setPlaying:YES];
+	[self setNowPlaying:stream];
+	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:startedStream forKey:AudioStreamObjectKey]];
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
-- (void) streamPlaybackDidComplete:(AudioStream *)unused
+- (void) streamPlaybackDidComplete
 {
-	AudioStream		*stream		= [self nowPlaying];
+	AudioStream		*stream			= [self nowPlaying];
 	NSNumber		*playCount;
 	NSNumber		*newPlayCount;
 	
@@ -1037,8 +1037,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	[[CollectionManager manager] finishUpdate];
+	[self setPlaybackIndex:NSNotFound];
 	
-	[self playNextStream:self];
+	// If the player isn't playing, it's the end of the road for now
+	if(NO == [[self player] isPlaying]) {
+		[self setNowPlaying:nil];
+		[[self player] reset];
+	}
 }
 
 - (void) requestNextStream
@@ -1049,44 +1054,32 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	NSArray *streams = [self playbackContext];
 	
 	if(nil == stream || 0 == [streams count]) {
-		stream = nil;
+		[self setNextPlaybackIndex:NSNotFound];
 	}
 	else if([self randomizePlayback]) {
-		double			randomNumber;
-		unsigned		randomIndex;
-		
-		randomNumber	= genrand_real2();
-		randomIndex		= (unsigned)(randomNumber * [streams count]);
-		stream			= [streams objectAtIndex:randomIndex];
+		double randomNumber = genrand_real2();
+		[self setNextPlaybackIndex:(unsigned)(randomNumber * [streams count])];
 	}
 	else if([self loopPlayback]) {
-		streamIndex = [streams indexOfObject:stream];
-		
-		if(streamIndex + 1 < [streams count]) {
-			stream = [streams objectAtIndex:streamIndex + 1];			
-		}
-		else {
-			stream = [streams objectAtIndex:0];
-		}
+		streamIndex = [self playbackIndex];		
+		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : 0)];
 	}
 	else {
-		streamIndex = [streams indexOfObject:stream];
-		
-		if(streamIndex + 1 < [streams count]) {
-			stream = [streams objectAtIndex:streamIndex + 1];
-		}
-		else {
-			stream = nil;
-		}
+		streamIndex = [self playbackIndex];
+		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
 	}
+
+#if DEBUG
+	NSLog(@"requestNextStream:%@",[[self playbackContext] objectAtIndex:[self nextPlaybackIndex]]);
+#endif
 	
-	if(nil != stream) {
+	if(NSNotFound != [self nextPlaybackIndex]) {
 		NSError		*error		= nil;
-		BOOL		result		= [[self player] setNextStream:stream error:&error];
+		BOOL		result		= [[self player] setNextStream:[[self playbackContext] objectAtIndex:[self nextPlaybackIndex]] error:&error];
 
 		if(NO == result) {
 			if(nil != error) {
-				
+				[self presentError:error];
 			}
 		}
 	}
@@ -1341,9 +1334,29 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return _player;
 }
 
-- (void) playStream:(AudioStream *)stream
+- (unsigned) playbackIndex
 {
-	NSParameterAssert(nil != stream);
+	return _playbackIndex;
+}
+
+- (void) setPlaybackIndex:(unsigned)playbackIndex
+{
+	_playbackIndex = playbackIndex;
+}
+
+- (unsigned) nextPlaybackIndex
+{
+	return _nextPlaybackIndex;
+}
+
+- (void) setNextPlaybackIndex:(unsigned)nextPlaybackIndex
+{
+	_nextPlaybackIndex = nextPlaybackIndex;
+}
+
+- (void) playStreamAtIndex:(unsigned)index
+{
+	NSParameterAssert([[self playbackContext] count] > index);
 
 	AudioStream *currentStream = [self nowPlaying];
 	
@@ -1354,15 +1367,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[self setNowPlaying:nil];
 	}
 	
-	NSError		*error		= nil;
-	BOOL		result		= [[self player] setStream:stream error:&error];
+	[self setPlaybackIndex:index];
+	[self setNextPlaybackIndex:NSNotFound];
+	
+	AudioStream		*stream		= [[self playbackContext] objectAtIndex:[self playbackIndex]];
+	NSError			*error		= nil;
+	BOOL			result		= [[self player] setStream:stream error:&error];
 	
 	if(NO == result) {
 		/*BOOL errorRecoveryDone =*/ [self presentError:error];
 		return;
 	}
 	
-	[stream setPlaying:YES];	
+	[stream setPlaying:YES];
 	[self setNowPlaying:stream];
 	
 	if(nil == [stream valueForKey:@"albumArt"]) {
@@ -1438,8 +1455,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
 	[browserRoot setIcon:folderIcon];
 	
-	LibraryNode *libraryNode = [[LibraryNode alloc] init];
-	[libraryNode setIcon:cdIcon];
+	_libraryNode = [[LibraryNode alloc] init];
+	[_libraryNode setIcon:cdIcon];
 
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
@@ -1453,18 +1470,17 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode *watchedFoldersNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")];
 	[watchedFoldersNode setIcon:folderIcon];
 
-	[browserRoot addChild:[libraryNode autorelease]];
+	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
 	[browserRoot addChild:[watchedFoldersNode autorelease]];
 
 	[_browserController setContent:[browserRoot autorelease]];
-	
+
 	// Select the LibraryNode
-	unsigned indexPathIndexes [] = {0, 0};
-	BOOL success = [_browserController setSelectionIndexPath:[NSIndexPath indexPathWithIndexes:indexPathIndexes length:2]];
-	NSAssert(YES == success, @"Unable to set selection in browser");
+	BOOL success = [self selectLibraryNode];
+	NSAssert(YES == success, @"Unable to set browser selection to LibraryNode");
 	
 	// Setup the custom data cell
 	NSTableColumn		*tableColumn		= [_browserOutlineView tableColumnWithIdentifier:@"name"];

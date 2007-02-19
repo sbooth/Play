@@ -20,15 +20,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
-@class Playlist;
+@class AudioStream, Playlist;
 @class AudioPlayer;
 @class CollectionManager;
-@class AudioStreamTableView;
-@class AudioStreamArrayController;
-@class BrowserOutlineView;
-@class BrowserTreeController;
-@class BrowserNode;
+@class AudioStreamTableView, AudioStreamArrayController;
+@class BrowserOutlineView, BrowserTreeController;
+@class BrowserNode, LibraryNode;
 
 // ========================================
 // Notification Names
@@ -78,13 +75,18 @@ extern NSString * const		PlaylistObjectKey;
 	BOOL					_loopPlayback;
 	BOOL					_playButtonEnabled;
 	
+	BOOL					_streamsAreOrdered;
+
+	NSArray					*_playbackContext;	
+	unsigned				_playbackIndex;
+	unsigned				_nextPlaybackIndex;
+	
+	LibraryNode				*_libraryNode;
+	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
 	NSMenu					*_streamTableHeaderContextMenu;
-	NSArray					*_streamTableSavedSortDescriptors;
-
-	BOOL					_streamsAreOrdered;
-	NSArray					*_playbackContext;	
+	NSArray					*_streamTableSavedSortDescriptors;	
 }
 
 // ========================================
@@ -137,6 +139,17 @@ extern NSString * const		PlaylistObjectKey;
 - (IBAction)	showPlaylistInformationSheet:(id)sender;
 
 // ========================================
+// Playback Context
+- (NSArray *)	playbackContext;
+- (void)		setPlaybackContext:(NSArray *)playbackContext;
+
+- (AudioStream *) streamInPlaybackContextAtIndex:(unsigned)index;
+
+// ========================================
+// Browser support
+- (BOOL)		selectLibraryNode;
+
+// ========================================
 // Library properties
 - (BOOL)		randomizePlayback;
 - (void)		setRandomizePlayback:(BOOL)randomizePlayback;
@@ -153,8 +166,6 @@ extern NSString * const		PlaylistObjectKey;
 - (AudioStream *)	nowPlaying;
 - (void)			setNowPlaying:(AudioStream *)nowPlaying;
 
-- (NSArray *)	playbackContext;
-- (void)		setPlaybackContext:(NSArray *)playbackContext;
 
 - (BOOL)		streamsAreOrdered;
 
@@ -164,8 +175,9 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // AudioPlayer callbacks
-- (void)		streamPlaybackDidStart:(AudioStream *)stream;
-- (void)		streamPlaybackDidComplete:(AudioStream *)stream;
+- (void)		streamPlaybackDidStart;
+- (void)		streamPlaybackDidComplete;
+
 - (void)		requestNextStream;
 
 @end

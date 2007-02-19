@@ -702,7 +702,7 @@ MyRenderNotification(void							*inRefCon,
 {
 	[self stop];
 	//	[_owner streamPlaybackDidComplete];
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete:) withObject:nil waitUntilDone:NO];
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
 }
 
 //- (void) didReadFrames:(NSNumber *)frameCount
@@ -731,11 +731,12 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) didStartUsingNextStreamDecoder
 {
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
 	[self setStreamDecoder:[self nextStreamDecoder]];
 	[self setNextStreamDecoder:nil];
 	_requestedNextStream = NO;
 	
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart:) withObject:[[self streamDecoder] stream] waitUntilDone:NO];
+	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart) withObject:nil waitUntilDone:NO];
 }
 
 - (void) currentFrameNeedsUpdate
