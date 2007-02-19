@@ -40,7 +40,7 @@
 - (void) refreshStreams;
 
 - (BOOL) streamsAreOrdered;
-- (BOOL) allowReordering;
+- (BOOL) streamReorderingAllowed;
 
 // ========================================
 // State management

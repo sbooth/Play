@@ -46,13 +46,13 @@
 - (void) refreshStreams
 {}
 
-- (BOOL) streamsAreOrdered		{ return NO; }
-- (BOOL) allowReordering		{ return NO; }
+- (BOOL) streamsAreOrdered			{ return NO; }
+- (BOOL) streamReorderingAllowed	{ return NO; }
 
 #pragma mark State management
 
-- (BOOL) canInsertStream		{ return YES; }
-- (BOOL) canRemoveStream		{ return YES; }
+- (BOOL) canInsertStream			{ return YES; }
+- (BOOL) canRemoveStream			{ return YES; }
 
 #pragma mark KVC Accessors
 

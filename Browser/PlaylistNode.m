@@ -62,9 +62,9 @@
 	[[self playlist] setValue:_name forKey:PlaylistNameKey];
 }
 
-- (BOOL) nameIsEditable			{ return YES; }
-- (BOOL) streamsAreOrdered		{ return YES; }
-- (BOOL) allowReordering		{ return YES; }
+- (BOOL) nameIsEditable				{ return YES; }
+- (BOOL) streamsAreOrdered			{ return YES; }
+- (BOOL) streamReorderingAllowed	{ return YES; }
 
 - (void) loadStreams
 {
