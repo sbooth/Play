@@ -1002,9 +1002,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[CollectionManager manager] finishUpdate];
 
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+
 	[self setPlaybackIndex:[self nextPlaybackIndex]];
 	[self setNextPlaybackIndex:NSNotFound];
 	
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+
 	stream = [[self playbackContext] objectAtIndex:[self playbackIndex]];
 	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
 	
@@ -1037,6 +1041,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	[[CollectionManager manager] finishUpdate];
+
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	[self setPlaybackIndex:NSNotFound];
 	
 	// If the player isn't playing, it's the end of the road for now
@@ -1089,37 +1095,64 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 @implementation AudioLibrary (NSTableViewDelegateMethods)
 
-- (NSString *) tableView:(NSTableView *)aTableView toolTipForCell:(NSCell *)aCell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
+- (NSString *) tableView:(NSTableView *)tableView toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
 {
-    if([aCell isKindOfClass:[NSTextFieldCell class]]) {
-        if([[aCell attributedStringValue] size].width > rect->size.width) {
-            return [aCell stringValue];
+    if([cell isKindOfClass:[NSTextFieldCell class]]) {
+        if([[cell attributedStringValue] size].width > rect->size.width) {
+            return [cell stringValue];
         }
     }
 	
     return nil;
 }
 
-- (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+/*- (float) tableView:(NSTableView *)tableView heightOfRow:(int)row
 {
-	NSDictionary *infoForBinding = [aTableView infoForBinding:NSContentBinding];
+	NSDictionary	*infoForBinding		= [tableView infoForBinding:NSContentBinding];
+	BOOL			highlight			= NO;
+	
+	if(nil != infoForBinding) {
+		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
+		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:row];
+		
+		highlight = ([stream isPlaying] && row == (int)[self playbackIndex]);
+	}
+	
+	return (highlight ? 18.0 : 16.0);
+}*/
 
-	if(nil != infoForBinding && [aCell respondsToSelector:@selector(setDrawsBackground:)]) {
+- (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+	NSDictionary *infoForBinding = [tableView infoForBinding:NSContentBinding];
+
+	if(nil != infoForBinding) {
 		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
 		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+		BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
 		
 		// Highlight the currently playing stream (doesn't work for NSButtonCell)
-		if([stream isPlaying]) {
-			[aCell setDrawsBackground:YES];
-			
-			// Emacs "NavajoWhite" -> 255, 222, 173
-//			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
-			// Emacs "LightSteelBlue" -> 176, 196, 222
-			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
+		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
+			if(highlight) {
+				[cell setDrawsBackground:YES];	
+				// Emacs "NavajoWhite" -> 255, 222, 173
+	//			[cell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
+				// Emacs "LightSteelBlue" -> 176, 196, 222
+				[cell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
+			}
+			else {
+				[cell setDrawsBackground:NO];
+			}
+		}
+
+		// Bold/unbold cell font as required
+		NSFont *font = [cell font];
+		if(highlight) {
+			font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:NSBoldFontMask];
 		}
 		else {
-			[aCell setDrawsBackground:NO];
+			font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:NSUnboldFontMask];			
 		}
+		[cell setFont:font];
 	}
 }
 
@@ -1367,8 +1400,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[self setNowPlaying:nil];
 	}
 	
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	
 	[self setPlaybackIndex:index];
 	[self setNextPlaybackIndex:NSNotFound];
+	
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	
 	AudioStream		*stream		= [[self playbackContext] objectAtIndex:[self playbackIndex]];
 	NSError			*error		= nil;
@@ -1381,7 +1418,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[stream setPlaying:YES];
 	[self setNowPlaying:stream];
-	
+
 	if(nil == [stream valueForKey:@"albumArt"]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	}
