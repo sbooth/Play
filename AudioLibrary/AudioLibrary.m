@@ -249,8 +249,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[_playbackContext release], _playbackContext = nil;
 	
-	[_browserRoot release], _browserRoot = nil;
-	
 	[super dealloc];
 }
 
@@ -1179,49 +1177,61 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
 {
-	NSOutlineView		*outlineView	= [notification object];
-	int					selectedRow		= [outlineView selectedRow];
-	id					opaqueNode		= [outlineView itemAtRow:selectedRow];
-	BrowserNode			*node			= [opaqueNode observedObject];
+	NSOutlineView				*outlineView		= [notification object];
+	int							selectedRow			= [outlineView selectedRow];
+	id							opaqueNode			= [outlineView itemAtRow:selectedRow];
+	BrowserNode					*node				= [opaqueNode observedObject];
+	NSArray						*selected			= [_streamController selectedObjects];
+	NSDictionary				*bindingInfo		= [_streamController infoForBinding:@"contentArray"];
+	AudioStreamCollectionNode	*oldStreamsNode		= [bindingInfo valueForKey:NSObservedObjectKey];
 
+	// Unbind the current stream source
+	[_streamController unbind:@"contentArray"];
+	[_streamController setContent:nil];
+	
+	// Don't do anything except possibly save the sort descriptors if the user selected nothing
 	if(nil == node) {
-		[_streamController unbind:@"contentArray"];
-		[_streamController setContent:nil];
+		if(NO == [oldStreamsNode streamsAreOrdered]) {
+			[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
+			_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
+			[_streamController setSortDescriptors:nil];
+		}
 		return;
 	}
 	
-	NSArray				*selected		= [_streamController selectedObjects];
-	
-	// Display the appropriate set of streams if the selected node supports it
+	// Bind to a new stream source if one was selected
 	if([[node exposedBindings] containsObject:@"streams"]) {
-		// Don't re-bind to the same data source
-		NSDictionary				*bindingInfo		= [_streamController infoForBinding:@"contentArray"];
-		AudioStreamCollectionNode	*oldStreamsNode		= [bindingInfo valueForKey:NSObservedObjectKey];
-		AudioStreamCollectionNode	*newStreamsNode		= (AudioStreamCollectionNode *)node;
+		AudioStreamCollectionNode *newStreamsNode = (AudioStreamCollectionNode *)node;
 		
-		if(NO == [oldStreamsNode isEqual:newStreamsNode]) {			
-			// For ordered nodes such as playlists, don't use sort descriptors initially
-			if(NO == [oldStreamsNode streamsAreOrdered] && [newStreamsNode streamsAreOrdered]) {
+		// Don't re-bind to the same data source
+		if(NO == [oldStreamsNode isEqual:newStreamsNode]) {
+
+			// For unordered streeams (such as the library, album, and artist nodes) use whatever sort descriptors
+			// the user has configured.  For ordered streams (such as playlists) default to no sort descriptors
+			// so the streams show up in the order the user might expect
+			// When switching between ordered and unordered sources, save the source descriptors to restore later
+			if(nil == oldStreamsNode) {
+				if(NO == [newStreamsNode streamsAreOrdered]) {
+					[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
+				}
+			}
+			else if([oldStreamsNode streamsAreOrdered]) {
+				if(NO == [newStreamsNode streamsAreOrdered]) {
+					[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
+				}
+			}
+			else if(NO == [oldStreamsNode streamsAreOrdered]) {
+				[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 				_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
 				[_streamController setSortDescriptors:nil];
 			}
-			else if([oldStreamsNode streamsAreOrdered] && NO == [newStreamsNode streamsAreOrdered]) {
-				[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
-				[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
-			}
-			
-			[_streamController unbind:@"contentArray"];
-			[_streamController setContent:nil];
 			
 			[_streamController bind:@"contentArray" toObject:newStreamsNode withKeyPath:@"streams" options:nil];
 			[_streamController setSelectedObjects:selected];
-			
+
+			// Save stream ordering for drag validation
 			_streamsAreOrdered = [newStreamsNode streamsAreOrdered];
 		}
-	}
-	else {
-		[_streamController unbind:@"contentArray"];
-		[_streamController setContent:nil];
 	}
 }
 
@@ -1425,8 +1435,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[cdIcon setSize:NSMakeSize(16.0, 16.0)];
 
-	_browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
-	[_browserRoot setIcon:folderIcon];
+	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
+	[browserRoot setIcon:folderIcon];
 	
 	LibraryNode *libraryNode = [[LibraryNode alloc] init];
 	[libraryNode setIcon:cdIcon];
@@ -1443,13 +1453,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode *watchedFoldersNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")];
 	[watchedFoldersNode setIcon:folderIcon];
 
-	[_browserRoot addChild:[libraryNode autorelease]];
-	[_browserRoot addChild:[artistsNode autorelease]];
-	[_browserRoot addChild:[albumsNode autorelease]];
-	[_browserRoot addChild:[playlistsNode autorelease]];
-	[_browserRoot addChild:[watchedFoldersNode autorelease]];
+	[browserRoot addChild:[libraryNode autorelease]];
+	[browserRoot addChild:[artistsNode autorelease]];
+	[browserRoot addChild:[albumsNode autorelease]];
+	[browserRoot addChild:[playlistsNode autorelease]];
+	[browserRoot addChild:[watchedFoldersNode autorelease]];
 
-	[_browserController setContent:_browserRoot];
+	[_browserController setContent:[browserRoot autorelease]];
 	
 	// Select the LibraryNode
 	unsigned indexPathIndexes [] = {0, 0};
