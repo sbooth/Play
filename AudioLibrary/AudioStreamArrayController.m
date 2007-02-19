@@ -19,6 +19,7 @@
  */
 
 #import "AudioStreamArrayController.h"
+#import "CollectionManager.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 
@@ -144,6 +145,8 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 	unsigned		removeIndex;
 	id				object;
 	
+	[[CollectionManager manager] beginUpdate];
+	
 	while(NSNotFound != index) {
 		if(index >= insertIndex) {
 			removeIndex = index + aboveInsertIndexCount;
@@ -159,6 +162,8 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 		
 		index = [indexSet indexLessThanIndex:index];
 	}
+
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (NSIndexSet *) indexSetForRows:(NSArray *)rows
