@@ -85,8 +85,6 @@ extern NSString * const		PlaylistObjectKey;
 
 	BOOL					_streamsAreOrdered;
 	NSArray					*_playbackContext;	
-	
-	BrowserNode				*_browserRoot;
 }
 
 // ========================================
