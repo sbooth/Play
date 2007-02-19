@@ -29,7 +29,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Playback Context", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Current Streams", @"General", @"")])) {
 		[[AudioLibrary library] addObserver:self forKeyPath:@"playbackContext" options:nil context:NULL];
 	}
 	return self;
@@ -47,9 +47,9 @@
 	[self refreshStreams];
 }
 
-- (BOOL) nameIsEditable			{ return NO; }
-- (BOOL) streamsAreOrdered		{ return YES; }
-- (BOOL) allowReordering		{ return NO; }
+- (BOOL) nameIsEditable				{ return NO; }
+- (BOOL) streamsAreOrdered			{ return YES; }
+- (BOOL) streamReorderingAllowed	{ return YES; }
 
 - (void) loadStreams
 {
@@ -69,9 +69,12 @@
 #pragma mark KVC Mutators Overrides
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
-{}
+{
+	[super insertObject:stream inStreamsAtIndex:index];
+}
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
-{}
+{
+}
 
 @end
