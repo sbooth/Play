@@ -34,6 +34,12 @@
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Artists", @"General", @"")])) {
 		[self loadChildren];
+
+		[[[CollectionManager manager] streamManager] addObserver:self 
+													  forKeyPath:@"streams"
+														 options:nil
+														 context:nil];
+		
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataArtistKey
 														 options:nil
@@ -44,6 +50,7 @@
 
 - (void) dealloc
 {
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:MetadataArtistKey];
 	
 	[super dealloc];
