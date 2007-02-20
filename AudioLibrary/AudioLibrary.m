@@ -121,6 +121,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 @interface AudioLibrary (Private)
 - (AudioPlayer *) player;
 
+- (void) scrollNowPlayingToVisible;
+
 - (unsigned) playbackIndex;
 - (void) setPlaybackIndex:(unsigned)playbackIndex;
 
@@ -354,8 +356,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	else if([anItem action] == @selector(insertPlaylistWithSelection:)) {
 		return ([_browserController canInsertPlaylist] && 0 != [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(scrollNowPlayingToVisible:)) {
-		return (nil != [self nowPlaying] && [[_streamController arrangedObjects] containsObject:[self nowPlaying]]);
+	else if([anItem action] == @selector(jumpToNowPlaying:)) {
+		return (nil != [self nowPlaying] && 0 != [self countOfCurrentStreams]);
 	}
 	else if([anItem action] == @selector(showCurrentStreams:)) {
 		return (0 != [self countOfCurrentStreams]);
@@ -400,11 +402,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					  contextInfo:nil];
 }
 
-- (IBAction) scrollNowPlayingToVisible:(id)sender
+- (IBAction) jumpToNowPlaying:(id)sender
 {
-	AudioStream *stream = [self nowPlaying];
-	if(nil != stream && [[_streamController arrangedObjects] containsObject:stream]) {
-		[_streamTable scrollRowToVisible:[[_streamController arrangedObjects] indexOfObject:stream]];
+	if(nil != [self nowPlaying] && 0 != [self countOfCurrentStreams] && [self selectCurrentStreamsNode]) {
+		[self scrollNowPlayingToVisible];
 	}
 }
 
@@ -676,15 +677,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if(NO == [[self player] hasValidStream]) {
 		if([self randomizePlayback]) {
-			NSArray				*streams;
-			double				randomNumber;
-			unsigned			randomIndex;
+			NSArray		*streams			= [_streamController arrangedObjects];
+			double		randomNumber		= genrand_real2();
+			unsigned	randomIndex			= (unsigned)(randomNumber * [streams count]);
 			
-			streams				= [_streamController arrangedObjects];
-			randomNumber		= genrand_real2();
-			randomIndex			= (unsigned)(randomNumber * [streams count]);
-			
-			[self setCurrentStreamsFromArray:[_streamController arrangedObjects]];			
+			[self setCurrentStreamsFromArray:streams];
 			[self playStreamAtIndex:randomIndex];
 		}
 		else {
@@ -730,7 +727,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		return;
 	}
 	
-	[self setCurrentStreamsFromArray:[_streamController arrangedObjects]];		
+	// Don't set the current streams if they are already in there
+	int				selectedRow			= [_browserOutlineView selectedRow];
+	id				opaqueNode			= [_browserOutlineView itemAtRow:selectedRow];
+	BrowserNode		*node				= [opaqueNode observedObject];
+
+	if(NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
+		[self setCurrentStreamsFromArray:[_streamController arrangedObjects]];
+	}
 
 	if(0 == [[_streamController selectedObjects] count]) {
 		[self playStreamAtIndex:0];
@@ -1399,6 +1403,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return _player;
 }
 
+- (void) scrollNowPlayingToVisible
+{
+	[_streamTable scrollRowToVisible:[self playbackIndex]];
+}
+
 - (unsigned) playbackIndex
 {
 	return _playbackIndex;
@@ -1459,7 +1468,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// TODO: Is this the desired behavior?
 	[self selectCurrentStreamsNode];
-	
+	[self scrollNowPlayingToVisible];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
@@ -1472,7 +1482,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self willChangeValueForKey:@"currentStreams"];	
 	[_currentStreams removeAllObjects];
 	[_currentStreams addObjectsFromArray:streams];
-	[self didChangeValueForKey:@"currentStreams"];	
+	[self didChangeValueForKey:@"currentStreams"];
 }
 
 - (void) updatePlayButtonState

@@ -136,7 +136,7 @@ extern NSString * const		PlaylistObjectKey;
 - (IBAction)	toggleBrowser:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;
 
-- (IBAction)	scrollNowPlayingToVisible:(id)sender;
+- (IBAction)	jumpToNowPlaying:(id)sender;
 - (IBAction)	showCurrentStreams:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;

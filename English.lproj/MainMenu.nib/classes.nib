@@ -7,12 +7,12 @@
                 insertFolderPlaylist = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
+                jumpToNowPlaying = id; 
                 nextPlaylist = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
                 previousPlaylist = id; 
-                scrollNowPlayingToVisible = id; 
                 showCurrentStreams = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
