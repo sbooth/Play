@@ -245,12 +245,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[[CollectionManager manager] connectToDatabase:databasePath];
 		
 		_currentStreams = [[NSMutableArray alloc] init];
+		
+		[[[CollectionManager manager] streamManager] addObserver:self 
+													  forKeyPath:@"streams"
+														 options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew)
+														 context:NULL];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
+
 	[[CollectionManager manager] disconnectFromDatabase];
 
 	[_player release], _player = nil;
@@ -372,6 +379,28 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	return YES;
 }
 
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+	int changeKind = [[change valueForKey:NSKeyValueChangeKindKey] intValue];
+
+	if(NSKeyValueChangeRemoval == changeKind) {
+		NSEnumerator	*removedStreams		= [[change valueForKey:NSKeyValueChangeOldKey] objectEnumerator];
+		AudioStream		*stream				= nil;
+		
+		while((stream = [removedStreams nextObject])) {
+			if([_currentStreams containsObject:stream]) {
+				[self willChangeValueForKey:@"currentStreams"];
+				[_currentStreams removeObject:stream];
+				[self didChangeValueForKey:@"currentStreams"];
+			}
+		}
+	}
+	
+	if(NSKeyValueChangeInsertion == changeKind || NSKeyValueChangeRemoval == changeKind) {
+		[self updatePlayButtonState];
+	}
+}
+
 #pragma mark Action Methods
 
 - (IBAction) toggleBrowser:(id)sender
@@ -490,10 +519,14 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (BOOL) addFile:(NSString *)filename
 {
-	AudioStream				*stream				= nil;
-	NSError					*error				= nil;
-//	NSArray					*selectedPlaylists	= [_playlistController selectedObjects];
+	NSError *error = nil;
 	
+	// If the stream already exists in the library, do nothing
+	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+	if(nil != stream) {
+		return YES;
+	}
+
 	// First read the properties
 	AudioPropertiesReader *propertiesReader = [AudioPropertiesReader propertiesReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
 	if(nil == propertiesReader) {
@@ -524,16 +557,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(nil != stream) {
 		[_streamController addObject:stream];
-		
-//		if(0 < [selectedPlaylists count]) {
-//			[playlist addStream:stream];
-//		}
-	}
-	else {
-		// If we couldn't add the file, cheeck if it exists in the library
-		// Perform this check here, not at the beginning, to avoid hitting the database twice
-		// for every file addition
-		stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+		// TODO: Add stream to playlist
 	}
 		
 	return (nil != stream);
@@ -677,7 +701,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if(NO == [[self player] hasValidStream]) {
 		if([self randomizePlayback]) {
-			NSArray		*streams			= [_streamController arrangedObjects];
+			NSArray		*streams			= (1 < [[_streamController selectedObjects] count] ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
 			double		randomNumber		= genrand_real2();
 			unsigned	randomIndex			= (unsigned)(randomNumber * [streams count]);
 			
@@ -733,13 +757,16 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	BrowserNode		*node				= [opaqueNode observedObject];
 
 	if(NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
-		[self setCurrentStreamsFromArray:[_streamController arrangedObjects]];
+		unsigned selectedObjectsCount = [[_streamController selectedObjects] count];
+		NSArray *streams = (1 < selectedObjectsCount ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
+		NSIndexSet *savedSelectionIndexes = [_streamController selectionIndexes];
+		[self setCurrentStreamsFromArray:streams];
+		[self playStreamAtIndex:(1 != selectedObjectsCount ? 0 : [_streamController selectionIndex])];
+		if(1 < selectedObjectsCount) {			
+			[_streamController setSelectionIndexes:savedSelectionIndexes];
+		}
 	}
-
-	if(0 == [[_streamController selectedObjects] count]) {
-		[self playStreamAtIndex:0];
-	}
-	else {
+	else {		
 		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
 	
@@ -1467,8 +1494,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[self player] play];
 	
-	// TODO: Is this the desired behavior?
 	[self selectCurrentStreamsNode];
+	// TODO: Is this the desired behavior?
 	[self scrollNowPlayingToVisible];
 
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
@@ -1513,7 +1540,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];
 		
-		[self setPlayButtonEnabled:(0 != [[_streamController arrangedObjects] count])];
+		[self setPlayButtonEnabled:(0 != [self countOfCurrentStreams])];
 	}
 	else {
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
