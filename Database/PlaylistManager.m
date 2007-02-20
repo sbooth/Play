@@ -128,7 +128,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t start = clock();
 #endif
 	
@@ -144,7 +144,7 @@
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Loaded playlist in %f seconds", elapsed);
@@ -532,7 +532,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t start = clock();
 #endif
 	
@@ -546,7 +546,7 @@
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Loaded %i playlists in %f seconds (%i per second)", [playlists count], elapsed, (double)[playlists count] / elapsed);
@@ -599,9 +599,9 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t start = clock();
-#endif*/
+#endif
 	
 	@try {
 		// Location
@@ -635,11 +635,11 @@
 		success = NO;
 	}
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream insertion time = %f seconds", elapsed);
-#endif*/
+#endif
 	
 	return success;
 }
@@ -656,9 +656,9 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t start = clock();
-#endif*/
+#endif
 	
 	// ID and Name
 	bindNamedParameter(statement, ":id", playlist, ObjectIDKey, eObjectTypeUnsignedInteger);
@@ -679,11 +679,11 @@
 	result = sqlite3_clear_bindings(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream update time = %f seconds", elapsed);
-#endif*/
+#endif
 	
 	// Reset the object with the stored values
 	[playlist initValuesForKeysWithDictionary:changes];
@@ -701,9 +701,9 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG
 	clock_t start = clock();
-#endif*/
+#endif
 	
 	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), objectID);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -717,11 +717,11 @@
 	result = sqlite3_clear_bindings(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-/*#if SQL_DEBUG
+#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream delete time = %f seconds", elapsed);
-#endif*/
+#endif
 	
 	// Deregister the object
 	NSMapRemove(_registeredPlaylists, (void *)objectID);
@@ -740,7 +740,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t start = clock();
 #endif*/
 	
@@ -784,7 +784,7 @@
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	}
 	
-#if SQL_DEBUG
+#if SQL_DEBUG_
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Playlist stream update time = %f seconds", elapsed);
