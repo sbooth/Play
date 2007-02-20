@@ -1085,6 +1085,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	if(NO == [[self player] isPlaying]) {
 		[self setNowPlaying:nil];
 		[[self player] reset];
+		[self updatePlayButtonState];
 	}
 }
 
