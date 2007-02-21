@@ -42,6 +42,12 @@
 			[_browserController remove:event];
 		}
 	}
+	if(0x0020 == key && 0 == flags) {
+		[[AudioLibrary library] playPause:self];
+	}
+	else if(NSCarriageReturnCharacter == key && 0 == flags) {
+		[[AudioLibrary library] playSelection:self];
+	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 
 	}
