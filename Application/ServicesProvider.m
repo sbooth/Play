@@ -47,7 +47,7 @@
 		}
 
 		if(successfullyPlayed) {
-			[[AudioLibrary library] scrollNowPlayingToVisible:self];
+			[[AudioLibrary library] jumpToNowPlaying:self];
 		}
 		else {
 			*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
