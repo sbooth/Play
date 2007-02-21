@@ -6,6 +6,7 @@
         {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
             ACTIONS = {
+                addSelectedStreamsToCurrentStreams = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
                 nextPlaylist = id; 
