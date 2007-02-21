@@ -20,11 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioLibrary;
-
 @interface AudioLibraryWindow : NSWindow
 {
-	IBOutlet AudioLibrary *_library;
 }
 
 @end

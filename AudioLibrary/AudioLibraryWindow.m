@@ -29,16 +29,16 @@
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
 		
 	if(0x0020 == key && 0 == flags) {
-		[_library playPause:self];
+		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
-		[_library playSelection:self];
+		[[AudioLibrary library] playSelection:self];
 	}
 	else if(0xf702 == key && 0 == flags) {
-		[_library skipBackward:self];
+		[[AudioLibrary library] skipBackward:self];
 	}
 	else if(0xf703 == key && 0 == flags) {
-		[_library skipForward:self];
+		[[AudioLibrary library] skipForward:self];
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 

@@ -51,7 +51,7 @@
         {
             CLASS = AudioLibraryWindow; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_library" = AudioLibrary; }; 
+            OUTLETS = {}; 
             SUPERCLASS = NSWindow; 
         }, 
         {
