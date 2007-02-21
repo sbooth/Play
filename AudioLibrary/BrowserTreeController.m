@@ -73,7 +73,7 @@
 	BrowserNode		*node			= nil;
 	
 	while((node = [enumerator nextObject])) {
-		if(NO == [node isKindOfClass:[PlaylistNode class]] && NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
+		if(NO == [node isKindOfClass:[PlaylistNode class]] || NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
 			return NO;
 		}
 	}
