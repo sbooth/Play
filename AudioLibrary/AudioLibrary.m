@@ -123,6 +123,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) scrollNowPlayingToVisible;
 
+- (void) setPlayButtonEnabled:(BOOL)playButtonEnabled;
+
 - (unsigned) playbackIndex;
 - (void) setPlaybackIndex:(unsigned)playbackIndex;
 
@@ -150,6 +152,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 + (void)initialize
 {
+	[self exposeBinding:@"randomizePlayback"];
+	[self exposeBinding:@"loopPlayback"];
+	[self exposeBinding:@"currentStreams"];
+	[self exposeBinding:@"canPlayNextStream"];
+	[self exposeBinding:@"canPlayPreviousStream"];
+	
+	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
+	
 	// Setup table column defaults
 	NSDictionary *visibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"id",
@@ -244,7 +255,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		
 		[[CollectionManager manager] connectToDatabase:databasePath];
 		
-		_currentStreams = [[NSMutableArray alloc] init];
+		_currentStreams		= [[NSMutableArray alloc] init];
+		_playbackIndex		= NSNotFound;
+		_nextPlaybackIndex	= NSNotFound;
 		
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:@"streams"
@@ -408,6 +421,24 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_browserDrawer toggle:sender];
 }
 
+- (IBAction) addSelectedStreamsToCurrentStreams:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		return;
+	}
+	
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[self willChangeValueForKey:@"currentStreams"];
+	while((stream = [enumerator nextObject])) {
+		[_currentStreams addObject:stream];
+	}
+	[self didChangeValueForKey:@"currentStreams"];
+	
+	[self updatePlayButtonState];
+}
+
 - (IBAction) removeSelectedStreams:(id)sender
 {
 	[[CollectionManager manager] beginUpdate];
@@ -429,6 +460,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 					modalDelegate:self 
 				   didEndSelector:@selector(openDocumentSheetDidEnd:returnCode:contextInfo:)
 					  contextInfo:nil];
+}
+
+- (IBAction) jumpToLibrary:(id)sender
+{
+	/*BOOL success =*/ [self selectLibraryNode];
 }
 
 - (IBAction) jumpToNowPlaying:(id)sender
@@ -708,6 +744,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[self setCurrentStreamsFromArray:streams];
 			[self playStreamAtIndex:randomIndex];
 		}
+		else if(0 != [self countOfCurrentStreams]) {
+			[self playStreamAtIndex:0];
+		}
 		else {
 			[self playSelection:sender];
 		}
@@ -778,6 +817,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AudioStream *stream = [self nowPlaying];
 
 	[self setPlaybackIndex:NSNotFound];
+	[self setNextPlaybackIndex:NSNotFound];
 	[self setNowPlaying:nil];
 
 	if([[self player] hasValidStream]) {
@@ -955,7 +995,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void)		setLoopPlayback:(BOOL)loopPlayback					{ _loopPlayback = loopPlayback; }
 
 - (BOOL)		playButtonEnabled									{ return _playButtonEnabled; }
-- (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
 
 - (BOOL) canPlayNextStream
 {
@@ -1065,8 +1104,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	[[CollectionManager manager] finishUpdate];
 
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-
 	[self setPlaybackIndex:[self nextPlaybackIndex]];
 	[self setNextPlaybackIndex:NSNotFound];
 	
@@ -1106,6 +1143,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[[CollectionManager manager] finishUpdate];
 
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	
 	[self setPlaybackIndex:NSNotFound];
 	
 	// If the player isn't playing, it's the end of the road for now
@@ -1218,6 +1256,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}
 		[cell setFont:font];
 	}
+}
+
+- (void) tableViewSelectionDidChange:(NSNotification *)aNotification
+{
+	[self updatePlayButtonState];
 }
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
@@ -1436,25 +1479,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamTable scrollRowToVisible:[self playbackIndex]];
 }
 
-- (unsigned) playbackIndex
-{
-	return _playbackIndex;
-}
+- (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
 
-- (void) setPlaybackIndex:(unsigned)playbackIndex
-{
-	_playbackIndex = playbackIndex;
-}
+- (unsigned)	playbackIndex										{ return _playbackIndex; }
+- (void)		setPlaybackIndex:(unsigned)playbackIndex			{ _playbackIndex = playbackIndex; }
 
-- (unsigned) nextPlaybackIndex
-{
-	return _nextPlaybackIndex;
-}
-
-- (void) setNextPlaybackIndex:(unsigned)nextPlaybackIndex
-{
-	_nextPlaybackIndex = nextPlaybackIndex;
-}
+- (unsigned)	nextPlaybackIndex									{ return _nextPlaybackIndex; }
+- (void)		setNextPlaybackIndex:(unsigned)nextPlaybackIndex	{ _nextPlaybackIndex = nextPlaybackIndex; }
 
 - (void) playStreamAtIndex:(unsigned)index
 {
@@ -1540,7 +1571,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];
 		
-		[self setPlayButtonEnabled:(0 != [self countOfCurrentStreams])];
+		[self setPlayButtonEnabled:(0 != [self countOfCurrentStreams] || 0 != [[_streamController selectedObjects] count])];
 	}
 	else {
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];

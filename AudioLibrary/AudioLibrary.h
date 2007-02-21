@@ -47,7 +47,7 @@ extern NSString * const		AudioStreamObjectKey;
 extern NSString * const		PlaylistObjectKey;
 
 // ========================================
-// KVC compliant for @"playbackContext"
+// The main class which represents a user's audio library
 // ========================================
 @interface AudioLibrary : NSWindowController
 {
@@ -134,8 +134,11 @@ extern NSString * const		PlaylistObjectKey;
 // ========================================
 // Action methods
 - (IBAction)	toggleBrowser:(id)sender;
+
+- (IBAction)	addSelectedStreamsToCurrentStreams:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;
 
+- (IBAction)	jumpToLibrary:(id)sender;
 - (IBAction)	jumpToNowPlaying:(id)sender;
 - (IBAction)	showCurrentStreams:(id)sender;
 
@@ -165,7 +168,6 @@ extern NSString * const		PlaylistObjectKey;
 - (void)		setLoopPlayback:(BOOL)loopPlayback;
 
 - (BOOL)		playButtonEnabled;
-- (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled;
 
 - (BOOL)		canPlayNextStream;
 - (BOOL)		canPlayPreviousStream;
@@ -181,9 +183,9 @@ extern NSString * const		PlaylistObjectKey;
 
 // ========================================
 // AudioPlayer callbacks
-- (void)		streamPlaybackDidStart;
-- (void)		streamPlaybackDidComplete;
+- (void)	streamPlaybackDidStart;
+- (void)	streamPlaybackDidComplete;
 
-- (void)		requestNextStream;
+- (void)	requestNextStream;
 
 @end
