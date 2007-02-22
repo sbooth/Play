@@ -26,6 +26,7 @@
 NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
 
 NSString * const	PlaylistNameKey							= @"name";
+NSString * const	PlaylistStreamsKey						= @"streams";
 
 NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
@@ -49,7 +50,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 + (void) initialize
 {
-	[self exposeBinding:@"streams"];
+	[self exposeBinding:PlaylistStreamsKey];
 }
 
 + (id) insertPlaylistWithInitialValues:(NSDictionary *)keyedValues
@@ -298,10 +299,10 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (void) loadStreams
 {
-	[self willChangeValueForKey:@"streams"];
+	[self willChangeValueForKey:PlaylistStreamsKey];
 	[_streams removeAllObjects];
 	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForPlaylist:self]];
-	[self didChangeValueForKey:@"streams"];
+	[self didChangeValueForKey:PlaylistStreamsKey];
 }
 
 @end

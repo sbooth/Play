@@ -41,6 +41,8 @@ extern NSString * const		StatisticsFirstPlayedDateKey;
 extern NSString * const		StatisticsLastPlayedDateKey;
 extern NSString * const		StatisticsPlayCountKey;
 
+extern NSString * const		PlaylistStreamsKey;
+
 @class CollectionManager;
 @class AudioStream;
 
