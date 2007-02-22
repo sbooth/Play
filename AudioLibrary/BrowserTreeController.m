@@ -23,6 +23,7 @@
 #import "AudioStreamManager.h"
 #import "BrowserNode.h"
 #import "PlaylistNode.h"
+#import "LibraryNode.h"
 #import "CurrentStreamsNode.h"
 #import "Playlist.h"
 
@@ -64,6 +65,28 @@
 - (BOOL) canInsertPlaylist
 {
 	return [self canInsert];
+}
+
+- (BrowserNode *) selectedNode
+{
+	NSArray *selectedObjects = [self selectedObjects];
+
+	return (0 == [selectedObjects count] ? nil : [selectedObjects objectAtIndex:0]);
+}
+
+- (BOOL) selectedNodeIsCurrentStreamsNode
+{
+	return [[self selectedNode] isKindOfClass:[CurrentStreamsNode class]];
+}
+
+- (BOOL) selectedNodeIsLibraryNode
+{
+	return [[self selectedNode] isKindOfClass:[LibraryNode class]];
+}
+
+- (BOOL) selectedNodeIsPlaylistNode
+{
+	return [[self selectedNode] isKindOfClass:[PlaylistNode class]];
 }
 
 // Allow removal if all selected items are PlaylistNodes or subclasses

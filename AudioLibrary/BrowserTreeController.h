@@ -25,11 +25,20 @@
 // ========================================
 extern NSString * const		AudioStreamPboardType;
 
+@class BrowserNode;
+@class PlaylistNode;
+
 @interface BrowserTreeController : NSTreeController
 {
 	IBOutlet NSOutlineView *_outlineView;
 }
 
 - (BOOL) canInsertPlaylist;
+
+- (BrowserNode *) selectedNode;
+
+- (BOOL) selectedNodeIsCurrentStreamsNode;
+- (BOOL) selectedNodeIsLibraryNode;
+- (BOOL) selectedNodeIsPlaylistNode;
 
 @end
