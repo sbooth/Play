@@ -72,7 +72,6 @@ extern NSString * const		PlaylistObjectKey;
 	
 	@private
 	AudioPlayer				*_player;
-	AudioStream				*_nowPlaying;
 	
 	BOOL					_randomizePlayback;
 	BOOL					_loopPlayback;
@@ -172,10 +171,9 @@ extern NSString * const		PlaylistObjectKey;
 - (BOOL)		canPlayNextStream;
 - (BOOL)		canPlayPreviousStream;
 
-- (AudioStream *)	nowPlaying;
-- (void)			setNowPlaying:(AudioStream *)nowPlaying;
-
 - (BOOL)		streamsAreOrdered;
+
+- (AudioStream *) nowPlaying;
 
 // ========================================
 // Undo/redo support

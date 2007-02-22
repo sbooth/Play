@@ -51,7 +51,7 @@
 
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
-#import "StaticPlaylistInformationSheet.h"
+#import "PlaylistInformationSheet.h"
 
 #import "AudioStreamArrayController.h"
 #import "BrowserTreeController.h"
@@ -112,7 +112,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo;
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-- (void) showStaticPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 // ========================================
@@ -157,9 +157,11 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self exposeBinding:@"currentStreams"];
 	[self exposeBinding:@"canPlayNextStream"];
 	[self exposeBinding:@"canPlayPreviousStream"];
+	[self exposeBinding:@"nowPlaying"];
 	
 	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
 	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", nil] triggerChangeNotificationsForDependentKey:@"nowPlaying"];
 	
 	// Setup table column defaults
 	NSDictionary *visibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -280,8 +282,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamTableHeaderContextMenu release], _streamTableHeaderContextMenu = nil;
 	[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 
-	[_nowPlaying release], _nowPlaying = nil;
-
 	[_currentStreams release], _currentStreams = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
@@ -347,9 +347,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	else if([anItem action] == @selector(showStreamInformationSheet:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
-/*	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
-		return (0 != [[_playlistController selectedObjects] count]);
-	}*/
+	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
+		return [_browserController selectedNodeIsPlaylistNode];
+	}
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
 			|| [anItem action] == @selector(skipToEnd:) 
@@ -522,33 +522,18 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
 {
-/*	NSArray *playlists = [_playlistController selectedObjects];
+	PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
 	
-	if(0 == [playlists count]) {
-		return;
-	}
-
-	id playlist = [playlists objectAtIndex:0];
-	
-	if([playlist isKindOfClass:[Playlist class]]) {
-		[self showStaticPlaylistInformationSheet];
-	}*/
-}
-
-- (void) showStaticPlaylistInformationSheet
-{
-/*	StaticPlaylistInformationSheet *playlistInformationSheet = [[StaticPlaylistInformationSheet alloc] init];
-	
-	[playlistInformationSheet setValue:[[_playlistController selectedObjects] objectAtIndex:0] forKey:@"playlist"];
+	[playlistInformationSheet setValue:[[_browserController selectedNode] playlist] forKey:@"playlist"];
 	[playlistInformationSheet setValue:self forKey:@"owner"];
 	
-	//		[self beginUpdate];
+	[[CollectionManager manager] beginUpdate];
 	
 	[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
 								   modalForWindow:[self window] 
 									modalDelegate:self 
-								   didEndSelector:@selector(showStaticPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:playlistInformationSheet];*/
+								   didEndSelector:@selector(showPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:playlistInformationSheet];
 }
 
 #pragma mark File Addition
@@ -818,7 +803,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 	[self setPlaybackIndex:NSNotFound];
 	[self setNextPlaybackIndex:NSNotFound];
-	[self setNowPlaying:nil];
 
 	if([[self player] hasValidStream]) {
 		
@@ -861,13 +845,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
-	[self setNowPlaying:nil];
 	[stream setPlaying:NO];
 	
 	NSArray *streams = _currentStreams;
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];
+		[self setPlaybackIndex:NSNotFound];
 		[self updatePlayButtonState];
 	}
 	else if([self randomizePlayback]) {
@@ -891,6 +875,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		}
 		else {
 			[[self player] reset];
+			[self setPlaybackIndex:NSNotFound];
 			[self setCurrentStreamsFromArray:nil];
 			[self updatePlayButtonState];
 		}
@@ -902,13 +887,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
-	[self setNowPlaying:nil];
 	[stream setPlaying:NO];
 	
 	NSArray *streams = _currentStreams;
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];	
+		[self setPlaybackIndex:NSNotFound];
 	}
 	else if([self randomizePlayback]) {
 		double			randomNumber;
@@ -930,7 +915,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 			[self playStreamAtIndex:streamIndex - 1];
 		}
 		else {
-			[[self player] reset];	
+			[[self player] reset];
+			[self setPlaybackIndex:NSNotFound];
 		}
 	}
 }
@@ -1040,34 +1026,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (AudioStream *) nowPlaying
 {
-	return _nowPlaying;
-}
-
-- (void) setNowPlaying:(AudioStream *)nowPlaying
-{
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[[_streamController arrangedObjects] indexOfObject:_nowPlaying]]];
-
-	[_nowPlaying release];
-	_nowPlaying = [nowPlaying retain];
-	
-	// Update window title
-	NSString *title			= [[self nowPlaying] valueForKey:MetadataTitleKey];
-	NSString *artist		= [[self nowPlaying] valueForKey:MetadataArtistKey];
-	NSString *windowTitle	= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	
-	if(nil != title && nil != artist) {
-		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
-	}
-	else if(nil != title) {
-		windowTitle = title;
-	}
-	else if(nil != artist) {
-		windowTitle = artist;
-	}
-			
-	[[self window] setTitle:windowTitle];
-
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[[_streamController arrangedObjects] indexOfObject:_nowPlaying]]];
+	unsigned index = [self playbackIndex];
+	return (NSNotFound == index ? nil : [self objectInCurrentStreamsAtIndex:index]);
 }
 
 - (NSUndoManager *) undoManager
@@ -1084,36 +1044,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) streamPlaybackDidStart
 {
-	AudioStream		*stream			= [self nowPlaying];
-	NSNumber		*playCount;
-	NSNumber		*newPlayCount;
-
-	playCount		= [stream valueForKey:StatisticsPlayCountKey];
-	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
-	
-	[stream setPlaying:NO];
-
-	[[CollectionManager manager] beginUpdate];
-	
-	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
-	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
-	
-	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
-		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
-	}
-	
-	[[CollectionManager manager] finishUpdate];
-
 	[self setPlaybackIndex:[self nextPlaybackIndex]];
 	[self setNextPlaybackIndex:NSNotFound];
 	
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 
-	stream = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
+	AudioStream *stream = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
 	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
 	
 	[stream setPlaying:YES];
-	[self setNowPlaying:stream];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
@@ -1148,7 +1087,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	// If the player isn't playing, it's the end of the road for now
 	if(NO == [[self player] isPlaying]) {
-		[self setNowPlaying:nil];
 		[[self player] reset];
 		[self updatePlayButtonState];
 	}
@@ -1225,6 +1163,10 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
+	if(NO == [_browserController selectedNodeIsCurrentStreamsNode]) {
+		return;
+	}
+	
 	NSDictionary *infoForBinding = [tableView infoForBinding:NSContentBinding];
 
 	if(nil != infoForBinding) {
@@ -1428,18 +1370,17 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[metadataEditingSheet release];
 }
 
-- (void) showStaticPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-	StaticPlaylistInformationSheet *playlistInformationSheet = (StaticPlaylistInformationSheet *)contextInfo;
+	PlaylistInformationSheet *playlistInformationSheet = (PlaylistInformationSheet *)contextInfo;
 	
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
-		//		[self finishUpdate];
-		[_streamController rearrangeObjects];
+		[[CollectionManager manager] finishUpdate];
 	}
 	else if(NSCancelButton == returnCode) {
-		//		[self cancelUpdate];
+		[[CollectionManager manager] cancelUpdate];
 		// TODO: refresh affected objects
 	}
 	
@@ -1482,7 +1423,36 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
 
 - (unsigned)	playbackIndex										{ return _playbackIndex; }
-- (void)		setPlaybackIndex:(unsigned)playbackIndex			{ _playbackIndex = playbackIndex; }
+
+- (void) setPlaybackIndex:(unsigned)playbackIndex
+{
+	_playbackIndex = playbackIndex;
+
+	NSString *windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+	
+	if(NSNotFound != [self playbackIndex]) {
+		AudioStream *nowPlaying = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
+		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+		
+		// Update window title
+		NSString *title		= [nowPlaying valueForKey:MetadataTitleKey];
+		NSString *artist	= [nowPlaying valueForKey:MetadataArtistKey];
+		
+		if(nil != title && nil != artist) {
+			windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
+		}
+		else if(nil != title) {
+			windowTitle = title;
+		}
+		else if(nil != artist) {
+			windowTitle = artist;
+		}
+		
+		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	}
+
+	[[self window] setTitle:windowTitle];
+}
 
 - (unsigned)	nextPlaybackIndex									{ return _nextPlaybackIndex; }
 - (void)		setNextPlaybackIndex:(unsigned)nextPlaybackIndex	{ _nextPlaybackIndex = nextPlaybackIndex; }
@@ -1497,7 +1467,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	
 	if(nil != currentStream) {
 		[currentStream setPlaying:NO];
-		[self setNowPlaying:nil];
 	}
 	
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
@@ -1517,7 +1486,6 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	}
 	
 	[stream setPlaying:YES];
-	[self setNowPlaying:stream];
 
 	if(nil == [stream valueForKey:@"albumArt"]) {
 		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
