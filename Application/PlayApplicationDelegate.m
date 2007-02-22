@@ -105,23 +105,12 @@
 
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
-	BOOL successfullyAdded =  [[AudioLibrary library] addFiles:filenames];
-	
-	if(successfullyAdded) {
-		BOOL			successfullyPlayed	= NO;
-		NSEnumerator	*enumerator			= [filenames objectEnumerator];
-		NSString		*filename			= nil;
-		
-		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
-			successfullyPlayed = [[AudioLibrary library] playFile:filename];
-		}
-
-		if(successfullyPlayed) {
-			[[AudioLibrary library] scrollNowPlayingToVisible:self];
-		}
+	BOOL success = [[AudioLibrary library] addFiles:filenames];
+	if(success) {
+		success = [[AudioLibrary library] playFiles:filenames];
 	}
 	
-	[[NSApplication sharedApplication] replyToOpenOrPrint:(successfullyAdded ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
+	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
 }
 
 #pragma mark Growl

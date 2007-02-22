@@ -99,6 +99,7 @@ extern NSString * const		PlaylistObjectKey;
 // ========================================
 // Playback control
 - (BOOL)		playFile:(NSString *)filename;
+- (BOOL)		playFiles:(NSArray *)filenames;
 
 - (IBAction)	play:(id)sender;
 - (IBAction)	playPause:(id)sender;

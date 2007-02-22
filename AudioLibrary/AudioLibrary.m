@@ -522,9 +522,13 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
 {
+	if(NO == [_browserController selectedNodeIsPlaylistNode]) {
+		return;
+	}
+	
 	PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
 	
-	[playlistInformationSheet setValue:[[_browserController selectedNode] playlist] forKey:@"playlist"];
+	[playlistInformationSheet setValue:[(PlaylistNode *)[_browserController selectedNode] playlist] forKey:@"playlist"];
 	[playlistInformationSheet setValue:self forKey:@"owner"];
 	
 	[[CollectionManager manager] beginUpdate];
@@ -697,6 +701,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (BOOL) playFile:(NSString *)filename
 {
+	NSParameterAssert(nil != filename);
+	
 	// First try to find this file in our library
 	BOOL			success			= YES;
 	AudioStream		*stream			= [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
@@ -711,7 +717,49 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		
 	// Play the file, if everything worked
 	if(nil != stream) {
+		if([[self player] isPlaying]) {
+			[self stop:self];
+		}
 		[self setCurrentStreamsFromArray:[NSArray arrayWithObject:stream]];
+		[self playStreamAtIndex:0];
+	}
+	
+	return success;
+}
+
+- (BOOL) playFiles:(NSArray *)filenames
+{
+	NSParameterAssert(nil != filenames);
+
+	BOOL			success			= YES;
+	NSEnumerator	*enumerator		= [filenames objectEnumerator];
+	NSString		*filename		= nil;
+	AudioStream		*stream			= nil;
+	NSMutableArray	*streams		= [NSMutableArray array];
+	
+	// First try to find these files in our library
+	while(success && (filename = [enumerator nextObject])) {
+		stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+		
+		// If it wasn't found, try and add it
+		if(nil == stream) {
+			success &= [self addFile:filename];
+			if(success) {
+				stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+			}
+		}
+
+		if(nil != stream) {
+			[streams addObject:stream];
+		}
+	}
+
+	// Replace current streams with the files, and play the first one
+	if(nil != stream) {
+		if([[self player] isPlaying]) {
+			[self stop:self];
+		}
+		[self setCurrentStreamsFromArray:streams];
 		[self playStreamAtIndex:0];
 	}
 	
@@ -1715,7 +1763,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_playlistInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected playlist", @"Player", @"")];
 	[_playlistInfoButton bind:@"enabled"
 					 toObject:_browserController
-				  withKeyPath:@"selectedObjects.@count"
+				  withKeyPath:@"selectedNodeIsPlaylistNode"
 					  options:nil];
 	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
 	[_playlistInfoButton setTarget:self];
