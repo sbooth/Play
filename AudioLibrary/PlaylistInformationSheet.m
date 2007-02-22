@@ -18,17 +18,17 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "StaticPlaylistInformationSheet.h"
+#import "PlaylistInformationSheet.h"
 #import "AudioLibrary.h"
 
-@implementation StaticPlaylistInformationSheet
+@implementation PlaylistInformationSheet
 
 - (id) init
 {
 	if((self = [super init])) {
-		BOOL result = [NSBundle loadNibNamed:@"StaticPlaylistInformationSheet" owner:self];
+		BOOL result = [NSBundle loadNibNamed:@"PlaylistInformationSheet" owner:self];
 		if(NO == result) {
-			NSLog(@"Missing resource: \"StaticPlaylistInformationSheet.nib\".");
+			NSLog(@"Missing resource: \"PlaylistInformationSheet.nib\".");
 			[self release];
 			return nil;
 		}

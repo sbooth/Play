@@ -23,7 +23,7 @@
 @class Playlist;
 @class AudioLibrary;
 
-@interface StaticPlaylistInformationSheet : NSObject
+@interface PlaylistInformationSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
 	
