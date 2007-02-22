@@ -37,13 +37,15 @@
 	
 	if((self = [super initWithName:[playlist valueForKey:PlaylistNameKey]])) {
 		_playlist = [playlist retain];
+		[_playlist addObserver:self forKeyPath:PlaylistNameKey options:NSKeyValueObservingOptionNew context:NULL];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[_playlist removeObserver:self forKeyPath:@"streams"];
+	[_playlist removeObserver:self forKeyPath:PlaylistNameKey];
+	[_playlist removeObserver:self forKeyPath:PlaylistStreamsKey];
 
 	[_playlist release], _playlist = nil;
 	
@@ -52,14 +54,23 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	[self refreshStreams];
+	if([keyPath isEqualToString:PlaylistNameKey]) {
+		[self setName:[change valueForKey:NSKeyValueChangeNewKey]];
+	}
+	else if([keyPath isEqualToString:PlaylistStreamsKey]) {
+		[self refreshStreams];
+	}
 }
 
 - (void) setName:(NSString *)name
 {
 	[_name release];
 	_name = [name retain];
-	[[self playlist] setValue:_name forKey:PlaylistNameKey];
+
+	// Avoid an infinite loop- this can be called from bindings as well as from observeValueForKeyPath:
+	if(NO == [name isEqualToString:[[self playlist] valueForKey:PlaylistNameKey]]) {
+		[[self playlist] setValue:_name forKey:PlaylistNameKey];
+	}
 }
 
 - (BOOL) nameIsEditable				{ return YES; }
@@ -73,7 +84,7 @@
 	[_playlist loadStreams];
 
 	// Now that the streams are loaded, observe changes in them
-	[_playlist addObserver:self forKeyPath:@"streams" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionOld) context:NULL];
+	[_playlist addObserver:self forKeyPath:@"streams" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
 }
 
 - (void) refreshStreams
