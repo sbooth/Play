@@ -31,6 +31,7 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 
 @interface AudioLibrary (Private)
 - (unsigned) playbackIndex;
+- (void) setPlaybackIndex:(unsigned)playbackIndex;
 @end
 
 @interface AudioStreamArrayController (Private)
@@ -50,14 +51,6 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 	BOOL				success			= NO;
 	unsigned			i;
 		
-	// Refuse to drag the currently playing stream
-	if([rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
-		NSNumber *playing = [objects valueForKeyPath:@"@sum.isPlaying"];
-		if([playing boolValue]) {
-			return NO;
-		}
-	}
-	
 	for(i = 0; i < [objects count]; ++i) {
 		stream = [objects objectAtIndex:i];
 				
@@ -102,7 +95,7 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 		row = 0;
 	}
 	
-	// First handle internal drops
+	// First handle internal drops for reordering ordered streams
     if(_tableView == [info draggingSource]) {
 		if(NO == [[AudioLibrary library] streamsAreOrdered]) {
 			return NO;
@@ -110,14 +103,39 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 		
 		NSData			*indexData		= [[info draggingPasteboard] dataForType:AudioStreamTableMovedRowsPboardType];
 		NSIndexSet		*rowIndexes		= [NSKeyedUnarchiver unarchiveObjectWithData:indexData];
+		unsigned		playbackIndex	= NSNotFound;
 		int				rowsAbove;
 		NSRange			range;
+		
+		// If the currently playing stream is being dragged, determine what its new index will be
+		// First count how many rows with indexes less than the currently playing stream's index are being dragged
+		if([rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
+			unsigned count		= 0;
+			unsigned index		= [rowIndexes lastIndex];
+			
+			while(NSNotFound != index) {
+				if(index < [[AudioLibrary library] playbackIndex]) {
+					++count;				
+				}
+				index = [rowIndexes indexLessThanIndex:index];
+			}
+						
+			playbackIndex = count;
+			
+			// Don't let the library reorder the playbackIndex during the drag
+			[[AudioLibrary library] setPlaybackIndex:NSNotFound];
+		}
 		
 		[self moveObjectsInArrangedObjectsFromIndexes:rowIndexes toIndex:row];
 		
 		rowsAbove	= [self rowsAboveRow:row inIndexSet:rowIndexes];
 		range		= NSMakeRange(row - rowsAbove, [rowIndexes count]);
 		rowIndexes	= [NSIndexSet indexSetWithIndexesInRange:range];
+
+		// Adjust the current playbackIndex, if the currently playing stream was dragged
+		if(NSNotFound != playbackIndex) {
+			[[AudioLibrary library] setPlaybackIndex:(row - rowsAbove + playbackIndex)];
+		}
 		
 		[self setSelectionIndexes:rowIndexes];
 		

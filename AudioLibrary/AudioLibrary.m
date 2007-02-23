@@ -441,6 +441,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (IBAction) removeSelectedStreams:(id)sender
 {
+	// If removing the currently playing stream from the library, stop playback
+	NSArray *streams = [_streamController selectedObjects];
+	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibraryNode] || [_browserController selectedNodeIsCurrentStreamsNode])) {
+		[self stop:sender];
+	}
+	
 	[[CollectionManager manager] beginUpdate];
 	[_streamController remove:sender];
 	[[CollectionManager manager] finishUpdate];
@@ -988,7 +994,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) insertObject:(AudioStream *)stream inCurrentStreamsAtIndex:(unsigned)index
 {
-	if(index <= [self playbackIndex]) {
+	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
 
@@ -997,11 +1003,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) removeObjectFromCurrentStreamsAtIndex:(unsigned)index
 {
-	// Disallow removal of the currently playing stream
-	if(index == [self playbackIndex]) {
-		[self stop:self];
-	}
-	else if(index < [self playbackIndex]) {
+	if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
 	
