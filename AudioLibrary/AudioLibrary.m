@@ -477,6 +477,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	if(nil != [self nowPlaying] && 0 != [self countOfCurrentStreams] && [self selectCurrentStreamsNode]) {
 		[self scrollNowPlayingToVisible];
+		[_streamController setSelectionIndex:[self playbackIndex]];
 	}
 }
 
@@ -1213,7 +1214,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
+	// Only the currentStreamsNode should highlight the playing track
 	if(NO == [_browserController selectedNodeIsCurrentStreamsNode]) {
+		
+		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
+			[cell setDrawsBackground:NO];
+		}
+
+		NSFont *font = [[NSFontManager sharedFontManager] convertFont:[cell font] toHaveTrait:NSUnboldFontMask];
+		[cell setFont:font];
 		return;
 	}
 	
