@@ -28,6 +28,7 @@
 // ========================================
 NSString * const AudioStreamPboardType					= @"org.sbooth.Play.AudioStream.PboardType";
 NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibrary.AudioStreamTable.MovedRowsPboardType";
+NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 
 @interface AudioLibrary (Private)
 - (unsigned) playbackIndex;
@@ -142,24 +143,39 @@ NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLi
 		return YES;
 	}
 
-	// Handle drops of files
-	NSArray			*supportedTypes		= [NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, nil];
+	NSArray			*supportedTypes		= [NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil];
 	NSString		*bestType			= [[info draggingPasteboard] availableTypeFromArray:supportedTypes];	
-	AudioLibrary	*library			= [[tableView window] valueForKey:@"library"];
 	
-	NSAssert(nil != library, @"No AudioLibrary found for AudioStreamTableView");
-
+	// Handle drops of files
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray *filenames = [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
-		return [library addFiles:filenames];
+		return [[AudioLibrary library] addFiles:filenames];
 	}
 	else if([bestType isEqualToString:NSURLPboardType]) {
 		NSURL *url = [NSURL URLFromPasteboard:[info draggingPasteboard]];
 		if([url isFileURL]) {
-			return [library addFile:[url path]];
+			return [[AudioLibrary library] addFile:[url path]];
 		}
 	}
-
+	// Handle iTunes drops
+	else if([bestType isEqualToString:iTunesPboardType]) {
+		NSDictionary	*iTunesDictionary	= [[info draggingPasteboard] propertyListForType:iTunesPboardType];
+		NSArray			*tracks				= [iTunesDictionary valueForKey:@"Tracks"];
+		NSEnumerator	*enumerator			= [tracks objectEnumerator];
+		NSDictionary	*track				= nil;
+		NSURL			*url				= nil;
+		BOOL			success				= YES;
+		
+		while((track = [enumerator nextObject])) {
+			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
+			if([url isFileURL]) {
+				success &= [[AudioLibrary library] addFile:[url path]];
+			}
+		}
+		
+		return success;
+	}
+	
 	return NO;
 }
 

@@ -25,6 +25,7 @@
 // ========================================
 extern NSString * const		AudioStreamPboardType;
 extern NSString * const		AudioStreamTableMovedRowsPboardType;
+extern NSString * const		iTunesPboardType;
 
 @interface AudioStreamTableView : NSTableView 
 {

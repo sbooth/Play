@@ -33,7 +33,7 @@
 
 - (void) awakeFromNib
 {
-	[self registerForDraggedTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, NSURLPboardType, nil]];
+	[self registerForDraggedTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil]];
 	NSFormatter *formatter = [[SecondsFormatter alloc] init];
 	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
 	[formatter release];
