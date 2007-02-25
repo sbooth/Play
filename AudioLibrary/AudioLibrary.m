@@ -64,6 +64,7 @@
 #import "CurrentStreamsNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
+#import "GenresNode.h"
 #import "PlaylistsNode.h"
 #import "PlaylistNode.h"
 
@@ -1643,6 +1644,9 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
 	[albumsNode setIcon:folderIcon];
 
+	GenresNode *genresNode = [[GenresNode alloc] init];
+	[genresNode setIcon:folderIcon];
+
 	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
 	[playlistsNode setIcon:folderIcon];
 
@@ -1653,6 +1657,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
+	[browserRoot addChild:[genresNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
 	[browserRoot addChild:[watchedFoldersNode autorelease]];
 

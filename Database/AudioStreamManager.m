@@ -121,6 +121,21 @@
 	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataAlbumTitleKey, albumTitle]];
 }
 
+- (NSArray *) streamsForGenre:(NSString *)genre
+{
+	NSParameterAssert(nil != genre);
+	
+	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataGenreKey, genre]];
+}
+
+- (NSArray *) streamsContainedByURL:(NSURL *)url
+{
+	NSParameterAssert(nil != url);
+	NSParameterAssert([url isFileURL]);
+	
+	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K BEGINSWITH %@", @"URLAsString", [url absoluteString]]];
+}
+
 - (AudioStream *) streamForID:(NSNumber *)objectID
 {
 	NSParameterAssert(nil != objectID);

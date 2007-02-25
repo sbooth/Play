@@ -59,6 +59,9 @@
 
 - (NSArray *) streamsForArtist:(NSString *)artist;
 - (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;
+- (NSArray *) streamsForGenre:(NSString *)genre;
+
+- (NSArray *) streamsContainedByURL:(NSURL *)url;
 
 - (BOOL) insertStream:(AudioStream *)stream;
 - (void) saveStream:(AudioStream *)stream;
