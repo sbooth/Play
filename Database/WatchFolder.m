@@ -156,6 +156,7 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 	[self willChangeValueForKey:WatchFolderStreamsKey];
 	[_streams removeAllObjects];
 	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForWatchFolder:self]];
+	NSLog(@"%@",_streams);
 	[self didChangeValueForKey:WatchFolderStreamsKey];
 }
 

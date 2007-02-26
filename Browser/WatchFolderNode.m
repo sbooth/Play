@@ -84,7 +84,7 @@
 	[_watchFolder loadStreams];
 	
 	// Now that the streams are loaded, observe changes in them
-	[_watchFolder addObserver:self forKeyPath:@"streams" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
+	[_watchFolder addObserver:self forKeyPath:WatchFolderStreamsKey options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
 }
 
 - (void) refreshStreams
@@ -100,5 +100,19 @@
 	}
 	return _watchFolder;
 }
+
+#pragma mark KVC Accessor Overrides
+
+- (unsigned)		countOfStreams											{ return [[self watchFolder] countOfStreams]; }
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [[self watchFolder] objectInStreamsAtIndex:index]; }
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [[self watchFolder] getStreams:buffer range:aRange]; }
+
+#pragma mark KVC Mutators Overrides
+
+- (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
+{}
+
+- (void) removeObjectFromStreamsAtIndex:(unsigned)index
+{}
 
 @end

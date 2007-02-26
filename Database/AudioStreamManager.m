@@ -552,8 +552,19 @@
 {
 	NSParameterAssert(nil != folder);
 
+	NSArray			*allStreams		= [self streams];
 	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
 	NSURL			*folderURL		= [folder valueForKey:WatchFolderURLKey];
+	NSEnumerator	*enumerator		= [allStreams objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSURL			*streamURL		= nil;
+
+	while((stream = [enumerator nextObject])) {
+		streamURL = [stream valueForKey:StreamURLKey];
+		if([[streamURL path] hasPrefix:[folderURL path]]) {
+			[streams addObject:stream];
+		}
+	}
 
 	return [streams autorelease];
 }
