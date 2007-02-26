@@ -100,11 +100,11 @@ escapeForLastFM(NSString *string)
 {
 	[self sendCommand:[NSString stringWithFormat:@"START c=%@&a=%@&t=%@&b=%@&m=%@&l=%i&p=%@\n", 
 		[self pluginID],
-		escapeForLastFM([stream valueForKey:@"artist"]), 
-		escapeForLastFM([stream valueForKey:@"title"]), 
-		escapeForLastFM([stream valueForKey:@"albumTitle"]), 
+		escapeForLastFM([stream valueForKey:MetadataArtistKey]), 
+		escapeForLastFM([stream valueForKey:MetadataTitleKey]), 
+		escapeForLastFM([stream valueForKey:MetadataAlbumTitleKey]), 
 		@"", // TODO: MusicBrainz support
-		[[stream valueForKey:@"duration"] intValue], 
+		[[stream valueForKey:PropertiesDurationKey] intValue], 
 		escapeForLastFM([[stream valueForKey:StreamURLKey] path])
 		]];	
 }
@@ -202,7 +202,7 @@ escapeForLastFM(NSString *string)
 		@synchronized([myself queue]) {
 			
 			enumerator	= [[myself queue] objectEnumerator];
-			command		= [enumerator nextObject];
+			command		= [[enumerator nextObject] retain];
 		
 			[[myself queue] removeObjectIdenticalTo:command];
 		}
@@ -212,6 +212,8 @@ escapeForLastFM(NSString *string)
 				port = [client connectToHost:@"localhost" port:port];
 				[client send:command];
 
+				[command release];
+				
 				response = [client receive];
 				if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
 					NSLog(@"AudioScrobbler error: %@", response);
