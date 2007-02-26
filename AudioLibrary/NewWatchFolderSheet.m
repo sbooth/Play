@@ -18,68 +18,35 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "NewFolderPlaylistSheet.h"
+#import "NewWatchFolderSheet.h"
 
-@implementation NewFolderPlaylistSheet
+@implementation NewWatchFolderSheet
 
-- (id) initWithOwner:(NSPersistentDocument *)owner
+- (id) init
 {
 	if((self = [super init])) {
-		BOOL		result;
-		
-		_owner		= [owner retain];
-		
-		result		= [NSBundle loadNibNamed:@"NewFolderPlaylistSheet" owner:self];
+		BOOL result = [NSBundle loadNibNamed:@"NewWatchFolderSheet" owner:self];
 		if(NO == result) {
-			NSLog(@"Missing resource: \"NewFolderPlaylistSheet.nib\".");
+			NSLog(@"Missing resource: \"NewWatchFolderSheet.nib\".");
 			[self release];
 			return nil;
-		}
-		
-		return self;
+		}		
 	}
-	
-	return nil;
+	return self;
 }
 
 - (void) dealloc
 {
-	[_owner release],					_owner = nil;
-	[_managedObjectContext release],	_managedObjectContext = nil;
+	[_name release], _name = nil;
+	[_url release], _url = nil;
+	[_owner release], _owner = nil;
 	
 	[super dealloc];
 }
 
-- (void) awakeFromNib
-{
-	NSUndoManager *undoManager = [[self managedObjectContext] undoManager];
-	[undoManager disableUndoRegistration];
-	
-	id newObject = [_playlistObjectController newObject];
-	[_playlistObjectController addObject:[newObject autorelease]];
-	
-	[[self managedObjectContext] processPendingChanges];
-	[undoManager enableUndoRegistration];
-}
-
 - (NSWindow *) sheet
 {
-	return [[_sheet retain] autorelease];
-}
-
-- (NSManagedObjectContext *) managedObjectContext
-{
-	if(nil == _managedObjectContext) {
-		_managedObjectContext = [[NSManagedObjectContext alloc] init];
-		[_managedObjectContext setPersistentStoreCoordinator:[[self documentManagedObjectContext] persistentStoreCoordinator]];
-	}
-	
-	return _managedObjectContext;
-}
-
-- (NSManagedObjectContext *) documentManagedObjectContext
-{
-	return [_owner managedObjectContext];
+	return _sheet;
 }
 
 - (IBAction) ok:(id)sender
@@ -92,27 +59,32 @@
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
 }
 
+/*- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
+{
+	return [_owner undoManager];
+}
+
 - (IBAction) undo:(id)sender
 {
-	[[[self managedObjectContext] undoManager] undo];
+	[[_owner undoManager] undo];
 }
 
 - (IBAction) redo:(id)sender
 {
-	[[[self managedObjectContext] undoManager] redo];
+	[[_owner undoManager] redo];
 }
 
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
 	if([anItem action] == @selector(undo:)) {
-		return [[[self managedObjectContext] undoManager] canUndo];
+		return [[_owner undoManager] canUndo];
 	}
 	else if([anItem action] == @selector(redo:)) {
-		return [[[self managedObjectContext] undoManager] canRedo];
+		return [[_owner undoManager] canRedo];
 	}
 	
 	return YES;
-}
+}*/
 
 - (IBAction) chooseFolder:(id)sender
 {
@@ -126,9 +98,12 @@
 		NSArray		*URLs			= [panel URLs];
 		unsigned	count			= [URLs count];
 		unsigned	i;
+		NSURL		*url;
 		
 		for(i = 0; i < count; ++i) {
-			[[_playlistObjectController selection] setValue:[[URLs objectAtIndex:i] absoluteString] forKey:@"url"];
+			url = [URLs objectAtIndex:i];
+			[_folderImageView setImage:[[NSWorkspace sharedWorkspace] iconForFile:[url path]]];
+			[self setValue:url forKey:@"url"];
 		}
 	}		
 }

@@ -3,10 +3,10 @@
         {
             ACTIONS = {
                 addFiles = id; 
-                insertDynamicPlaylist = id; 
-                insertFolderPlaylist = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
+                insertSmartPlaylist = id; 
+                insertWatchFolder = id; 
                 jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
                 nextPlaylist = id; 

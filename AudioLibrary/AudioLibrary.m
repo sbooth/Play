@@ -44,6 +44,7 @@
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
+#import "WatchFolder.h"
 
 #import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
@@ -52,6 +53,7 @@
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
 #import "PlaylistInformationSheet.h"
+#import "NewWatchFolderSheet.h"
 
 #import "AudioStreamArrayController.h"
 #import "BrowserTreeController.h"
@@ -67,6 +69,8 @@
 #import "GenresNode.h"
 #import "PlaylistsNode.h"
 #import "PlaylistNode.h"
+#import "WatchFoldersNode.h"
+#import "WatchFolderNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -93,11 +97,15 @@ NSString * const	AudioStreamPlaybackDidResumeNotification	= @"org.sbooth.Play.Au
 NSString * const	PlaylistAddedToLibraryNotification			= @"org.sbooth.Play.AudioLibrary.PlaylistAddedToLibraryNotification";
 NSString * const	PlaylistRemovedFromLibraryNotification		= @"org.sbooth.Play.AudioLibrary.PlaylistRemovedFromLibraryNotification";
 
+NSString * const	WatchFolderAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.WatchFolderAddedToLibraryNotification";
+NSString * const	WatchFolderRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.WatchFolderRemovedFromLibraryNotification";
+
 // ========================================
 // Notification keys
 // ========================================
 NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
+NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 // ========================================
 // Completely bogus NSTreeController bindings hack
@@ -114,6 +122,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showNewWatchFolderSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 // ========================================
@@ -141,7 +150,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 - (void) setupBrowser;
 
 - (void) setupStreamButtons;
-- (void) setupPlaylistButtons;
+- (void) setupBrowserButtons;
 
 - (void) setupStreamTableColumns;
 
@@ -160,8 +169,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self exposeBinding:@"canPlayPreviousStream"];
 	[self exposeBinding:@"nowPlaying"];
 	
-	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
-	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"currentStreams", @"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"currentStreams", @"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
 	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", nil] triggerChangeNotificationsForDependentKey:@"nowPlaying"];
 	
 	// Setup table column defaults
@@ -221,7 +230,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
 	@synchronized(self) {
 		if(nil == libraryInstance) {
-			libraryInstance = [[self alloc] init];
+			// assignment not done here
+			[[self alloc] init];
 		}
 	}
 	return libraryInstance;
@@ -231,10 +241,12 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 {
     @synchronized(self) {
         if(nil == libraryInstance) {
-            return [super allocWithZone:zone];
+			// assignment and return on first allocation
+            libraryInstance = [super allocWithZone:zone];
+			return libraryInstance;
         }
     }
-    return libraryInstance;
+    return nil;
 }
 
 - (id) init
@@ -322,7 +334,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[self setupStreamButtons];
 	[self setupStreamTableColumns];
 
-	[self setupPlaylistButtons];
+	[self setupBrowserButtons];
 }
 
 - (void) windowDidLoad
@@ -693,6 +705,19 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 		NSBeep();
 		NSLog(@"Unable to insert playlist.");
 	}
+}
+
+- (IBAction) insertWatchFolder:(id)sender
+{
+	NewWatchFolderSheet *newWatchFolderSheet = [[NewWatchFolderSheet alloc] init];
+
+	[newWatchFolderSheet setValue:self forKey:@"owner"];
+	
+	[[NSApplication sharedApplication] beginSheet:[newWatchFolderSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showNewWatchFolderSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:newWatchFolderSheet];
 }
 
 - (IBAction) nextPlaylist:(id)sender
@@ -1447,6 +1472,31 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[playlistInformationSheet release];
 }
 
+- (void) showNewWatchFolderSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	NewWatchFolderSheet *newWatchFolderSheet = (NewWatchFolderSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		NSDictionary *initialValues = [NSDictionary dictionaryWithObjectsAndKeys:
+								 [newWatchFolderSheet valueForKey:@"url"], WatchFolderURLKey,
+								 [newWatchFolderSheet valueForKey:@"name"], WatchFolderNameKey,
+			nil];
+		
+		WatchFolder *watchFolder = [WatchFolder insertWatchFolderWithInitialValues:initialValues];
+
+		if(nil != watchFolder) {
+		}
+		else {
+			NSBeep();
+			NSLog(@"Unable to create the watch folder.");
+		}
+	}
+	
+	[newWatchFolderSheet release];
+}
+
 @end
 
 @implementation AudioLibrary (NSWindowDelegateMethods)
@@ -1650,8 +1700,8 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
 	[playlistsNode setIcon:folderIcon];
 
-	BrowserNode *watchedFoldersNode = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")];
-	[watchedFoldersNode setIcon:folderIcon];
+	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
+	[watchFoldersNode setIcon:folderIcon];
 
 	[browserRoot addChild:_currentStreamsNode];
 	[browserRoot addChild:_libraryNode];
@@ -1659,7 +1709,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[genresNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
-	[browserRoot addChild:[watchedFoldersNode autorelease]];
+	[browserRoot addChild:[watchFoldersNode autorelease]];
 
 	[_browserController setContent:[browserRoot autorelease]];
 
@@ -1707,7 +1757,7 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[_streamInfoButton setTarget:self];
 }
 
- - (void) setupPlaylistButtons
+ - (void) setupBrowserButtons
 {
 	NSMenu			*buttonMenu;
 	NSMenuItem		*buttonMenuItem;
@@ -1756,15 +1806,15 @@ NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 	[buttonMenuItem setAction:@selector(insertDynamicPlaylist:)];
 	[buttonMenu addItem:buttonMenuItem];
 	[buttonMenuItem release];
-	
+	*/
 	buttonMenuItem		= [[NSMenuItem alloc] init];
-	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"New Folder Playlist", @"Player", @"")];
+	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"Add Watch Folder", @"Player", @"")];
 	//	[buttonMenuItem setImage:[NSImage imageNamed:@"FolderPlaylist.png"]];
 	[buttonMenuItem setTarget:self];
-	[buttonMenuItem setAction:@selector(insertFolderPlaylist:)];
+	[buttonMenuItem setAction:@selector(insertWatchFolder:)];
 	[buttonMenu addItem:buttonMenuItem];
 	[buttonMenuItem release];
-	*/
+
 	[_addPlaylistButton setMenu:buttonMenu];
 	[buttonMenu release];
 	

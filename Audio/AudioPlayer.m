@@ -322,12 +322,10 @@ MyRenderNotification(void							*inRefCon,
 	if(nil != [self streamDecoder]) {
 		[[self streamDecoder] stopDecoding:error];
 		[self setStreamDecoder:nil];
-		
 	}
 	
 	streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
 	if(nil == streamDecoder) {
-
 		if(nil != error) {
 			
 		}

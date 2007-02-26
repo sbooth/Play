@@ -52,12 +52,10 @@ enum {
 			NSLog(@"Missing resource: \"DynamicPlaylistCriterion.nib\".");
 			[self release];
 			return nil;
-		}
-		
-		return self;
+		}		
 	}
 	
-	return nil;
+	return self;
 }
 
 - (void) dealloc

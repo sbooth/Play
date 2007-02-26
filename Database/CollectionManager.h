@@ -23,6 +23,7 @@
 
 @class AudioStreamManager;
 @class PlaylistManager;
+@class WatchFolderManager;
 @class DatabaseObject;
 @class AudioStream;
 
@@ -34,6 +35,7 @@
 	
 	AudioStreamManager		*_streamManager;
 	PlaylistManager			*_playlistManager;
+	WatchFolderManager		*_watchFolderManager;
 	
 	NSUndoManager			*_undoManager;		// For undo/redo management
 	
@@ -48,6 +50,7 @@
 // Access to the collection
 - (AudioStreamManager *) 	streamManager;
 - (PlaylistManager *) 		playlistManager;
+- (WatchFolderManager *) 	watchFolderManager;
 
 // ========================================
 // Database connection

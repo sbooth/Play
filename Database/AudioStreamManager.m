@@ -21,6 +21,8 @@
 #import "AudioStreamManager.h"
 #import "CollectionManager.h"
 #import "AudioStream.h"
+#import "Playlist.h"
+#import "WatchFolder.h"
 #import "AudioLibrary.h"
 
 #import "SQLiteUtilityFunctions.h"
@@ -41,6 +43,10 @@
 
 @interface AudioStreamManager (PlaylistMethods)
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+@end
+
+@interface AudioStreamManager (WatchFolderMethods)
+- (NSArray *) streamsForWatchFolder:(WatchFolder *)folder;
 @end
 
 @interface AudioStreamManager (Private)
@@ -535,6 +541,20 @@
 	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
 #endif
 	
+	return [streams autorelease];
+}
+
+@end
+
+@implementation AudioStreamManager (WatchFolderMethods)
+
+- (NSArray *) streamsForWatchFolder:(WatchFolder *)folder
+{
+	NSParameterAssert(nil != folder);
+
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	NSURL			*folderURL		= [folder valueForKey:WatchFolderURLKey];
+
 	return [streams autorelease];
 }
 

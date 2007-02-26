@@ -31,12 +31,12 @@
 	AudioLibrary				*_owner;
 }
 
-- (NSWindow *)			sheet;
+- (NSWindow *)		sheet;
 
-- (IBAction)			ok:(id)sender;
-- (IBAction)			cancel:(id)sender;
+- (IBAction)		ok:(id)sender;
+- (IBAction)		cancel:(id)sender;
 
-//- (IBAction)			undo:(id)sender;
-//- (IBAction)			redo:(id)sender;
+//- (IBAction)		undo:(id)sender;
+//- (IBAction)		redo:(id)sender;
 
 @end

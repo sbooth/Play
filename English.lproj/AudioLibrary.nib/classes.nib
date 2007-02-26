@@ -48,12 +48,7 @@
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
-        {
-            CLASS = AudioLibraryWindow; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {}; 
-            SUPERCLASS = NSWindow; 
-        }, 
+        {CLASS = AudioLibraryWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
         {
             CLASS = AudioStreamArrayController; 
             LANGUAGE = ObjC; 

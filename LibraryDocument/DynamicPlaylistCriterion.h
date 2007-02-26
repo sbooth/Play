@@ -48,8 +48,7 @@ enum {
 	
 	IBOutlet NSView				*_dateCriterionViewPrototype;
 
-@private
-		
+	@private	
 	NSView						*_view;
 
 	// The type of attribute being represented

@@ -18,6 +18,24 @@
 		8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */; };
 		8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */; };
 		8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */; };
+		8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F6E30B912006009200C4 /* WatchFolderNode.m */; };
+		8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7500B9128AC009200C4 /* GenresNode.m */; };
+		8C17F7630B91292F009200C4 /* GenreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7610B91292F009200C4 /* GenreNode.m */; };
+		8C17F7BC0B913D59009200C4 /* UKFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7B30B913D59009200C4 /* UKFileWatcher.m */; };
+		8C17F7BE0B913D59009200C4 /* UKFNSubscribeFileWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7B50B913D59009200C4 /* UKFNSubscribeFileWatcher.m */; };
+		8C17F7C10B913D59009200C4 /* UKKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7B80B913D59009200C4 /* UKKQueue.m */; };
+		8C17F7C30B913D5A009200C4 /* UKMainThreadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7BA0B913D59009200C4 /* UKMainThreadProxy.m */; };
+		8C17F7CC0B913DD2009200C4 /* create_watch_folder_table.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F7CB0B913DD2009200C4 /* create_watch_folder_table.sql */; };
+		8C17F8850B92811E009200C4 /* WatchFolderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F8830B92811E009200C4 /* WatchFolderManager.m */; };
+		8C17F8B10B928640009200C4 /* WatchFolder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F8AF0B928640009200C4 /* WatchFolder.m */; };
+		8C17F8F70B928B28009200C4 /* delete_watch_folder.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8F30B928B28009200C4 /* delete_watch_folder.sql */; };
+		8C17F8F80B928B28009200C4 /* insert_watch_folder.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8F40B928B28009200C4 /* insert_watch_folder.sql */; };
+		8C17F8F90B928B28009200C4 /* select_watch_folder_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8F50B928B28009200C4 /* select_watch_folder_by_id.sql */; };
+		8C17F8FA0B928B28009200C4 /* update_watch_folder.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8F60B928B28009200C4 /* update_watch_folder.sql */; };
+		8C17F9000B928B5C009200C4 /* select_all_watch_folders.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */; };
+		8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */; };
+		8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */; };
+		8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
 		8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */; };
@@ -274,6 +292,36 @@
 		8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistNode.m; path = Browser/PlaylistNode.m; sourceTree = "<group>"; };
 		8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_playlist_entries_for_playlist.sql; path = SQL/delete_playlist_entries_for_playlist.sql; sourceTree = "<group>"; };
 		8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_playlist_entry.sql; path = SQL/insert_playlist_entry.sql; sourceTree = "<group>"; };
+		8C17F6E20B912006009200C4 /* WatchFolderNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFolderNode.h; path = Browser/WatchFolderNode.h; sourceTree = "<group>"; };
+		8C17F6E30B912006009200C4 /* WatchFolderNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFolderNode.m; path = Browser/WatchFolderNode.m; sourceTree = "<group>"; };
+		8C17F74F0B9128AC009200C4 /* GenresNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenresNode.h; path = Browser/GenresNode.h; sourceTree = "<group>"; };
+		8C17F7500B9128AC009200C4 /* GenresNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GenresNode.m; path = Browser/GenresNode.m; sourceTree = "<group>"; };
+		8C17F7600B91292F009200C4 /* GenreNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenreNode.h; path = Browser/GenreNode.h; sourceTree = "<group>"; };
+		8C17F7610B91292F009200C4 /* GenreNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GenreNode.m; path = Browser/GenreNode.m; sourceTree = "<group>"; };
+		8C17F7B20B913D59009200C4 /* UKFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UKFileWatcher.h; path = ThirdParty/UKKQueue/UKFileWatcher.h; sourceTree = "<group>"; };
+		8C17F7B30B913D59009200C4 /* UKFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = UKFileWatcher.m; path = ThirdParty/UKKQueue/UKFileWatcher.m; sourceTree = "<group>"; };
+		8C17F7B40B913D59009200C4 /* UKFNSubscribeFileWatcher.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UKFNSubscribeFileWatcher.h; path = ThirdParty/UKKQueue/UKFNSubscribeFileWatcher.h; sourceTree = "<group>"; };
+		8C17F7B50B913D59009200C4 /* UKFNSubscribeFileWatcher.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = UKFNSubscribeFileWatcher.m; path = ThirdParty/UKKQueue/UKFNSubscribeFileWatcher.m; sourceTree = "<group>"; };
+		8C17F7B60B913D59009200C4 /* UKKQueue Readme.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = "UKKQueue Readme.txt"; path = "ThirdParty/UKKQueue/UKKQueue Readme.txt"; sourceTree = "<group>"; };
+		8C17F7B70B913D59009200C4 /* UKKQueue.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UKKQueue.h; path = ThirdParty/UKKQueue/UKKQueue.h; sourceTree = "<group>"; };
+		8C17F7B80B913D59009200C4 /* UKKQueue.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = UKKQueue.m; path = ThirdParty/UKKQueue/UKKQueue.m; sourceTree = "<group>"; };
+		8C17F7B90B913D59009200C4 /* UKMainThreadProxy.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = UKMainThreadProxy.h; path = ThirdParty/UKKQueue/UKMainThreadProxy.h; sourceTree = "<group>"; };
+		8C17F7BA0B913D59009200C4 /* UKMainThreadProxy.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = UKMainThreadProxy.m; path = ThirdParty/UKKQueue/UKMainThreadProxy.m; sourceTree = "<group>"; };
+		8C17F7CB0B913DD2009200C4 /* create_watch_folder_table.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = create_watch_folder_table.sql; path = SQL/create_watch_folder_table.sql; sourceTree = "<group>"; };
+		8C17F8820B92811E009200C4 /* WatchFolderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFolderManager.h; path = Database/WatchFolderManager.h; sourceTree = "<group>"; };
+		8C17F8830B92811E009200C4 /* WatchFolderManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFolderManager.m; path = Database/WatchFolderManager.m; sourceTree = "<group>"; };
+		8C17F8AE0B928640009200C4 /* WatchFolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFolder.h; path = Database/WatchFolder.h; sourceTree = "<group>"; };
+		8C17F8AF0B928640009200C4 /* WatchFolder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFolder.m; path = Database/WatchFolder.m; sourceTree = "<group>"; };
+		8C17F8F30B928B28009200C4 /* delete_watch_folder.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = delete_watch_folder.sql; path = SQL/delete_watch_folder.sql; sourceTree = "<group>"; };
+		8C17F8F40B928B28009200C4 /* insert_watch_folder.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = insert_watch_folder.sql; path = SQL/insert_watch_folder.sql; sourceTree = "<group>"; };
+		8C17F8F50B928B28009200C4 /* select_watch_folder_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = select_watch_folder_by_id.sql; path = SQL/select_watch_folder_by_id.sql; sourceTree = "<group>"; };
+		8C17F8F60B928B28009200C4 /* update_watch_folder.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = update_watch_folder.sql; path = SQL/update_watch_folder.sql; sourceTree = "<group>"; };
+		8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = select_all_watch_folders.sql; path = SQL/select_all_watch_folders.sql; sourceTree = "<group>"; };
+		8C17F9030B928B7C009200C4 /* WatchFoldersNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFoldersNode.h; path = Browser/WatchFoldersNode.h; sourceTree = "<group>"; };
+		8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFoldersNode.m; path = Browser/WatchFoldersNode.m; sourceTree = "<group>"; };
+		8C17F9530B928FA7009200C4 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewWatchFolderSheet.nib; sourceTree = "<group>"; };
+		8C17F9590B929002009200C4 /* NewWatchFolderSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NewWatchFolderSheet.h; path = AudioLibrary/NewWatchFolderSheet.h; sourceTree = "<group>"; };
+		8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NewWatchFolderSheet.m; path = AudioLibrary/NewWatchFolderSheet.m; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
 		8C1A63410B7E8872008A04AB /* BrowserNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserNode.m; path = Browser/BrowserNode.m; sourceTree = "<group>"; };
 		8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_url.sql; path = SQL/select_stream_by_url.sql; sourceTree = "<group>"; };
@@ -674,6 +722,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */,
 				8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */,
 				8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */,
 				8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */,
@@ -738,6 +787,22 @@
 			path = ThirdParty/CTBadge/badges;
 			sourceTree = "<group>";
 		};
+		8C17F7AF0B913D2E009200C4 /* UKKQueue */ = {
+			isa = PBXGroup;
+			children = (
+				8C17F7B20B913D59009200C4 /* UKFileWatcher.h */,
+				8C17F7B30B913D59009200C4 /* UKFileWatcher.m */,
+				8C17F7B40B913D59009200C4 /* UKFNSubscribeFileWatcher.h */,
+				8C17F7B50B913D59009200C4 /* UKFNSubscribeFileWatcher.m */,
+				8C17F7B60B913D59009200C4 /* UKKQueue Readme.txt */,
+				8C17F7B70B913D59009200C4 /* UKKQueue.h */,
+				8C17F7B80B913D59009200C4 /* UKKQueue.m */,
+				8C17F7B90B913D59009200C4 /* UKMainThreadProxy.h */,
+				8C17F7BA0B913D59009200C4 /* UKMainThreadProxy.m */,
+			);
+			name = UKKQueue;
+			sourceTree = "<group>";
+		};
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
@@ -761,6 +826,14 @@
 				8C06F1980B86B2BC00E8ADB6 /* PlaylistsNode.m */,
 				8C06F8770B86C9D800E8ADB6 /* PlaylistNode.h */,
 				8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */,
+				8C17F6E20B912006009200C4 /* WatchFolderNode.h */,
+				8C17F6E30B912006009200C4 /* WatchFolderNode.m */,
+				8C17F74F0B9128AC009200C4 /* GenresNode.h */,
+				8C17F7500B9128AC009200C4 /* GenresNode.m */,
+				8C17F7600B91292F009200C4 /* GenreNode.h */,
+				8C17F7610B91292F009200C4 /* GenreNode.m */,
+				8C17F9030B928B7C009200C4 /* WatchFoldersNode.h */,
+				8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */,
 			);
 			name = Browser;
 			sourceTree = "<group>";
@@ -780,6 +853,10 @@
 				8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */,
 				8C06F7D10B86BE8100E8ADB6 /* PlaylistManager.h */,
 				8C06F7D20B86BE8100E8ADB6 /* PlaylistManager.m */,
+				8C17F8820B92811E009200C4 /* WatchFolderManager.h */,
+				8C17F8830B92811E009200C4 /* WatchFolderManager.m */,
+				8C17F8AE0B928640009200C4 /* WatchFolder.h */,
+				8C17F8AF0B928640009200C4 /* WatchFolder.m */,
 			);
 			name = Database;
 			sourceTree = "<group>";
@@ -806,6 +883,7 @@
 				8CA1EE640B89697300AE4C2E /* NSTreeController Extensions */,
 				8C9C30C60B73277000CE799A /* SFMT */,
 				8C9C24FD0B724B0E00CE799A /* sqlite3 */,
+				8C17F7AF0B913D2E009200C4 /* UKKQueue */,
 			);
 			name = "Third Party";
 			sourceTree = "<group>";
@@ -964,6 +1042,8 @@
 		8C9C2DC20B72AEEF00CE799A /* AudioLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				8C17F9590B929002009200C4 /* NewWatchFolderSheet.h */,
+				8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */,
 				8C1DA9A50B8D4BE400CF9D25 /* PlaylistInformationSheet.h */,
 				8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */,
 				8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */,
@@ -1097,6 +1177,12 @@
 		8C9C377C0B739C9800CE799A /* SQL */ = {
 			isa = PBXGroup;
 			children = (
+				8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */,
+				8C17F8F30B928B28009200C4 /* delete_watch_folder.sql */,
+				8C17F8F40B928B28009200C4 /* insert_watch_folder.sql */,
+				8C17F8F50B928B28009200C4 /* select_watch_folder_by_id.sql */,
+				8C17F8F60B928B28009200C4 /* update_watch_folder.sql */,
+				8C17F7CB0B913DD2009200C4 /* create_watch_folder_table.sql */,
 				8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */,
 				8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */,
 				8CBEF8340B785BA80067CAE1 /* insert_playlist.sql */,
@@ -1317,6 +1403,13 @@
 				8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */,
 				8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */,
 				8C1DA9D00B8D4DA400CF9D25 /* PlaylistInformationSheet.nib in Resources */,
+				8C17F7CC0B913DD2009200C4 /* create_watch_folder_table.sql in Resources */,
+				8C17F8F70B928B28009200C4 /* delete_watch_folder.sql in Resources */,
+				8C17F8F80B928B28009200C4 /* insert_watch_folder.sql in Resources */,
+				8C17F8F90B928B28009200C4 /* select_watch_folder_by_id.sql in Resources */,
+				8C17F8FA0B928B28009200C4 /* update_watch_folder.sql in Resources */,
+				8C17F9000B928B5C009200C4 /* select_all_watch_folders.sql in Resources */,
+				8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1453,6 +1546,17 @@
 				8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */,
 				8CA1F1C50B899F3700AE4C2E /* CurrentStreamsNode.m in Sources */,
 				8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */,
+				8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */,
+				8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */,
+				8C17F7630B91292F009200C4 /* GenreNode.m in Sources */,
+				8C17F7BC0B913D59009200C4 /* UKFileWatcher.m in Sources */,
+				8C17F7BE0B913D59009200C4 /* UKFNSubscribeFileWatcher.m in Sources */,
+				8C17F7C10B913D59009200C4 /* UKKQueue.m in Sources */,
+				8C17F7C30B913D5A009200C4 /* UKMainThreadProxy.m in Sources */,
+				8C17F8850B92811E009200C4 /* WatchFolderManager.m in Sources */,
+				8C17F8B10B928640009200C4 /* WatchFolder.m in Sources */,
+				8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */,
+				8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1473,6 +1577,14 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C17F9530B928FA7009200C4 /* English */,
+			);
+			name = NewWatchFolderSheet.nib;
 			sourceTree = "<group>";
 		};
 		8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */ = {

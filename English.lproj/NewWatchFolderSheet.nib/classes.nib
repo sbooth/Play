@@ -1,0 +1,14 @@
+{
+    IBClasses = (
+        {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {cancel = id; chooseFolder = id; ok = id; }; 
+            CLASS = NewWatchFolderSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_folderImageView" = NSImageView; "_sheet" = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

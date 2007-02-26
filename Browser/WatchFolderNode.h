@@ -19,28 +19,22 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "AudioStreamCollectionNode.h"
 
-@class AudioLibrary;
+@class WatchFolder;
 
-@interface NewWatchFolderSheet : NSObject
+// ========================================
+// A node representing a collection of unordered AudioStreams in a watch folder
+// ========================================
+@interface WatchFolderNode : AudioStreamCollectionNode
 {
-	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSImageView		*_folderImageView;
-
-	NSString					*_name;
-	NSURL						*_url;
-
-	AudioLibrary				*_owner;
+	@private
+	WatchFolder		*_watchFolder;
+	BOOL			_watchFolderLoadedStreams;
 }
 
-- (NSWindow *)		sheet;
+- (id) initWithWatchFolder:(WatchFolder *)folder;
 
-- (IBAction)		ok:(id)sender;
-- (IBAction)		cancel:(id)sender;
-
-//- (IBAction)		undo:(id)sender;
-//- (IBAction)		redo:(id)sender;
-
-- (IBAction)		chooseFolder:(id)sender;
+- (WatchFolder *) watchFolder;
 
 @end

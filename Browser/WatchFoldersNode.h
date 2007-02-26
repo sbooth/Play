@@ -19,28 +19,14 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "BrowserNode.h"
 
-@class AudioLibrary;
-
-@interface NewWatchFolderSheet : NSObject
+// ========================================
+// A node that has as children a WatchFolderNode for each watch folder
+// in the collection
+// ========================================
+@interface WatchFoldersNode : BrowserNode
 {
-	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSImageView		*_folderImageView;
-
-	NSString					*_name;
-	NSURL						*_url;
-
-	AudioLibrary				*_owner;
 }
-
-- (NSWindow *)		sheet;
-
-- (IBAction)		ok:(id)sender;
-- (IBAction)		cancel:(id)sender;
-
-//- (IBAction)		undo:(id)sender;
-//- (IBAction)		redo:(id)sender;
-
-- (IBAction)		chooseFolder:(id)sender;
 
 @end

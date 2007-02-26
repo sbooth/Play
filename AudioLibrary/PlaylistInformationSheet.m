@@ -36,6 +36,14 @@
 	return self;
 }
 
+- (void) dealloc
+{
+	[_playlist release], _playlist = nil;
+	[_owner release], _owner = nil;
+	
+	[super dealloc];
+}
+
 - (NSWindow *) sheet
 {
 	return _sheet;

@@ -21,6 +21,7 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "PlaylistManager.h"
+#import "WatchFolderManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
 #import "PlaylistEntry.h"
@@ -59,11 +60,28 @@
 - (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key;
 @end
 
+// ========================================
+// WatchFolderManager friend methods
+@interface WatchFolderManager (CollectionManagerMethods)
+- (void) connectedToDatabase:(sqlite3 *)db;
+- (void) disconnectedFromDatabase;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
+- (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
+@end
+
 @interface CollectionManager (Private)
 - (void) createTables;
 - (void) createStreamTable;
 - (void) createPlaylistTable;
 - (void) createPlaylistEntryTable;
+- (void) createWatchFolderTable;
 - (void) createTriggers;
 
 - (void) prepareSQL;
@@ -86,7 +104,8 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	@synchronized(self) {
 		if(nil == collectionManagerInstance) {
-			collectionManagerInstance = [[self alloc] init];
+			// assignment not done here
+			[[self alloc] init];
 		}
 	}
 	return collectionManagerInstance;
@@ -96,16 +115,18 @@ static CollectionManager *collectionManagerInstance = nil;
 {
     @synchronized(self) {
         if(nil == collectionManagerInstance) {
-            return [super allocWithZone:zone];
+			// assignment and return on first allocation
+            collectionManagerInstance = [super allocWithZone:zone];
+			return collectionManagerInstance;
         }
     }
-    return collectionManagerInstance;
+    return nil;
 }
 
 - (id) init
 {
 	if((self = [super init])) {
-		_sql			= [[NSMutableDictionary alloc] init];
+		_sql = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
@@ -146,6 +167,16 @@ static CollectionManager *collectionManagerInstance = nil;
 	return _playlistManager;
 }
 
+- (WatchFolderManager *) watchFolderManager
+{
+	@synchronized(self) {
+		if(nil == _watchFolderManager) {
+			_watchFolderManager = [[WatchFolderManager alloc] init];
+		}
+	}
+	return _watchFolderManager;
+}
+
 - (NSUndoManager *) undoManager
 {
 	@synchronized(self) {
@@ -160,6 +191,7 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	[_streamManager reset];
 	[_playlistManager reset];
+	[_watchFolderManager reset];
 }
 
 #pragma mark Database connections
@@ -181,6 +213,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] connectedToDatabase:_db];
 	[[self playlistManager] connectedToDatabase:_db];
+	[[self watchFolderManager] connectedToDatabase:_db];
 }
 
 - (void) disconnectFromDatabase
@@ -189,6 +222,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] disconnectedFromDatabase];
 	[[self playlistManager] disconnectedFromDatabase];
+	[[self watchFolderManager] disconnectedFromDatabase];
 
 	[self finalizeSQL];
 	
@@ -211,20 +245,28 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSAssert(NO == [self updateInProgress], @"Update already in progress");
 
 	_updating = YES;
+	
 	[self doBeginTransaction];
-	[_streamManager beginUpdate];
-	[_playlistManager beginUpdate];
+	
+	[[self streamManager] beginUpdate];
+	[[self playlistManager] beginUpdate];
+	[[self watchFolderManager] beginUpdate];
 }
 
 - (void) finishUpdate
 {
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
-	[_streamManager processUpdate];
-	[_playlistManager processUpdate];
+	[[self streamManager] processUpdate];
+	[[self playlistManager] processUpdate];
+	[[self watchFolderManager] processUpdate];
+
 	[self doCommitTransaction];
-	[_streamManager finishUpdate];
-	[_playlistManager finishUpdate];
+	
+	[[self streamManager] finishUpdate];
+	[[self playlistManager] finishUpdate];
+	[[self watchFolderManager] finishUpdate];
+	
 	_updating = NO;	
 }
 
@@ -232,8 +274,10 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
-	[_streamManager cancelUpdate];
-	[_playlistManager cancelUpdate];
+	[[self streamManager] cancelUpdate];
+	[[self playlistManager] cancelUpdate];
+	[[self watchFolderManager] cancelUpdate];
+
 	[self doRollbackTransaction];
 	_updating = NO;
 }
@@ -265,7 +309,9 @@ static CollectionManager *collectionManagerInstance = nil;
 	else if([object isKindOfClass:[Playlist class]]) {
 		[[self playlistManager] playlist:(Playlist *)object willChangeValueForKey:key];
 	}
-	
+	else if([object isKindOfClass:[WatchFolder class]]) {
+		[[self watchFolderManager] watchFolder:(WatchFolder *)object willChangeValueForKey:key];
+	}	
 }
 
 - (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key
@@ -276,6 +322,9 @@ static CollectionManager *collectionManagerInstance = nil;
 	else if([object isKindOfClass:[Playlist class]]) {
 		[[self playlistManager] playlist:(Playlist *)object didChangeValueForKey:key];
 	}
+	else if([object isKindOfClass:[WatchFolder class]]) {
+		[[self watchFolderManager] watchFolder:(WatchFolder *)object didChangeValueForKey:key];
+	}	
 }
 
 @end
@@ -289,6 +338,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	[self createStreamTable];
 	[self createPlaylistTable];
 	[self createPlaylistEntryTable];
+	[self createWatchFolderTable];
 	
 	[self createTriggers];
 }
@@ -351,6 +401,29 @@ static CollectionManager *collectionManagerInstance = nil;
 	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
 	
 	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_playlist_entry_table");
+	
+	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_step(statement);
+	NSAssert1(SQLITE_DONE == result, @"Unable to create the playlist entry table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_finalize(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+}
+
+- (void) createWatchFolderTable
+{
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	sqlite3_stmt	*statement		= NULL;
+	int				result			= SQLITE_OK;
+	const char		*tail			= NULL;
+	NSError			*error			= nil;
+	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_watch_folder_table" ofType:@"sql"];
+	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+	
+	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_watch_folder_table");
 	
 	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);

@@ -40,11 +40,15 @@ extern NSString * const		AudioStreamPlaybackDidResumeNotification;
 extern NSString * const		PlaylistAddedToLibraryNotification;
 extern NSString * const		PlaylistRemovedFromLibraryNotification;
 
+extern NSString * const		WatchFolderAddedToLibraryNotification;
+extern NSString * const		WatchFolderRemovedFromLibraryNotification;
+
 // ========================================
 // Notification Keys
 // ========================================
 extern NSString * const		AudioStreamObjectKey;
 extern NSString * const		PlaylistObjectKey;
+extern NSString * const		WatchFolderObjectKey;
 
 // ========================================
 // The main class which represents a user's audio library
@@ -127,6 +131,8 @@ extern NSString * const		PlaylistObjectKey;
 // Playlist manipulation
 - (IBAction)	insertPlaylist:(id)sender;
 - (IBAction)	insertPlaylistWithSelection:(id)sender;
+
+- (IBAction)	insertWatchFolder:(id)sender;
 
 - (IBAction)	nextPlaylist:(id)sender;
 - (IBAction)	previousPlaylist:(id)sender;
