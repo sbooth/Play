@@ -25,6 +25,7 @@
 #import "PlaylistNode.h"
 #import "LibraryNode.h"
 #import "CurrentStreamsNode.h"
+#import "WatchFolderNode.h"
 #import "Playlist.h"
 
 // ========================================
@@ -74,22 +75,26 @@
 	return (0 == [selectedObjects count] ? nil : [selectedObjects objectAtIndex:0]);
 }
 
-- (BOOL) selectedNodeIsCurrentStreamsNode
+- (BOOL) selectedNodeIsCurrentStreams
 {
 	return [[self selectedNode] isKindOfClass:[CurrentStreamsNode class]];
 }
 
-- (BOOL) selectedNodeIsLibraryNode
+- (BOOL) selectedNodeIsLibrary
 {
 	return [[self selectedNode] isKindOfClass:[LibraryNode class]];
 }
 
-- (BOOL) selectedNodeIsPlaylistNode
+- (BOOL) selectedNodeIsPlaylist
 {
 	return [[self selectedNode] isKindOfClass:[PlaylistNode class]];
 }
 
-// Allow removal if all selected items are PlaylistNodes or subclasses
+- (BOOL) selectedNodeIsWatchFolder
+{
+	return [[self selectedNode] isKindOfClass:[WatchFolderNode class]];
+}
+
 - (BOOL) canRemove
 {
 	NSEnumerator	*enumerator		= [[self selectedObjects] objectEnumerator];
