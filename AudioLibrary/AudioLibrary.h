@@ -121,11 +121,14 @@ extern NSString * const		WatchFolderObjectKey;
 - (IBAction)	playPreviousStream:(id)sender;
 
 // ========================================
-// File addition
+// File addition and removal
 - (IBAction)	openDocument:(id)sender;
 
 - (BOOL)		addFile:(NSString *)filename;
 - (BOOL)		addFiles:(NSArray *)filenames;
+
+- (BOOL)		removeFile:(NSString *)filename;
+- (BOOL)		removeFiles:(NSArray *)filenames;
 
 // ========================================
 // Playlist manipulation

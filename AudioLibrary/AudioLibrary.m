@@ -361,7 +361,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
-		return [_browserController selectedNodeIsPlaylistNode];
+		return [_browserController selectedNodeIsPlaylist];
 	}
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
@@ -456,7 +456,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 {
 	// If removing the currently playing stream from the library, stop playback
 	NSArray *streams = [_streamController selectedObjects];
-	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibraryNode] || [_browserController selectedNodeIsCurrentStreamsNode])) {
+	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibrary] || [_browserController selectedNodeIsCurrentStreams])) {
 		[self stop:sender];
 	}
 	
@@ -542,7 +542,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
 {
-	if(NO == [_browserController selectedNodeIsPlaylistNode]) {
+	if(NO == [_browserController selectedNodeIsPlaylist]) {
 		return;
 	}
 	
@@ -560,10 +560,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 									  contextInfo:playlistInformationSheet];
 }
 
-#pragma mark File Addition
+#pragma mark File Addition and Removal
 
 - (BOOL) addFile:(NSString *)filename
 {
+	NSParameterAssert(nil != filename);
+	
 	NSError *error = nil;
 	
 	// If the stream already exists in the library, do nothing
@@ -610,13 +612,15 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (BOOL) addFiles:(NSArray *)filenames
 {
+	NSParameterAssert(nil != filenames);
+	
 	NSString				*filename				= nil;
 	NSString				*path					= nil;
 	NSFileManager			*fileManager			= [NSFileManager defaultManager];
 	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
 	NSDirectoryEnumerator	*directoryEnumerator	= nil;
 	BOOL					isDirectory				= NO;
-	BOOL					openSuccessful			= NO;
+	BOOL					openSuccessful			= YES;
 	
 	[[CollectionManager manager] beginUpdate];
 	
@@ -638,6 +642,60 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[[CollectionManager manager] finishUpdate];
 	
 	return openSuccessful;
+}
+
+- (BOOL) removeFile:(NSString *)filename
+{
+	NSParameterAssert(nil != filename);
+	
+	// If the stream doesn't exist in the library, do nothing
+	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+	if(nil == stream) {
+		return YES;
+	}
+	
+	// Otherwise, remove it
+	if([stream isPlaying]) {
+		[self stop:self];
+	}
+	
+	[[[CollectionManager manager] streamManager] deleteStream:stream];
+	
+	return YES;
+}
+
+- (BOOL) removeFiles:(NSArray *)filenames
+{
+	NSParameterAssert(nil != filenames);
+	
+	NSString				*filename				= nil;
+	NSString				*path					= nil;
+	NSFileManager			*fileManager			= [NSFileManager defaultManager];
+	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
+	NSDirectoryEnumerator	*directoryEnumerator	= nil;
+	BOOL					isDirectory				= NO;
+	BOOL					removeSuccessful		= YES;
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	while((filename = [filesEnumerator nextObject])) {
+		
+		// Perform a deep search for directories
+		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
+			directoryEnumerator	= [fileManager enumeratorAtPath:filename];
+			
+			while((path = [directoryEnumerator nextObject])) {
+				removeSuccessful &= [self removeFile:[filename stringByAppendingPathComponent:path]];
+			}
+		}
+		else {
+			removeSuccessful = [self removeFile:filename];
+		}
+	}
+	
+	[[CollectionManager manager] finishUpdate];
+	
+	return removeSuccessful;
 }
 
 #pragma mark Playlist manipulation
@@ -1241,7 +1299,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
 	// Only the currentStreamsNode should highlight the playing track
-	if(NO == [_browserController selectedNodeIsCurrentStreamsNode]) {
+	if(NO == [_browserController selectedNodeIsCurrentStreams]) {
 		
 		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
 			[cell setDrawsBackground:NO];
@@ -1829,7 +1887,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_playlistInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected playlist", @"Player", @"")];
 	[_playlistInfoButton bind:@"enabled"
 					 toObject:_browserController
-				  withKeyPath:@"selectedNodeIsPlaylistNode"
+				  withKeyPath:@"selectedNodeIsPlaylist"
 					  options:nil];
 	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
 	[_playlistInfoButton setTarget:self];
