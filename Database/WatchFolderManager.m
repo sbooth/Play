@@ -20,6 +20,8 @@
 
 #import "WatchFolderManager.h"
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
+#import "AudioStream.h"
 #import "WatchFolder.h"
 #import "AudioLibrary.h"
 
@@ -254,6 +256,15 @@
 {
 	_db = db;
 	[self prepareSQL];
+	
+	// Load all the watch folders and update the library contents
+	NSEnumerator *enumerator = [[self watchFolders] objectEnumerator];
+	WatchFolder *watchFolder = nil;
+	NSURL *url = nil;
+	while((watchFolder = [enumerator nextObject])) {
+		url = [watchFolder valueForKey:WatchFolderURLKey];
+		[self synchronizeLibraryStreamsWithURL:url];
+	}
 }
 
 - (void) disconnectedFromDatabase
@@ -694,6 +705,55 @@
 		}
 	}
 	return _folderKeys;
+}
+
+#pragma mark URL and AudioStream Addition
+
+- (void) synchronizeLibraryStreamsWithURL:(NSURL *)url
+{
+	NSParameterAssert(nil != url);
+	
+	// First grab the paths for the streams in the library under this url
+	NSArray			*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
+	NSEnumerator	*enumerator			= [libraryStreams objectEnumerator];
+	AudioStream		*stream				= nil;
+	NSMutableSet	*libraryFilenames	= [NSMutableSet set];
+	
+	while((stream = [enumerator nextObject])) {
+		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
+	}
+	
+	// Next iterate through and see what is actually in the directory
+	NSMutableSet	*physicalFilenames	= [NSMutableSet set];
+	NSArray			*allowedTypes		= getAudioExtensions();
+	NSString		*path				= [url path];
+	NSString		*filename			= nil;
+	BOOL			isDir;
+	BOOL			result				= [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
+	
+	if(NO == result || NO == isDir) {
+		NSLog(@"Unable to locate folder \"%@\".", path);
+		return;
+	}
+	
+	NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:path];
+	
+	while((filename = [directoryEnumerator nextObject])) {
+		if([allowedTypes containsObject:[filename pathExtension]]) {
+			[physicalFilenames addObject:[path stringByAppendingPathComponent:filename]];
+		}
+	}
+	
+	// Determine if any files were deleted
+	NSMutableSet	*removedFilenames		= [NSMutableSet setWithSet:libraryFilenames];
+	[removedFilenames minusSet:physicalFilenames];
+	
+	// Determine if any files were added
+	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
+	[addedFilenames minusSet:libraryFilenames];
+
+	[[AudioLibrary library] addFiles:[addedFilenames allObjects]];
+	[[AudioLibrary library] removeFiles:[removedFilenames allObjects]];
 }
 
 @end
