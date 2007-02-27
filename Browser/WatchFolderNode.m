@@ -39,6 +39,11 @@
 
 	if((self = [super initWithName:[folder valueForKey:WatchFolderNameKey]])) {
 		_watchFolder = [folder retain];
+		
+		NSImage *icon = [[NSWorkspace sharedWorkspace] iconForFile:[[_watchFolder valueForKey:WatchFolderURLKey] path]];
+		[icon setSize:NSMakeSize(16.0, 16.0)];
+		[self setIcon:icon];
+		
 		[_watchFolder addObserver:self forKeyPath:WatchFolderNameKey options:NSKeyValueObservingOptionNew context:NULL];
 	}
 	return self;
