@@ -137,9 +137,21 @@
 - (NSArray *) streamsContainedByURL:(NSURL *)url
 {
 	NSParameterAssert(nil != url);
-	NSParameterAssert([url isFileURL]);
 	
-	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K BEGINSWITH %@", @"URLAsString", [url absoluteString]]];
+	NSArray			*allStreams		= [self streams];
+	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
+	NSEnumerator	*enumerator		= [allStreams objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSURL			*streamURL		= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		streamURL = [stream valueForKey:StreamURLKey];
+		if([[streamURL path] hasPrefix:[url path]]) {
+			[streams addObject:stream];
+		}
+	}
+	
+	return [streams autorelease];
 }
 
 - (AudioStream *) streamForID:(NSNumber *)objectID
