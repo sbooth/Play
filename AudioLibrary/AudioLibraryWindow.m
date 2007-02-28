@@ -32,7 +32,7 @@
 		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
-		[[AudioLibrary library] playSelection:self];
+		[[AudioLibrary library] streamTableDoubleClicked:self];
 	}
 	else if(0xf702 == key && 0 == flags) {
 		[[AudioLibrary library] skipBackward:self];

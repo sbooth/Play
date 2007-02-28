@@ -310,7 +310,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (id) 			autorelease							{ return self; }
 
 - (void) awakeFromNib
-{	
+{
+	// Setup streams table
+	[_streamTable setSearchColumnIdentifiers:[NSSet setWithObjects:@"title", @"albumTitle", @"artist", @"albumArtist", @"genre", @"composer", nil]];
+
 	// Setup browser
 	[self setupBrowser];
 	
@@ -437,11 +440,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (IBAction) streamTableDoubleClicked:(id)sender
 {
 	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
 		return;
 	}
 
 	if([_browserController selectedNodeIsCurrentStreams]) {
-		[self playSelection:sender];
+		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
 	else if(0 == [self countOfCurrentStreams]) {
 		[self addSelectedStreamsToCurrentStreams:sender];
@@ -450,6 +454,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else {
 		[self addSelectedStreamsToCurrentStreams:sender];
 	}
+	
+	[self updatePlayButtonState];
 }
 
 - (IBAction) addSelectedStreamsToCurrentStreams:(id)sender
@@ -880,6 +886,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) play:(id)sender
 {
+	if(NO == [self playButtonEnabled]) {
+		NSBeep();
+		return;
+	}
+	
 	if(NO == [[self player] hasValidStream]) {
 		if([self randomizePlayback]) {
 			NSArray		*streams			= (1 < [[_streamController selectedObjects] count] ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
@@ -893,7 +904,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 			[self playStreamAtIndex:0];
 		}
 		else {
-			[self playSelection:sender];
+			[self addSelectedStreamsToCurrentStreams:sender];
+			[self playStreamAtIndex:0];
 		}
 	}
 	else {
@@ -908,6 +920,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) playPause:(id)sender
 {
+	if(NO == [self playButtonEnabled]) {
+		NSBeep();
+		return;
+	}
+	
 	if(NO == [[self player] hasValidStream]) {
 		[self play:sender];
 	}
@@ -924,34 +941,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
 		}
-	}
-	
-	[self updatePlayButtonState];
-}
-
-- (IBAction) playSelection:(id)sender
-{
-	if(0 == [[_streamController arrangedObjects] count]) {
-		return;
-	}
-	
-	// Don't set the current streams if they are already in there
-	int				selectedRow			= [_browserOutlineView selectedRow];
-	id				opaqueNode			= [_browserOutlineView itemAtRow:selectedRow];
-	BrowserNode		*node				= [opaqueNode observedObject];
-
-	if(NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
-		unsigned selectedObjectsCount = [[_streamController selectedObjects] count];
-		NSArray *streams = (1 < selectedObjectsCount ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
-		NSIndexSet *savedSelectionIndexes = [_streamController selectionIndexes];
-		[self setCurrentStreamsFromArray:streams];
-		[self playStreamAtIndex:(1 != selectedObjectsCount ? 0 : [_streamController selectionIndex])];
-		if(1 < selectedObjectsCount) {			
-			[_streamController setSelectionIndexes:savedSelectionIndexes];
-		}
-	}
-	else {		
-		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
 	
 	[self updatePlayButtonState];
@@ -1385,6 +1374,21 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
+}
+
+- (void) configureTypeSelectTableView:(KFTypeSelectTableView *)tableView
+{
+    [tableView setSearchWraps:YES];
+}
+
+- (int) typeSelectTableViewInitialSearchRow:(id)tableView
+{
+	return [tableView selectedRow];
+}
+
+- (NSString *) typeSelectTableView:(id)tableView stringValueForTableColumn:(NSTableColumn *)column row:(int)row
+{
+	return [[[_streamController arrangedObjects] objectAtIndex:row] valueForKey:[column identifier]];
 }
 
 @end

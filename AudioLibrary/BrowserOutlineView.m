@@ -46,7 +46,7 @@
 		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
-		[[AudioLibrary library] playSelection:self];
+		[[AudioLibrary library] streamTableDoubleClicked:self];
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 

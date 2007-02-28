@@ -19,6 +19,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "KFTypeSelectTableView.h"
 
 // ========================================
 // Pboard Types
@@ -27,7 +28,7 @@ extern NSString * const		AudioStreamPboardType;
 extern NSString * const		AudioStreamTableMovedRowsPboardType;
 extern NSString * const		iTunesPboardType;
 
-@interface AudioStreamTableView : NSTableView 
+@interface AudioStreamTableView : KFTypeSelectTableView 
 {
 	IBOutlet NSArrayController *_streamController;
 }
