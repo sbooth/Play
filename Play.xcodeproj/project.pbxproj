@@ -36,6 +36,7 @@
 		8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */; };
 		8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */; };
 		8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */; };
+		8C17FC650B953399009200C4 /* KFTypeSelectTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17FC630B953399009200C4 /* KFTypeSelectTableView.m */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
 		8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */; };
@@ -322,6 +323,8 @@
 		8C17F9530B928FA7009200C4 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewWatchFolderSheet.nib; sourceTree = "<group>"; };
 		8C17F9590B929002009200C4 /* NewWatchFolderSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NewWatchFolderSheet.h; path = AudioLibrary/NewWatchFolderSheet.h; sourceTree = "<group>"; };
 		8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NewWatchFolderSheet.m; path = AudioLibrary/NewWatchFolderSheet.m; sourceTree = "<group>"; };
+		8C17FC620B953399009200C4 /* KFTypeSelectTableView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = KFTypeSelectTableView.h; path = ThirdParty/KFTypeSelectTableView/KFTypeSelectTableView.h; sourceTree = "<group>"; };
+		8C17FC630B953399009200C4 /* KFTypeSelectTableView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = KFTypeSelectTableView.m; path = ThirdParty/KFTypeSelectTableView/KFTypeSelectTableView.m; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
 		8C1A63410B7E8872008A04AB /* BrowserNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = BrowserNode.m; path = Browser/BrowserNode.m; sourceTree = "<group>"; };
 		8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_url.sql; path = SQL/select_stream_by_url.sql; sourceTree = "<group>"; };
@@ -803,6 +806,15 @@
 			name = UKKQueue;
 			sourceTree = "<group>";
 		};
+		8C17FC5F0B95337C009200C4 /* KFTypeSelectTableView */ = {
+			isa = PBXGroup;
+			children = (
+				8C17FC620B953399009200C4 /* KFTypeSelectTableView.h */,
+				8C17FC630B953399009200C4 /* KFTypeSelectTableView.m */,
+			);
+			name = KFTypeSelectTableView;
+			sourceTree = "<group>";
+		};
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
@@ -880,6 +892,7 @@
 				8C06F0190B866EA700E8ADB6 /* CTGradient */,
 				8C5BD5F50B7EFBCB000DE945 /* IconFamily */,
 				8C9C24F80B724AE500CE799A /* ImageAndTextCell */,
+				8C17FC5F0B95337C009200C4 /* KFTypeSelectTableView */,
 				8CA1EE640B89697300AE4C2E /* NSTreeController Extensions */,
 				8C9C30C60B73277000CE799A /* SFMT */,
 				8C9C24FD0B724B0E00CE799A /* sqlite3 */,
@@ -1557,6 +1570,7 @@
 				8C17F8B10B928640009200C4 /* WatchFolder.m in Sources */,
 				8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */,
 				8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */,
+				8C17FC650B953399009200C4 /* KFTypeSelectTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
