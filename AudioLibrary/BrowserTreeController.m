@@ -101,11 +101,11 @@
 	BrowserNode		*node			= nil;
 	
 	while((node = [enumerator nextObject])) {
-		if(NO == [node isKindOfClass:[PlaylistNode class]] || NO == [node isKindOfClass:[CurrentStreamsNode class]]) {
-			return NO;
+		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]]) {
+			return YES;
 		}
 	}
-	return YES;
+	return NO;
 }
 
 - (BOOL) canInsert
