@@ -42,7 +42,7 @@
 			[_browserController remove:event];
 		}
 	}
-	if(0x0020 == key && 0 == flags) {
+	else if(0x0020 == key && 0 == flags) {
 		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
