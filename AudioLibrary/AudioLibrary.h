@@ -143,6 +143,7 @@ extern NSString * const		WatchFolderObjectKey;
 // ========================================
 // Action methods
 - (IBAction)	toggleBrowser:(id)sender;
+- (IBAction)	streamTableDoubleClicked:(id)sender;
 
 - (IBAction)	addSelectedStreamsToCurrentStreams:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;

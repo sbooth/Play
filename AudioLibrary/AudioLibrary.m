@@ -434,6 +434,24 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_browserDrawer toggle:sender];
 }
 
+- (IBAction) streamTableDoubleClicked:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		return;
+	}
+
+	if([_browserController selectedNodeIsCurrentStreams]) {
+		[self playSelection:sender];
+	}
+	else if(0 == [self countOfCurrentStreams]) {
+		[self addSelectedStreamsToCurrentStreams:sender];
+		[self playStreamAtIndex:0];
+	}
+	else {
+		[self addSelectedStreamsToCurrentStreams:sender];
+	}
+}
+
 - (IBAction) addSelectedStreamsToCurrentStreams:(id)sender
 {
 	if(0 == [[_streamController selectedObjects] count]) {
@@ -852,6 +870,9 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		}
 		[self setCurrentStreamsFromArray:streams];
 		[self playStreamAtIndex:0];
+
+		[self selectCurrentStreamsNode];
+		[self scrollNowPlayingToVisible];		
 	}
 	
 	return success;
@@ -1661,10 +1682,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[[self player] play];
 	
-	[self selectCurrentStreamsNode];
-	// TODO: Is this the desired behavior?
-	[self scrollNowPlayingToVisible];
-
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
