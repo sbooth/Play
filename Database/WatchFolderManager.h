@@ -22,6 +22,7 @@
 #include "sqlite3.h"
 
 @class WatchFolder;
+@class UKKQueue;
 
 // ========================================
 // Class that provides access to the Playlist objects contained
@@ -47,6 +48,8 @@
 	BOOL					_updating;				// Indicates if a transaction is in progress
 	
 	NSArray					*_folderKeys;			// WatchFolders (aggregate) keys this object supports
+	
+	UKKQueue				*_kq;					// URLs we are watching
 }
 
 // ========================================

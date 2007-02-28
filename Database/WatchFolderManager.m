@@ -25,6 +25,8 @@
 #import "WatchFolder.h"
 #import "AudioLibrary.h"
 
+#import "UKKQueue.h"
+
 #import "SQLiteUtilityFunctions.h"
 
 @interface WatchFolderManager (CollectionManagerMethods)
@@ -39,6 +41,10 @@
 
 - (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
 - (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
+@end
+
+@interface WatchFolderManager (UKFileWatcherDelegateMethods)
+-(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath;
 @end
 
 @interface WatchFolderManager (Private)
@@ -58,6 +64,8 @@
 - (void) doDeleteWatchFolder:(WatchFolder *)folder;
 
 - (NSArray *) watchFolderKeys;
+
+- (UKKQueue *) kq;
 
 - (void) synchronizeLibraryStreamsWithURL:(NSURL *)url;
 @end
@@ -266,13 +274,13 @@
 	while((watchFolder = [enumerator nextObject])) {
 		url = [watchFolder valueForKey:WatchFolderURLKey];
 		[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
+		[[self kq] addPath:[url path]];
 	}
-	
-	// Add the watch folder's URL to our list of watched paths
 }
 
 - (void) disconnectedFromDatabase
 {
+	[[self kq] removeAllPathsFromQueue];
 	[self finalizeSQL];
 	_db = NULL;
 }
@@ -440,6 +448,33 @@
 	[self saveWatchFolder:folder];
 	
 	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+}
+
+@end
+
+@implementation WatchFolderManager (UKFileWatcherDelegateMethods)
+
+-(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath
+{
+	/*
+	 extern NSString* UKFileWatcherRenameNotification;
+	 extern NSString* UKFileWatcherWriteNotification;
+	 extern NSString* UKFileWatcherDeleteNotification;
+	 extern NSString* UKFileWatcherAttributeChangeNotification;
+	 extern NSString* UKFileWatcherSizeIncreaseNotification;
+	 extern NSString* UKFileWatcherLinkCountChangeNotification;
+	 extern NSString* UKFileWatcherAccessRevocationNotification;
+	 */
+	NSLog(@"receivedNotification:%@ forPath:%@", nm, fpath);
+	if([nm isEqualToString:UKFileWatcherRenameNotification]) {
+		
+	}
+	else if([nm isEqualToString:UKFileWatcherDeleteNotification]) {
+		
+	}
+	else if([nm isEqualToString:UKFileWatcherAccessRevocationNotification]) {
+		
+	}
 }
 
 @end
@@ -709,6 +744,15 @@
 		}
 	}
 	return _folderKeys;
+}
+
+- (UKKQueue *) kq
+{
+	if(nil == _kq) {
+		_kq = [[UKKQueue alloc] init];
+		[_kq setDelegate:self];
+	}
+	return _kq;
 }
 
 #pragma mark URL and AudioStream Addition
