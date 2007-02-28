@@ -58,6 +58,8 @@
 - (void) doDeleteWatchFolder:(WatchFolder *)folder;
 
 - (NSArray *) watchFolderKeys;
+
+- (void) synchronizeLibraryStreamsWithURL:(NSURL *)url;
 @end
 
 @implementation WatchFolderManager
@@ -257,14 +259,16 @@
 	_db = db;
 	[self prepareSQL];
 	
-	// Load all the watch folders and update the library contents
+	// Load all the watch folders and update the library contents (in the background because this is a potentially slow operation)
 	NSEnumerator *enumerator = [[self watchFolders] objectEnumerator];
 	WatchFolder *watchFolder = nil;
 	NSURL *url = nil;
 	while((watchFolder = [enumerator nextObject])) {
 		url = [watchFolder valueForKey:WatchFolderURLKey];
-		[self synchronizeLibraryStreamsWithURL:url];
+		[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
 	}
+	
+	// Add the watch folder's URL to our list of watched paths
 }
 
 - (void) disconnectedFromDatabase
@@ -712,12 +716,13 @@
 - (void) synchronizeLibraryStreamsWithURL:(NSURL *)url
 {
 	NSParameterAssert(nil != url);
-	
+
 	// First grab the paths for the streams in the library under this url
-	NSArray			*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
-	NSEnumerator	*enumerator			= [libraryStreams objectEnumerator];
-	AudioStream		*stream				= nil;
-	NSMutableSet	*libraryFilenames	= [NSMutableSet set];
+	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
+	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
+	AudioStream			*stream				= nil;
+	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
 	
 	while((stream = [enumerator nextObject])) {
 		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
@@ -752,8 +757,10 @@
 	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
 	[addedFilenames minusSet:libraryFilenames];
 
-	[[AudioLibrary library] addFiles:[addedFilenames allObjects]];
-	[[AudioLibrary library] removeFiles:[removedFilenames allObjects]];
+	[[AudioLibrary library] performSelectorOnMainThread:@selector(addFiles:) withObject:[addedFilenames allObjects] waitUntilDone:NO];
+	[[AudioLibrary library] performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:NO];
+	
+	[pool release];
 }
 
 @end
