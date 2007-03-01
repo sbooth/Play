@@ -9,12 +9,13 @@
                 insertWatchFolder = id; 
                 jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
+                jumpToPlayQueue = id; 
                 nextPlaylist = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
                 previousPlaylist = id; 
-                showCurrentStreams = id; 
+                removeSelectedStreams = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 

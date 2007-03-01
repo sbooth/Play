@@ -25,7 +25,7 @@
 @class CollectionManager;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
-@class BrowserNode, LibraryNode, CurrentStreamsNode;
+@class BrowserNode, LibraryNode, PlayQueueNode;
 
 // ========================================
 // Notification Names
@@ -88,7 +88,7 @@ extern NSString * const		WatchFolderObjectKey;
 	unsigned				_nextPlaybackIndex;
 	
 	LibraryNode				*_libraryNode;
-	CurrentStreamsNode		*_currentStreamsNode;
+	PlayQueueNode			*_playQueueNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
@@ -144,12 +144,12 @@ extern NSString * const		WatchFolderObjectKey;
 - (IBAction)	toggleBrowser:(id)sender;
 - (IBAction)	streamTableDoubleClicked:(id)sender;
 
-- (IBAction)	addSelectedStreamsToCurrentStreams:(id)sender;
+- (IBAction)	addSelectedStreamsToPlayQueue:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;
 
 - (IBAction)	jumpToLibrary:(id)sender;
 - (IBAction)	jumpToNowPlaying:(id)sender;
-- (IBAction)	showCurrentStreams:(id)sender;
+- (IBAction)	jumpToPlayQueue:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
 - (IBAction)	showPlaylistInformationSheet:(id)sender;
@@ -166,7 +166,7 @@ extern NSString * const		WatchFolderObjectKey;
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;
-- (BOOL)		selectCurrentStreamsNode;
+- (BOOL)		selectPlayQueueNode;
 
 // ========================================
 // Library properties

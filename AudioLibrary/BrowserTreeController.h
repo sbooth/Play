@@ -37,7 +37,7 @@ extern NSString * const		AudioStreamPboardType;
 
 - (BrowserNode *) selectedNode;
 
-- (BOOL) selectedNodeIsCurrentStreams;
+- (BOOL) selectedNodeIsPlayQueue;
 - (BOOL) selectedNodeIsLibrary;
 - (BOOL) selectedNodeIsPlaylist;
 - (BOOL) selectedNodeIsWatchFolder;

@@ -24,7 +24,7 @@
 #import "BrowserNode.h"
 #import "PlaylistNode.h"
 #import "LibraryNode.h"
-#import "CurrentStreamsNode.h"
+#import "PlayQueueNode.h"
 #import "WatchFolderNode.h"
 #import "Playlist.h"
 
@@ -75,9 +75,9 @@
 	return (0 == [selectedObjects count] ? nil : [selectedObjects objectAtIndex:0]);
 }
 
-- (BOOL) selectedNodeIsCurrentStreams
+- (BOOL) selectedNodeIsPlayQueue
 {
-	return [[self selectedNode] isKindOfClass:[CurrentStreamsNode class]];
+	return [[self selectedNode] isKindOfClass:[PlayQueueNode class]];
 }
 
 - (BOOL) selectedNodeIsLibrary
@@ -119,7 +119,7 @@
 {
 	BrowserNode *node = [item observedObject];
 	
-	return ([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[CurrentStreamsNode class]] ? NSDragOperationCopy : NSDragOperationNone);
+	return ([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[PlayQueueNode class]] ? NSDragOperationCopy : NSDragOperationNone);
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
@@ -131,14 +131,14 @@
 		[[(PlaylistNode *)node playlist] addStreamsWithIDs:objectIDs];		
 		return YES;
 	}
-	if([node isKindOfClass:[CurrentStreamsNode class]]) {
+	if([node isKindOfClass:[PlayQueueNode class]]) {
 		NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
 		NSNumber		*objectID		= nil;
 		AudioStream		*stream			= nil;
 		
 		while((objectID = [enumerator nextObject])) {
 			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-			[(CurrentStreamsNode *)node insertObject:stream inStreamsAtIndex:[(CurrentStreamsNode *)node countOfStreams]];
+			[(PlayQueueNode *)node insertObject:stream inStreamsAtIndex:[(PlayQueueNode *)node countOfStreams]];
 		}
 		
 		return YES;

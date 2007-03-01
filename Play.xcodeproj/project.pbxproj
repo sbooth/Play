@@ -214,7 +214,6 @@
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
 		8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */; };
 		8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */; };
-		8CA1F1C50B899F3700AE4C2E /* CurrentStreamsNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1F1C30B899F3700AE4C2E /* CurrentStreamsNode.m */; };
 		8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */; };
 		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
 		8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */; };
@@ -241,6 +240,7 @@
 		8CC1B8000B7C4D1D006BF010 /* delete_stream_trigger.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1B7FF0B7C4D1D006BF010 /* delete_stream_trigger.sql */; };
 		8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */; };
 		8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */; };
+		8CFD465E0B96A22600F9094B /* PlayQueueNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CFD465C0B96A22500F9094B /* PlayQueueNode.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -587,8 +587,6 @@
 		8C9C40210B745B4700CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioMetadataEditingSheet.nib; sourceTree = "<group>"; };
 		8CA1EE650B89698600AE4C2E /* NSTreeController_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSTreeController_Extensions.h; path = ThirdParty/NSTreeController_Extensions/NSTreeController_Extensions.h; sourceTree = "<group>"; };
 		8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSTreeController_Extensions.m; path = ThirdParty/NSTreeController_Extensions/NSTreeController_Extensions.m; sourceTree = "<group>"; };
-		8CA1F1C20B899F3700AE4C2E /* CurrentStreamsNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CurrentStreamsNode.h; path = Browser/CurrentStreamsNode.h; sourceTree = "<group>"; };
-		8CA1F1C30B899F3700AE4C2E /* CurrentStreamsNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CurrentStreamsNode.m; path = Browser/CurrentStreamsNode.m; sourceTree = "<group>"; };
 		8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamArrayController.h; path = AudioLibrary/AudioStreamArrayController.h; sourceTree = "<group>"; };
 		8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamArrayController.m; path = AudioLibrary/AudioStreamArrayController.m; sourceTree = "<group>"; };
 		8CAFB6530B87A35800B3A0EB /* BrowserTreeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BrowserTreeController.h; path = AudioLibrary/BrowserTreeController.h; sourceTree = "<group>"; };
@@ -627,6 +625,8 @@
 		8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseObject.h; path = Database/DatabaseObject.h; sourceTree = "<group>"; };
 		8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseObject.m; path = Database/DatabaseObject.m; sourceTree = "<group>"; };
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
+		8CFD465B0B96A22500F9094B /* PlayQueueNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlayQueueNode.h; path = Browser/PlayQueueNode.h; sourceTree = "<group>"; };
+		8CFD465C0B96A22500F9094B /* PlayQueueNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlayQueueNode.m; path = Browser/PlayQueueNode.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -818,8 +818,8 @@
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
-				8CA1F1C20B899F3700AE4C2E /* CurrentStreamsNode.h */,
-				8CA1F1C30B899F3700AE4C2E /* CurrentStreamsNode.m */,
+				8CFD465B0B96A22500F9094B /* PlayQueueNode.h */,
+				8CFD465C0B96A22500F9094B /* PlayQueueNode.m */,
 				8C1A63400B7E8872008A04AB /* BrowserNode.h */,
 				8C1A63410B7E8872008A04AB /* BrowserNode.m */,
 				8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */,
@@ -1557,7 +1557,6 @@
 				8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */,
 				8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */,
 				8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */,
-				8CA1F1C50B899F3700AE4C2E /* CurrentStreamsNode.m in Sources */,
 				8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */,
 				8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */,
 				8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */,
@@ -1571,6 +1570,7 @@
 				8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */,
 				8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */,
 				8C17FC650B953399009200C4 /* KFTypeSelectTableView.m in Sources */,
+				8CFD465E0B96A22600F9094B /* PlayQueueNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

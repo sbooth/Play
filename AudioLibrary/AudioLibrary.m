@@ -63,7 +63,7 @@
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
-#import "CurrentStreamsNode.h"
+#import "PlayQueueNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
 #import "GenresNode.h"
@@ -298,7 +298,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_currentStreams release], _currentStreams = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
-	[_currentStreamsNode release], _currentStreamsNode = nil;
+	[_playQueueNode release], _playQueueNode = nil;
 	
 	[super dealloc];
 }
@@ -378,15 +378,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else if([anItem action] == @selector(playPreviousStream:)) {
 		return [self canPlayPreviousStream];
 	}
-/*	else if([anItem action] == @selector(nextPlaylist:)) {
-		return [_playlistController canSelectNext];
-	}
-	else if([anItem action] == @selector(previousPlaylist:)) {
-		return [_playlistController canSelectPrevious];
-	}*/
 	else if([anItem action] == @selector(insertPlaylist:)
-/*			|| [anItem action] == @selector(insertDynamicPlaylist:)
-			|| [anItem action] == @selector(insertFolderPlaylist:)*/) {
+/*			|| [anItem action] == @selector(insertSmartPlaylist:)*/) {
 		return [_browserController canInsertPlaylist];
 	}
 	else if([anItem action] == @selector(insertPlaylistWithSelection:)) {
@@ -395,8 +388,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else if([anItem action] == @selector(jumpToNowPlaying:)) {
 		return (nil != [self nowPlaying] && 0 != [self countOfCurrentStreams]);
 	}
-	else if([anItem action] == @selector(showCurrentStreams:)) {
+	else if([anItem action] == @selector(jumpToPlayQueue:)) {
 		return (0 != [self countOfCurrentStreams]);
+	}
+	else if([anItem action] == @selector(removeSelectedStreams:)) {
+		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([anItem action] == @selector(undo:)) {
 		return [[self undoManager] canUndo];
@@ -444,21 +440,21 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return;
 	}
 
-	if([_browserController selectedNodeIsCurrentStreams]) {
+	if([_browserController selectedNodeIsPlayQueue]) {
 		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
 	else if(0 == [self countOfCurrentStreams]) {
-		[self addSelectedStreamsToCurrentStreams:sender];
+		[self addSelectedStreamsToPlayQueue:sender];
 		[self playStreamAtIndex:0];
 	}
 	else {
-		[self addSelectedStreamsToCurrentStreams:sender];
+		[self addSelectedStreamsToPlayQueue:sender];
 	}
 	
 	[self updatePlayButtonState];
 }
 
-- (IBAction) addSelectedStreamsToCurrentStreams:(id)sender
+- (IBAction) addSelectedStreamsToPlayQueue:(id)sender
 {
 	if(0 == [[_streamController selectedObjects] count]) {
 		return;
@@ -480,7 +476,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 {
 	// If removing the currently playing stream from the library, stop playback
 	NSArray *streams = [_streamController selectedObjects];
-	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibrary] || [_browserController selectedNodeIsCurrentStreams])) {
+	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibrary] || [_browserController selectedNodeIsPlayQueue])) {
 		[self stop:sender];
 	}
 	
@@ -512,19 +508,15 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) jumpToNowPlaying:(id)sender
 {
-	if(nil != [self nowPlaying] && 0 != [self countOfCurrentStreams] && [self selectCurrentStreamsNode]) {
+	if(nil != [self nowPlaying] && 0 != [self countOfCurrentStreams] && [self selectPlayQueueNode]) {
 		[self scrollNowPlayingToVisible];
 		[_streamController setSelectionIndex:[self playbackIndex]];
 	}
 }
 
-- (IBAction) showCurrentStreams:(id)sender
+- (IBAction) jumpToPlayQueue:(id)sender
 {
-	if(0 == [self countOfCurrentStreams]) {
-		return;
-	}
-
-	/*BOOL success =*/ [self selectCurrentStreamsNode];
+	/*BOOL success =*/ [self selectPlayQueueNode];
 }
 
 - (IBAction) showStreamInformationSheet:(id)sender
@@ -877,7 +869,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		[self setCurrentStreamsFromArray:streams];
 		[self playStreamAtIndex:0];
 
-		[self selectCurrentStreamsNode];
+		[self selectPlayQueueNode];
 		[self scrollNowPlayingToVisible];		
 	}
 	
@@ -904,7 +896,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 			[self playStreamAtIndex:0];
 		}
 		else {
-			[self addSelectedStreamsToCurrentStreams:sender];
+			[self addSelectedStreamsToPlayQueue:sender];
 			[self playStreamAtIndex:0];
 		}
 	}
@@ -1112,9 +1104,9 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
 }
 
-- (BOOL) selectCurrentStreamsNode
+- (BOOL) selectPlayQueueNode
 {
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_currentStreamsNode]];
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_playQueueNode]];
 }
 
 #pragma mark Properties
@@ -1309,7 +1301,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
 	// Only the currentStreamsNode should highlight the playing track
-	if(NO == [_browserController selectedNodeIsCurrentStreams]) {
+	if(NO == [_browserController selectedNodeIsPlayQueue]) {
 		
 		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
 			[cell setDrawsBackground:NO];
@@ -1761,8 +1753,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
 	[browserRoot setIcon:folderIcon];
 	
-	_currentStreamsNode = [[CurrentStreamsNode alloc] init];
-	//	[_currentStreamsNode setIcon:cdIcon];
+	_playQueueNode = [[PlayQueueNode alloc] init];
+	//	[_playQueueNode setIcon:cdIcon];
 	
 	_libraryNode = [[LibraryNode alloc] init];
 	[_libraryNode setIcon:cdIcon];
@@ -1782,7 +1774,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
 	[watchFoldersNode setIcon:folderIcon];
 
-	[browserRoot addChild:_currentStreamsNode];
+	[browserRoot addChild:_playQueueNode];
 	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];

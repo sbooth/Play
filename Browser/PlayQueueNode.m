@@ -18,18 +18,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "CurrentStreamsNode.h"
+#import "PlayQueueNode.h"
 #import "AudioLibrary.h"
 
 @interface AudioStreamCollectionNode (Private)
 - (NSMutableArray *) streamsArray;
 @end
 
-@implementation CurrentStreamsNode
+@implementation PlayQueueNode
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Current Streams", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Play Queue", @"General", @"")])) {
 		[[AudioLibrary library] addObserver:self forKeyPath:@"currentStreams" options:nil context:NULL];
 	}
 	return self;
@@ -73,13 +73,13 @@
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable CurrentStreamsNode");
+	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable PlayQueueNode");
 	[[AudioLibrary library] insertObject:stream inCurrentStreamsAtIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable CurrentStreamsNode");
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable PlayQueueNode");
 	[[AudioLibrary library] removeObjectFromCurrentStreamsAtIndex:index];
 }
 

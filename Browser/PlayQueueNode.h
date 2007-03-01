@@ -24,7 +24,7 @@
 // ========================================
 // A node coupled to the library's playback context
 // ========================================
-@interface CurrentStreamsNode : AudioStreamCollectionNode
+@interface PlayQueueNode : AudioStreamCollectionNode
 {
 }
 
