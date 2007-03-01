@@ -2,22 +2,22 @@
 //  CTBadge.m
 //  CTWidgets
 //
-//  Created by Chad Weider on 1/6/06.
-//  Copyright (c) 2006 Cotingent.
+//  Created by Chad Weider on 2/14/07.
+//  Copyright (c) 2007 Chad Weider.
 //  Some rights reserved: <http://creativecommons.org/licenses/by/2.5/>
 //
 //  Version: 1.5
 
 #import "CTBadge.h"
 
-const float CTLargeBadgeSize = 46;
+const float CTLargeBadgeSize = 46.;
 const float CTSmallBadgeSize = 23.;
 const float CTLargeLabelSize = 24.;
 const float CTSmallLabelSize = 11.;
 
 @interface CTBadge (Private)
 - (NSImage *)badgeMaskOfSize:(float)size length:(unsigned)length;			//return a badge with height of <size> to fit <length> characters
-- (NSAttributedString *)labelForValue:(unsigned)value size:(unsigned)size;	//returns appropriately attributed label string
+- (NSAttributedString *)labelForValue:(unsigned)value size:(unsigned)size;	//returns appropriately attributed label string (not autoreleased)
 - (CTGradient *)badgeGradient;												//gradient used to fill badge mask
 @end
 
@@ -44,6 +44,7 @@ const float CTSmallLabelSize = 11.;
 	[badgeColor release];
   if(labelColor != nil)
     [labelColor release];
+  
   [super dealloc];
   }
 
@@ -92,8 +93,8 @@ const float CTSmallLabelSize = 11.;
   {
   return labelColor;
   }
-
 #pragma mark -
+
 
 #pragma mark Drawing
 - (NSImage *)smallBadgeForValue:(unsigned)value		//does drawing in it's own special way
@@ -108,7 +109,7 @@ const float CTSmallLabelSize = 11.;
 
 - (NSImage *)badgeOfSize:(float)size forValue:(unsigned)value
   {
-  float scaleFactor;
+  float scaleFactor = 1;
   
   if(size <= 0)
 	[NSException raise:NSInvalidArgumentException format:@"%@ - (NSImage *)smallBadgeForValue:(unsigned)value: size (%f) must be positive", [self class], size];
@@ -184,10 +185,11 @@ const float CTSmallLabelSize = 11.;
 	  [theShadow setShadowColor:[[NSColor blackColor] colorWithAlphaComponent:shadowOpacity]];
 	  [theShadow set];
 	  [theShadow release];
-	  [badgeImage compositeToPoint:NSZeroPoint operation: NSCompositeSourceOver];
+	  [badgeImage compositeToPoint:NSZeroPoint operation:NSCompositeSourceOver];
 	[NSGraphicsContext restoreGraphicsState];
   [image unlockFocus];
   
+  [label release];
   [badgeImage release];
   
   return [image autorelease];
@@ -220,15 +222,15 @@ const float CTSmallLabelSize = 11.;
   
   [NSApp setApplicationIconImage:badgeOverlay];
   }
-
 #pragma mark -
+
 
 #pragma mark Misc.
 - (CTGradient *)badgeGradient
   {
-  CTGradient *aGradient = [CTGradient gradientWithBeginningColor:[self badgeColor] endingColor:[[self badgeColor] shadowWithLevel:.35]];
+  CTGradient *aGradient = [CTGradient gradientWithBeginningColor:[self badgeColor] endingColor:[[self badgeColor] shadowWithLevel:(1./3.)]];
   
-  aGradient = [aGradient addColorStop:[self badgeColor] atPosition:.3];
+  aGradient = [aGradient addColorStop:[self badgeColor] atPosition:(1./3.)];
   
   return aGradient;
   }
@@ -244,19 +246,23 @@ const float CTSmallLabelSize = 11.;
 	labelFont = [NSFont fontWithName:@"Helvetica-Bold" size:size];
   
   NSMutableParagraphStyle *pStyle = [[NSMutableParagraphStyle alloc] init];[pStyle setAlignment:NSCenterTextAlignment];
-  NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:[self labelColor], NSForegroundColorAttributeName,
-																		labelFont        , NSFontAttributeName           , nil];
+  NSDictionary *attributes = [[NSDictionary alloc] initWithObjectsAndKeys:[self labelColor], NSForegroundColorAttributeName,
+																		  labelFont        , NSFontAttributeName           , nil];
   [pStyle release];
   
   //Label stuff
-  NSAttributedString *label;
+  NSString *label;
     
   if(abs(value) < 100000)
-	label = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%i",value] attributes:attributes];
+	label = [[NSString alloc] initWithFormat:@"%i", value];
   else
-	label = [[NSAttributedString alloc] initWithString:@"°" attributes:attributes];
+	label = [[NSString alloc] initWithUTF8String:"\xe2\x88\x9e"];
   
-  return label;
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:label attributes:attributes];
+  [label release];
+  [attributes release];
+  
+  return attributedString;
   }
 
 - (NSImage *)badgeMaskOfSize:(float)size length:(unsigned)length;

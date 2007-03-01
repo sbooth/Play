@@ -2,11 +2,11 @@
 //  CTBadge.h
 //  CTWidgets
 //
-//  Created by Chad Weider on 1/6/06.
-//  Copyright (c) 2006 Cotingent.
+//  Created by Chad Weider on 2/14/07.
+//  Copyright (c) 2007 Chad Weider.
 //  Some rights reserved: <http://creativecommons.org/licenses/by/2.5/>
 //
-//  Version: 1.2
+//  Version: 1.5
 
 #import <Cocoa/Cocoa.h>
 #import "CTGradient.h"
@@ -32,10 +32,10 @@ extern const float CTSmallLabelSize;
 																//	not counting the shadow effect
 																//	(image returned will be larger than <size>)
 
-- (void)badgeApplicationDockIconWithValue:(unsigned)value insetX:(float)dx y:(float)dy;		//Badges the Application's icon with <value>
-																							//	and puts it on the dock
 - (NSImage *)badgeOverlayImageForValue:(unsigned)value insetX:(float)dx y:(float)dy;		//Returns a transparent 128x128 image
 																							//  with Large badge inset dx/dy from the upper right
+- (void)badgeApplicationDockIconWithValue:(unsigned)value insetX:(float)dx y:(float)dy;		//Badges the Application's icon with <value>
+																							//	and puts it on the dock
 
 - (void)setBadgeColor:(NSColor *)theColor;					//Sets the color used on badge
 - (void)setLabelColor:(NSColor *)theColor;					//Sets the color of the label
