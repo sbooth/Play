@@ -118,7 +118,8 @@ writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, cons
 			break;
 			
 		default:
-			@throw [NSException exceptionWithName:@"IllegalInputException" reason:@"Sample size not supported" userInfo:nil]; 
+			NSLog(@"Sample size not supported");
+			return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 			break;				
 	}
 	
@@ -287,8 +288,12 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 			break;
 		}
 
-		result	= FLAC__stream_decoder_process_single(_flac);		
-		NSAssert1(YES == result, @"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
+		result	= FLAC__stream_decoder_process_single(_flac);	
+//		NSAssert1(YES == result, @"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
+		if(YES != result) {
+			NSLog(@"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
+			return;
+		}
 
 		// EOS?
 		if(FLAC__STREAM_DECODER_END_OF_STREAM == FLAC__stream_decoder_get_state(_flac)) {

@@ -173,7 +173,8 @@
 				break;
 				
 			default:
-				@throw [NSException exceptionWithName:@"IllegalInputException" reason:@"Sample size not supported" userInfo:nil]; 
+				NSLog(@"Sample size not supported");
+				samplesRead = 0;
 				break;	
 		}
 

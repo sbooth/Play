@@ -110,7 +110,10 @@
 		}
 				
 		result		= SELF_DECOMPRESSOR->GetData((char *)writePointer, bytesAvailableToWrite / blockSize, &samplesRead);
-		NSAssert(ERROR_SUCCESS == result, @"Monkey's Audio invalid checksum.");
+		//		NSAssert(ERROR_SUCCESS == result, @"Monkey's Audio invalid checksum.");
+		if(ERROR_SUCCESS != result) {
+			NSLog(@"Monkey's Audio invalid checksum.");
+		}
 		
 		[[self pcmBuffer] didWriteLength:samplesRead * blockSize];
 		

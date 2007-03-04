@@ -113,7 +113,11 @@
 				
 		// Decode the data
 		framesRead		= mpc_decoder_decode(&_decoder, mpcBuffer, 0, 0);
-		NSAssert((mpc_uint32_t)-1 != framesRead, NSLocalizedStringFromTable(@"Musepack decoding error.", @"Exceptions", @""));
+//		NSAssert((mpc_uint32_t)-1 != framesRead, NSLocalizedStringFromTable(@"Musepack decoding error.", @"Exceptions", @""));
+		if((mpc_uint32_t)-1 == framesRead) {
+			NSLog(NSLocalizedStringFromTable(@"Musepack decoding error.", @"Exceptions", @""));
+			return;
+		}
 					
 #ifdef MPC_FIXED_POINT
 	#error "Fixed point not yet supported"

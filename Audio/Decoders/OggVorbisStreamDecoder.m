@@ -110,7 +110,11 @@
 
 		for(;;) {
 			bytesRead			= ov_read(&_vf, writePointer + bytesWritten, bytesAvailableToWrite - bytesWritten, YES, sizeof(int16_t), YES, &currentSection);
-			NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
+//			NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
+			if(0 > bytesRead) {
+				NSLog(@"Ogg Vorbis decode error.");
+				return;
+			}
 			
 			bytesWritten		+= bytesRead;
 			
