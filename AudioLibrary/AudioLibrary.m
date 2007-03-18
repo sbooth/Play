@@ -453,12 +453,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	BrowserNode *node = [_browserController selectedNode];
 	
 	if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
-		AudioStreamCollectionNode	*streamsNode	= (AudioStreamCollectionNode *)node;
-		unsigned					i;
+		NSArray			*streams	= [_streamController arrangedObjects];
+		unsigned		i;
 		
 		[self willChangeValueForKey:@"currentStreams"];
-		for(i = 0; i < [streamsNode countOfStreams]; ++i) {
-			[_currentStreams addObject:[streamsNode objectInStreamsAtIndex:i]];
+		for(i = 0; i < [streams count]; ++i) {
+			[_currentStreams addObject:[streams objectAtIndex:i]];
 		}
 		[self didChangeValueForKey:@"currentStreams"];
 		
