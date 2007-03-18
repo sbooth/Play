@@ -7,11 +7,13 @@
         {
             ACTIONS = {
                 addSelectedStreamsToPlayQueue = id; 
+                browserViewDoubleClicked = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
                 insertWatchFolder = id; 
                 jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
+                jumpToPlayQueue = id; 
                 nextPlaylist = id; 
                 openDocument = id; 
                 play = id; 
@@ -20,7 +22,6 @@
                 playPreviousStream = id; 
                 previousPlaylist = id; 
                 removeSelectedStreams = id; 
-                showCurrentStreams = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 
@@ -34,18 +35,12 @@
             CLASS = AudioLibrary; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                "_addPlaylistButton" = NSButton; 
-                "_addStreamsButton" = NSButton; 
                 "_albumArtImageView" = NSImageView; 
                 "_browserController" = BrowserTreeController; 
                 "_browserDrawer" = NSDrawer; 
                 "_browserOutlineView" = BrowserOutlineView; 
                 "_playPauseButton" = NSButton; 
-                "_playlistInfoButton" = NSButton; 
-                "_removePlaylistsButton" = NSButton; 
-                "_removeStreamsButton" = NSButton; 
                 "_streamController" = AudioStreamArrayController; 
-                "_streamInfoButton" = NSButton; 
                 "_streamTable" = AudioStreamTableView; 
             }; 
             SUPERCLASS = NSWindowController; 

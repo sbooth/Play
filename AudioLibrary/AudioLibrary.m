@@ -149,9 +149,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) setupBrowser;
 
-- (void) setupStreamButtons;
-- (void) setupBrowserButtons;
-
 - (void) setupStreamTableColumns;
 
 - (void) saveStreamTableColumnOrder;
@@ -334,10 +331,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[self updatePlayButtonState];
 	[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	
-	[self setupStreamButtons];
 	[self setupStreamTableColumns];
-
-	[self setupBrowserButtons];
 }
 
 - (void) windowDidLoad
@@ -452,6 +446,24 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	
 	[self updatePlayButtonState];
+}
+
+- (IBAction) browserViewDoubleClicked:(id)sender
+{
+	BrowserNode *node = [_browserController selectedNode];
+	
+	if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
+		AudioStreamCollectionNode	*streamsNode	= (AudioStreamCollectionNode *)node;
+		unsigned					i;
+		
+		[self willChangeValueForKey:@"currentStreams"];
+		for(i = 0; i < [streamsNode countOfStreams]; ++i) {
+			[_currentStreams addObject:[streamsNode objectInStreamsAtIndex:i]];
+		}
+		[self didChangeValueForKey:@"currentStreams"];
+		
+		[self updatePlayButtonState];
+	}
 }
 
 - (IBAction) addSelectedStreamsToPlayQueue:(id)sender
@@ -1794,116 +1806,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[imageAndTextCell setLineBreakMode:NSLineBreakByTruncatingTail];
 	[tableColumn setDataCell:[imageAndTextCell autorelease]];
-}
-
-- (void) setupStreamButtons
-{
-	// Bind stream addition/removal button actions and state
-	[_addStreamsButton setToolTip:NSLocalizedStringFromTable(@"Add audio streams to the library", @"Player", @"")];
-	[_addStreamsButton bind:@"enabled"
-				   toObject:_streamController
-				withKeyPath:@"canInsert"
-					options:nil];
-	[_addStreamsButton bind:@"enabled2"
-				   toObject:_streamController
-				withKeyPath:@"content"
-					options:[NSDictionary dictionaryWithObject:@"NSIsNotNil" forKey:NSValueTransformerNameBindingOption]];
-	[_addStreamsButton setAction:@selector(openDocument:)];
-	[_addStreamsButton setTarget:self];
-	
-	[_removeStreamsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected audio streams", @"Player", @"")];
-	[_removeStreamsButton bind:@"enabled"
-					  toObject:_streamController
-				   withKeyPath:@"canRemove"
-					   options:nil];
-	[_removeStreamsButton setAction:@selector(removeSelectedStreams:)];
-	[_removeStreamsButton setTarget:self];
-	
-	[_streamInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected streams", @"Player", @"")];
-	[_streamInfoButton bind:@"enabled"
-				   toObject:_streamController
-				withKeyPath:@"selectedObjects.@count"
-					options:nil];
-	[_streamInfoButton setAction:@selector(showStreamInformationSheet:)];
-	[_streamInfoButton setTarget:self];
-}
-
- - (void) setupBrowserButtons
-{
-	NSMenu			*buttonMenu;
-	NSMenuItem		*buttonMenuItem;
-	
-	// Bind playlist addition/removal button actions and state
-	[_addPlaylistButton setToolTip:NSLocalizedStringFromTable(@"Add a new playlist to the library", @"Player", @"")];
-	[_addPlaylistButton bind:@"enabled"
-					toObject:_browserController
-				 withKeyPath:@"canInsert"
-					 options:nil];
-	
-	buttonMenu			= [[NSMenu alloc] init];
-	
-	buttonMenuItem		= [[NSMenuItem alloc] init];
-	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"New Playlist", @"Player", @"")];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist.png"]];
-	[buttonMenuItem setTarget:self];
-	[buttonMenuItem setAction:@selector(insertPlaylist:)];
-	[buttonMenu addItem:buttonMenuItem];
-	[buttonMenuItem bind:@"enabled"
-				toObject:_browserController
-			 withKeyPath:@"canInsertPlaylist"
-				 options:nil];
-	[buttonMenuItem release];
-	
-	buttonMenuItem		= [[NSMenuItem alloc] init];
-	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"New Playlist with Selection", @"Player", @"")];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"StaticPlaylist.png"]];
-	[buttonMenuItem setTarget:self];
-	[buttonMenuItem setAction:@selector(insertPlaylistWithSelection:)];
-	[buttonMenu addItem:buttonMenuItem];
-	[buttonMenuItem bind:@"enabled"
-				toObject:_browserController
-			 withKeyPath:@"canInsertPlaylist"
-				 options:nil];
-	[buttonMenuItem bind:@"enabled2"
-				toObject:_streamController
-			 withKeyPath:@"selectedObjects.@count"
-				 options:nil];
-	[buttonMenuItem release];
-	
-/*	buttonMenuItem		= [[NSMenuItem alloc] init];
-	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"New Dynamic Playlist", @"Player", @"")];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"DynamicPlaylist.png"]];
-	[buttonMenuItem setTarget:self];
-	[buttonMenuItem setAction:@selector(insertDynamicPlaylist:)];
-	[buttonMenu addItem:buttonMenuItem];
-	[buttonMenuItem release];
-	*/
-	buttonMenuItem		= [[NSMenuItem alloc] init];
-	[buttonMenuItem setTitle:NSLocalizedStringFromTable(@"Add Watch Folder", @"Player", @"")];
-	//	[buttonMenuItem setImage:[NSImage imageNamed:@"FolderPlaylist.png"]];
-	[buttonMenuItem setTarget:self];
-	[buttonMenuItem setAction:@selector(insertWatchFolder:)];
-	[buttonMenu addItem:buttonMenuItem];
-	[buttonMenuItem release];
-
-	[_addPlaylistButton setMenu:buttonMenu];
-	[buttonMenu release];
-	
-	[_removePlaylistsButton setToolTip:NSLocalizedStringFromTable(@"Remove the selected playlists from the library", @"Player", @"")];
-	[_removePlaylistsButton bind:@"enabled"
-						toObject:_browserController
-					 withKeyPath:@"canRemove"
-						 options:nil];
-	[_removePlaylistsButton setAction:@selector(remove:)];
-	[_removePlaylistsButton setTarget:_browserController];
-	
-	[_playlistInfoButton setToolTip:NSLocalizedStringFromTable(@"Show information on the selected playlist", @"Player", @"")];
-	[_playlistInfoButton bind:@"enabled"
-					 toObject:_browserController
-				  withKeyPath:@"selectedNodeIsPlaylist"
-					  options:nil];
-	[_playlistInfoButton setAction:@selector(showPlaylistInformationSheet:)];
-	[_playlistInfoButton setTarget:self];
 }
 
 - (void) setupStreamTableColumns

@@ -63,14 +63,6 @@ extern NSString * const		WatchFolderObjectKey;
 	
 	IBOutlet NSButton		*_playPauseButton;
 	
-	IBOutlet NSButton		*_addStreamsButton;
-	IBOutlet NSButton		*_removeStreamsButton;
-	IBOutlet NSButton		*_streamInfoButton;
-	
-	IBOutlet NSButton		*_addPlaylistButton;
-	IBOutlet NSButton		*_removePlaylistsButton;
-	IBOutlet NSButton		*_playlistInfoButton;
-	
 	IBOutlet NSImageView	*_albumArtImageView;
 	IBOutlet NSDrawer		*_browserDrawer;
 	
@@ -143,6 +135,7 @@ extern NSString * const		WatchFolderObjectKey;
 // Action methods
 - (IBAction)	toggleBrowser:(id)sender;
 - (IBAction)	streamTableDoubleClicked:(id)sender;
+- (IBAction)	browserViewDoubleClicked:(id)sender;
 
 - (IBAction)	addSelectedStreamsToPlayQueue:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;
