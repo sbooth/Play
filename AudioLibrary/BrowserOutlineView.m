@@ -21,6 +21,11 @@
 #import "BrowserOutlineView.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
+#import "NSBezierPath_RoundRectMethods.h"
+#import "CTGradient.h"
+
+static float widthOffset	= 5.0;
+static float heightOffset	= 3.0;
 
 @implementation BrowserOutlineView
 
@@ -46,7 +51,7 @@
 		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
-		[[AudioLibrary library] streamTableDoubleClicked:self];
+		[[AudioLibrary library] browserViewDoubleClicked:self];
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 
@@ -67,5 +72,60 @@
 	return nil;
 }
 */
+
+// Only bad people override private methods!
+// TOOD: Remove hardcoded colors
+-(void) _drawDropHighlightOnRow:(int)rowIndex
+{
+	[self lockFocus];
+	
+	NSRect drawRect = [self rectOfRow:rowIndex];
+	
+	drawRect.size.width -= widthOffset;
+	drawRect.origin.x += widthOffset/2.0;
+	
+	drawRect.size.height -= heightOffset;
+	drawRect.origin.y += heightOffset/2.0;
+	
+	[[NSColor colorWithCalibratedRed:(172/255.f) green:(193/255.f) blue:(226/255.f) alpha:1] set];
+	[NSBezierPath fillRoundRectInRect:drawRect radius:7.0];
+	
+	[[NSColor colorWithCalibratedRed:(7/255.f) green:(82/255.f) blue:(215/255.f) alpha:1] set];
+	[NSBezierPath setDefaultLineWidth:2.0];
+	[NSBezierPath strokeRoundRectInRect:drawRect radius:7.0];
+	
+	[self unlockFocus];
+}
+
+- (id) _highlightColorForCell:(NSCell *)cell
+{
+	return nil;
+}
+
+- (void) highlightSelectionInClipRect:(NSRect)clipRect
+{
+	int selectedRow = [self selectedRow];
+	if(-1 == selectedRow) {
+		return;
+	}
+	
+	CTGradient	*gradient		= nil;
+	NSRect		drawingRect		= [self rectOfRow:[self selectedRow]];
+
+	if(([[self window] firstResponder] == self) && [[self window] isMainWindow] && [[self window] isKeyWindow]) {
+		gradient = [CTGradient sourceListSelectedGradient];
+	}
+	else {
+		gradient = [CTGradient sourceListUnselectedGradient];
+	}
+
+	[gradient fillRect:drawingRect angle:90];
+}
+
+/*- (void) drawBackgroundInClipRect:(NSRect)clipRect
+{
+	[[self backgroundColor] set];
+	NSRectFill(clipRect);
+}*/
 
 @end

@@ -75,6 +75,8 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
+#import "CTGradient.h"
+
 #import "NSTreeController_Extensions.h"
 
 #include "sfmt19937.h"
@@ -452,18 +454,21 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 {
 	BrowserNode *node = [_browserController selectedNode];
 	
-	if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
-		NSArray			*streams	= [_streamController arrangedObjects];
-		unsigned		i;
-		
-		[self willChangeValueForKey:@"currentStreams"];
-		for(i = 0; i < [streams count]; ++i) {
-			[_currentStreams addObject:[streams objectAtIndex:i]];
-		}
-		[self didChangeValueForKey:@"currentStreams"];
-		
-		[self updatePlayButtonState];
+	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
+		NSBeep();
+		return;
 	}
+
+	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[self willChangeValueForKey:@"currentStreams"];
+	while((stream = [enumerator nextObject])) {
+		[_currentStreams addObject:stream];
+	}
+	[self didChangeValueForKey:@"currentStreams"];
+	
+	[self updatePlayButtonState];
 }
 
 - (IBAction) addSelectedStreamsToPlayQueue:(id)sender
@@ -1399,6 +1404,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 @implementation AudioLibrary (NSOutlineViewDelegateMethods)
 
+- (BOOL) outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item
+{
+	BrowserNode *node = [item observedObject];
+	return [node isKindOfClass:[AudioStreamCollectionNode class]];
+}
+
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
 	BrowserNode *node = [item observedObject];
@@ -1420,6 +1431,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 {
 	BrowserNode *node = [item observedObject];
 	[(ImageAndTextCell *)cell setImage:[node icon]];
+
+	// If the row is selected but isn't being edited and the current drawing isn't being used to create a drag image,
+	// colour the text white; otherwise, colour it black
+	int rowIndex = [outlineView rowForItem:item];
+	NSColor *fontColor = ([[outlineView selectedRowIndexes] containsIndex:rowIndex] && [outlineView editedRow] != rowIndex) ? [NSColor whiteColor] : [NSColor blackColor];
+	[cell setTextColor:fontColor];
 }
 
 - (void) outlineViewSelectionDidChange:(NSNotification *)notification
@@ -1435,6 +1452,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	// Unbind the current stream source
 	[_streamController unbind:@"contentArray"];
 	[_streamController setContent:nil];
+	[_streamController setFilterPredicate:nil];
 	
 	// Don't do anything except possibly save the sort descriptors if the user selected nothing
 	if(nil == node) {
