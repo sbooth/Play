@@ -32,8 +32,13 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Most Frequently Played", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Most Played", @"General", @"")])) {
 		_count = 25;
+
+		[[[CollectionManager manager] streamManager] addObserver:self 
+													  forKeyPath:@"streams"
+														 options:nil
+														 context:nil];
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:StatisticsPlayCountKey
@@ -45,6 +50,7 @@
 
 - (void) dealloc
 {
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:StatisticsPlayCountKey];
 	
 	[super dealloc];
