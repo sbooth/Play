@@ -466,15 +466,9 @@
 	 extern NSString* UKFileWatcherAccessRevocationNotification;
 	 */
 	NSLog(@"receivedNotification:%@ forPath:%@", nm, fpath);
-	if([nm isEqualToString:UKFileWatcherRenameNotification]) {
-		
-	}
-	else if([nm isEqualToString:UKFileWatcherDeleteNotification]) {
-		
-	}
-	else if([nm isEqualToString:UKFileWatcherAccessRevocationNotification]) {
-		
-	}
+
+	NSURL *url = [NSURL fileURLWithPath:fpath];
+	[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
 }
 
 @end
@@ -792,17 +786,22 @@
 			[physicalFilenames addObject:[path stringByAppendingPathComponent:filename]];
 		}
 	}
-	
+
 	// Determine if any files were deleted
 	NSMutableSet	*removedFilenames		= [NSMutableSet setWithSet:libraryFilenames];
 	[removedFilenames minusSet:physicalFilenames];
-	
+
 	// Determine if any files were added
 	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
 	[addedFilenames minusSet:libraryFilenames];
 
-	[[AudioLibrary library] performSelectorOnMainThread:@selector(addFiles:) withObject:[addedFilenames allObjects] waitUntilDone:NO];
-	[[AudioLibrary library] performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:NO];
+	if(0 != [addedFilenames count]) {
+		[[AudioLibrary library] performSelectorOnMainThread:@selector(addFiles:) withObject:[addedFilenames allObjects] waitUntilDone:YES];
+	}
+	
+	if(0 != [removedFilenames count]) {
+		[[AudioLibrary library] performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:YES];
+	}
 	
 	[pool release];
 }
