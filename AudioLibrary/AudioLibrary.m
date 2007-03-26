@@ -71,6 +71,9 @@
 #import "PlaylistNode.h"
 #import "WatchFoldersNode.h"
 #import "WatchFolderNode.h"
+#import "MostFrequentlyPlayedNode.h"
+#import "RecentlyAddedNode.h"
+#import "RecentlyPlayedNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -1804,8 +1807,15 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
 	[watchFoldersNode setIcon:folderIcon];
 
+	MostFrequentlyPlayedNode *mostFrequentlyPlayedNode = [[MostFrequentlyPlayedNode alloc] init];
+	RecentlyAddedNode *recentlyAddedNode = [[RecentlyAddedNode alloc] init];
+	RecentlyPlayedNode *recentlyPlayedNode = [[RecentlyPlayedNode alloc] init];
+	
 	[browserRoot addChild:_playQueueNode];
 	[browserRoot addChild:_libraryNode];
+	[browserRoot addChild:[mostFrequentlyPlayedNode autorelease]];
+	[browserRoot addChild:[recentlyAddedNode autorelease]];
+	[browserRoot addChild:[recentlyPlayedNode autorelease]];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[genresNode autorelease]];
