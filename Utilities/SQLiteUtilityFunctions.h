@@ -34,7 +34,8 @@ extern "C" {
 		eObjectTypeUnsignedInteger,
 		eObjectTypeInteger,
 		eObjectTypeLongLong,
-		eObjectTypeDouble
+		eObjectTypeDouble,
+		eObjectTypePredicate
 	};
 	typedef enum _eObjectType eObjectType;
 

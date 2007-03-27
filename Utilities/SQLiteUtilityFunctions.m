@@ -64,6 +64,9 @@ bindParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDouble:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value doubleValue]);	
 				break;
+			case eObjectTypePredicate:	
+				result = sqlite3_bind_text(statement, parameterIndex, [[value predicateFormat] UTF8String], -1, SQLITE_TRANSIENT);	
+				break;
 			default:
 				result = SQLITE_ERROR;
 				break;
@@ -119,6 +122,9 @@ bindNamedParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDouble:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value doubleValue]);	
 				break;
+			case eObjectTypePredicate:	
+				result = sqlite3_bind_text(statement, parameterIndex, [[value predicateFormat] UTF8String], -1, SQLITE_TRANSIENT);	
+				break;
 			default:
 				result = SQLITE_ERROR;
 				break;
@@ -169,6 +175,9 @@ getColumnValue(sqlite3_stmt		*statement,
 			break;
 		case eObjectTypeDouble:	
 			[object initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypePredicate:	
+			[object initValue:[NSPredicate predicateWithFormat:[NSString stringWithCString:(const char *)sqlite3_column_text(statement, columnIndex) encoding:NSUTF8StringEncoding]] forKey:key];
 			break;
 		default:
 			break;
