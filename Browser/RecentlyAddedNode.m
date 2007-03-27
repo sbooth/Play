@@ -22,10 +22,15 @@
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "AudioLibrary.h"
 #import "AudioStream.h"
 
 @interface AudioStreamCollectionNode (Private)
 - (NSMutableArray *) streamsArray;
+@end
+
+@interface RecentlyAddedNode (Private)
+- (void) streamsChanged:(NSNotification *)aNotification;
 @end
 
 @implementation RecentlyAddedNode
@@ -36,22 +41,28 @@
 		_count = 25;
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams"
-														 options:nil
-														 context:nil];
-
-		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:StatisticsDateAddedKey
 														 options:nil
 														 context:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamAddedToLibraryNotification
+												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
+		
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:StatisticsDateAddedKey];
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
 	[super dealloc];
 }
@@ -103,5 +114,14 @@
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {}
+
+@end
+
+@implementation RecentlyAddedNode (Private)
+
+- (void) streamsChanged:(NSNotification *)aNotification
+{
+	[self refreshStreams];
+}
 
 @end

@@ -22,9 +22,11 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
+#import "AudioLibrary.h"
 #import "ArtistNode.h"
 
 @interface ArtistsNode (Private)
+- (void) streamsChanged:(NSNotification *)aNotification;
 - (void) loadChildren;
 @end
 
@@ -36,23 +38,29 @@
 		[self loadChildren];
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams"
-														 options:nil
-														 context:nil];
-		
-		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataArtistKey
 														 options:nil
 														 context:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamAddedToLibraryNotification
+												   object:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
+		
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:MetadataArtistKey];
-	
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
 	[super dealloc];
 }
 
@@ -64,6 +72,11 @@
 @end
 
 @implementation ArtistsNode (Private)
+
+- (void) streamsChanged:(NSNotification *)aNotification
+{
+	[self loadChildren];
+}
 
 - (void) loadChildren
 {

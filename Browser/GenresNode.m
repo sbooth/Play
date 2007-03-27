@@ -22,9 +22,11 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
+#import "AudioLibrary.h"
 #import "GenreNode.h"
 
 @interface GenresNode (Private)
+- (void) streamsChanged:(NSNotification *)aNotification;
 - (void) loadChildren;
 @end
 
@@ -36,23 +38,29 @@
 		[self loadChildren];
 		
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams"
-														 options:nil
-														 context:nil];
-		
-		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataGenreKey
 														 options:nil
 														 context:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamAddedToLibraryNotification
+												   object:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
+		
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:MetadataGenreKey];
-	
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
 	[super dealloc];
 }
 
@@ -64,6 +72,11 @@
 @end
 
 @implementation GenresNode (Private)
+
+- (void) streamsChanged:(NSNotification *)aNotification
+{
+	[self loadChildren];
+}
 
 - (void) loadChildren
 {

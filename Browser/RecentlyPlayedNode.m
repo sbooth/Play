@@ -28,6 +28,11 @@
 - (NSMutableArray *) streamsArray;
 @end
 
+@interface RecentlyPlayedNode (Private)
+- (void) streamPlayed:(NSNotification *)aNotification;
+- (void) streamRemoved:(NSNotification *)aNotification;
+@end
+
 @implementation RecentlyPlayedNode
 
 - (id) init
@@ -36,22 +41,28 @@
 		_count = 25;
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams"
-														 options:nil
-														 context:nil];
-
-		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:StatisticsLastPlayedDateKey
 														 options:nil
 														 context:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamPlayed:) 
+													 name:AudioStreamPlaybackDidCompleteNotification
+												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamRemoved:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
+		
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:StatisticsLastPlayedDateKey];
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
 	[super dealloc];
 }
@@ -103,5 +114,19 @@
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {}
+
+@end
+
+@implementation RecentlyPlayedNode (Private)
+
+- (void) streamPlayed:(NSNotification *)aNotification
+{
+	[self refreshStreams];
+}
+
+- (void) streamRemoved:(NSNotification *)aNotification
+{
+	[self refreshStreams];
+}
 
 @end

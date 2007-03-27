@@ -20,6 +20,8 @@
 
 #import "SmartPlaylistNode.h"
 #import "SmartPlaylist.h"
+#import "AudioLibrary.h"
+#import "AudioStream.h"
 
 @interface AudioStreamCollectionNode (Private)
 - (NSMutableArray *) streamsArray;
@@ -27,6 +29,10 @@
 
 @interface SmartPlaylist (SmartPlaylistNodeMethods)
 - (void) loadStreams;
+@end
+
+@interface SmartPlaylistNode (Private)
+- (void) streamsChanged:(NSNotification *)aNotification;
 @end
 
 @implementation SmartPlaylistNode
@@ -37,7 +43,24 @@
 	
 	if((self = [super initWithName:[playlist valueForKey:PlaylistNameKey]])) {
 		_playlist = [playlist retain];
+
 		[_playlist addObserver:self forKeyPath:PlaylistNameKey options:NSKeyValueObservingOptionNew context:NULL];
+
+		// Register so we can keep ourselves up to date
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamDidChangeNotification
+												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamAddedToLibraryNotification
+												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
 	}
 	return self;
 }
@@ -45,6 +68,8 @@
 - (void) dealloc
 {
 	[_playlist removeObserver:self forKeyPath:PlaylistNameKey];
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
 	[_playlist release], _playlist = nil;
 	
@@ -108,5 +133,14 @@
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {}
+
+@end
+
+@implementation SmartPlaylistNode (Private)
+
+- (void) streamsChanged:(NSNotification *)aNotification
+{
+	[self refreshStreams];
+}
 
 @end

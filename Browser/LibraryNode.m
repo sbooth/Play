@@ -22,10 +22,15 @@
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "AudioLibrary.h"
 #import "AudioStream.h"
 
 @interface AudioStreamCollectionNode (Private)
 - (NSMutableArray *) streamsArray;
+@end
+
+@interface LibraryNode (Private)
+- (void) streamsChanged:(NSNotification *)aNotification;
 @end
 
 @implementation LibraryNode
@@ -33,10 +38,16 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
-		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:@"streams" 
-														 options:nil
-														 context:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamAddedToLibraryNotification
+												   object:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
 	}
 	return self;
 }
@@ -44,18 +55,9 @@
 - (void) dealloc
 {
 	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:@"streams"];
-	
-	[super dealloc];
-}
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-	int		changeKind	= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
-	
-	// The streams in the library changed, so refresh them
-	if(NSKeyValueChangeSetting != changeKind) {
-		[self refreshStreams];
-	}
+	[super dealloc];
 }
 
 - (void) loadStreams
@@ -86,6 +88,15 @@
 	
 	[stream delete];
 	[[self streamsArray] removeObjectAtIndex:index];
+}
+
+@end
+
+@implementation LibraryNode (Private)
+
+- (void) streamsChanged:(NSNotification *)aNotification
+{
+	[self refreshStreams];
 }
 
 @end
