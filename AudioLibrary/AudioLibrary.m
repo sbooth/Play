@@ -1628,6 +1628,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	if(NSOKButton == returnCode) {
 		[[CollectionManager manager] finishUpdate];
+		[[_browserController selectedNode] refreshStreams];
 	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];

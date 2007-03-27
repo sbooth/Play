@@ -45,7 +45,6 @@
 - (void) dealloc
 {
 	[_playlist removeObserver:self forKeyPath:PlaylistNameKey];
-	[_playlist removeObserver:self forKeyPath:PlaylistStreamsKey];
 	
 	[_playlist release], _playlist = nil;
 	
@@ -56,9 +55,6 @@
 {
 	if([keyPath isEqualToString:PlaylistNameKey]) {
 		[self setName:[change valueForKey:NSKeyValueChangeNewKey]];
-	}
-	else if([keyPath isEqualToString:PlaylistStreamsKey]) {
-		[self refreshStreams];
 	}
 }
 
@@ -79,17 +75,15 @@
 
 - (void) loadStreams
 {
-	// Avoid infinite recursion by using _playlist instead of [self playlist] here
+	// Avoid infinite recursion by using _playlist instead of [self smartPlaylist] here
 	_playlistLoadedStreams = YES;
 	[_playlist loadStreams];
-	
-	// Now that the streams are loaded, observe changes in them
-	[_playlist addObserver:self forKeyPath:@"streams" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:NULL];
 }
 
 - (void) refreshStreams
 {
 	[self willChangeValueForKey:@"streams"];
+	[_playlist loadStreams];
 	[self didChangeValueForKey:@"streams"];
 }
 
