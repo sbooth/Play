@@ -21,10 +21,10 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "PlaylistManager.h"
+#import "SmartPlaylistManager.h"
 #import "WatchFolderManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
-#import "PlaylistEntry.h"
 
 #import "SQLiteUtilityFunctions.h"
 
@@ -61,6 +61,22 @@
 @end
 
 // ========================================
+// SmartPlaylistManager friend methods
+@interface SmartPlaylistManager (CollectionManagerMethods)
+- (void) connectedToDatabase:(sqlite3 *)db;
+- (void) disconnectedFromDatabase;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) smartPlaylist:(SmartPlaylist *)playlist willChangeValueForKey:(NSString *)key;
+- (void) smartPlaylist:(SmartPlaylist *)playlist didChangeValueForKey:(NSString *)key;
+@end
+
+// ========================================
 // WatchFolderManager friend methods
 @interface WatchFolderManager (CollectionManagerMethods)
 - (void) connectedToDatabase:(sqlite3 *)db;
@@ -81,6 +97,7 @@
 - (void) createStreamTable;
 - (void) createPlaylistTable;
 - (void) createPlaylistEntryTable;
+- (void) createSmartPlaylistTable;
 - (void) createWatchFolderTable;
 - (void) createTriggers;
 
@@ -167,6 +184,16 @@ static CollectionManager *collectionManagerInstance = nil;
 	return _playlistManager;
 }
 
+- (SmartPlaylistManager *) smartPlaylistManager
+{
+	@synchronized(self) {
+		if(nil == _smartPlaylistManager) {
+			_smartPlaylistManager = [[SmartPlaylistManager alloc] init];
+		}
+	}
+	return _smartPlaylistManager;
+}
+
 - (WatchFolderManager *) watchFolderManager
 {
 	@synchronized(self) {
@@ -191,6 +218,7 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	[_streamManager reset];
 	[_playlistManager reset];
+	[_smartPlaylistManager reset];
 	[_watchFolderManager reset];
 }
 
@@ -213,6 +241,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] connectedToDatabase:_db];
 	[[self playlistManager] connectedToDatabase:_db];
+	[[self smartPlaylistManager] connectedToDatabase:_db];
 	[[self watchFolderManager] connectedToDatabase:_db];
 }
 
@@ -222,6 +251,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] disconnectedFromDatabase];
 	[[self playlistManager] disconnectedFromDatabase];
+	[[self smartPlaylistManager] disconnectedFromDatabase];
 	[[self watchFolderManager] disconnectedFromDatabase];
 
 	[self finalizeSQL];
@@ -250,6 +280,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] beginUpdate];
 	[[self playlistManager] beginUpdate];
+	[[self smartPlaylistManager] beginUpdate];
 	[[self watchFolderManager] beginUpdate];
 }
 
@@ -259,12 +290,14 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] processUpdate];
 	[[self playlistManager] processUpdate];
+	[[self smartPlaylistManager] processUpdate];
 	[[self watchFolderManager] processUpdate];
 
 	[self doCommitTransaction];
 	
 	[[self streamManager] finishUpdate];
 	[[self playlistManager] finishUpdate];
+	[[self smartPlaylistManager] finishUpdate];
 	[[self watchFolderManager] finishUpdate];
 	
 	_updating = NO;	
@@ -276,6 +309,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	[[self streamManager] cancelUpdate];
 	[[self playlistManager] cancelUpdate];
+	[[self smartPlaylistManager] cancelUpdate];
 	[[self watchFolderManager] cancelUpdate];
 
 	[self doRollbackTransaction];
@@ -309,6 +343,9 @@ static CollectionManager *collectionManagerInstance = nil;
 	else if([object isKindOfClass:[Playlist class]]) {
 		[[self playlistManager] playlist:(Playlist *)object willChangeValueForKey:key];
 	}
+	else if([object isKindOfClass:[SmartPlaylist class]]) {
+		[[self smartPlaylistManager] smartPlaylist:(SmartPlaylist *)object willChangeValueForKey:key];
+	}
 	else if([object isKindOfClass:[WatchFolder class]]) {
 		[[self watchFolderManager] watchFolder:(WatchFolder *)object willChangeValueForKey:key];
 	}	
@@ -321,6 +358,9 @@ static CollectionManager *collectionManagerInstance = nil;
 	}
 	else if([object isKindOfClass:[Playlist class]]) {
 		[[self playlistManager] playlist:(Playlist *)object didChangeValueForKey:key];
+	}
+	else if([object isKindOfClass:[SmartPlaylist class]]) {
+		[[self smartPlaylistManager] smartPlaylist:(SmartPlaylist *)object didChangeValueForKey:key];
 	}
 	else if([object isKindOfClass:[WatchFolder class]]) {
 		[[self watchFolderManager] watchFolder:(WatchFolder *)object didChangeValueForKey:key];
@@ -338,6 +378,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	[self createStreamTable];
 	[self createPlaylistTable];
 	[self createPlaylistEntryTable];
+	[self createSmartPlaylistTable];
 	[self createWatchFolderTable];
 	
 	[self createTriggers];
@@ -407,6 +448,29 @@ static CollectionManager *collectionManagerInstance = nil;
 	
 	result = sqlite3_step(statement);
 	NSAssert1(SQLITE_DONE == result, @"Unable to create the playlist entry table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_finalize(statement);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+}
+
+- (void) createSmartPlaylistTable
+{
+	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	sqlite3_stmt	*statement		= NULL;
+	int				result			= SQLITE_OK;
+	const char		*tail			= NULL;
+	NSError			*error			= nil;
+	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_smart_playlist_table" ofType:@"sql"];
+	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+	
+	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_smart_playlist_table");
+	
+	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
+	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	
+	result = sqlite3_step(statement);
+	NSAssert1(SQLITE_DONE == result, @"Unable to create the smart playlists table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_finalize(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
