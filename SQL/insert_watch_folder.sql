@@ -11,4 +11,3 @@ INSERT INTO 'watch_folders' (
 		?
 
 	);
-	

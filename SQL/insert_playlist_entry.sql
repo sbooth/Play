@@ -13,4 +13,3 @@ INSERT INTO 'playlist_entries' (
 		?
 
 	);
-	
