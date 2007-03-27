@@ -1,0 +1,27 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {"" = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {didSelectKeyPath = id; }; 
+            CLASS = SmartPlaylistCriterion; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_booleanCriterionViewPrototype" = NSView; 
+                "_dateCriterionViewPrototype" = NSView; 
+                "_doubleCriterionViewPrototype" = NSView; 
+                "_floatCriterionViewPrototype" = NSView; 
+                "_integer16CriterionViewPrototype" = NSView; 
+                "_integer32CriterionViewPrototype" = NSView; 
+                "_integer64CriterionViewPrototype" = NSView; 
+                "_stringCriterionViewPrototype" = NSView; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

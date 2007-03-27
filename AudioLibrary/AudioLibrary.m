@@ -54,6 +54,7 @@
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
 #import "PlaylistInformationSheet.h"
+#import "SmartPlaylistInformationSheet.h"
 #import "NewWatchFolderSheet.h"
 
 #import "AudioStreamArrayController.h"
@@ -134,6 +135,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showNewWatchFolderSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
@@ -370,7 +372,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
-		return [_browserController selectedNodeIsPlaylist];
+		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
 	}
 	else if([anItem action] == @selector(skipForward:) 
 			|| [anItem action] == @selector(skipBackward:) 
@@ -585,22 +587,39 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
 {
-	if(NO == [_browserController selectedNodeIsPlaylist]) {
+	if(NO == [_browserController selectedNodeIsPlaylist] && NO == [_browserController selectedNodeIsSmartPlaylist]) {
+		NSBeep();
 		return;
 	}
 	
-	PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
-	
-	[playlistInformationSheet setValue:[(PlaylistNode *)[_browserController selectedNode] playlist] forKey:@"playlist"];
-	[playlistInformationSheet setValue:self forKey:@"owner"];
-	
-	[[CollectionManager manager] beginUpdate];
-	
-	[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
-								   modalForWindow:[self window] 
-									modalDelegate:self 
-								   didEndSelector:@selector(showPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:playlistInformationSheet];
+	if([_browserController selectedNodeIsPlaylist]) {
+		PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
+		
+		[playlistInformationSheet setPlaylist:[(PlaylistNode *)[_browserController selectedNode] playlist]];
+		[playlistInformationSheet setOwner:self];
+		
+		[[CollectionManager manager] beginUpdate];
+		
+		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+									   modalForWindow:[self window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:playlistInformationSheet];
+	}
+	else if([_browserController selectedNodeIsSmartPlaylist]) {
+		SmartPlaylistInformationSheet *playlistInformationSheet = [[SmartPlaylistInformationSheet alloc] init];
+		
+		[playlistInformationSheet setSmartPlaylist:[(SmartPlaylistNode *)[_browserController selectedNode] smartPlaylist]];
+		[playlistInformationSheet setOwner:self];
+		
+		[[CollectionManager manager] beginUpdate];
+		
+		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+									   modalForWindow:[self window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showSmartPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:playlistInformationSheet];
+	}
 }
 
 #pragma mark File Addition and Removal
@@ -1587,6 +1606,23 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	PlaylistInformationSheet *playlistInformationSheet = (PlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] finishUpdate];
+	}
+	else if(NSCancelButton == returnCode) {
+		[[CollectionManager manager] cancelUpdate];
+		// TODO: refresh affected objects
+	}
+	
+	[playlistInformationSheet release];
+}
+
+- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	SmartPlaylistInformationSheet *playlistInformationSheet = (SmartPlaylistInformationSheet *)contextInfo;
 	
 	[sheet orderOut:self];
 	
