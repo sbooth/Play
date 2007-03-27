@@ -571,7 +571,7 @@
 
 - (BOOL) doInsertSmartPlaylist:(SmartPlaylist *)playlist
 {
-	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"insert_playlist"];
+	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"insert_smart_playlist"];
 	int				result			= SQLITE_OK;
 	BOOL			success			= YES;
 	
