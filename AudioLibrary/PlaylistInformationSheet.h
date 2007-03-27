@@ -27,6 +27,7 @@
 {
 	IBOutlet NSWindow			*_sheet;
 	
+@private
 	Playlist					*_playlist;
 	AudioLibrary				*_owner;
 }
@@ -35,6 +36,12 @@
 
 - (IBAction)		ok:(id)sender;
 - (IBAction)		cancel:(id)sender;
+
+- (AudioLibrary *)	owner;
+- (void)			setOwner:(AudioLibrary *)owner;
+
+- (Playlist *)		playlist;
+- (void)			setPlaylist:(Playlist *)playlist;
 
 //- (IBAction)		undo:(id)sender;
 //- (IBAction)		redo:(id)sender;

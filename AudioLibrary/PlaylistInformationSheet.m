@@ -59,6 +59,28 @@
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
 }
 
+- (AudioLibrary *) owner
+{
+	return _owner;
+}
+
+- (void) setOwner:(AudioLibrary *)owner
+{
+	[_owner release];
+	_owner = [owner retain];
+}
+
+- (Playlist *) playlist
+{
+	return _playlist;
+}
+
+- (void) setPlaylist:(Playlist *)playlist
+{
+	[_playlist release];
+	_playlist = [playlist retain];
+}
+
 /*- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
 {
 	return [_owner undoManager];
