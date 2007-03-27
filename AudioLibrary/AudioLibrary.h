@@ -40,6 +40,9 @@ extern NSString * const		AudioStreamPlaybackDidResumeNotification;
 extern NSString * const		PlaylistAddedToLibraryNotification;
 extern NSString * const		PlaylistRemovedFromLibraryNotification;
 
+extern NSString * const		SmartPlaylistAddedToLibraryNotification;
+extern NSString * const		SmartPlaylistRemovedFromLibraryNotification;
+
 extern NSString * const		WatchFolderAddedToLibraryNotification;
 extern NSString * const		WatchFolderRemovedFromLibraryNotification;
 
@@ -48,6 +51,7 @@ extern NSString * const		WatchFolderRemovedFromLibraryNotification;
 // ========================================
 extern NSString * const		AudioStreamObjectKey;
 extern NSString * const		PlaylistObjectKey;
+extern NSString * const		SmartPlaylistObjectKey;
 extern NSString * const		WatchFolderObjectKey;
 
 // ========================================

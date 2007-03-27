@@ -102,6 +102,9 @@ NSString * const	AudioStreamPlaybackDidResumeNotification	= @"org.sbooth.Play.Au
 NSString * const	PlaylistAddedToLibraryNotification			= @"org.sbooth.Play.AudioLibrary.PlaylistAddedToLibraryNotification";
 NSString * const	PlaylistRemovedFromLibraryNotification		= @"org.sbooth.Play.AudioLibrary.PlaylistRemovedFromLibraryNotification";
 
+NSString * const	SmartPlaylistAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.SmartPlaylistAddedToLibraryNotification";
+NSString * const	SmartPlaylistRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.SmartPlaylistRemovedFromLibraryNotification";
+
 NSString * const	WatchFolderAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.WatchFolderAddedToLibraryNotification";
 NSString * const	WatchFolderRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.WatchFolderRemovedFromLibraryNotification";
 
@@ -110,6 +113,7 @@ NSString * const	WatchFolderRemovedFromLibraryNotification	= @"org.sbooth.Play.A
 // ========================================
 NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
 NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
+NSString * const	SmartPlaylistObjectKey						= @"org.sbooth.Play.SmartPlaylist";
 NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 // ========================================
@@ -1406,12 +1410,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 @end
 
 @implementation AudioLibrary (NSOutlineViewDelegateMethods)
-
-- (BOOL) outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item
-{
-	BrowserNode *node = [item observedObject];
-	return [node isKindOfClass:[AudioStreamCollectionNode class]];
-}
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
