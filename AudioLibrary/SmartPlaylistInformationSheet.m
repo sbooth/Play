@@ -104,13 +104,14 @@
 	[_playlist release];
 	_playlist = [playlist retain];
 	
+	NSComparisonPredicate		*comparisonPredicate;
+	NSExpression				*left, *right;
+	SmartPlaylistCriterion		*criterion;
+
 	NSPredicate *playlistPredicate = [[self smartPlaylist] valueForKey:SmartPlaylistPredicateKey];
 	
 	if(nil != playlistPredicate) {
 		if([playlistPredicate isKindOfClass:[NSCompoundPredicate class]]) {
-			NSComparisonPredicate		*comparisonPredicate;
-			NSExpression				*left, *right;
-			SmartPlaylistCriterion		*criterion;
 			
 			NSCompoundPredicate *compoundPredicate		= (NSCompoundPredicate *)playlistPredicate;
 			NSEnumerator		*enumerator				= [[compoundPredicate subpredicates] objectEnumerator];
@@ -133,7 +134,19 @@
 				[self addCriterion:[criterion autorelease]];
 			}
 		}
-		
+		else if([playlistPredicate isKindOfClass:[NSComparisonPredicate class]]) {
+			criterion = [[SmartPlaylistCriterion alloc] init];
+			
+			comparisonPredicate		= (NSComparisonPredicate *)playlistPredicate;
+			left					= [comparisonPredicate leftExpression];
+			right					= [comparisonPredicate rightExpression];
+			
+			[criterion setKeyPath:[left keyPath]];
+			[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+			[criterion setSearchTerm:[right constantValue]];					
+			
+			[self addCriterion:[criterion autorelease]];
+		}		
 	}
 }
 
