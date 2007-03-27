@@ -44,6 +44,14 @@
 		8C2207C50BB6E01C00808450 /* MostFrequentlyPlayedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2207C30BB6E01C00808450 /* MostFrequentlyPlayedNode.m */; };
 		8C22083B0BB7007D00808450 /* RecentlyAddedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208390BB7007C00808450 /* RecentlyAddedNode.m */; };
 		8C2208720BB7028900808450 /* RecentlyPlayedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208700BB7028900808450 /* RecentlyPlayedNode.m */; };
+		8C2208DB0BB70E8A00808450 /* SmartPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208D70BB70E8A00808450 /* SmartPlaylist.m */; };
+		8C2208DD0BB70E8A00808450 /* SmartPlaylistManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208D90BB70E8A00808450 /* SmartPlaylistManager.m */; };
+		8C2209820BB82B1A00808450 /* create_smart_playlist_table.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C2209810BB82B1A00808450 /* create_smart_playlist_table.sql */; };
+		8C22098E0BB82B5800808450 /* delete_smart_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C22098D0BB82B5800808450 /* delete_smart_playlist.sql */; };
+		8C2209970BB82B7800808450 /* insert_smart_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C2209960BB82B7800808450 /* insert_smart_playlist.sql */; };
+		8C2209C60BB82BE700808450 /* select_all_smart_playlists.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C2209C50BB82BE700808450 /* select_all_smart_playlists.sql */; };
+		8C2209CD0BB82C0A00808450 /* select_smart_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C2209CC0BB82C0A00808450 /* select_smart_playlist_by_id.sql */; };
+		8C2209D60BB82C2700808450 /* update_smart_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C2209D50BB82C2700808450 /* update_smart_playlist.sql */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
 		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
@@ -341,6 +349,16 @@
 		8C2208390BB7007C00808450 /* RecentlyAddedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlyAddedNode.m; path = Browser/RecentlyAddedNode.m; sourceTree = "<group>"; };
 		8C22086F0BB7028900808450 /* RecentlyPlayedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlyPlayedNode.h; path = Browser/RecentlyPlayedNode.h; sourceTree = "<group>"; };
 		8C2208700BB7028900808450 /* RecentlyPlayedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlyPlayedNode.m; path = Browser/RecentlyPlayedNode.m; sourceTree = "<group>"; };
+		8C2208D60BB70E8A00808450 /* SmartPlaylist.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SmartPlaylist.h; path = Database/SmartPlaylist.h; sourceTree = "<group>"; };
+		8C2208D70BB70E8A00808450 /* SmartPlaylist.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SmartPlaylist.m; path = Database/SmartPlaylist.m; sourceTree = "<group>"; };
+		8C2208D80BB70E8A00808450 /* SmartPlaylistManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SmartPlaylistManager.h; path = Database/SmartPlaylistManager.h; sourceTree = "<group>"; };
+		8C2208D90BB70E8A00808450 /* SmartPlaylistManager.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SmartPlaylistManager.m; path = Database/SmartPlaylistManager.m; sourceTree = "<group>"; };
+		8C2209810BB82B1A00808450 /* create_smart_playlist_table.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = create_smart_playlist_table.sql; path = SQL/create_smart_playlist_table.sql; sourceTree = "<group>"; };
+		8C22098D0BB82B5800808450 /* delete_smart_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_smart_playlist.sql; path = SQL/delete_smart_playlist.sql; sourceTree = "<group>"; };
+		8C2209960BB82B7800808450 /* insert_smart_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_smart_playlist.sql; path = SQL/insert_smart_playlist.sql; sourceTree = "<group>"; };
+		8C2209C50BB82BE700808450 /* select_all_smart_playlists.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_all_smart_playlists.sql; path = SQL/select_all_smart_playlists.sql; sourceTree = "<group>"; };
+		8C2209CC0BB82C0A00808450 /* select_smart_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_smart_playlist_by_id.sql; path = SQL/select_smart_playlist_by_id.sql; sourceTree = "<group>"; };
+		8C2209D50BB82C2700808450 /* update_smart_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = update_smart_playlist.sql; path = SQL/update_smart_playlist.sql; sourceTree = "<group>"; };
 		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamCollectionNode.h; path = Browser/AudioStreamCollectionNode.h; sourceTree = "<group>"; };
@@ -871,6 +889,10 @@
 		8C50FF220B7A8EFD005419EF /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				8C2208D60BB70E8A00808450 /* SmartPlaylist.h */,
+				8C2208D70BB70E8A00808450 /* SmartPlaylist.m */,
+				8C2208D80BB70E8A00808450 /* SmartPlaylistManager.h */,
+				8C2208D90BB70E8A00808450 /* SmartPlaylistManager.m */,
 				8CB3DDE40B83058C00B5F8A3 /* AudioStreamManager.h */,
 				8CB3DDE50B83058C00B5F8A3 /* AudioStreamManager.m */,
 				8CB3DDE60B83058C00B5F8A3 /* CollectionManager.h */,
@@ -1218,6 +1240,12 @@
 		8C9C377C0B739C9800CE799A /* SQL */ = {
 			isa = PBXGroup;
 			children = (
+				8C2209D50BB82C2700808450 /* update_smart_playlist.sql */,
+				8C2209CC0BB82C0A00808450 /* select_smart_playlist_by_id.sql */,
+				8C2209C50BB82BE700808450 /* select_all_smart_playlists.sql */,
+				8C2209960BB82B7800808450 /* insert_smart_playlist.sql */,
+				8C22098D0BB82B5800808450 /* delete_smart_playlist.sql */,
+				8C2209810BB82B1A00808450 /* create_smart_playlist_table.sql */,
 				8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */,
 				8C17F8F30B928B28009200C4 /* delete_watch_folder.sql */,
 				8C17F8F40B928B28009200C4 /* insert_watch_folder.sql */,
@@ -1451,6 +1479,12 @@
 				8C17F8FA0B928B28009200C4 /* update_watch_folder.sql in Resources */,
 				8C17F9000B928B5C009200C4 /* select_all_watch_folders.sql in Resources */,
 				8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */,
+				8C2209820BB82B1A00808450 /* create_smart_playlist_table.sql in Resources */,
+				8C22098E0BB82B5800808450 /* delete_smart_playlist.sql in Resources */,
+				8C2209970BB82B7800808450 /* insert_smart_playlist.sql in Resources */,
+				8C2209C60BB82BE700808450 /* select_all_smart_playlists.sql in Resources */,
+				8C2209CD0BB82C0A00808450 /* select_smart_playlist_by_id.sql in Resources */,
+				8C2209D60BB82C2700808450 /* update_smart_playlist.sql in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1603,6 +1637,8 @@
 				8C2207C50BB6E01C00808450 /* MostFrequentlyPlayedNode.m in Sources */,
 				8C22083B0BB7007D00808450 /* RecentlyAddedNode.m in Sources */,
 				8C2208720BB7028900808450 /* RecentlyPlayedNode.m in Sources */,
+				8C2208DB0BB70E8A00808450 /* SmartPlaylist.m in Sources */,
+				8C2208DD0BB70E8A00808450 /* SmartPlaylistManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
