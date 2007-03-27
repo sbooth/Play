@@ -130,10 +130,9 @@ extern NSString * const		WatchFolderObjectKey;
 - (IBAction)	insertPlaylist:(id)sender;
 - (IBAction)	insertPlaylistWithSelection:(id)sender;
 
-- (IBAction)	insertWatchFolder:(id)sender;
+- (IBAction)	insertSmartPlaylist:(id)sender;
 
-- (IBAction)	nextPlaylist:(id)sender;
-- (IBAction)	previousPlaylist:(id)sender;
+- (IBAction)	insertWatchFolder:(id)sender;
 
 // ========================================
 // Action methods

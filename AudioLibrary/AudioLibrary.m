@@ -44,6 +44,7 @@
 #import "AudioStreamManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
+#import "SmartPlaylist.h"
 #import "WatchFolder.h"
 
 #import "AudioPropertiesReader.h"
@@ -69,6 +70,8 @@
 #import "GenresNode.h"
 #import "PlaylistsNode.h"
 #import "PlaylistNode.h"
+#import "SmartPlaylistsNode.h"
+#import "SmartPlaylistNode.h"
 #import "WatchFoldersNode.h"
 #import "WatchFolderNode.h"
 #import "MostFrequentlyPlayedNode.h"
@@ -740,7 +743,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 #pragma mark Playlist manipulation
 
-- (IBAction) insertPlaylist:(id)sender;
+- (IBAction) insertPlaylist:(id)sender
 {
 	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
@@ -770,7 +773,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 }
 
-- (IBAction) insertPlaylistWithSelection:(id)sender;
+- (IBAction) insertPlaylistWithSelection:(id)sender
 {
 	// For some reason the call to insertPlaylistWithInitialValues: causes the _streamController selectedObjects to become nil
 	// ?? !!
@@ -805,6 +808,36 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 }
 
+- (IBAction) insertSmartPlaylist:(id)sender
+{
+	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Smart Playlist", @"General", @"") forKey:PlaylistNameKey];
+	SmartPlaylist *playlist = [SmartPlaylist insertSmartPlaylistWithInitialValues:initialValues];
+	if(nil != playlist) {
+		[_browserDrawer open:self];
+		
+		NSIndexPath *path = [_browserController selectionIndexPath];
+		NSLog(@"path=%@",path);
+		
+		//		if(nil != path && [_browserController setSelectionIndexPath:path]) {
+		//			[_browserOutlineView editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
+		//		}
+	}
+	else {
+		/*		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:NSLocalizedStringFromTable(@"OK", @"General", @"")];
+		[alert setMessageText:NSLocalizedStringFromTable(@"Unable to create the playlist.", @"Errors", @"")];
+		[alert setInformativeText:@"Playlists must have a unique name."];
+		[alert setAlertStyle:NSInformationalAlertStyle];
+		
+		if(NSAlertFirstButtonReturn == [alert runModal]) {
+		} 
+		
+		[alert release];*/
+		NSBeep();
+		NSLog(@"Unable to create the smart playlist.");
+	}
+}
+
 - (IBAction) insertWatchFolder:(id)sender
 {
 	NewWatchFolderSheet *newWatchFolderSheet = [[NewWatchFolderSheet alloc] init];
@@ -816,16 +849,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 									modalDelegate:self 
 								   didEndSelector:@selector(showNewWatchFolderSheetDidEnd:returnCode:contextInfo:) 
 									  contextInfo:newWatchFolderSheet];
-}
-
-- (IBAction) nextPlaylist:(id)sender
-{
-//	[_playlistController selectNext:self];
-}
-
-- (IBAction) previousPlaylist:(id)sender
-{
-//	[_playlistController selectPrevious:self];
 }
 
 #pragma mark Playback Control
@@ -1802,6 +1825,9 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
 	[playlistsNode setIcon:folderIcon];
 
+	SmartPlaylistsNode *smartPlaylistsNode = [[SmartPlaylistsNode alloc] init];
+	[smartPlaylistsNode setIcon:folderIcon];
+
 	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
 	[watchFoldersNode setIcon:folderIcon];
 
@@ -1818,6 +1844,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[genresNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
+	[browserRoot addChild:[smartPlaylistsNode autorelease]];
 	[browserRoot addChild:[watchFoldersNode autorelease]];
 
 	[_browserController setContent:[browserRoot autorelease]];
