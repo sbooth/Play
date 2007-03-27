@@ -27,6 +27,7 @@ extern NSString * const		AudioStreamPboardType;
 
 @class BrowserNode;
 @class PlaylistNode;
+@class SmartPlaylistNode;
 
 @interface BrowserTreeController : NSTreeController
 {
@@ -40,6 +41,7 @@ extern NSString * const		AudioStreamPboardType;
 - (BOOL) selectedNodeIsPlayQueue;
 - (BOOL) selectedNodeIsLibrary;
 - (BOOL) selectedNodeIsPlaylist;
+- (BOOL) selectedNodeIsSmartPlaylist;
 - (BOOL) selectedNodeIsWatchFolder;
 
 @end

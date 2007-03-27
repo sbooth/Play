@@ -23,6 +23,7 @@
 #import "AudioStreamManager.h"
 #import "BrowserNode.h"
 #import "PlaylistNode.h"
+#import "SmartPlaylistNode.h"
 #import "LibraryNode.h"
 #import "PlayQueueNode.h"
 #import "WatchFolderNode.h"
@@ -90,6 +91,11 @@
 	return [[self selectedNode] isKindOfClass:[PlaylistNode class]];
 }
 
+- (BOOL) selectedNodeIsSmartPlaylist
+{
+	return [[self selectedNode] isKindOfClass:[SmartPlaylistNode class]];
+}
+
 - (BOOL) selectedNodeIsWatchFolder
 {
 	return [[self selectedNode] isKindOfClass:[WatchFolderNode class]];
@@ -101,7 +107,7 @@
 	BrowserNode		*node			= nil;
 	
 	while((node = [enumerator nextObject])) {
-		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]]) {
+		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[SmartPlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]]) {
 			return YES;
 		}
 	}
