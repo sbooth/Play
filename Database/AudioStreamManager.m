@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
+#import "SmartPlaylist.h"
 #import "WatchFolder.h"
 #import "AudioLibrary.h"
 
@@ -43,6 +44,10 @@
 
 @interface AudioStreamManager (PlaylistMethods)
 - (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+@end
+
+@interface AudioStreamManager (SmartPlaylistMethods)
+- (NSArray *) streamsForSmartPlaylist:(SmartPlaylist *)playlist;
 @end
 
 @interface AudioStreamManager (WatchFolderMethods)
@@ -554,6 +559,17 @@
 #endif
 	
 	return [streams autorelease];
+}
+
+@end
+
+@implementation AudioStreamManager (SmartPlaylistMethods)
+
+- (NSArray *) streamsForSmartPlaylist:(SmartPlaylist *)playlist
+{
+	NSParameterAssert(nil != playlist);
+
+	return [[self streams] filteredArrayUsingPredicate:[playlist valueForKey:SmartPlaylistPredicateKey]];
 }
 
 @end
