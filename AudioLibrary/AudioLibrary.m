@@ -1529,9 +1529,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 				}
 			}
 			else if(NO == [oldStreamsNode streamsAreOrdered]) {
-				[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
-				_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
-				[_streamController setSortDescriptors:nil];
+				if([newStreamsNode streamsAreOrdered]) {
+					[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
+					_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
+					[_streamController setSortDescriptors:nil];
+				}
 			}
 			
 			[_streamController bind:@"contentArray" toObject:newStreamsNode withKeyPath:@"streams" options:nil];
@@ -1540,6 +1542,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 			// Save stream ordering for drag validation
 			_streamsAreOrdered = [newStreamsNode streamsAreOrdered];
 		}
+	}
+	else if([[oldStreamsNode exposedBindings] containsObject:@"streams"] && NO == [oldStreamsNode streamsAreOrdered]) {
+		[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
+		_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
+		[_streamController setSortDescriptors:nil];
 	}
 }
 
