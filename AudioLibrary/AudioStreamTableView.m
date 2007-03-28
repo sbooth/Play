@@ -79,7 +79,7 @@
 		
 		[dragImage lockFocus];
 		[badgeImage compositeToPoint:NSMakePoint(48 - badgeSize.width, 48 - badgeSize.height) operation:NSCompositeSourceOver];  
-		[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver];
+		[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver fraction:0.75];
 		[dragImage unlockFocus];
 				
 		return dragImage;
