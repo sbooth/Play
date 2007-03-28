@@ -45,6 +45,7 @@
 		_playlist = [playlist retain];
 
 		[_playlist addObserver:self forKeyPath:PlaylistNameKey options:NSKeyValueObservingOptionNew context:NULL];
+		[_playlist addObserver:self forKeyPath:SmartPlaylistPredicateKey options:NSKeyValueObservingOptionNew context:NULL];
 
 		// Register so we can keep ourselves up to date
 		[[NSNotificationCenter defaultCenter] addObserver:self 
@@ -68,6 +69,7 @@
 - (void) dealloc
 {
 	[_playlist removeObserver:self forKeyPath:PlaylistNameKey];
+	[_playlist removeObserver:self forKeyPath:SmartPlaylistPredicateKey];
 	
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
@@ -80,6 +82,9 @@
 {
 	if([keyPath isEqualToString:PlaylistNameKey]) {
 		[self setName:[change valueForKey:NSKeyValueChangeNewKey]];
+	}
+	else if([keyPath isEqualToString:SmartPlaylistPredicateKey]) {
+		[self refreshStreams];
 	}
 }
 
