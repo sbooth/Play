@@ -25,6 +25,8 @@
 
 #import "CTBadge.h"
 
+#define kMaximumStreamsForContextMenuAction 10
+
 @interface AudioStreamTableView (Private)
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
@@ -42,7 +44,12 @@
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
 	if([menuItem action] == @selector(convertWithMax:)) {
-		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"]);
+		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(revealInFinder:)
+			|| [menuItem action] == @selector(openWithFinder:)
+			|| [menuItem action] == @selector(openWith:)) {
+		return (kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
 	}
 	else {
 		return YES;
@@ -92,16 +99,18 @@
 	NSPoint		location		= [event locationInWindow];
 	NSPoint		localLocation	= [self convertPoint:location fromView:nil];
 	int			row				= [self rowAtPoint:localLocation];
-	
+	BOOL		shiftPressed	= 0 != ([event modifierFlags] & NSShiftKeyMask);
+
 	if(-1 != row) {
 		
-		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)]) {
-			if([[self delegate] tableView:self shouldSelectRow:row]) {
-				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+		// If a row contained in the selection was right-clicked, don't change anything
+		if(NO == [[self selectedRowIndexes] containsIndex:row]) {
+			if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row]) {
+				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:shiftPressed];
 			}
-		}
-		else {
-			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+			else {
+				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:shiftPressed];
+			}			
 		}
 		
 		return [self menu];
@@ -112,20 +121,38 @@
 
 - (IBAction) openWithFinder:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] openFile:path];
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSString		*path			= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		path = [[stream valueForKey:StreamURLKey] path];
+		[[NSWorkspace sharedWorkspace] openFile:path];
+	}
 }
 
 - (IBAction) revealInFinder:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSString		*path			= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		path = [[stream valueForKey:StreamURLKey] path];
+		[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
+	}
 }
 
 - (IBAction) convertWithMax:(id)sender
 {
-	NSString *path = [[[_streamController selection] valueForKey:StreamURLKey] path];
-	[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSString		*path			= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		path = [[stream valueForKey:StreamURLKey] path];
+		[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
+	}
 }
 
 - (IBAction) openWith:(id)sender
@@ -150,14 +177,21 @@
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
 	if(NSOKButton == returnCode) {
-		NSString		*path				= [[[_streamController selection] valueForKey:StreamURLKey] path];
+		NSEnumerator	*enumerator			= nil;
+		AudioStream		*stream				= nil;
+		NSString		*path				= nil;
 		NSArray			*applications		= [panel filenames];
 		NSString		*applicationPath	= nil;
 		unsigned		i;
 		
 		for(i = 0; i < [applications count]; ++i) {
-			applicationPath = [applications objectAtIndex:i];
-			[[NSWorkspace sharedWorkspace] openFile:path withApplication:applicationPath];
+			applicationPath		= [applications objectAtIndex:i];
+			enumerator			= [[_streamController selectedObjects] objectEnumerator];
+			
+			while((stream = [enumerator nextObject])) {
+				path = [[stream valueForKey:StreamURLKey] path];
+				[[NSWorkspace sharedWorkspace] openFile:path withApplication:applicationPath];
+			}
 		}
 	}
 }

@@ -67,15 +67,13 @@ static float heightOffset	= 3.0;
 	
 	if(-1 != row) {
 		
-		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)]) {
-			if([[self delegate] tableView:self shouldSelectRow:row]) {
-				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-			}
+		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row]) {
+			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 		}
 		else {
 			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 		}
-				
+		
 		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
 			return _playlistMenu;
 		}
