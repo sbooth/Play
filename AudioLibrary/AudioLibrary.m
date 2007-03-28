@@ -129,6 +129,16 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 @end
 
 // ========================================
+// AudioPlayer callbacks
+// ========================================
+@interface AudioLibrary (AudioPlayerCallbackMethods)
+- (void)	streamPlaybackDidStart;
+- (void)	streamPlaybackDidComplete;
+
+- (void)	requestNextStream;
+@end
+
+// ========================================
 // Callback Methods (for sheets, etc.)
 // ========================================
 @interface AudioLibrary (CallbackMethods)
@@ -409,6 +419,9 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else if([anItem action] == @selector(redo:)) {
 		return [[self undoManager] canRedo];
 	}
+	else if([anItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
+		return (0 != [[_streamController arrangedObjects] count]);
+	}
 
 	return YES;
 }
@@ -491,6 +504,24 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	
 	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[self willChangeValueForKey:@"currentStreams"];
+	while((stream = [enumerator nextObject])) {
+		[_currentStreams addObject:stream];
+	}
+	[self didChangeValueForKey:@"currentStreams"];
+	
+	[self updatePlayButtonState];
+}
+
+- (IBAction) addCurrentStreamsToPlayQueue:(id)sender
+{
+	if(0 == [[_streamController arrangedObjects] count]) {
+		return;
+	}
+	
+	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
 	AudioStream		*stream			= nil;
 	
 	[self willChangeValueForKey:@"currentStreams"];
@@ -1244,101 +1275,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	return _streamsAreOrdered;
 }
 
-#pragma mark AudioPlayer Callbacks
-
-- (void) streamPlaybackDidStart
-{
-	[self setPlaybackIndex:[self nextPlaybackIndex]];
-	[self setNextPlaybackIndex:NSNotFound];
-	
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-
-	AudioStream *stream = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
-	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
-	
-	[stream setPlaying:YES];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
-- (void) streamPlaybackDidComplete
-{
-	AudioStream		*stream			= [self nowPlaying];
-	NSNumber		*playCount;
-	NSNumber		*newPlayCount;
-	
-	playCount		= [stream valueForKey:StatisticsPlayCountKey];
-	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
-	
-	[stream setPlaying:NO];
-
-	[[CollectionManager manager] beginUpdate];
-	
-	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
-	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
-	
-	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
-		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
-	}
-	
-	[[CollectionManager manager] finishUpdate];
-
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-	
-	[self setPlaybackIndex:NSNotFound];
-	
-	// If the player isn't playing, it's the end of the road for now
-	if(NO == [[self player] isPlaying]) {
-		[[self player] reset];
-		[self updatePlayButtonState];
-	}
-
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-}
-
-- (void) requestNextStream
-{
-	AudioStream		*stream			= [self nowPlaying];
-	unsigned		streamIndex;
-	
-	NSArray *streams = _currentStreams;
-	
-	if(nil == stream || 0 == [streams count]) {
-		[self setNextPlaybackIndex:NSNotFound];
-	}
-	else if([self randomizePlayback]) {
-		double randomNumber = genrand_real2();
-		[self setNextPlaybackIndex:(unsigned)(randomNumber * [streams count])];
-	}
-	else if([self loopPlayback]) {
-		streamIndex = [self playbackIndex];		
-		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : 0)];
-	}
-	else {
-		streamIndex = [self playbackIndex];
-		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
-	}
-
-#if DEBUG
-	NSLog(@"requestNextStream:%@",[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]]);
-#endif
-	
-	if(NSNotFound != [self nextPlaybackIndex]) {
-		NSError		*error		= nil;
-		BOOL		result		= [[self player] setNextStream:[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]] error:&error];
-
-		if(NO == result) {
-			if(nil != error) {
-				[self presentError:error];
-			}
-		}
-	}
-}
-
 @end
 
 @implementation AudioLibrary (NSTableViewDelegateMethods)
@@ -1687,6 +1623,103 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
 {
 	return [self undoManager];
+}
+
+@end
+
+@implementation AudioLibrary (AudioPlayerCallbackMethods)
+
+- (void) streamPlaybackDidStart
+{
+	[self setPlaybackIndex:[self nextPlaybackIndex]];
+	[self setNextPlaybackIndex:NSNotFound];
+	
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	
+	AudioStream *stream = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
+	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
+	
+	[stream setPlaying:YES];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+}
+
+- (void) streamPlaybackDidComplete
+{
+	AudioStream		*stream			= [self nowPlaying];
+	NSNumber		*playCount;
+	NSNumber		*newPlayCount;
+	
+	playCount		= [stream valueForKey:StatisticsPlayCountKey];
+	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	
+	[stream setPlaying:NO];
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
+	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
+	
+	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
+		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
+	}
+	
+	[[CollectionManager manager] finishUpdate];
+	
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	
+	[self setPlaybackIndex:NSNotFound];
+	
+	// If the player isn't playing, it's the end of the road for now
+	if(NO == [[self player] isPlaying]) {
+		[[self player] reset];
+		[self updatePlayButtonState];
+	}
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+}
+
+- (void) requestNextStream
+{
+	AudioStream		*stream			= [self nowPlaying];
+	unsigned		streamIndex;
+	
+	NSArray *streams = _currentStreams;
+	
+	if(nil == stream || 0 == [streams count]) {
+		[self setNextPlaybackIndex:NSNotFound];
+	}
+	else if([self randomizePlayback]) {
+		double randomNumber = genrand_real2();
+		[self setNextPlaybackIndex:(unsigned)(randomNumber * [streams count])];
+	}
+	else if([self loopPlayback]) {
+		streamIndex = [self playbackIndex];		
+		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : 0)];
+	}
+	else {
+		streamIndex = [self playbackIndex];
+		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
+	}
+	
+#if DEBUG
+	NSLog(@"requestNextStream:%@",[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]]);
+#endif
+	
+	if(NSNotFound != [self nextPlaybackIndex]) {
+		NSError		*error		= nil;
+		BOOL		result		= [[self player] setNextStream:[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]] error:&error];
+		
+		if(NO == result) {
+			if(nil != error) {
+				[self presentError:error];
+			}
+		}
+	}
 }
 
 @end

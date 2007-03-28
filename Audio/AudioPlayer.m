@@ -25,8 +25,17 @@
 
 #include <CoreServices/CoreServices.h>
 
-@interface AudioPlayer (Private)
+// ========================================
+// AudioPlayer callbacks
+// ========================================
+@interface AudioLibrary (AudioPlayerCallbackMethods)
+- (void)	streamPlaybackDidStart;
+- (void)	streamPlaybackDidComplete;
 
+- (void)	requestNextStream;
+@end
+
+@interface AudioPlayer (Private)
 - (AudioUnit)			audioUnit;
 
 - (NSFormatter *)		secondsFormatter;
@@ -49,7 +58,6 @@
 - (void)				currentFrameNeedsUpdate;
 
 - (void)				setPlaying:(BOOL)playing;
-
 @end
 
 #if DEBUG

@@ -94,7 +94,16 @@
 	int			row				= [self rowAtPoint:localLocation];
 	
 	if(-1 != row) {
-		[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+		
+		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)]) {
+			if([[self delegate] tableView:self shouldSelectRow:row]) {
+				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+			}
+		}
+		else {
+			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+		}
+		
 		return [self menu];
 	}
 	

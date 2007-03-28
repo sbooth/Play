@@ -20,6 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class BrowserTreeController;
+
 // ========================================
 // Pboard Types
 // ========================================
@@ -27,7 +29,8 @@ extern NSString * const		AudioStreamPboardType;
 
 @interface BrowserOutlineView : NSOutlineView 
 {
-	IBOutlet NSTreeController *_browserController;
+	IBOutlet BrowserTreeController	*_browserController;
+	IBOutlet NSMenu					*_playlistMenu;
 }
 
 @end

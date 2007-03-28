@@ -1,26 +1,22 @@
 {
     IBClasses = (
-        {CLASS = AIPlasticButton; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
-        {CLASS = AIPlasticInfoButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
-        {CLASS = AIPlasticMinusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
-        {CLASS = AIPlasticPlusButton; LANGUAGE = ObjC; SUPERCLASS = AIPlasticButton; }, 
         {
             ACTIONS = {
+                addCurrentStreamsToPlayQueue = id; 
                 addSelectedStreamsToPlayQueue = id; 
                 browserViewDoubleClicked = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
+                insertSmartPlaylist = id; 
                 insertWatchFolder = id; 
                 jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
                 jumpToPlayQueue = id; 
-                nextPlaylist = id; 
                 openDocument = id; 
                 play = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
-                previousPlaylist = id; 
                 removeSelectedStreams = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
@@ -67,7 +63,7 @@
         {
             CLASS = BrowserOutlineView; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_browserController" = NSTreeController; }; 
+            OUTLETS = {"_browserController" = BrowserTreeController; "_playlistMenu" = NSMenu; }; 
             SUPERCLASS = NSOutlineView; 
         }, 
         {

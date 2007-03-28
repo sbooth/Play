@@ -142,6 +142,7 @@ extern NSString * const		WatchFolderObjectKey;
 - (IBAction)	browserViewDoubleClicked:(id)sender;
 
 - (IBAction)	addSelectedStreamsToPlayQueue:(id)sender;
+- (IBAction)	addCurrentStreamsToPlayQueue:(id)sender;
 - (IBAction)	removeSelectedStreams:(id)sender;
 
 - (IBAction)	jumpToLibrary:(id)sender;
@@ -185,12 +186,5 @@ extern NSString * const		WatchFolderObjectKey;
 // ========================================
 // Undo/redo support
 - (NSUndoManager *) undoManager;
-
-// ========================================
-// AudioPlayer callbacks
-- (void)	streamPlaybackDidStart;
-- (void)	streamPlaybackDidComplete;
-
-- (void)	requestNextStream;
 
 @end

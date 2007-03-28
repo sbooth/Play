@@ -19,6 +19,7 @@
  */
 
 #import "BrowserOutlineView.h"
+#import "BrowserTreeController.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 #import "NSBezierPath_RoundRectMethods.h"
@@ -58,20 +59,30 @@ static float heightOffset	= 3.0;
 	}
 }
 
-/*- (NSMenu *) menuForEvent:(NSEvent *)event
+- (NSMenu *) menuForEvent:(NSEvent *)event
 {
 	NSPoint		location		= [event locationInWindow];
 	NSPoint		localLocation	= [self convertPoint:location fromView:nil];
 	int			row				= [self rowAtPoint:localLocation];
 	
 	if(-1 != row) {
-		[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-		return [self menu];
+		
+		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)]) {
+			if([[self delegate] tableView:self shouldSelectRow:row]) {
+				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+			}
+		}
+		else {
+			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+		}
+				
+		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
+			return _playlistMenu;
+		}
 	}
 	
 	return nil;
 }
-*/
 
 // Only bad people override private methods!
 // TOOD: Remove hardcoded colors
@@ -87,10 +98,10 @@ static float heightOffset	= 3.0;
 	drawRect.size.height -= heightOffset;
 	drawRect.origin.y += heightOffset/2.0;
 	
-	[[NSColor colorWithCalibratedRed:(172/255.f) green:(193/255.f) blue:(226/255.f) alpha:1] set];
+	[[NSColor colorWithCalibratedRed:(172/255.f) green:(193/255.f) blue:(226/255.f) alpha:0.2] set];
 	[NSBezierPath fillRoundRectInRect:drawRect radius:7.0];
 	
-	[[NSColor colorWithCalibratedRed:(7/255.f) green:(82/255.f) blue:(215/255.f) alpha:1] set];
+	[[NSColor colorWithCalibratedRed:(7/255.f) green:(82/255.f) blue:(215/255.f) alpha:0.8] set];
 	[NSBezierPath setDefaultLineWidth:2.0];
 	[NSBezierPath strokeRoundRectInRect:drawRect radius:7.0];
 	
