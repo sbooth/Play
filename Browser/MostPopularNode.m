@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "MostFrequentlyPlayedNode.h"
+#import "MostPopularNode.h"
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
@@ -29,11 +29,11 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@interface MostFrequentlyPlayedNode (Private)
+@interface MostPopularNode (Private)
 - (void) streamRemoved:(NSNotification *)aNotification;
 @end
 
-@implementation MostFrequentlyPlayedNode
+@implementation MostPopularNode
 
 - (id) init
 {
@@ -112,7 +112,7 @@
 
 @end
 
-@implementation MostFrequentlyPlayedNode (Private)
+@implementation MostPopularNode (Private)
 
 - (void) streamRemoved:(NSNotification *)aNotification
 {

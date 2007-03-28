@@ -24,7 +24,7 @@
 // ========================================
 // A node representing the top _count most frequently-played streams
 // ========================================
-@interface MostFrequentlyPlayedNode : AudioStreamCollectionNode
+@interface MostPopularNode : AudioStreamCollectionNode
 {
 	unsigned	_count;
 }

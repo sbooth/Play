@@ -41,7 +41,6 @@
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
 		8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */; };
 		8C1DA9D00B8D4DA400CF9D25 /* PlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */; };
-		8C2207C50BB6E01C00808450 /* MostFrequentlyPlayedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2207C30BB6E01C00808450 /* MostFrequentlyPlayedNode.m */; };
 		8C22083B0BB7007D00808450 /* RecentlyAddedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208390BB7007C00808450 /* RecentlyAddedNode.m */; };
 		8C2208720BB7028900808450 /* RecentlyPlayedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208700BB7028900808450 /* RecentlyPlayedNode.m */; };
 		8C2208DB0BB70E8A00808450 /* SmartPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208D70BB70E8A00808450 /* SmartPlaylist.m */; };
@@ -59,6 +58,7 @@
 		8C220AD40BB8A79F00808450 /* SmartPlaylistCriterion.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */; };
 		8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */; };
 		8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */; };
+		8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220CC70BB978C100808450 /* MostPopularNode.m */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
 		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
@@ -350,8 +350,6 @@
 		8C1DA9A50B8D4BE400CF9D25 /* PlaylistInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlaylistInformationSheet.h; path = AudioLibrary/PlaylistInformationSheet.h; sourceTree = "<group>"; };
 		8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlaylistInformationSheet.m; path = AudioLibrary/PlaylistInformationSheet.m; sourceTree = "<group>"; };
 		8C1DA9CB0B8D4DA400CF9D25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PlaylistInformationSheet.nib; sourceTree = "<group>"; };
-		8C2207C20BB6E01C00808450 /* MostFrequentlyPlayedNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MostFrequentlyPlayedNode.h; path = Browser/MostFrequentlyPlayedNode.h; sourceTree = "<group>"; };
-		8C2207C30BB6E01C00808450 /* MostFrequentlyPlayedNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MostFrequentlyPlayedNode.m; path = Browser/MostFrequentlyPlayedNode.m; sourceTree = "<group>"; };
 		8C2208380BB7007C00808450 /* RecentlyAddedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlyAddedNode.h; path = Browser/RecentlyAddedNode.h; sourceTree = "<group>"; };
 		8C2208390BB7007C00808450 /* RecentlyAddedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlyAddedNode.m; path = Browser/RecentlyAddedNode.m; sourceTree = "<group>"; };
 		8C22086F0BB7028900808450 /* RecentlyPlayedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlyPlayedNode.h; path = Browser/RecentlyPlayedNode.h; sourceTree = "<group>"; };
@@ -377,6 +375,8 @@
 		8C220AC30BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SmartPlaylistCriterion.nib; sourceTree = "<group>"; };
 		8C220AC50BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SmartPlaylistInformationSheet.nib; sourceTree = "<group>"; };
 		8C220AC70BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/WatchFolderInformationSheet.nib; sourceTree = "<group>"; };
+		8C220CC60BB978C100808450 /* MostPopularNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MostPopularNode.h; path = Browser/MostPopularNode.h; sourceTree = "<group>"; };
+		8C220CC70BB978C100808450 /* MostPopularNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MostPopularNode.m; path = Browser/MostPopularNode.m; sourceTree = "<group>"; };
 		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamCollectionNode.h; path = Browser/AudioStreamCollectionNode.h; sourceTree = "<group>"; };
@@ -869,6 +869,8 @@
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
+				8C220CC60BB978C100808450 /* MostPopularNode.h */,
+				8C220CC70BB978C100808450 /* MostPopularNode.m */,
 				8C22086F0BB7028900808450 /* RecentlyPlayedNode.h */,
 				8C2208700BB7028900808450 /* RecentlyPlayedNode.m */,
 				8C2208380BB7007C00808450 /* RecentlyAddedNode.h */,
@@ -901,8 +903,6 @@
 				8C17F7610B91292F009200C4 /* GenreNode.m */,
 				8C17F9030B928B7C009200C4 /* WatchFoldersNode.h */,
 				8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */,
-				8C2207C20BB6E01C00808450 /* MostFrequentlyPlayedNode.h */,
-				8C2207C30BB6E01C00808450 /* MostFrequentlyPlayedNode.m */,
 				8C2209E80BB87A6000808450 /* SmartPlaylistsNode.h */,
 				8C2209E90BB87A6000808450 /* SmartPlaylistsNode.m */,
 				8C2209F90BB87B4000808450 /* SmartPlaylistNode.h */,
@@ -1666,7 +1666,6 @@
 				8C17FC650B953399009200C4 /* KFTypeSelectTableView.m in Sources */,
 				8CFD465E0B96A22600F9094B /* PlayQueueNode.m in Sources */,
 				8C53D8E00BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m in Sources */,
-				8C2207C50BB6E01C00808450 /* MostFrequentlyPlayedNode.m in Sources */,
 				8C22083B0BB7007D00808450 /* RecentlyAddedNode.m in Sources */,
 				8C2208720BB7028900808450 /* RecentlyPlayedNode.m in Sources */,
 				8C2208DB0BB70E8A00808450 /* SmartPlaylist.m in Sources */,
@@ -1675,6 +1674,7 @@
 				8C2209FC0BB87B4000808450 /* SmartPlaylistNode.m in Sources */,
 				8C220A700BB8A35700808450 /* SmartPlaylistCriterion.m in Sources */,
 				8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */,
+				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
