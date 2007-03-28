@@ -108,7 +108,17 @@
 {}
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
-{}
+{
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable MostPopularNode");	
+	AudioStream *stream = [[self streamsArray] objectAtIndex:index];
+	
+	if([stream isPlaying]) {
+		[[AudioLibrary library] stop:self];
+	}
+	
+	[stream delete];
+	[[self streamsArray] removeObjectAtIndex:index];
+}
 
 @end
 
