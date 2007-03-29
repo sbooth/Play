@@ -419,6 +419,9 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else if([anItem action] == @selector(redo:)) {
 		return [[self undoManager] canRedo];
 	}
+	else if([anItem action] == @selector(addSelectedStreamsToPlayQueue:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
 	else if([anItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
 		return (0 != [[_streamController arrangedObjects] count]);
 	}
@@ -801,24 +804,14 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	if(nil != playlist) {
 		[_browserDrawer open:self];
 		
-		NSIndexPath *path = [_browserController selectionIndexPath];
-		NSLog(@"path=%@",path);
+//		NSIndexPath *path = [_browserController selectionIndexPath];
+//		NSLog(@"path=%@",path);
 		
 //		if(nil != path && [_browserController setSelectionIndexPath:path]) {
 //			[_browserOutlineView editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
 //		}
 	}
 	else {
-/*		NSAlert *alert = [[NSAlert alloc] init];
-		[alert addButtonWithTitle:NSLocalizedStringFromTable(@"OK", @"General", @"")];
-		[alert setMessageText:NSLocalizedStringFromTable(@"Unable to create the playlist.", @"Errors", @"")];
-		[alert setInformativeText:@"Playlists must have a unique name."];
-		[alert setAlertStyle:NSInformationalAlertStyle];
-		
-		if(NSAlertFirstButtonReturn == [alert runModal]) {
-		} 
-		
-		[alert release];*/
 		NSBeep();
 		NSLog(@"Unable to create the playlist.");
 	}
@@ -832,13 +825,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	NSArray			*streamsToInsert	= [_streamController selectedObjects];
 	Playlist		*playlist			= [Playlist insertPlaylistWithInitialValues:initialValues];
 
-	NSLog(@"streams = %@",streamsToInsert);
-	
 	if(nil != playlist) {
 		[playlist addStreams:streamsToInsert];
 
-/*		[_browserDrawer open:self];
-
+		[_browserDrawer open:self];
+/*
 		NSEnumerator *enumerator = [[_browserController arrangedObjects] objectEnumerator];
 		id opaqueNode;
 		while((opaqueNode = [enumerator nextObject])) {
@@ -855,7 +846,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	else {
 		NSBeep();
-		NSLog(@"Unable to insert playlist.");
+		NSLog(@"Unable to create the playlist.");
 	}
 }
 
@@ -874,16 +865,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		//		}
 	}
 	else {
-		/*		NSAlert *alert = [[NSAlert alloc] init];
-		[alert addButtonWithTitle:NSLocalizedStringFromTable(@"OK", @"General", @"")];
-		[alert setMessageText:NSLocalizedStringFromTable(@"Unable to create the playlist.", @"Errors", @"")];
-		[alert setInformativeText:@"Playlists must have a unique name."];
-		[alert setAlertStyle:NSInformationalAlertStyle];
-		
-		if(NSAlertFirstButtonReturn == [alert runModal]) {
-		} 
-		
-		[alert release];*/
 		NSBeep();
 		NSLog(@"Unable to create the smart playlist.");
 	}

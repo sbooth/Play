@@ -3,6 +3,7 @@
         {
             ACTIONS = {
                 addFiles = id; 
+                addSelectedStreamsToPlayQueue = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
                 insertSmartPlaylist = id; 
