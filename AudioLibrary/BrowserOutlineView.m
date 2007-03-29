@@ -20,6 +20,7 @@
 
 #import "BrowserOutlineView.h"
 #import "BrowserTreeController.h"
+#import "AudioStreamCollectionNode.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 #import "NSBezierPath_RoundRectMethods.h"
@@ -76,6 +77,9 @@ static float heightOffset	= 3.0;
 		
 		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
 			return _playlistMenu;
+		}
+		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]]) {
+			return [self menu];
 		}
 	}
 	
