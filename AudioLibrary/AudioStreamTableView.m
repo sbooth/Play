@@ -36,6 +36,7 @@
 
 - (void) awakeFromNib
 {
+	_highlightedRow = -1;
 	[self registerForDraggedTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil]];
 	NSFormatter *formatter = [[SecondsFormatter alloc] init];
 	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
@@ -199,7 +200,7 @@
 
 - (void) drawRowHighlight
 {
-	if(_drawRowHighlight && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
+	if(_drawRowHighlight && -1 != _highlightedRow && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
 		NSRect rowRect = [self rectOfRow:_highlightedRow];
 		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
 		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];

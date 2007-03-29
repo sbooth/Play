@@ -1730,13 +1730,16 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		}
 		else if(nil != artist) {
 			windowTitle = artist;
-		}
-		
+		}		
 		[_streamTable setHighlightedRow:_playbackIndex];
-		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:oldPlaybackIndex]];
 		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	}
+	else {
+		[_streamTable setHighlightedRow:-1];
+	}
 
+	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:oldPlaybackIndex]];
+	
 	[[self window] setTitle:windowTitle];
 }
 
