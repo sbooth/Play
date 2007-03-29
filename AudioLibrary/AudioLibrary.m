@@ -1276,7 +1276,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	NSDictionary	*infoForBinding		= [tableView infoForBinding:NSContentBinding];
 	BOOL			highlight			= NO;
 	
-	if(nil != infoForBinding) {
+	if([_browserController selectedNodeIsPlayQueue] && nil != infoForBinding) {
 		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
 		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:row];
 		
@@ -1288,13 +1288,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
-	// Only the currentStreamsNode should highlight the playing track
+	// Only the PlayQueueNode should highlight the playing track
 	if(NO == [_browserController selectedNodeIsPlayQueue]) {
-		
-		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
-			[cell setDrawsBackground:NO];
-		}
-
 		NSFont *font = [[NSFontManager sharedFontManager] convertFont:[cell font] toHaveTrait:NSUnboldFontMask];
 		[cell setFont:font];
 		return;
@@ -1306,29 +1301,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
 		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 		BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
-		
-		// Highlight the currently playing stream (doesn't work for NSButtonCell)
-		if([cell respondsToSelector:@selector(setDrawsBackground:)]) {
-			if(highlight) {
-				[cell setDrawsBackground:YES];	
-				// Emacs "NavajoWhite" -> 255, 222, 173
-	//			[cell setBackgroundColor:[NSColor colorWithCalibratedRed:(255/255.f) green:(222/255.f) blue:(173/255.f) alpha:1.0]];
-				// Emacs "LightSteelBlue" -> 176, 196, 222
-				[cell setBackgroundColor:[NSColor colorWithCalibratedRed:(176/255.f) green:(196/255.f) blue:(222/255.f) alpha:1.0]];
-			}
-			else {
-				[cell setDrawsBackground:NO];
-			}
-		}
 
 		// Bold/unbold cell font as required
 		NSFont *font = [cell font];
-		if(highlight) {
-			font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:NSBoldFontMask];
-		}
-		else {
-			font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:NSUnboldFontMask];			
-		}
+		font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:(highlight ? NSBoldFontMask : NSUnboldFontMask)];
 		[cell setFont:font];
 	}
 }
@@ -1419,8 +1395,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_streamController setContent:nil];
 	[_streamController setFilterPredicate:nil];
 	
+	
 	// Don't do anything except possibly save the sort descriptors if the user selected nothing
 	if(nil == node) {
+		[_streamTable setDrawRowHighlight:NO];
+
 		if(NO == [oldStreamsNode streamsAreOrdered]) {
 			[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 			_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
@@ -1429,6 +1408,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return;
 	}
 	
+	[_streamTable setDrawRowHighlight:[node isKindOfClass:[PlayQueueNode class]]];
+
 	// Bind to a new stream source if one was selected
 	if([[node exposedBindings] containsObject:@"streams"]) {
 		AudioStreamCollectionNode *newStreamsNode = (AudioStreamCollectionNode *)node;
@@ -1727,6 +1708,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) setPlaybackIndex:(unsigned)playbackIndex
 {
+	unsigned oldPlaybackIndex = _playbackIndex;
+	
 	_playbackIndex = playbackIndex;
 
 	NSString *windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
@@ -1749,6 +1732,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 			windowTitle = artist;
 		}
 		
+		[_streamTable setHighlightedRow:_playbackIndex];
+		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:oldPlaybackIndex]];
 		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	}
 

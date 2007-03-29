@@ -31,7 +31,14 @@ extern NSString * const		iTunesPboardType;
 @interface AudioStreamTableView : KFTypeSelectTableView 
 {
 	IBOutlet NSArrayController *_streamController;
+
+@private
+	int _highlightedRow;
+	BOOL _drawRowHighlight;
 }
+
+- (void) setHighlightedRow:(int)row;
+- (void) setDrawRowHighlight:(BOOL)flag;
 
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;

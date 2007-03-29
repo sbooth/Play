@@ -28,6 +28,7 @@
 #define kMaximumStreamsForContextMenuAction 10
 
 @interface AudioStreamTableView (Private)
+- (void) drawRowHighlight;
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
@@ -119,6 +120,28 @@
 	return nil;
 }
 
+- (void) setHighlightedRow:(int)row
+{
+	_highlightedRow = row;
+}
+
+- (void) setDrawRowHighlight:(BOOL)flag
+{
+	_drawRowHighlight = flag;
+}
+
+- (void) drawRect:(NSRect)drawRect
+{
+	[self drawRowHighlight];
+	[super drawRect:drawRect];
+}
+
+- (void) drawBackgroundInClipRect:(NSRect)clipRect
+{
+	[super drawBackgroundInClipRect:clipRect];
+	[self drawRowHighlight];
+}
+
 - (IBAction) openWithFinder:(id)sender
 {
 	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
@@ -173,6 +196,27 @@
 @end
 
 @implementation AudioStreamTableView (Private)
+
+- (void) drawRowHighlight
+{
+	if(_drawRowHighlight && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
+		NSRect rowRect = [self rectOfRow:_highlightedRow];
+		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
+		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];
+		
+		[highlightImage lockFocus];
+		[highlightGradient fillRect:NSMakeRect(0, 0, rowRect.size.width, rowRect.size.height) angle:90];
+		[highlightImage unlockFocus];
+		
+		[self lockFocus];
+		[highlightImage compositeToPoint:NSMakePoint(rowRect.origin.x, rowRect.origin.y + [highlightImage size].height)
+							   operation:NSCompositeSourceAtop
+								fraction:1.0];
+		[self unlockFocus];
+		
+		[highlightImage release];
+	}
+}
 
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
