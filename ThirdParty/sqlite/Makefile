@@ -76,8 +76,8 @@ TEMP_STORE = -DTEMP_STORE=1
 # Version numbers and release number for the SQLite being compiled.
 #
 VERSION = 3.3
-VERSION_NUMBER = 3003012
-RELEASE = 3.3.12
+VERSION_NUMBER = 3003013
+RELEASE = 3.3.13
 
 # Filename extensions
 #

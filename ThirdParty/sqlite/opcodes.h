@@ -34,7 +34,7 @@
 #define OP_SetNumColumns                       29
 #define OP_ToNumeric                          141   /* same as TK_TO_NUMERIC*/
 #define OP_Ge                                  73   /* same as TK_GE       */
-#define OP_BitNot                              87   /* same as TK_BITNOT   */
+#define OP_BitNot                              88   /* same as TK_BITNOT   */
 #define OP_MemInt                              30
 #define OP_Dup                                 31
 #define OP_Rewind                              32
@@ -83,11 +83,11 @@
 #define OP_AggStep                             64
 #define OP_Clear                               65
 #define OP_Insert                              74
-#define OP_VBegin                              86
-#define OP_IdxGE                               89
+#define OP_VBegin                              85
+#define OP_IdxGE                               87
 #define OP_OpenEphemeral                       90
 #define OP_Divide                              82   /* same as TK_SLASH    */
-#define OP_String8                             88   /* same as TK_STRING   */
+#define OP_String8                             89   /* same as TK_STRING   */
 #define OP_IfMemZero                           91
 #define OP_Concat                              84   /* same as TK_CONCAT   */
 #define OP_VRowid                              92
@@ -128,7 +128,7 @@
 #define OP_Blob                               122
 #define OP_MakeIdxRec                         123
 #define OP_Goto                               124
-#define OP_Negative                            85   /* same as TK_UMINUS   */
+#define OP_Negative                            86   /* same as TK_UMINUS   */
 #define OP_ParseSchema                        125
 #define OP_Eq                                  69   /* same as TK_EQ       */
 #define OP_VNext                              128
@@ -154,7 +154,7 @@
 #define NOPUSH_MASK_2 0x71ef
 #define NOPUSH_MASK_3 0x7fce
 #define NOPUSH_MASK_4 0xffff
-#define NOPUSH_MASK_5 0xceef
+#define NOPUSH_MASK_5 0xcdef
 #define NOPUSH_MASK_6 0xb6d7
 #define NOPUSH_MASK_7 0x33af
 #define NOPUSH_MASK_8 0xf86f

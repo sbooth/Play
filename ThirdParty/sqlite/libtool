@@ -50,7 +50,7 @@ available_tags=" CXX"
 SHELL="/bin/sh"
 
 # Whether or not to build shared libraries.
-build_libtool_libs=no
+build_libtool_libs=yes
 
 # Whether or not to build static libraries.
 build_old_libs=yes
@@ -66,7 +66,7 @@ fast_install=needless
 
 # The host system.
 host_alias=
-host=powerpc-apple-darwin8.8.0
+host=powerpc-apple-darwin8.9.0
 
 # An echo program that does not interpret backslashes.
 echo="echo"
@@ -6745,7 +6745,7 @@ build_old_libs=`case $build_libtool_libs in yes) $echo no;; *) $echo yes;; esac`
 SHELL="/bin/sh"
 
 # Whether or not to build shared libraries.
-build_libtool_libs=no
+build_libtool_libs=yes
 
 # Whether or not to build static libraries.
 build_old_libs=yes
@@ -6761,7 +6761,7 @@ fast_install=needless
 
 # The host system.
 host_alias=
-host=powerpc-apple-darwin8.8.0
+host=powerpc-apple-darwin8.9.0
 
 # An echo program that does not interpret backslashes.
 echo="echo"
