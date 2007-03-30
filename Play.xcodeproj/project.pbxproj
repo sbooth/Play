@@ -66,6 +66,9 @@
 		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
 		8C50FF940B7ADEC8005419EF /* select_stream_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */; };
 		8C53D8E00BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */; };
+		8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
+		8C5574E70BBC1FB40047B89C /* mad.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
+		8C5575EE0BBC212D0047B89C /* MADStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5575EC0BBC212D0047B89C /* MADStreamDecoder.m */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -272,6 +275,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8C5574E70BBC1FB40047B89C /* mad.framework in Copy Frameworks */,
 				8C9C31C80B732EC200CE799A /* FLAC.framework in Copy Frameworks */,
 				8C9C31C90B732EC200CE799A /* mac.framework in Copy Frameworks */,
 				8C9C31CA0B732EC200CE799A /* mp4v2.framework in Copy Frameworks */,
@@ -389,6 +393,9 @@
 		8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_id.sql; path = SQL/select_stream_by_id.sql; sourceTree = "<group>"; };
 		8C53D8DD0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSBezierPath_RoundRectMethods.h; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.h; sourceTree = "<group>"; };
 		8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSBezierPath_RoundRectMethods.m; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.m; sourceTree = "<group>"; };
+		8C5574E10BBC1FA80047B89C /* mad.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mad.framework; path = Frameworks/mad.framework; sourceTree = "<group>"; };
+		8C5575EB0BBC212D0047B89C /* MADStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MADStreamDecoder.h; path = Audio/Decoders/MADStreamDecoder.h; sourceTree = "<group>"; };
+		8C5575EC0BBC212D0047B89C /* MADStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MADStreamDecoder.m; path = Audio/Decoders/MADStreamDecoder.m; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -698,6 +705,7 @@
 				8C9C32410B73344800CE799A /* AudioUnit.framework in Frameworks */,
 				8C9C32510B73345E00CE799A /* AudioToolbox.framework in Frameworks */,
 				8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */,
+				8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -791,6 +799,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8C5574E10BBC1FA80047B89C /* mad.framework */,
 				8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */,
 				8C9C32420B73345E00CE799A /* AudioToolbox.framework */,
 				8C9C32310B73344800CE799A /* AudioUnit.framework */,
@@ -1238,6 +1247,8 @@
 				8C9C313C0B732E8E00CE799A /* WavPackStreamDecoder.m */,
 				8C9C31260B732E7700CE799A /* AudioStreamDecoder.h */,
 				8C9C31270B732E7700CE799A /* AudioStreamDecoder.m */,
+				8C5575EB0BBC212D0047B89C /* MADStreamDecoder.h */,
+				8C5575EC0BBC212D0047B89C /* MADStreamDecoder.m */,
 			);
 			name = Decoders;
 			sourceTree = "<group>";
@@ -1675,6 +1686,7 @@
 				8C220A700BB8A35700808450 /* SmartPlaylistCriterion.m in Sources */,
 				8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */,
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
+				8C5575EE0BBC212D0047B89C /* MADStreamDecoder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1772,9 +1784,11 @@
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1813,9 +1827,11 @@
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;

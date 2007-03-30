@@ -44,6 +44,7 @@
 #import "CoreAudioStreamDecoder.h"
 #import "WavPackStreamDecoder.h"
 #import "MonkeysAudioStreamDecoder.h"
+#import "MADStreamDecoder.h"
 
 #import "AudioStream.h"
 #import "UtilityFunctions.h"
@@ -155,6 +156,10 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		result = [[MonkeysAudioStreamDecoder alloc] init];
 		[result setStream:stream];
 	}
+/*	else if([pathExtension isEqualToString:@"mp3"]) {
+		result = [[MADStreamDecoder alloc] init];
+		[result setStream:stream];
+	}*/
 	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
 		result = [[CoreAudioStreamDecoder alloc] init];
 		[result setStream:stream];
