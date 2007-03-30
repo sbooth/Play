@@ -437,13 +437,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		NSEnumerator	*removedStreams		= [[change valueForKey:NSKeyValueChangeOldKey] objectEnumerator];
 		AudioStream		*stream				= nil;
 		
+		[self willChangeValueForKey:@"currentStreams"];
 		while((stream = [removedStreams nextObject])) {
 			if([_currentStreams containsObject:stream]) {
-				[self willChangeValueForKey:@"currentStreams"];
 				[_currentStreams removeObject:stream];
-				[self didChangeValueForKey:@"currentStreams"];
 			}
 		}
+		[self didChangeValueForKey:@"currentStreams"];
 	}
 	
 	if(NSKeyValueChangeInsertion == changeKind || NSKeyValueChangeRemoval == changeKind) {
@@ -701,7 +701,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	if(nil != stream) {
 		[_streamController addObject:stream];
-		// TODO: Add stream to playlist
+
+/*		if([_browserController selectedNodeIsPlaylist]) {
+			[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
+		}*/
 	}
 		
 	return (nil != stream);
@@ -857,8 +860,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	if(nil != playlist) {
 		[_browserDrawer open:self];
 		
-		NSIndexPath *path = [_browserController selectionIndexPath];
-		NSLog(@"path=%@",path);
+//		NSIndexPath *path = [_browserController selectionIndexPath];
+//		NSLog(@"path=%@",path);
 		
 		//		if(nil != path && [_browserController setSelectionIndexPath:path]) {
 		//			[_browserOutlineView editColumn:0 row:[_playlistTable selectedRow] withEvent:nil select:YES];	
