@@ -289,6 +289,7 @@
 {
 	[self willChangeValueForKey:@"watchFolders"];
 	NSResetMapTable(_registeredFolders);
+	[_cachedFolders release], _cachedFolders = nil;
 	[self didChangeValueForKey:@"watchFolders"];
 }
 
@@ -625,6 +626,9 @@
 		
 		result = sqlite3_clear_bindings(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+		// Register the object	
+		NSMapInsert(_registeredFolders, (void *)[[folder valueForKey:ObjectIDKey] unsignedIntValue], (void *)folder);
 	}
 	
 	@catch(NSException *exception) {

@@ -274,6 +274,7 @@
 {
 	[self willChangeValueForKey:@"smartPlaylists"];
 	NSResetMapTable(_registeredPlaylists);
+	[_cachedPlaylists release], _cachedPlaylists = nil;
 	[self didChangeValueForKey:@"smartPlaylists"];
 }
 
@@ -603,6 +604,9 @@
 		
 		result = sqlite3_clear_bindings(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+		// Register the object	
+		NSMapInsert(_registeredPlaylists, (void *)[[playlist valueForKey:ObjectIDKey] unsignedIntValue], (void *)playlist);
 	}
 	
 	@catch(NSException *exception) {

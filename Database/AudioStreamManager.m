@@ -358,6 +358,7 @@
 {
 	[self willChangeValueForKey:@"streams"];
 	NSResetMapTable(_registeredStreams);
+	[_cachedStreams release], _cachedStreams = nil;
 	[self didChangeValueForKey:@"streams"];
 }
 
@@ -816,6 +817,9 @@
 		
 		result = sqlite3_clear_bindings(statement);
 		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+
+		// Register the object	
+		NSMapInsert(_registeredStreams, (void *)[[stream valueForKey:ObjectIDKey] unsignedIntValue], (void *)stream);
 	}
 	
 	@catch(NSException *exception) {
