@@ -185,8 +185,11 @@
 	
 	NSError					*error			= nil;
 	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
-	BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
-	NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
+
+	if(nil != metadataWriter) {
+		BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
+		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
+	}
 }
 
 @end
