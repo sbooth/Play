@@ -134,7 +134,7 @@
 
 - (void) growlNotificationWasClicked:(id)clickContext
 {
-	NSLog(@"growlNotificationWasClicked:%@", clickContext);
+	[[AudioLibrary library] jumpToNowPlaying:self];
 }
 
 #pragma mark Audio Notification Handling
@@ -144,13 +144,13 @@
 	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableGrowlNotifications"]) {
-		[GrowlApplicationBridge notifyWithTitle:[stream valueForKey:@"title"]
-									description:[stream valueForKey:@"artist"]
+		[GrowlApplicationBridge notifyWithTitle:[stream valueForKey:MetadataTitleKey]
+									description:[stream valueForKey:MetadataAlbumTitleKey]
 							   notificationName:@"Stream Playback Started" 
 									   iconData:[stream valueForKey:@"albumArt"]
 									   priority:0 
 									   isSticky:NO 
-								   clickContext:nil];
+								   clickContext:[stream valueForKey:ObjectIDKey]];
 	}
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
