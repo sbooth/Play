@@ -23,6 +23,9 @@
 
 @interface MADStreamDecoder : AudioStreamDecoder
 {
+	int					_fd;
+	unsigned char		*_inputBuffer;
+	
 	struct mad_stream	_mad_stream;
 	struct mad_frame	_mad_frame;
 	struct mad_synth	_mad_synth;
