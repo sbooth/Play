@@ -78,8 +78,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	[self exposeBinding:@"totalFrames"];
 	[self exposeBinding:@"framesRemaining"];
 	
-	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
-	[self setKeys:[NSArray arrayWithObject:@"framesRemaining"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
+	[self setKeys:[NSArray arrayWithObjects:@"currentFrame", @"totalFrames", nil] triggerChangeNotificationsForDependentKey:@"framesRemaining"];
 }
 
 + (AudioStreamDecoder *) streamDecoderForStream:(AudioStream *)stream error:(NSError **)error
