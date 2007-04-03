@@ -25,6 +25,7 @@
 {
 	int					_fd;
 	unsigned char		*_inputBuffer;
+	SInt64				_framesDecoded;
 	
 	struct mad_stream	_mad_stream;
 	struct mad_frame	_mad_frame;
