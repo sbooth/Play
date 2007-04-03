@@ -102,6 +102,7 @@
 	NSPoint		localLocation	= [self convertPoint:location fromView:nil];
 	int			row				= [self rowAtPoint:localLocation];
 	BOOL		shiftPressed	= 0 != ([event modifierFlags] & NSShiftKeyMask);
+//	BOOL		commandPressed	= 0 != ([event modifierFlags] & NSCommandKeyMask);
 
 	if(-1 != row) {
 		
@@ -209,11 +210,9 @@
 		[highlightGradient fillRect:NSMakeRect(0, 0, rowRect.size.width, rowRect.size.height) angle:90];
 		[highlightImage unlockFocus];
 		
-		[self lockFocus];
 		[highlightImage compositeToPoint:NSMakePoint(rowRect.origin.x, rowRect.origin.y + [highlightImage size].height)
 							   operation:NSCompositeSourceAtop
 								fraction:1.0];
-		[self unlockFocus];
 		
 		[highlightImage release];
 	}
