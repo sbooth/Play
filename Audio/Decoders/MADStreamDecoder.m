@@ -98,6 +98,7 @@ audio_linear_round(unsigned int bits,
 - (BOOL) setupDecoder:(NSError **)error
 {
 	_framesDecoded = 0;
+	_totalMPEGFrames = 0;
 	
 	_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
 	NSAssert(NULL != _inputBuffer, @"Unable to allocate memory");
@@ -158,25 +159,32 @@ audio_linear_round(unsigned int bits,
 	ssize_t			bytesRead;
 	void			*writePointer;
 	unsigned char	*readStartPointer;
-	unsigned		frameByteSize, i;
+	unsigned		frameByteSize, i, start, sampleCount;
 	int32_t			audioSample;
 	int8_t			*alias8;
 	int				result;
+	BOOL			readEOF;
+	
+
+	bytesToWrite			= RING_BUFFER_WRITE_CHUNK_SIZE;
+	bytesAvailableToWrite	= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+	bytesWritten			= 0;
+	alias8					= writePointer;
+	readEOF					= NO;
+
+	// Estimation for worst-case (MAD only supports 2 channel MP3s) bytes required for
+	// decompressing one MP3 frame to 24-bit PCM 
+	// 1152 samples per channel, 2 channels, 24 bits per sample
+	frameByteSize			= 1152 * 2 * 3;
+	
+	// Ensure sufficient space remains in the buffer
+	if(bytesToWrite > bytesAvailableToWrite) {
+		return;
+	}
 	
 	for(;;) {
-		bytesToWrite			= RING_BUFFER_WRITE_CHUNK_SIZE;
-		bytesAvailableToWrite	= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		bytesWritten			= 0;
-	
-		// Estimation for worst-case (MAD only supports 2 channel MP3s)
-		// 1152 samples per channel, 2 channels, 24 bits per sample
-		frameByteSize			= 1152 * 2 * 3;
-		
-		// Ensure sufficient space remains in the buffer
-		if(bytesToWrite > bytesAvailableToWrite || bytesAvailableToWrite < frameByteSize) {
-			break;
-		}
-		
+
+		// Feed the input buffer if necessary
 		if(NULL == _mad_stream.buffer || MAD_ERROR_BUFLEN == _mad_stream.error) {
 
 			if(NULL != _mad_stream.next_frame) {
@@ -200,21 +208,33 @@ audio_linear_round(unsigned int bits,
 				NSLog(@"Read error: %s.", strerror(errno));
 				break;
 			}
+			
+			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
+			if(0 == bytesRead) {
+				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
+				bytesRead	+= MAD_BUFFER_GUARD;
+				readEOF		= YES;
+			}
 
 			mad_stream_buffer(&_mad_stream, _inputBuffer, bytesRead + bytesRemaining);
 			_mad_stream.error = 0;
 		}
 
+		// Ensure space exists for this frame before decoding
+		if(bytesAvailableToWrite < frameByteSize) {
+			break;
+		}
+		
+		// Decode the MP3 frame
 		result = mad_frame_decode(&_mad_frame, &_mad_stream);
-
 		if(-1 == result) {
 
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
 				NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
 				continue;
 			}
-			// EOS
-			else if(MAD_ERROR_BUFLEN == _mad_stream.error && 0 == bytesRead) {
+			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
+			else if(MAD_ERROR_BUFLEN == _mad_stream.error && readEOF) {
 				[self setAtEndOfStream:YES];
 				break;
 			}
@@ -227,21 +247,39 @@ audio_linear_round(unsigned int bits,
 			}
 		}
 		
+		// Housekeeping
 		++_framesDecoded;
 		mad_timer_add(&_mad_timer, _mad_frame.header.duration);
 		
+
+		// Synthesize the frame into PCM
 		mad_synth_frame(&_mad_synth, &_mad_frame);
+
+		// Adjust the first and last frames for gapless playback
+		if(0 != _encoderDelay && 1 == _framesDecoded) {
+			NSLog(@"Adjusting for delay");
+			i = _encoderDelay;
+		}
+		else {
+			i = 0;
+		}
+
+		sampleCount = _mad_synth.pcm.length;
+		if(0 != _encoderPadding && _totalMPEGFrames == _framesDecoded) {
+			NSLog(@"Adjusting for padding");
+			sampleCount -= _encoderPadding;
+		}
 		
 		// Output samples in 24-bit signed integer big endian PCM
-		alias8 = writePointer;
-		for(i = 0; i < _mad_synth.pcm.length; ++i) {						
+		for(/*i = start*/; i < sampleCount; ++i) {						
 			audioSample = audio_linear_round(24, _mad_synth.pcm.samples[0][i]);
 			
 			*alias8++	= (int8_t)(audioSample >> 16);
 			*alias8++	= (int8_t)(audioSample >> 8);
 			*alias8++	= (int8_t)audioSample;
 			
-			bytesWritten += 3;
+			bytesWritten			+= 3;
+			bytesAvailableToWrite	-= 3;
 
 			if(2 == MAD_NCHANNELS(&_mad_frame.header)) {
 				audioSample = audio_linear_round(24, _mad_synth.pcm.samples[1][i]);
@@ -250,18 +288,22 @@ audio_linear_round(unsigned int bits,
 				*alias8++	= (int8_t)(audioSample >> 8);
 				*alias8++	= (int8_t)audioSample;
 
-				bytesWritten += 3;
+				bytesWritten			+= 3;
+				bytesAvailableToWrite	-= 3;
 			}
 		}
 		
-		if(0 == bytesRead || bytesWritten >= bytesAvailableToWrite) {
+		// For gapless playback, stop decoding after the number of frames specified
+		// by the Xing header have been decoded
+		if(0 != _totalMPEGFrames && _framesDecoded == _totalMPEGFrames) {
+			[self setAtEndOfStream:YES];
 			break;
-		}
-		
-		if(0 < bytesWritten) {
-			[[self pcmBuffer] didWriteLength:bytesWritten];				
 		}		
 	}
+
+	if(0 < bytesWritten) {
+		[[self pcmBuffer] didWriteLength:bytesWritten];				
+	}	
 }
 
 @end
@@ -371,6 +413,7 @@ audio_linear_round(unsigned int bits,
 				// 4 byte value containing total frames
 				if(FRAMES_FLAG & flags) {
 					frames = mad_bit_read(&stream.anc_ptr, 32);
+					_totalMPEGFrames = frames;
 					// An MP3 frame contains 1152 samples
 					[self setTotalFrames:frames * 1152];
 				}
@@ -398,13 +441,71 @@ audio_linear_round(unsigned int bits,
 				framesDecoded	= frames;
 				bitrate			= 8.0 * (bytes / mad_timer_count(timer, MAD_UNITS_SECONDS));
 				
+				// Loook for the LAME header next
+				// http://gabriel.mp3-tech.org/mp3infotag.html
+				magic = mad_bit_read(&stream.anc_ptr, 32);
+				
+				if('LAME' == magic) {
+					NSLog(@"Found LAME header");
+					unsigned char versionString [5 + 1];
+					
+					for(i = 0; i < 5; ++i) {
+						versionString[i] = mad_bit_read(&stream.anc_ptr, 8);
+					}
+					versionString[5] = '\0';
+					
+					NSLog(@"LAME info: %s",versionString);
+					
+					uint8_t infoTagRevision = mad_bit_read(&stream.anc_ptr, 4);
+					uint8_t vbrMethod = mad_bit_read(&stream.anc_ptr, 4);
+					
+					NSLog(@"infoTagRevision: %i",infoTagRevision);
+					NSLog(@"vbrMethod:%i",vbrMethod);
+					
+					uint8_t lowpassFilterValue = mad_bit_read(&stream.anc_ptr, 8);
+					
+					float peakSignalAmplitude = (float) mad_bit_read(&stream.anc_ptr, 8);
+					uint16_t radioReplayGain = mad_bit_read(&stream.anc_ptr, 16);
+					uint16_t audiophileReplayGain = mad_bit_read(&stream.anc_ptr, 16);
+
+					uint8_t encodingFlags = mad_bit_read(&stream.anc_ptr, 4);
+					uint8_t athType = mad_bit_read(&stream.anc_ptr, 4);
+
+					uint8_t lameBitrate = mad_bit_read(&stream.anc_ptr, 8);
+					
+					uint16_t encoderDelay = mad_bit_read(&stream.anc_ptr, 12);
+					uint16_t encoderPadding = mad_bit_read(&stream.anc_ptr, 12);
+
+					_encoderDelay = encoderDelay;
+					_encoderPadding = encoderPadding;
+					NSLog(@"encoderDelay:%i", encoderDelay);
+					NSLog(@"encoderPadding:%i", encoderPadding);
+					NSLog(@"totalFrames = %qi", [self totalFrames]);
+					[self setTotalFrames:[self totalFrames] - (encoderDelay + encoderPadding)];
+					NSLog(@"totalFrames = %qi", [self totalFrames]);
+					
+					uint8_t misc = mad_bit_read(&stream.anc_ptr, 8);
+
+					uint8_t mp3Gain = mad_bit_read(&stream.anc_ptr, 8);
+
+					mad_bit_read(&stream.anc_ptr, 2);
+					uint8_t surroundInfo = mad_bit_read(&stream.anc_ptr, 3);
+					uint16_t presetInfo = mad_bit_read(&stream.anc_ptr, 11);
+
+					uint32_t musicGain = mad_bit_read(&stream.anc_ptr, 32);
+					
+					uint32_t musicCRC = mad_bit_read(&stream.anc_ptr, 32);
+
+					uint32_t tagCRC = mad_bit_read(&stream.anc_ptr, 32);
+				}
+					
 				break;
-				}			
-			}
+			}			
+		}
 		
 		++framesDecoded;
 		mad_timer_add(&timer, frame.header.duration);
-		}
+	}
 
 	// Clean up
 	mad_frame_finish(&frame);
