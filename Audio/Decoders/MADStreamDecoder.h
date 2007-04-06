@@ -25,8 +25,19 @@
 {
 	int					_fd;
 	unsigned char		*_inputBuffer;
-	SInt64				_framesDecoded;
 	
+	uint32_t			_mpegFramesDecoded;
+	uint32_t			_totalMPEGFrames;
+	
+	uint16_t			_encoderDelay;
+	uint16_t			_encoderPadding;
+	
+	SInt64				_samplesDecoded;
+	unsigned			_samplesPerMPEGFrame;
+	
+	BOOL				_foundXingHeader;
+	BOOL				_foundLAMEHeader;
+
 	struct mad_stream	_mad_stream;
 	struct mad_frame	_mad_frame;
 	struct mad_synth	_mad_synth;
