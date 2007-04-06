@@ -132,6 +132,14 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	return [result autorelease];
 }
 
+- (void) dealloc
+{
+	[_url release], _url = nil;
+	[_metadata release], _metadata = nil;
+	
+	[super dealloc];
+}
+
 - (BOOL)			readMetadata:(NSError **)error			{ return YES; }
 
 @end

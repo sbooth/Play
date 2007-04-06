@@ -143,6 +143,14 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	return [result autorelease];
 }
 
+- (void) dealloc
+{
+	[_url release], _url = nil;
+	[_properties release], _properties = nil;
+
+	[super dealloc];
+}
+
 - (BOOL)			readProperties:(NSError **)error		{ return YES; }
 
 @end
