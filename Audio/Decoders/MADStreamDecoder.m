@@ -24,7 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define INPUT_BUFFER_SIZE	(5*8192)
+#define INPUT_BUFFER_SIZE		(5 * 8192)
 
 // From vbrheadersdk:
 // ========================================
@@ -224,7 +224,7 @@ audio_linear_round(unsigned int bits,
 			}
 
 			mad_stream_buffer(&_mad_stream, _inputBuffer, bytesRead + bytesRemaining);
-			_mad_stream.error = 0;
+			_mad_stream.error = MAD_ERROR_NONE;
 		}
 
 		// Ensure space exists for this frame before decoding
@@ -391,7 +391,7 @@ audio_linear_round(unsigned int bits,
 			}
 
 			mad_stream_buffer(&stream, inputBuffer, bytesRead + bytesRemaining);
-			stream.error = 0;
+			stream.error = MAD_ERROR_NONE;
 		}
 		
 		result = mad_frame_decode(&frame, &stream);
@@ -403,7 +403,7 @@ audio_linear_round(unsigned int bits,
 				continue;
 			}
 			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
-			else if(MAD_ERROR_BUFLEN == _mad_stream.error && readEOF) {
+			else if(MAD_ERROR_BUFLEN == stream.error && readEOF) {
 				break;
 			}
 			else if(MAD_ERROR_BUFLEN == stream.error) {
@@ -495,11 +495,11 @@ audio_linear_round(unsigned int bits,
 				
 				if('LAME' == magic) {
 					unsigned char versionString [5 + 1];
-					
+					memset(versionString, 0, 6);
+
 					for(i = 0; i < 5; ++i) {
 						versionString[i] = mad_bit_read(&stream.anc_ptr, 8);
 					}
-					versionString[5] = '\0';
 					
 					uint8_t infoTagRevision = mad_bit_read(&stream.anc_ptr, 4);
 					uint8_t vbrMethod = mad_bit_read(&stream.anc_ptr, 4);
