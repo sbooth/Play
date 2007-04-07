@@ -24,7 +24,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define INPUT_BUFFER_SIZE		(5 * 8192)
+#define INPUT_BUFFER_SIZE	(5 * 8192)
+#define LAME_HEADER_SIZE	((8 * 5) + 4 + 4 + 8 + 32 + 16 + 16 + 4 + 4 + 8 + 12 + 12 + 8 + 8 + 2 + 3 + 11 + 32 + 32 + 32)
+
 
 // From vbrheadersdk:
 // ========================================
@@ -47,19 +49,27 @@
 #define TOC_FLAG        0x0004
 #define VBR_SCALE_FLAG  0x0008
 
+// Clipping and rounding code from madplay(audio.c):
+// * madplay - MPEG audio decoder and player
+// * Copyright (C) 2000-2004 Robert Leslie
 static int32_t 
 audio_linear_round(unsigned int bits, 
 				   mad_fixed_t sample)
 {
+	enum {
+		MIN = -MAD_F_ONE,
+		MAX =  MAD_F_ONE - 1
+	};
+
 	/* round */
 	sample += (1L << (MAD_F_FRACBITS - bits));
 	
 	/* clip */
-	if(MAD_F_MAX < sample) {
-		sample = MAD_F_MAX;
+	if(MAX < sample) {
+		sample = MAX;
 	}
-	else if(MAD_F_MIN > sample) {
-		sample = MAD_F_MIN;
+	else if(MIN > sample) {
+		sample = MIN;
 	}
 	
 	/* quantize and scale */
@@ -67,7 +77,7 @@ audio_linear_round(unsigned int bits,
 }
 
 @interface MADStreamDecoder (Private)
-- (void) scanFile;
+- (BOOL) scanFile;
 @end
 
 @implementation MADStreamDecoder
@@ -129,7 +139,10 @@ audio_linear_round(unsigned int bits,
 	mad_timer_reset(&_mad_timer);
 
 	// Scan file to determine total frames, etc
-	[self scanFile];
+	BOOL result = [self scanFile];
+	if(NO == result) {
+		return NO;
+	}
 
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
@@ -250,7 +263,7 @@ audio_linear_round(unsigned int bits,
 			}
 			else {
 				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
-				break;
+				return;
 			}
 		}
 		
@@ -326,7 +339,7 @@ audio_linear_round(unsigned int bits,
 
 @implementation MADStreamDecoder (Private)
 
-- (void) scanFile
+- (BOOL) scanFile
 {
 	SInt64				framesDecoded = 0;
 	UInt32				bytesToRead, bytesRemaining;
@@ -340,17 +353,17 @@ audio_linear_round(unsigned int bits,
 	
 	int					result;
 	
-//	struct stat			stat;
-	
 	// Set up	
 	unsigned char *inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
-	NSAssert(NULL != inputBuffer, @"Unable to allocate memory");
+	if(NULL == inputBuffer) {
+		return NO;
+	}
 	
 	int fd = open([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
-	NSAssert1(-1 != fd, @"Unable to open the input file (%s).", strerror(errno));
-	
-//	result = fstat(fd, &stat);
-//	NSAssert1(-1 != fd, @"Unable to stat the input file (%s).", strerror(errno));
+	if(-1 == fd) {
+		free(inputBuffer);
+		return NO;
+	}
 	
 	mad_stream_init(&stream);
 	mad_frame_init(&frame);
@@ -421,27 +434,38 @@ audio_linear_round(unsigned int bits,
 		// Look for a Xing header in the first frame that was successfully decoded
 		// Reference http://www.codeproject.com/audio/MPEGAudioInfo.asp
 		if(1 == framesDecoded) {
-						
+			
 			_pcmFormat.mSampleRate			= frame.header.samplerate;
 			_pcmFormat.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
 
+			unsigned ancillaryBitsRemaining = stream.anc_bitlen;
+			
+			if(32 > ancillaryBitsRemaining) { continue; }
+
 			uint32_t magic = mad_bit_read(&stream.anc_ptr, 32);
+			ancillaryBitsRemaining -= 32;
 			
 			if('Xing' == magic) {
 //			if((('X' << 24) | ('i' << 16) | ('n' << 8) | ('g')) == magic) {
 				
 				unsigned	i;
-				uint32_t	flags = 0, frames = 0, bytes = 0, vbr_scale = 0;
-				float		bitrate = 0;
+				uint32_t	flags = 0, frames = 0, bytes = 0, vbrScale = 0;
 				uint8_t		toc [100];
 				
 				memset(toc, 0, 100);
 				
-				flags = mad_bit_read(&stream.anc_ptr, 32);
+				if(32 > ancillaryBitsRemaining) { continue; }
 				
+				flags = mad_bit_read(&stream.anc_ptr, 32);
+				ancillaryBitsRemaining -= 32;
+
 				// 4 byte value containing total frames
 				if(FRAMES_FLAG & flags) {
+					if(32 > ancillaryBitsRemaining) { continue; }
+
 					frames = mad_bit_read(&stream.anc_ptr, 32);
+					ancillaryBitsRemaining -= 32;
+
 					_totalMPEGFrames = frames;
 
 					// Determine number of samples, discounting encoder delay and padding
@@ -466,54 +490,69 @@ audio_linear_round(unsigned int bits,
 				
 				// 4 byte value containing total bytes
 				if(BYTES_FLAG & flags) {
+					if(32 > ancillaryBitsRemaining) { continue; }
+					
 					bytes = mad_bit_read(&stream.anc_ptr, 32);
+					ancillaryBitsRemaining -= 32;
 				}
 				
 				// 100 bytes containing TOC information
 				if(TOC_FLAG & flags) {
+					if(8 * 100 > ancillaryBitsRemaining) { continue; }
+					
 					for(i = 0; i < 100; ++i) {
 						toc[i] = mad_bit_read(&stream.anc_ptr, 8);
 					}
+					
+					ancillaryBitsRemaining -= (8* 100);
 				}
 				
 				// 4 byte value indicating encoded vbr scale
 				if(VBR_SCALE_FLAG & flags) {
-					vbr_scale = mad_bit_read(&stream.anc_ptr, 32);
+					if(32 > ancillaryBitsRemaining) { continue; }
+					
+					vbrScale = mad_bit_read(&stream.anc_ptr, 32);
+					ancillaryBitsRemaining -= 32;
 				}
 								
 				mad_timer_add(&timer, frame.header.duration);
 				mad_timer_multiply(&timer, frames);
 				
 				framesDecoded	= frames;
-				bitrate			= 8.0 * (bytes / mad_timer_count(timer, MAD_UNITS_SECONDS));
 				
 				_foundXingHeader = YES;
 
 				// Loook for the LAME header next
-				// http://gabriel.mp3-tech.org/mp3infotag.html
+				// http://gabriel.mp3-tech.org/mp3infotag.html				
+				if(32 > ancillaryBitsRemaining) { continue; }
 				magic = mad_bit_read(&stream.anc_ptr, 32);
 				
-				if('LAME' == magic) {
-					unsigned char versionString [5 + 1];
-					memset(versionString, 0, 6);
+				ancillaryBitsRemaining -= 32;
 
+				if('LAME' == magic) {
+					
+					if(LAME_HEADER_SIZE > ancillaryBitsRemaining) { continue; }
+					
+					/*unsigned char versionString [5 + 1];
+					memset(versionString, 0, 6);*/
+					
 					for(i = 0; i < 5; ++i) {
-						versionString[i] = mad_bit_read(&stream.anc_ptr, 8);
+						/*versionString[i] =*/ mad_bit_read(&stream.anc_ptr, 8);
 					}
 					
-					uint8_t infoTagRevision = mad_bit_read(&stream.anc_ptr, 4);
-					uint8_t vbrMethod = mad_bit_read(&stream.anc_ptr, 4);
+					/*uint8_t infoTagRevision =*/ mad_bit_read(&stream.anc_ptr, 4);
+					/*uint8_t vbrMethod =*/ mad_bit_read(&stream.anc_ptr, 4);
 					
-					uint8_t lowpassFilterValue = mad_bit_read(&stream.anc_ptr, 8);
+					/*uint8_t lowpassFilterValue =*/ mad_bit_read(&stream.anc_ptr, 8);
 					
-					float peakSignalAmplitude = mad_bit_read(&stream.anc_ptr, 32);
-					uint16_t radioReplayGain = mad_bit_read(&stream.anc_ptr, 16);
-					uint16_t audiophileReplayGain = mad_bit_read(&stream.anc_ptr, 16);
-
-					uint8_t encodingFlags = mad_bit_read(&stream.anc_ptr, 4);
-					uint8_t athType = mad_bit_read(&stream.anc_ptr, 4);
-
-					uint8_t lameBitrate = mad_bit_read(&stream.anc_ptr, 8);
+					/*float peakSignalAmplitude =*/ mad_bit_read(&stream.anc_ptr, 32);
+					/*uint16_t radioReplayGain =*/ mad_bit_read(&stream.anc_ptr, 16);
+					/*uint16_t audiophileReplayGain =*/ mad_bit_read(&stream.anc_ptr, 16);
+					
+					/*uint8_t encodingFlags =*/ mad_bit_read(&stream.anc_ptr, 4);
+					/*uint8_t athType =*/ mad_bit_read(&stream.anc_ptr, 4);
+					
+					/*uint8_t lameBitrate =*/ mad_bit_read(&stream.anc_ptr, 8);
 					
 					uint16_t encoderDelay = mad_bit_read(&stream.anc_ptr, 12);
 					uint16_t encoderPadding = mad_bit_read(&stream.anc_ptr, 12);
@@ -524,25 +563,30 @@ audio_linear_round(unsigned int bits,
 					_encoderDelay = encoderDelay + 528 + 1;
 					_encoderPadding = encoderPadding;
 					
-					uint8_t misc = mad_bit_read(&stream.anc_ptr, 8);
-
-					uint8_t mp3Gain = mad_bit_read(&stream.anc_ptr, 8);
-
-					/*uint8_t garbage =*/mad_bit_read(&stream.anc_ptr, 2);
-					uint8_t surroundInfo = mad_bit_read(&stream.anc_ptr, 3);
-					uint16_t presetInfo = mad_bit_read(&stream.anc_ptr, 11);
-
-					uint32_t musicGain = mad_bit_read(&stream.anc_ptr, 32);
+					/*uint8_t misc =*/ mad_bit_read(&stream.anc_ptr, 8);
 					
-					uint32_t musicCRC = mad_bit_read(&stream.anc_ptr, 32);
-
-					uint32_t tagCRC = mad_bit_read(&stream.anc_ptr, 32);
+					/*uint8_t mp3Gain =*/ mad_bit_read(&stream.anc_ptr, 8);
+					
+					/*uint8_t unused =*/mad_bit_read(&stream.anc_ptr, 2);
+					/*uint8_t surroundInfo =*/ mad_bit_read(&stream.anc_ptr, 3);
+					/*uint16_t presetInfo =*/ mad_bit_read(&stream.anc_ptr, 11);
+					
+					/*uint32_t musicGain =*/ mad_bit_read(&stream.anc_ptr, 32);
+					
+					/*uint32_t musicCRC =*/ mad_bit_read(&stream.anc_ptr, 32);
+					
+					/*uint32_t tagCRC =*/ mad_bit_read(&stream.anc_ptr, 32);
+					
+					ancillaryBitsRemaining -= LAME_HEADER_SIZE;
 
 					_foundLAMEHeader = YES;
 				}
 					
 				break;
-			}			
+			}
+			else if('Info' == magic) {
+				NSLog(@"Found Info CBR header");
+			}
 		}		
 	}
 
@@ -552,6 +596,8 @@ audio_linear_round(unsigned int bits,
 	
 	free(inputBuffer);
 	close(fd);
+	
+	return YES;
 }
 
 @end
