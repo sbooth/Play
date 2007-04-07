@@ -350,7 +350,7 @@ audio_linear_round(unsigned int bits,
 
 - (BOOL) scanFile
 {
-	SInt64				framesDecoded = 0;
+	uint32_t			framesDecoded = 0;
 	UInt32				bytesToRead, bytesRemaining;
 	ssize_t				bytesRead;
 	unsigned char		*readStartPointer;
@@ -361,6 +361,7 @@ audio_linear_round(unsigned int bits,
 	mad_timer_t			timer;
 	
 	int					result;
+	struct stat			stat;
 	
 	// Set up	
 	unsigned char *inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
@@ -380,6 +381,13 @@ audio_linear_round(unsigned int bits,
 	
 	readEOF = NO;
 	
+	result = fstat(fd, &stat);
+	if(-1 == result) {
+		free(inputBuffer);
+		close(fd);
+		return NO;
+	}
+		
 	for(;;) {
 		if(NULL == stream.buffer || MAD_ERROR_BUFLEN == stream.error) {
 			
@@ -447,6 +455,21 @@ audio_linear_round(unsigned int bits,
 			_pcmFormat.mSampleRate			= frame.header.samplerate;
 			_pcmFormat.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
 
+			if(MAD_FLAG_LSF_EXT & frame.header.flags || MAD_FLAG_MPEG_2_5_EXT & frame.header.flags) {
+				switch(frame.header.layer) {
+					case MAD_LAYER_I:		_samplesPerMPEGFrame = 384;			break;
+					case MAD_LAYER_II:		_samplesPerMPEGFrame = 1152;		break;
+					case MAD_LAYER_III:		_samplesPerMPEGFrame = 576;			break;
+				}
+			}
+			else {
+				switch(frame.header.layer) {
+					case MAD_LAYER_I:		_samplesPerMPEGFrame = 384;			break;
+					case MAD_LAYER_II:		_samplesPerMPEGFrame = 1152;		break;
+					case MAD_LAYER_III:		_samplesPerMPEGFrame = 1152;		break;
+				}
+			}
+			
 			unsigned ancillaryBitsRemaining = stream.anc_bitlen;
 			
 			if(32 > ancillaryBitsRemaining) { continue; }
@@ -478,21 +501,6 @@ audio_linear_round(unsigned int bits,
 					_totalMPEGFrames = frames;
 
 					// Determine number of samples, discounting encoder delay and padding
-					if(MAD_FLAG_LSF_EXT & frame.header.flags || MAD_FLAG_MPEG_2_5_EXT & frame.header.flags) {
-						switch(frame.header.layer) {
-							case MAD_LAYER_I:		_samplesPerMPEGFrame = 384;			break;
-							case MAD_LAYER_II:		_samplesPerMPEGFrame = 1152;		break;
-							case MAD_LAYER_III:		_samplesPerMPEGFrame = 576;			break;
-						}
-					}
-					else {
-						switch(frame.header.layer) {
-							case MAD_LAYER_I:		_samplesPerMPEGFrame = 384;			break;
-							case MAD_LAYER_II:		_samplesPerMPEGFrame = 1152;		break;
-							case MAD_LAYER_III:		_samplesPerMPEGFrame = 1152;		break;
-						}
-					}
-					
 					// Our concept of a frame is the same as CoreAudio's- one sample across all channels
 					[self setTotalFrames:frames * _samplesPerMPEGFrame];
 				}
@@ -589,13 +597,21 @@ audio_linear_round(unsigned int bits,
 					ancillaryBitsRemaining -= LAME_HEADER_SIZE;
 
 					_foundLAMEHeader = YES;
+					break;
+
 				}
-					
-				break;
 			}
 			else if('Info' == magic) {
 				NSLog(@"Found Info CBR header");
+				break;
 			}
+		}
+		else {
+			// Just estimate the number of frames based on the previous duration estimate
+			[self setTotalFrames:[[[self stream] valueForKey:PropertiesDurationKey] longLongValue] * frame.header.samplerate];
+			
+			// For now, quit after second frame
+			break;
 		}		
 	}
 
