@@ -280,14 +280,14 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 - (BOOL)			supportsSeeking							{ return NO; }
 
 - (SInt64) seekToFrame:(SInt64)frame
-{	
-	SInt64						result;
+{
+	NSParameterAssert(0 <= frame);
 	
-	result						= [self performSeekToFrame:frame]; 
+	SInt64 result = [self performSeekToFrame:frame]; 
 	
 	if(-1 != result) {
 		[[self pcmBuffer] empty]; 
-		[self setCurrentFrame:frame];
+		[self setCurrentFrame:result];
 		[self setAtEndOfStream:NO];
 	}
 	
@@ -307,9 +307,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 // ========================================
 - (BOOL) startDecoding:(NSError **)error
 {
-	BOOL		result;
-	
-	result		= [self setupDecoder:error];
+	BOOL result = [self setupDecoder:error];
 	
 	if(NO == result) {
 		return NO;
