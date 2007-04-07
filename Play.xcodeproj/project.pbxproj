@@ -69,6 +69,7 @@
 		8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
 		8C5574E70BBC1FB40047B89C /* mad.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
 		8C5575EE0BBC212D0047B89C /* MADStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5575EC0BBC212D0047B89C /* MADStreamDecoder.m */; };
+		8C55786E0BBCD97C0047B89C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5578500BBCD97C0047B89C /* QuartzCore.framework */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -199,7 +200,6 @@
 		8C9C38080B73ABAF00CE799A /* AudioPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C37F60B73ABAF00CE799A /* AudioPropertiesReader.m */; };
 		8C9C380C0B73ABAF00CE799A /* FLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C37FA0B73ABAF00CE799A /* FLACPropertiesReader.m */; };
 		8C9C380E0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */; };
-		8C9C38100B73ABAF00CE799A /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C37FE0B73ABAF00CE799A /* MP3PropertiesReader.mm */; };
 		8C9C38120B73ABAF00CE799A /* MusepackPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C38000B73ABAF00CE799A /* MusepackPropertiesReader.m */; };
 		8C9C38140B73ABAF00CE799A /* OggFLACPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C38020B73ABAF00CE799A /* OggFLACPropertiesReader.m */; };
 		8C9C38160B73ABAF00CE799A /* OggVorbisPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C38040B73ABAF00CE799A /* OggVorbisPropertiesReader.m */; };
@@ -262,6 +262,7 @@
 		8CC1B8000B7C4D1D006BF010 /* delete_stream_trigger.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1B7FF0B7C4D1D006BF010 /* delete_stream_trigger.sql */; };
 		8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */; };
 		8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */; };
+		8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */; };
 		8CFD465E0B96A22600F9094B /* PlayQueueNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CFD465C0B96A22500F9094B /* PlayQueueNode.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -396,6 +397,7 @@
 		8C5574E10BBC1FA80047B89C /* mad.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mad.framework; path = Frameworks/mad.framework; sourceTree = "<group>"; };
 		8C5575EB0BBC212D0047B89C /* MADStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MADStreamDecoder.h; path = Audio/Decoders/MADStreamDecoder.h; sourceTree = "<group>"; };
 		8C5575EC0BBC212D0047B89C /* MADStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MADStreamDecoder.m; path = Audio/Decoders/MADStreamDecoder.m; sourceTree = "<group>"; };
+		8C5578500BBCD97C0047B89C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -577,7 +579,6 @@
 		8C9C37FB0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioPropertiesReader.h; path = Audio/Properties/MonkeysAudioPropertiesReader.h; sourceTree = "<group>"; };
 		8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioPropertiesReader.mm; path = Audio/Properties/MonkeysAudioPropertiesReader.mm; sourceTree = "<group>"; };
 		8C9C37FD0B73ABAF00CE799A /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
-		8C9C37FE0B73ABAF00CE799A /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8C9C37FF0B73ABAF00CE799A /* MusepackPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MusepackPropertiesReader.h; path = Audio/Properties/MusepackPropertiesReader.h; sourceTree = "<group>"; };
 		8C9C38000B73ABAF00CE799A /* MusepackPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MusepackPropertiesReader.m; path = Audio/Properties/MusepackPropertiesReader.m; sourceTree = "<group>"; };
 		8C9C38010B73ABAF00CE799A /* OggFLACPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACPropertiesReader.h; path = Audio/Properties/OggFLACPropertiesReader.h; sourceTree = "<group>"; };
@@ -680,6 +681,7 @@
 		8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseObject.h; path = Database/DatabaseObject.h; sourceTree = "<group>"; };
 		8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseObject.m; path = Database/DatabaseObject.m; sourceTree = "<group>"; };
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
+		8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8CFD465B0B96A22500F9094B /* PlayQueueNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlayQueueNode.h; path = Browser/PlayQueueNode.h; sourceTree = "<group>"; };
 		8CFD465C0B96A22500F9094B /* PlayQueueNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlayQueueNode.m; path = Browser/PlayQueueNode.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -706,6 +708,7 @@
 				8C9C32510B73345E00CE799A /* AudioToolbox.framework in Frameworks */,
 				8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */,
 				8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */,
+				8C55786E0BBCD97C0047B89C /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -799,6 +802,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8C5578500BBCD97C0047B89C /* QuartzCore.framework */,
 				8C5574E10BBC1FA80047B89C /* mad.framework */,
 				8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */,
 				8C9C32420B73345E00CE799A /* AudioToolbox.framework */,
@@ -1321,6 +1325,7 @@
 		8C9C37F40B73AB8F00CE799A /* Properties Readers */ = {
 			isa = PBXGroup;
 			children = (
+				8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */,
 				8C9C37F50B73ABAF00CE799A /* AudioPropertiesReader.h */,
 				8C9C37F60B73ABAF00CE799A /* AudioPropertiesReader.m */,
 				8C9C37F70B73ABAF00CE799A /* CoreAudioPropertiesReader.h */,
@@ -1330,7 +1335,6 @@
 				8C9C37FB0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.h */,
 				8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */,
 				8C9C37FD0B73ABAF00CE799A /* MP3PropertiesReader.h */,
-				8C9C37FE0B73ABAF00CE799A /* MP3PropertiesReader.mm */,
 				8C9C37FF0B73ABAF00CE799A /* MusepackPropertiesReader.h */,
 				8C9C38000B73ABAF00CE799A /* MusepackPropertiesReader.m */,
 				8C9C38010B73ABAF00CE799A /* OggFLACPropertiesReader.h */,
@@ -1606,7 +1610,6 @@
 				8C9C38080B73ABAF00CE799A /* AudioPropertiesReader.m in Sources */,
 				8C9C380C0B73ABAF00CE799A /* FLACPropertiesReader.m in Sources */,
 				8C9C380E0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm in Sources */,
-				8C9C38100B73ABAF00CE799A /* MP3PropertiesReader.mm in Sources */,
 				8C9C38120B73ABAF00CE799A /* MusepackPropertiesReader.m in Sources */,
 				8C9C38140B73ABAF00CE799A /* OggFLACPropertiesReader.m in Sources */,
 				8C9C38160B73ABAF00CE799A /* OggVorbisPropertiesReader.m in Sources */,
@@ -1687,6 +1690,7 @@
 				8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */,
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
 				8C5575EE0BBC212D0047B89C /* MADStreamDecoder.m in Sources */,
+				8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
