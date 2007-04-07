@@ -50,8 +50,10 @@
 #define VBR_SCALE_FLAG  0x0008
 
 // Clipping and rounding code from madplay(audio.c):
-// * madplay - MPEG audio decoder and player
-// * Copyright (C) 2000-2004 Robert Leslie
+/*
+ * madplay - MPEG audio decoder and player
+ * Copyright (C) 2000-2004 Robert Leslie
+ */
 static int32_t 
 audio_linear_round(unsigned int bits, 
 				   mad_fixed_t sample)
@@ -75,6 +77,7 @@ audio_linear_round(unsigned int bits,
 	/* quantize and scale */
 	return sample >> (MAD_F_FRACBITS + 1 - bits);
 }
+// End madplay code
 
 @interface MADStreamDecoder (Private)
 - (BOOL) scanFile;
@@ -84,7 +87,7 @@ audio_linear_round(unsigned int bits,
 
 - (NSString *) sourceFormatDescription
 {
-	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"MPEG Layer", @"General", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
+	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"MPEG Audio", @"Formats", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
 - (BOOL) supportsSeeking
@@ -120,18 +123,23 @@ audio_linear_round(unsigned int bits,
 	_foundLAMEHeader		= NO;
 	
 	_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
-	NSAssert(NULL != _inputBuffer, @"Unable to allocate memory");
-	
-	_fd = open([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
-	NSAssert1(-1 != _fd, @"Unable to open the input file (%s).", strerror(errno));
-/*	if(-1 == _fd) {
-	
+	if(NULL == _inputBuffer) {
 		if(nil != error) {
 			
 		}
 		
 		return NO;
-	}*/
+	}
+	
+	_fd = open([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
+	if(-1 == _fd) {
+		if(nil != error) {
+			
+		}
+	
+		free(_inputBuffer), _inputBuffer = NULL;
+		return NO;
+	}
 	
 	mad_stream_init(&_mad_stream);
 	mad_frame_init(&_mad_frame);
@@ -141,6 +149,8 @@ audio_linear_round(unsigned int bits,
 	// Scan file to determine total frames, etc
 	BOOL result = [self scanFile];
 	if(NO == result) {
+		free(_inputBuffer), _inputBuffer = NULL;
+		close(_fd), _fd = -1;
 		return NO;
 	}
 
@@ -165,9 +175,8 @@ audio_linear_round(unsigned int bits,
 	mad_frame_finish(&_mad_frame);
 	mad_stream_finish(&_mad_stream);
 	
+	free(_inputBuffer), _inputBuffer = NULL;
 	close(_fd), _fd = -1;
-	
-	free(_inputBuffer);
 	
 	[super cleanupDecoder:error];
 	
