@@ -30,6 +30,7 @@
 - (void) playbackDidStop:(NSNotification *)aNotification;
 - (void) playbackDidPause:(NSNotification *)aNotification;
 - (void) playbackDidResume:(NSNotification *)aNotification;
+- (void) playbackDidComplete:(NSNotification *)aNotification;
 - (void) streamDidChange:(NSNotification *)aNotification;
 - (void) streamsDidChange:(NSNotification *)aNotification;
 @end
@@ -89,7 +90,12 @@
 											 selector:@selector(playbackDidResume:) 
 												 name:AudioStreamPlaybackDidResumeNotification
 											   object:nil];
-
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(playbackDidComplete:) 
+												 name:AudioStreamPlaybackDidCompleteNotification
+											   object:nil];
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(streamDidChange:) 
 												 name:AudioStreamDidChangeNotification
@@ -162,6 +168,23 @@
 								   clickContext:[stream valueForKey:ObjectIDKey]];
 	}
 	
+	// Update window title with the current stream
+	NSString *windowTitle	= nil;
+	NSString *title			= [stream valueForKey:MetadataTitleKey];
+	NSString *artist		= [stream valueForKey:MetadataArtistKey];
+	
+	if(nil != title && nil != artist) {
+		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
+	}
+	else if(nil != title) {
+		windowTitle = title;
+	}
+	else if(nil != artist) {
+		windowTitle = artist;
+	}		
+	
+	[[[AudioLibrary library] window] setTitle:windowTitle];
+	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
 		[[self scrobbler] start:stream];
 	}
@@ -186,6 +209,12 @@
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
 		[[self scrobbler] resume];
 	}
+}
+
+- (void) playbackDidComplete:(NSNotification *)aNotification
+{
+	// Reset window title to default
+	[[[AudioLibrary library] window] setTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"]];
 }
 
 - (void) streamDidChange:(NSNotification *)aNotification

@@ -1753,26 +1753,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	unsigned oldPlaybackIndex = _playbackIndex;
 	
 	_playbackIndex = playbackIndex;
-
-	NSString *windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
 	
 	if(NSNotFound != [self playbackIndex]) {
-		AudioStream *nowPlaying = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
 		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 		
-		// Update window title
-		NSString *title		= [nowPlaying valueForKey:MetadataTitleKey];
-		NSString *artist	= [nowPlaying valueForKey:MetadataArtistKey];
-		
-		if(nil != title && nil != artist) {
-			windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
-		}
-		else if(nil != title) {
-			windowTitle = title;
-		}
-		else if(nil != artist) {
-			windowTitle = artist;
-		}		
 		[_streamTable setHighlightedRow:_playbackIndex];
 		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	}
@@ -1781,8 +1765,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:oldPlaybackIndex]];
-	
-	[[self window] setTitle:windowTitle];
 }
 
 - (unsigned)	nextPlaybackIndex									{ return _nextPlaybackIndex; }
