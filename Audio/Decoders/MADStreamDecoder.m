@@ -604,7 +604,7 @@ audio_linear_round(unsigned int bits,
 		}
 		else {
 			// Just estimate the number of frames based on the previous duration estimate
-			[self setTotalFrames:[[[self stream] valueForKey:PropertiesDurationKey] longLongValue] * frame.header.samplerate];
+			[self setTotalFrames:[[[self stream] valueForKey:PropertiesDurationKey] unsignedIntValue] * frame.header.samplerate];
 			
 			// For now, quit after second frame
 			break;
