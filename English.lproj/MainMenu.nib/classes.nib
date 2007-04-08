@@ -2,6 +2,8 @@
     IBClasses = (
         {
             ACTIONS = {
+                add10RandomStreamsToPlayQueue = id; 
+                add25RandomStreamsToPlayQueue = id; 
                 addFiles = id; 
                 addSelectedStreamsToPlayQueue = id; 
                 insertPlaylist = id; 

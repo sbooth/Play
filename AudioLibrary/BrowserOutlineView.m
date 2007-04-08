@@ -78,6 +78,9 @@ static float heightOffset	= 3.0;
 		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
 			return _playlistMenu;
 		}
+		else if([_browserController selectedNodeIsPlayQueue]) {
+			return _playQueueMenu;
+		}
 		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]]) {
 			return [self menu];
 		}

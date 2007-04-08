@@ -182,6 +182,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) setCurrentStreamsFromArray:(NSArray *)streams;
 
+- (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count;
+
 - (void) updatePlayButtonState;
 
 - (void) setupBrowser;
@@ -437,6 +439,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	else if([anItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
 		return (0 != [[_streamController arrangedObjects] count]);
 	}
+	else if([anItem action] == @selector(add10RandomStreamsToPlayQueue:)
+			|| [anItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
+		return (0 != [[[[CollectionManager manager] streamManager] streams] count]);
+	}
 
 	return YES;
 }
@@ -573,6 +579,16 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[self didChangeValueForKey:@"currentStreams"];
 	
 	[self updatePlayButtonState];
+}
+
+- (IBAction) add10RandomStreamsToPlayQueue:(id)sender
+{
+	[self addRandomStreamsFromLibraryToPlayQueue:10];
+}
+
+- (IBAction) add25RandomStreamsToPlayQueue:(id)sender
+{
+	[self addRandomStreamsFromLibraryToPlayQueue:25];
 }
 
 - (IBAction) removeSelectedStreams:(id)sender
@@ -1819,6 +1835,24 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_currentStreams removeAllObjects];
 	[_currentStreams addObjectsFromArray:streams];
 	[self didChangeValueForKey:@"currentStreams"];
+}
+
+- (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count
+{
+	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
+	double			randomNumber;
+	unsigned		randomIndex;
+	unsigned		i;
+	
+	[self willChangeValueForKey:@"currentStreams"];
+	for(i = 0; i < count; ++i) {
+		randomNumber	= genrand_real2();
+		randomIndex		= (unsigned)(randomNumber * [streams count]);
+		[_currentStreams addObject:[streams objectAtIndex:randomIndex]];
+	}
+	[self didChangeValueForKey:@"currentStreams"];
+	
+	[self updatePlayButtonState];
 }
 
 - (void) updatePlayButtonState

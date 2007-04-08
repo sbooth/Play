@@ -154,6 +154,9 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 
 - (IBAction)	addSelectedStreamsToPlayQueue:(id)sender;
 - (IBAction)	addCurrentStreamsToPlayQueue:(id)sender;
+- (IBAction)	add10RandomStreamsToPlayQueue:(id)sender;
+- (IBAction)	add25RandomStreamsToPlayQueue:(id)sender;
+
 - (IBAction)	removeSelectedStreams:(id)sender;
 
 - (IBAction)	jumpToLibrary:(id)sender;

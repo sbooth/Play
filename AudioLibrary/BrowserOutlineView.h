@@ -31,6 +31,7 @@ extern NSString * const		AudioStreamPboardType;
 {
 	IBOutlet BrowserTreeController	*_browserController;
 	IBOutlet NSMenu					*_playlistMenu;
+	IBOutlet NSMenu					*_playQueueMenu;
 }
 
 @end

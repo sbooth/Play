@@ -2,6 +2,8 @@
     IBClasses = (
         {
             ACTIONS = {
+                add10RandomStreamsToPlayQueue = id; 
+                add25RandomStreamsToPlayQueue = id; 
                 addCurrentStreamsToPlayQueue = id; 
                 addSelectedStreamsToPlayQueue = id; 
                 browserViewDoubleClicked = id; 
@@ -63,7 +65,11 @@
         {
             CLASS = BrowserOutlineView; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_browserController" = BrowserTreeController; "_playlistMenu" = NSMenu; }; 
+            OUTLETS = {
+                "_browserController" = BrowserTreeController; 
+                "_playQueueMenu" = NSMenu; 
+                "_playlistMenu" = NSMenu; 
+            }; 
             SUPERCLASS = NSOutlineView; 
         }, 
         {
