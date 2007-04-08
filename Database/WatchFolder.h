@@ -22,16 +22,6 @@
 #import "DatabaseObject.h"
 
 // ========================================
-// Notification Names
-// ========================================
-extern NSString * const		WatchFolderDidChangeNotification;
-
-// ========================================
-// Notification Keys
-// ========================================
-extern NSString * const		WatchFolderObjectKey;
-
-// ========================================
 // Key Names
 // ========================================
 extern NSString * const		WatchFolderURLKey;

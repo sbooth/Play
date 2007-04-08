@@ -36,6 +36,9 @@ extern NSString * const		AudioStreamsAddedToLibraryNotification;
 extern NSString * const		AudioStreamRemovedFromLibraryNotification;
 extern NSString * const		AudioStreamsRemovedFromLibraryNotification;
 
+extern NSString * const		AudioStreamDidChangeNotification;
+extern NSString * const		AudioStreamsDidChangeNotification;
+
 extern NSString * const		AudioStreamPlaybackDidStartNotification;
 extern NSString * const		AudioStreamPlaybackDidStopNotification;
 extern NSString * const		AudioStreamPlaybackDidPauseNotification;
@@ -44,21 +47,24 @@ extern NSString * const		AudioStreamPlaybackDidCompleteNotification;
 
 extern NSString * const		PlaylistAddedToLibraryNotification;
 extern NSString * const		PlaylistRemovedFromLibraryNotification;
+extern NSString * const		PlaylistDidChangeNotification;
 
 extern NSString * const		SmartPlaylistAddedToLibraryNotification;
 extern NSString * const		SmartPlaylistRemovedFromLibraryNotification;
+extern NSString * const		SmartPlaylistDidChangeNotification;
 
 extern NSString * const		WatchFolderAddedToLibraryNotification;
 extern NSString * const		WatchFolderRemovedFromLibraryNotification;
+extern NSString * const		WatchFolderDidChangeNotification;
 
 // ========================================
 // Notification Keys
 // ========================================
-extern NSString * const		AudioStreamObjectKey;
-extern NSString * const		AudioStreamsObjectKey;
-extern NSString * const		PlaylistObjectKey;
-extern NSString * const		SmartPlaylistObjectKey;
-extern NSString * const		WatchFolderObjectKey;
+extern NSString * const		AudioStreamObjectKey;			// AudioStream
+extern NSString * const		AudioStreamsObjectKey;			// NSArray
+extern NSString * const		PlaylistObjectKey;				// Playlist
+extern NSString * const		SmartPlaylistObjectKey;			// SmartPlaylist
+extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 
 // ========================================
 // The main class which represents a user's audio library

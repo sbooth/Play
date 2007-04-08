@@ -23,8 +23,6 @@
 #import "SmartPlaylistManager.h"
 #import "AudioStreamManager.h"
 
-NSString * const	SmartPlaylistDidChangeNotification		= @"org.sbooth.Play.SmartPlaylistDidChangeNotification";
-
 NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 
 @interface AudioStreamManager (SmartPlaylistMethods)
@@ -122,15 +120,6 @@ NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 - (NSString *) debugDscription
 {
 	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:SmartPlaylistDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:SmartPlaylistObjectKey]];
 }
 
 #pragma mark Reimplementations

@@ -23,8 +23,6 @@
 #import "PlaylistManager.h"
 #import "AudioStreamManager.h"
 
-NSString * const	PlaylistDidChangeNotification			= @"org.sbooth.Play.PlaylistDidChangeNotification";
-
 NSString * const	PlaylistNameKey							= @"name";
 NSString * const	PlaylistStreamsKey						= @"streams";
 
@@ -262,15 +260,6 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 - (NSString *) debugDscription
 {
 	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:PlaylistObjectKey]];
 }
 
 #pragma mark Reimplementations

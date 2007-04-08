@@ -21,8 +21,6 @@
 #import "DatabaseObject.h"
 #import "CollectionManager.h"
 
-NSString * const	DatabaseObjectDidChangeNotification		= @"org.sbooth.Play.DatabaseObjectDidChangeNotification";
-NSString * const	DatabaseObjectKey						= @"org.sbooth.Play.DatabaseObject";
 NSString * const	ObjectIDKey								= @"id";
 
 @interface DatabaseObject (Private)
@@ -179,15 +177,6 @@ NSString * const	ObjectIDKey								= @"id";
 - (NSDictionary *) savedValues
 {
 	return _savedValues;
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:DatabaseObjectDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:DatabaseObjectKey]];
 }
 
 #pragma mark Subclass Methods

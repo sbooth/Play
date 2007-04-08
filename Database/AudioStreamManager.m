@@ -422,12 +422,9 @@
 	// ========================================
 	// Broadcast the notifications
 	if(0 != [_updatedStreams count]) {
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
-			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamDidChangeNotification 
-																object:self 
-															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];		
-		}		
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamsDidChangeNotification 
+															object:self
+														  userInfo:[NSDictionary dictionaryWithObject:[_updatedStreams allObjects] forKey:AudioStreamsObjectKey]];		
 	
 		[_updatedStreams removeAllObjects];
 	}
@@ -435,8 +432,9 @@
 	// ========================================
 	// Handle deletes
 	if(0 != [_deletedStreams count]) {
-		streams = [NSMutableArray array];
-		enumerator = [_deletedStreams objectEnumerator];
+		streams		= [NSMutableArray array];
+		enumerator	= [_deletedStreams objectEnumerator];
+		
 		while((stream = [enumerator nextObject])) {
 			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
 		}
@@ -461,8 +459,8 @@
 	// And finally inserts
 	if(0 != [_insertedStreams count]) {
 		streams = [NSMutableArray array];
+		
 		[indexes addIndexesInRange:NSMakeRange([_cachedStreams count], [_insertedStreams count])];
-
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [[_insertedStreams allObjects] objectEnumerator];
 		while((stream = [enumerator nextObject])) {

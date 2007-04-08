@@ -22,16 +22,6 @@
 #import "DatabaseObject.h"
 
 // ========================================
-// Notification Names
-// ========================================
-extern NSString * const		AudioStreamDidChangeNotification;
-
-// ========================================
-// Notification Keys
-// ========================================
-extern NSString * const		AudioStreamObjectKey;
-
-// ========================================
 // KVC key names for persistent properties
 // ========================================
 extern NSString * const		StreamURLKey;

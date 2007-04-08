@@ -23,8 +23,6 @@
 #import "WatchFolderManager.h"
 #import "AudioStreamManager.h"
 
-NSString * const	WatchFolderDidChangeNotification			= @"org.sbooth.Play.WatchFolderDidChangeNotification";
-
 NSString * const	WatchFolderURLKey							= @"url";
 NSString * const	WatchFolderNameKey							= @"name";
 NSString * const	WatchFolderStreamsKey						= @"streams";
@@ -122,15 +120,6 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 - (NSString *) debugDscription
 {
 	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:WatchFolderNameKey]];
-}
-
-#pragma mark Callbacks
-
-- (void) didSave
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:WatchFolderDidChangeNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:self forKey:WatchFolderObjectKey]];
 }
 
 #pragma mark Reimplementations

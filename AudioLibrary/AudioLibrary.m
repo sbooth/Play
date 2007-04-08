@@ -99,8 +99,13 @@ static AudioLibrary *libraryInstance = nil;
 // ========================================
 NSString * const	AudioStreamsAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamsAddedToLibraryNotification";
 NSString * const	AudioStreamAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamAddedToLibraryNotification";
+
 NSString * const	AudioStreamRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamRemovedFromLibraryNotification";
 NSString * const	AudioStreamsRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamsRemovedFromLibraryNotification";
+
+NSString * const	AudioStreamDidChangeNotification			= @"org.sbooth.Play.AudioLibrary.AudioStreamDidChangeNotification";
+NSString * const	AudioStreamsDidChangeNotification			= @"org.sbooth.Play.AudioLibrary.AudioStreamsDidChangeNotification";
+
 NSString * const	AudioStreamPlaybackDidStartNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidStartNotification";
 NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidStopNotification";
 NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidPauseNotification";
@@ -109,12 +114,15 @@ NSString * const	AudioStreamPlaybackDidCompleteNotification	= @"org.sbooth.Play.
 
 NSString * const	PlaylistAddedToLibraryNotification			= @"org.sbooth.Play.AudioLibrary.PlaylistAddedToLibraryNotification";
 NSString * const	PlaylistRemovedFromLibraryNotification		= @"org.sbooth.Play.AudioLibrary.PlaylistRemovedFromLibraryNotification";
+NSString * const	PlaylistDidChangeNotification				= @"org.sbooth.Play.PlaylistDidChangeNotification";
 
 NSString * const	SmartPlaylistAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.SmartPlaylistAddedToLibraryNotification";
 NSString * const	SmartPlaylistRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.SmartPlaylistRemovedFromLibraryNotification";
+NSString * const	SmartPlaylistDidChangeNotification			= @"org.sbooth.Play.SmartPlaylistDidChangeNotification";
 
 NSString * const	WatchFolderAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.WatchFolderAddedToLibraryNotification";
 NSString * const	WatchFolderRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.WatchFolderRemovedFromLibraryNotification";
+NSString * const	WatchFolderDidChangeNotification			= @"org.sbooth.Play.WatchFolderDidChangeNotification";
 
 // ========================================
 // Notification keys

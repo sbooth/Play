@@ -22,16 +22,6 @@
 #import "DatabaseObject.h"
 
 // ========================================
-// Notification Names
-// ========================================
-extern NSString * const		SmartPlaylistDidChangeNotification;
-
-// ========================================
-// Notification Keys
-// ========================================
-extern NSString * const		SmartPlaylistObjectKey;
-
-// ========================================
 // Key Names
 // ========================================
 extern NSString * const		PlaylistNameKey;

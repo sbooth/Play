@@ -22,8 +22,6 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 
-NSString * const	AudioStreamDidChangeNotification		= @"org.sbooth.Play.AudioStreamDidChangeNotification";
-
 NSString * const	StreamURLKey							= @"url";
 
 NSString * const	StatisticsDateAddedKey					= @"dateAdded";

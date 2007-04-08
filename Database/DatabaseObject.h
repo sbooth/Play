@@ -21,16 +21,6 @@
 #import <Cocoa/Cocoa.h>
 
 // ========================================
-// Notification Names
-// ========================================
-extern NSString * const		DatabasObjectDidChangeNotification;
-
-// ========================================
-// Notification Keys
-// ========================================
-extern NSString * const		DatabaseObjectKey;
-
-// ========================================
 // KVC key names for persistent properties
 // ========================================
 extern NSString * const		ObjectIDKey;
