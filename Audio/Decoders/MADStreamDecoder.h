@@ -37,11 +37,13 @@
 	
 	BOOL				_foundXingHeader;
 	BOOL				_foundLAMEHeader;
+	
+	off_t				_fileBytes;
+	uint8_t				_xingTOC [100];
 
 	struct mad_stream	_mad_stream;
 	struct mad_frame	_mad_frame;
 	struct mad_synth	_mad_synth;
-	mad_timer_t			_mad_timer;
 }
 
 @end

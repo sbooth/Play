@@ -92,36 +92,51 @@ audio_linear_round(unsigned int bits,
 
 - (BOOL) supportsSeeking
 {
-	return NO;
+	return YES;
 }
 
+// FIXME: Seeking breaks gapless playback for the stream
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	SInt64		targetFrame		= frame - 1;
+	double	fraction	= (double)frame / [self totalFrames];
+	off_t	seekPoint	= 0;
 	
-	if(frame > _mpegFramesDecoded) {
+	// If a Xing header was found, interpolate in TOC
+	if(_foundXingHeader) {
+		double		percent		= 100 * fraction;
+		unsigned	firstIndex	= percent;
+		
+		if(99 < firstIndex) {
+			firstIndex = 99;
+		}
+
+		double firstOffset	= _xingTOC[firstIndex];
+		double secondOffset	= 256;
+
+		if(99 > firstIndex) {
+			secondOffset = _xingTOC[firstIndex + 1];;
+		}
+
+		double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
+		seekPoint = (off_t)((1.0 / 256.0) * x * _fileBytes); 
 	}
 	else {
+		seekPoint = (off_t)_fileBytes * fraction;
 	}
-//	int		result		= ov_pcm_seek(&_vf, frame); 
-//	return (0 == result ? frame : -1);
-	return -1;
+	
+	int result = lseek(_fd, seekPoint, SEEK_SET);
+	if(-1 != result) {
+		mad_stream_buffer(&_mad_stream, NULL, 0);
+		// Reset frame count to prevent early termination of playback
+		_mpegFramesDecoded = 0;
+	}
+	
+	// Right now it's only possible to return an approximation of the audio frame
+	return (-1 == result ? -1 : frame);
 }
 
 - (BOOL) setupDecoder:(NSError **)error
 {
-	_mpegFramesDecoded		= 0;
-	_totalMPEGFrames		= 0;
-
-	_encoderDelay			= 0;
-	_encoderPadding			= 0;
-	
-	_samplesDecoded			= 0;
-	_samplesPerMPEGFrame	= 0;
-	
-	_foundXingHeader		= NO;
-	_foundLAMEHeader		= NO;
-	
 	_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
 	if(NULL == _inputBuffer) {
 		if(nil != error) {
@@ -144,7 +159,6 @@ audio_linear_round(unsigned int bits,
 	mad_stream_init(&_mad_stream);
 	mad_frame_init(&_mad_frame);
 	mad_synth_init(&_mad_synth);
-	mad_timer_reset(&_mad_timer);
 
 	// Scan file to determine total frames, etc
 	BOOL result = [self scanFile];
@@ -278,7 +292,6 @@ audio_linear_round(unsigned int bits,
 		
 		// Housekeeping
 		++_mpegFramesDecoded;
-		mad_timer_add(&_mad_timer, _mad_frame.header.duration);
 		
 		// Synthesize the frame into PCM
 		mad_synth_frame(&_mad_synth, &_mad_frame);
@@ -358,7 +371,6 @@ audio_linear_round(unsigned int bits,
 	
 	struct mad_stream	stream;
 	struct mad_frame	frame;
-	mad_timer_t			timer;
 	
 	int					result;
 	struct stat			stat;
@@ -377,7 +389,6 @@ audio_linear_round(unsigned int bits,
 	
 	mad_stream_init(&stream);
 	mad_frame_init(&frame);
-	mad_timer_reset(&timer);
 	
 	readEOF = NO;
 	
@@ -387,7 +398,9 @@ audio_linear_round(unsigned int bits,
 		close(fd);
 		return NO;
 	}
-		
+	
+	_fileBytes = stat.st_size;
+	
 	for(;;) {
 		if(NULL == stream.buffer || MAD_ERROR_BUFLEN == stream.error) {
 			
@@ -446,7 +459,6 @@ audio_linear_round(unsigned int bits,
 		}
 		
 		++framesDecoded;
-		mad_timer_add(&timer, frame.header.duration);
 
 		// Look for a Xing header in the first frame that was successfully decoded
 		// Reference http://www.codeproject.com/audio/MPEGAudioInfo.asp
@@ -482,9 +494,6 @@ audio_linear_round(unsigned int bits,
 				
 				unsigned	i;
 				uint32_t	flags = 0, frames = 0, bytes = 0, vbrScale = 0;
-				uint8_t		toc [100];
-				
-				memset(toc, 0, 100);
 				
 				if(32 > ancillaryBitsRemaining) { continue; }
 				
@@ -518,7 +527,7 @@ audio_linear_round(unsigned int bits,
 					if(8 * 100 > ancillaryBitsRemaining) { continue; }
 					
 					for(i = 0; i < 100; ++i) {
-						toc[i] = mad_bit_read(&stream.anc_ptr, 8);
+						_xingTOC[i] = mad_bit_read(&stream.anc_ptr, 8);
 					}
 					
 					ancillaryBitsRemaining -= (8* 100);
@@ -531,10 +540,7 @@ audio_linear_round(unsigned int bits,
 					vbrScale = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 				}
-								
-				mad_timer_add(&timer, frame.header.duration);
-				mad_timer_multiply(&timer, frames);
-				
+
 				framesDecoded	= frames;
 				
 				_foundXingHeader = YES;
