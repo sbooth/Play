@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
+#import "BrowserTreeController.h"
 
 // ========================================
 // Pboard Types
@@ -110,7 +111,7 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 		
 		// If the currently playing stream is being dragged, determine what its new index will be
 		// First count how many rows with indexes less than the currently playing stream's index are being dragged
-		if([rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
+		if([_browserController selectedNodeIsPlayQueue] && [rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
 			unsigned count		= 0;
 			unsigned index		= [rowIndexes lastIndex];
 			

@@ -20,6 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class BrowserTreeController;
+
 // ========================================
 // Pboard Types
 // ========================================
@@ -29,7 +31,8 @@ extern NSString * const		iTunesPboardType;
 
 @interface AudioStreamArrayController : NSArrayController
 {
-	IBOutlet NSTableView *_tableView;
+	IBOutlet NSTableView			*_tableView;
+	IBOutlet BrowserTreeController	*_browserController;
 }
 
 @end

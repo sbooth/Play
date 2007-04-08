@@ -47,7 +47,7 @@
         {
             CLASS = AudioStreamArrayController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_tableView" = NSTableView; }; 
+            OUTLETS = {"_browserController" = BrowserTreeController; "_tableView" = NSTableView; }; 
             SUPERCLASS = NSArrayController; 
         }, 
         {
