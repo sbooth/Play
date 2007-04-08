@@ -477,7 +477,7 @@ audio_linear_round(unsigned int bits,
 			uint32_t magic = mad_bit_read(&stream.anc_ptr, 32);
 			ancillaryBitsRemaining -= 32;
 			
-			if('Xing' == magic) {
+			if('Xing' == magic || 'Info' == magic) {
 //			if((('X' << 24) | ('i' << 16) | ('n' << 8) | ('g')) == magic) {
 				
 				unsigned	i;
@@ -547,7 +547,7 @@ audio_linear_round(unsigned int bits,
 				ancillaryBitsRemaining -= 32;
 
 				if('LAME' == magic) {
-					
+
 					if(LAME_HEADER_SIZE > ancillaryBitsRemaining) { continue; }
 					
 					/*unsigned char versionString [5 + 1];
@@ -600,10 +600,6 @@ audio_linear_round(unsigned int bits,
 					break;
 
 				}
-			}
-			else if('Info' == magic) {
-				NSLog(@"Found Info CBR header");
-				break;
 			}
 		}
 		else {
