@@ -27,7 +27,7 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	NSString				*path		= [_url path];
-	TagLib::MPEG::File		f			([path fileSystemRepresentation], true, TagLib::AudioProperties::Average);
+	TagLib::MPEG::File		f			([path fileSystemRepresentation]);
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
