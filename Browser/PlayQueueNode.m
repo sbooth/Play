@@ -30,14 +30,14 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Play Queue", @"General", @"")])) {
-		[[AudioLibrary library] addObserver:self forKeyPath:@"currentStreams" options:nil context:NULL];
+		[[AudioLibrary library] addObserver:self forKeyPath:@"playQueue" options:nil context:NULL];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[AudioLibrary library] removeObserver:self forKeyPath:@"currentStreams"];
+	[[AudioLibrary library] removeObserver:self forKeyPath:@"playQueue"];
 	
 	[super dealloc];
 }
@@ -65,22 +65,22 @@
 
 #pragma mark KVC Accessor Overrides
 
-- (unsigned)		countOfStreams											{ return [[AudioLibrary library] countOfCurrentStreams]; }
-- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [[AudioLibrary library] objectInCurrentStreamsAtIndex:index]; }
-- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [[AudioLibrary library] getCurrentStreams:buffer range:aRange]; }
+- (unsigned)		countOfStreams											{ return [[AudioLibrary library] countOfPlayQueue]; }
+- (AudioStream *)	objectInStreamsAtIndex:(unsigned)index					{ return [[AudioLibrary library] objectInPlayQueueAtIndex:index]; }
+- (void)			getStreams:(id *)buffer range:(NSRange)aRange			{ return [[AudioLibrary library] getPlayQueue:buffer range:aRange]; }
 
 #pragma mark KVC Mutators Overrides
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
 	NSAssert([self canInsertStream], @"Attempt to insert a stream in an immutable PlayQueueNode");
-	[[AudioLibrary library] insertObject:stream inCurrentStreamsAtIndex:index];
+	[[AudioLibrary library] insertObject:stream inPlayQueueAtIndex:index];
 }
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
 	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable PlayQueueNode");
-	[[AudioLibrary library] removeObjectFromCurrentStreamsAtIndex:index];
+	[[AudioLibrary library] removeObjectFromPlayQueueAtIndex:index];
 }
 
 @end

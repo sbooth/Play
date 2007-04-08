@@ -26,6 +26,8 @@
                 skipToBeginning = id; 
                 skipToEnd = id; 
                 toggleBrowser = id; 
+                toggleLoopPlayback = id; 
+                toggleRandomPlayback = id; 
             }; 
             CLASS = FirstResponder; 
             LANGUAGE = ObjC; 

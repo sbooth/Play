@@ -46,6 +46,11 @@
 	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDictionary];
 }
 
+- (AudioLibrary *) library
+{
+	return [AudioLibrary library];
+}
+
 - (AudioScrobbler *) scrobbler
 {
 	if(nil == _scrobbler) {

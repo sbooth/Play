@@ -21,6 +21,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/GrowlApplicationBridge.h>
 
+@class AudioLibrary;
 @class AudioScrobbler;
 
 @interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
@@ -28,6 +29,7 @@
 	AudioScrobbler		*_scrobbler;
 }
 
+- (AudioLibrary *)		library;
 - (AudioScrobbler *)	scrobbler;
 
 @end

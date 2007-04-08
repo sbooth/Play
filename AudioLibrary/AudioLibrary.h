@@ -85,13 +85,13 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 	@private
 	AudioPlayer				*_player;
 	
-	BOOL					_randomizePlayback;
+	BOOL					_randomPlayback;
 	BOOL					_loopPlayback;
 	BOOL					_playButtonEnabled;
 	
 	BOOL					_streamsAreOrdered;
 
-	NSMutableArray			*_currentStreams;	
+	NSMutableArray			*_playQueue;	
 	unsigned				_playbackIndex;
 	unsigned				_nextPlaybackIndex;
 	
@@ -149,6 +149,7 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 // ========================================
 // Action methods
 - (IBAction)	toggleBrowser:(id)sender;
+
 - (IBAction)	streamTableDoubleClicked:(id)sender;
 - (IBAction)	browserViewDoubleClicked:(id)sender;
 
@@ -168,12 +169,12 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 
 // ========================================
 // Current Streams
-- (unsigned)		countOfCurrentStreams;
-- (AudioStream *)	objectInCurrentStreamsAtIndex:(unsigned)index;
-- (void)			getCurrentStreams:(id *)buffer range:(NSRange)aRange;
+- (unsigned)		countOfPlayQueue;
+- (AudioStream *)	objectInPlayQueueAtIndex:(unsigned)index;
+- (void)			getPlayQueue:(id *)buffer range:(NSRange)aRange;
 
-- (void) insertObject:(AudioStream *)stream inCurrentStreamsAtIndex:(unsigned)index;
-- (void) removeObjectFromCurrentStreamsAtIndex:(unsigned)index;
+- (void) insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index;
+- (void) removeObjectFromPlayQueueAtIndex:(unsigned)index;
 
 // ========================================
 // Browser support
@@ -182,8 +183,8 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 
 // ========================================
 // Library properties
-- (BOOL)		randomizePlayback;
-- (void)		setRandomizePlayback:(BOOL)randomizePlayback;
+- (BOOL)		randomPlayback;
+- (void)		setRandomPlayback:(BOOL)randomPlayback;
 
 - (BOOL)		loopPlayback;
 - (void)		setLoopPlayback:(BOOL)loopPlayback;

@@ -180,7 +180,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) playStreamAtIndex:(unsigned)index;
 
-- (void) setCurrentStreamsFromArray:(NSArray *)streams;
+- (void) setPlayQueueFromArray:(NSArray *)streams;
 
 - (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count;
 
@@ -192,21 +192,23 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) saveStreamTableColumnOrder;
 - (IBAction) streamTableHeaderContextMenuSelected:(id)sender;
+- (IBAction) toggleRandomPlayback:(id)sender;
+- (IBAction) toggleLoopPlayback:(id)sender;
 @end
 
 @implementation AudioLibrary
 
 + (void)initialize
 {
-	[self exposeBinding:@"randomizePlayback"];
+	[self exposeBinding:@"randomPlayback"];
 	[self exposeBinding:@"loopPlayback"];
-	[self exposeBinding:@"currentStreams"];
+	[self exposeBinding:@"playQueue"];
 	[self exposeBinding:@"canPlayNextStream"];
 	[self exposeBinding:@"canPlayPreviousStream"];
 	[self exposeBinding:@"nowPlaying"];
 	
-	[self setKeys:[NSArray arrayWithObjects:@"currentStreams", @"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
-	[self setKeys:[NSArray arrayWithObjects:@"currentStreams", @"playbackIndex", @"randomizePlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"playQueue", @"playbackIndex", @"randomPlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayNextStream"];
+	[self setKeys:[NSArray arrayWithObjects:@"playQueue", @"playbackIndex", @"randomPlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
 	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", nil] triggerChangeNotificationsForDependentKey:@"nowPlaying"];
 	
 	// Setup table column defaults
@@ -306,7 +308,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		
 		[[CollectionManager manager] connectToDatabase:databasePath];
 		
-		_currentStreams		= [[NSMutableArray alloc] init];
+		_playQueue			= [[NSMutableArray alloc] init];
 		_playbackIndex		= NSNotFound;
 		_nextPlaybackIndex	= NSNotFound;
 		
@@ -331,7 +333,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[_streamTableHeaderContextMenu release], _streamTableHeaderContextMenu = nil;
 	[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 
-	[_currentStreams release], _currentStreams = nil;
+	[_playQueue release], _playQueue = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
 	[_playQueueNode release], _playQueueNode = nil;
@@ -419,10 +421,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return ([_browserController canInsertPlaylist] && 0 != [[_streamController selectedObjects] count]);
 	}
 	else if([anItem action] == @selector(jumpToNowPlaying:)) {
-		return (nil != [self nowPlaying] && 0 != [self countOfCurrentStreams]);
+		return (nil != [self nowPlaying] && 0 != [self countOfPlayQueue]);
 	}
 	else if([anItem action] == @selector(jumpToPlayQueue:)) {
-		return (0 != [self countOfCurrentStreams]);
+		return (0 != [self countOfPlayQueue]);
 	}
 	else if([anItem action] == @selector(removeSelectedStreams:)) {
 		return (0 != [[_streamController selectedObjects] count]);
@@ -443,7 +445,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 			|| [anItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
 		return (0 != [[[[CollectionManager manager] streamManager] streams] count]);
 	}
-
+	else if([anItem action] == @selector(toggleRandomPlayback:)) {
+		return (0 != [self countOfPlayQueue] && NO == [self loopPlayback]);
+	}
+	else if([anItem action] == @selector(toggleLoopPlayback:)) {
+		return (0 != [self countOfPlayQueue] && NO == [self randomPlayback]);
+	}
+	
 	return YES;
 }
 
@@ -455,13 +463,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		NSEnumerator	*removedStreams		= [[change valueForKey:NSKeyValueChangeOldKey] objectEnumerator];
 		AudioStream		*stream				= nil;
 		
-		[self willChangeValueForKey:@"currentStreams"];
+		[self willChangeValueForKey:@"playQueue"];
 		while((stream = [removedStreams nextObject])) {
-			if([_currentStreams containsObject:stream]) {
-				[_currentStreams removeObject:stream];
+			if([_playQueue containsObject:stream]) {
+				[_playQueue removeObject:stream];
 			}
 		}
-		[self didChangeValueForKey:@"currentStreams"];
+		[self didChangeValueForKey:@"playQueue"];
 	}
 	
 	if(NSKeyValueChangeInsertion == changeKind || NSKeyValueChangeRemoval == changeKind) {
@@ -486,7 +494,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	if([_browserController selectedNodeIsPlayQueue]) {
 		[self playStreamAtIndex:[_streamController selectionIndex]];
 	}
-	else if(0 == [self countOfCurrentStreams]) {
+	else if(0 == [self countOfPlayQueue]) {
 		[self addSelectedStreamsToPlayQueue:sender];
 		[self playStreamAtIndex:0];
 	}
@@ -536,11 +544,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
 	AudioStream		*stream			= nil;
 	
-	[self willChangeValueForKey:@"currentStreams"];
+	[self willChangeValueForKey:@"playQueue"];
 	while((stream = [enumerator nextObject])) {
-		[_currentStreams addObject:stream];
+		[_playQueue addObject:stream];
 	}
-	[self didChangeValueForKey:@"currentStreams"];
+	[self didChangeValueForKey:@"playQueue"];
 	
 	[self updatePlayButtonState];
 }
@@ -554,11 +562,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
 	AudioStream		*stream			= nil;
 	
-	[self willChangeValueForKey:@"currentStreams"];
+	[self willChangeValueForKey:@"playQueue"];
 	while((stream = [enumerator nextObject])) {
-		[_currentStreams addObject:stream];
+		[_playQueue addObject:stream];
 	}
-	[self didChangeValueForKey:@"currentStreams"];
+	[self didChangeValueForKey:@"playQueue"];
 	
 	[self updatePlayButtonState];
 }
@@ -572,11 +580,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
 	AudioStream		*stream			= nil;
 	
-	[self willChangeValueForKey:@"currentStreams"];
+	[self willChangeValueForKey:@"playQueue"];
 	while((stream = [enumerator nextObject])) {
-		[_currentStreams addObject:stream];
+		[_playQueue addObject:stream];
 	}
-	[self didChangeValueForKey:@"currentStreams"];
+	[self didChangeValueForKey:@"playQueue"];
 	
 	[self updatePlayButtonState];
 }
@@ -627,7 +635,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (IBAction) jumpToNowPlaying:(id)sender
 {
-	if(nil != [self nowPlaying] && 0 != [self countOfCurrentStreams] && [self selectPlayQueueNode]) {
+	if(nil != [self nowPlaying] && 0 != [self countOfPlayQueue] && [self selectPlayQueueNode]) {
 		[self scrollNowPlayingToVisible];
 		[_streamController setSelectionIndex:[self playbackIndex]];
 	}
@@ -964,7 +972,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		if([[self player] isPlaying]) {
 			[self stop:self];
 		}
-		[self setCurrentStreamsFromArray:[NSArray arrayWithObject:stream]];
+		[self setPlayQueueFromArray:[NSArray arrayWithObject:stream]];
 		[self playStreamAtIndex:0];
 	}
 	
@@ -1003,7 +1011,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		if([[self player] isPlaying]) {
 			[self stop:self];
 		}
-		[self setCurrentStreamsFromArray:streams];
+		[self setPlayQueueFromArray:streams];
 		[self playStreamAtIndex:0];
 
 		[self selectPlayQueueNode];
@@ -1021,15 +1029,15 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	
 	if(NO == [[self player] hasValidStream]) {
-		if([self randomizePlayback]) {
+		if([self randomPlayback]) {
 			NSArray		*streams			= (1 < [[_streamController selectedObjects] count] ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
 			double		randomNumber		= genrand_real2();
 			unsigned	randomIndex			= (unsigned)(randomNumber * [streams count]);
 			
-			[self setCurrentStreamsFromArray:streams];
+			[self setPlayQueueFromArray:streams];
 			[self playStreamAtIndex:randomIndex];
 		}
-		else if(0 != [self countOfCurrentStreams]) {
+		else if(0 != [self countOfPlayQueue]) {
 			[self playStreamAtIndex:0];
 		}
 		else {
@@ -1125,14 +1133,14 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[stream setPlaying:NO];
 	
-	NSArray *streams = _currentStreams;
+	NSArray *streams = _playQueue;
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];
 		[self setPlaybackIndex:NSNotFound];
 		[self updatePlayButtonState];
 	}
-	else if([self randomizePlayback]) {
+	else if([self randomPlayback]) {
 		double			randomNumber;
 		unsigned		randomIndex;
 		
@@ -1154,7 +1162,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		else {
 			[[self player] reset];
 			[self setPlaybackIndex:NSNotFound];
-			[self setCurrentStreamsFromArray:nil];
+			[self setPlayQueueFromArray:nil];
 			[self updatePlayButtonState];
 		}
 	}
@@ -1167,13 +1175,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[stream setPlaying:NO];
 	
-	NSArray *streams = _currentStreams;
+	NSArray *streams = _playQueue;
 	
 	if(nil == stream || 0 == [streams count]) {
 		[[self player] reset];	
 		[self setPlaybackIndex:NSNotFound];
 	}
-	else if([self randomizePlayback]) {
+	else if([self randomPlayback]) {
 		double			randomNumber;
 		unsigned		randomIndex;
 		
@@ -1201,37 +1209,37 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 #pragma mark Currently Playing Streams
 
-- (unsigned) countOfCurrentStreams
+- (unsigned) countOfPlayQueue
 {
-	return [_currentStreams count];
+	return [_playQueue count];
 }
 
-- (AudioStream *) objectInCurrentStreamsAtIndex:(unsigned)index
+- (AudioStream *) objectInPlayQueueAtIndex:(unsigned)index
 {
-	return [_currentStreams objectAtIndex:index];
+	return [_playQueue objectAtIndex:index];
 }
 
-- (void) getCurrentStreams:(id *)buffer range:(NSRange)aRange
+- (void) getPlayQueue:(id *)buffer range:(NSRange)aRange
 {
-	return [_currentStreams getObjects:buffer range:aRange];
+	return [_playQueue getObjects:buffer range:aRange];
 }
 
-- (void) insertObject:(AudioStream *)stream inCurrentStreamsAtIndex:(unsigned)index
+- (void) insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index
 {
 	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
 
-	[_currentStreams insertObject:stream atIndex:index];	
+	[_playQueue insertObject:stream atIndex:index];	
 }
 
-- (void) removeObjectFromCurrentStreamsAtIndex:(unsigned)index
+- (void) removeObjectFromPlayQueueAtIndex:(unsigned)index
 {
 	if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
 	
-	[_currentStreams removeObjectAtIndex:index];	
+	[_playQueue removeObjectAtIndex:index];	
 }
 
 #pragma mark Browser support
@@ -1248,8 +1256,8 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 #pragma mark Properties
 
-- (BOOL)		randomizePlayback									{ return _randomizePlayback; }
-- (void)		setRandomizePlayback:(BOOL)randomizePlayback		{ _randomizePlayback = randomizePlayback; }
+- (BOOL)		randomPlayback										{ return _randomPlayback; }
+- (void)		setRandomPlayback:(BOOL)randomPlayback				{ _randomPlayback = randomPlayback; }
 
 - (BOOL)		loopPlayback										{ return _loopPlayback; }
 - (void)		setLoopPlayback:(BOOL)loopPlayback					{ _loopPlayback = loopPlayback; }
@@ -1258,13 +1266,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (BOOL) canPlayNextStream
 {
-	NSArray		*streams	= _currentStreams;
+	NSArray		*streams	= _playQueue;
 	BOOL		result		= NO;
 	
 	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
 		result = NO;
 	}
-	else if([self randomizePlayback]) {
+	else if([self randomPlayback]) {
 		result = YES;
 	}
 	else if([self loopPlayback]) {
@@ -1279,13 +1287,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (BOOL) canPlayPreviousStream
 {
-	NSArray		*streams	= _currentStreams;
+	NSArray		*streams	= _playQueue;
 	BOOL		result		= NO;
 	
 	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
 		result = NO;
 	}
-	else if([self randomizePlayback]) {
+	else if([self randomPlayback]) {
 		result = YES;
 	}
 	else if([self loopPlayback]) {
@@ -1301,7 +1309,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 - (AudioStream *) nowPlaying
 {
 	unsigned index = [self playbackIndex];
-	return (NSNotFound == index ? nil : [self objectInCurrentStreamsAtIndex:index]);
+	return (NSNotFound == index ? nil : [self objectInPlayQueueAtIndex:index]);
 }
 
 - (NSUndoManager *) undoManager
@@ -1656,7 +1664,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	
-	AudioStream *stream = [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
+	AudioStream *stream = [self objectInPlayQueueAtIndex:[self playbackIndex]];
 	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
 	
 	[stream setPlaying:YES];
@@ -1708,12 +1716,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
-	NSArray *streams = _currentStreams;
+	NSArray *streams = _playQueue;
 	
 	if(nil == stream || 0 == [streams count]) {
 		[self setNextPlaybackIndex:NSNotFound];
 	}
-	else if([self randomizePlayback]) {
+	else if([self randomPlayback]) {
 		double randomNumber = genrand_real2();
 		[self setNextPlaybackIndex:(unsigned)(randomNumber * [streams count])];
 	}
@@ -1727,12 +1735,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	
 #if DEBUG
-	NSLog(@"requestNextStream:%@",[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]]);
+	NSLog(@"requestNextStream:%@",[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]]);
 #endif
 	
 	if(NSNotFound != [self nextPlaybackIndex]) {
 		NSError		*error		= nil;
-		BOOL		result		= [[self player] setNextStream:[self objectInCurrentStreamsAtIndex:[self nextPlaybackIndex]] error:&error];
+		BOOL		result		= [[self player] setNextStream:[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]] error:&error];
 		
 		if(NO == result) {
 			if(nil != error) {
@@ -1788,7 +1796,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 
 - (void) playStreamAtIndex:(unsigned)index
 {
-	NSParameterAssert([self countOfCurrentStreams] > index);
+	NSParameterAssert([self countOfPlayQueue] > index);
 
 	AudioStream *currentStream = [self nowPlaying];
 	
@@ -1805,7 +1813,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	
-	AudioStream		*stream		= [self objectInCurrentStreamsAtIndex:[self playbackIndex]];
+	AudioStream		*stream		= [self objectInPlayQueueAtIndex:[self playbackIndex]];
 	NSError			*error		= nil;
 	BOOL			result		= [[self player] setStream:stream error:&error];
 	
@@ -1829,12 +1837,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	[self updatePlayButtonState];
 }
 
-- (void) setCurrentStreamsFromArray:(NSArray *)streams
+- (void) setPlayQueueFromArray:(NSArray *)streams
 {
-	[self willChangeValueForKey:@"currentStreams"];	
-	[_currentStreams removeAllObjects];
-	[_currentStreams addObjectsFromArray:streams];
-	[self didChangeValueForKey:@"currentStreams"];
+	[self willChangeValueForKey:@"playQueue"];	
+	[_playQueue removeAllObjects];
+	[_playQueue addObjectsFromArray:streams];
+	[self didChangeValueForKey:@"playQueue"];
 }
 
 - (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count
@@ -1844,13 +1852,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	unsigned		randomIndex;
 	unsigned		i;
 	
-	[self willChangeValueForKey:@"currentStreams"];
+	[self willChangeValueForKey:@"playQueue"];
 	for(i = 0; i < count; ++i) {
 		randomNumber	= genrand_real2();
 		randomIndex		= (unsigned)(randomNumber * [streams count]);
-		[_currentStreams addObject:[streams objectAtIndex:randomIndex]];
+		[_playQueue addObject:[streams objectAtIndex:randomIndex]];
 	}
-	[self didChangeValueForKey:@"currentStreams"];
+	[self didChangeValueForKey:@"playQueue"];
 	
 	[self updatePlayButtonState];
 }
@@ -1882,7 +1890,7 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];
 		
-		[self setPlayButtonEnabled:(0 != [self countOfCurrentStreams] || 0 != [[_streamController selectedObjects] count])];
+		[self setPlayButtonEnabled:(0 != [self countOfPlayQueue] || 0 != [[_streamController selectedObjects] count])];
 	}
 	else {
 		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
@@ -2076,5 +2084,15 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	
 	[self saveStreamTableColumnOrder];
 }
+
+#pragma mark Bogosity
+
+// These methods do nothing- for some reason, they are necessary to get the menu items to auto enable
+// (bindings won't work for some reason)
+- (IBAction) toggleRandomPlayback:(id)sender
+{}
+
+- (IBAction) toggleLoopPlayback:(id)sender
+{}
 
 @end
