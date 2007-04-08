@@ -30,6 +30,8 @@
 - (void) playbackDidStop:(NSNotification *)aNotification;
 - (void) playbackDidPause:(NSNotification *)aNotification;
 - (void) playbackDidResume:(NSNotification *)aNotification;
+- (void) streamDidChange:(NSNotification *)aNotification;
+- (void) streamsDidChange:(NSNotification *)aNotification;
 @end
 
 @implementation PlayApplicationDelegate
@@ -92,12 +94,19 @@
 											 selector:@selector(streamDidChange:) 
 												 name:AudioStreamDidChangeNotification
 											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self 
+											 selector:@selector(streamsDidChange:) 
+												 name:AudioStreamsDidChangeNotification
+											   object:nil];
 }
 
 - (void) applicationWillTerminate:(NSNotification *)aNotification
 {
 	// Make sure AS receives the STOP command
-	[[self scrobbler] shutdown];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+		[[self scrobbler] shutdown];
+	}
 
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -181,14 +190,32 @@
 
 - (void) streamDidChange:(NSNotification *)aNotification
 {
-	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
-	
+	AudioStream				*stream			= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	NSError					*error			= nil;
 	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
 
 	if(nil != metadataWriter) {
 		BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
 		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
+	}
+}
+
+- (void) streamsDidChange:(NSNotification *)aNotification
+{
+	NSArray					*streams		= [[aNotification userInfo] objectForKey:AudioStreamsObjectKey];
+	NSEnumerator			*enumerator		= [streams objectEnumerator];
+	AudioStream				*stream			= nil;
+	NSError					*error			= nil;
+	AudioMetadataWriter		*metadataWriter = nil;
+	
+	while((stream = [enumerator nextObject])) {
+		error			= nil;
+		metadataWriter	= [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
+		
+		if(nil != metadataWriter) {
+			BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
+			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
+		}
 	}
 }
 
