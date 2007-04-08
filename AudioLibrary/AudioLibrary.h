@@ -31,7 +31,11 @@
 // Notification Names
 // ========================================
 extern NSString * const		AudioStreamAddedToLibraryNotification;
+extern NSString * const		AudioStreamsAddedToLibraryNotification;
+
 extern NSString * const		AudioStreamRemovedFromLibraryNotification;
+extern NSString * const		AudioStreamsRemovedFromLibraryNotification;
+
 extern NSString * const		AudioStreamPlaybackDidStartNotification;
 extern NSString * const		AudioStreamPlaybackDidStopNotification;
 extern NSString * const		AudioStreamPlaybackDidPauseNotification;
@@ -51,6 +55,7 @@ extern NSString * const		WatchFolderRemovedFromLibraryNotification;
 // Notification Keys
 // ========================================
 extern NSString * const		AudioStreamObjectKey;
+extern NSString * const		AudioStreamsObjectKey;
 extern NSString * const		PlaylistObjectKey;
 extern NSString * const		SmartPlaylistObjectKey;
 extern NSString * const		WatchFolderObjectKey;

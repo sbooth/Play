@@ -61,6 +61,7 @@
 #import "BrowserTreeController.h"
 #import "AudioStreamTableView.h"
 #import "BrowserOutlineView.h"
+//#import "AudioStreamTableAnimationView.h"
 
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
@@ -96,8 +97,10 @@ static AudioLibrary *libraryInstance = nil;
 // ========================================
 // Notification names
 // ========================================
+NSString * const	AudioStreamsAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamsAddedToLibraryNotification";
 NSString * const	AudioStreamAddedToLibraryNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamAddedToLibraryNotification";
 NSString * const	AudioStreamRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamRemovedFromLibraryNotification";
+NSString * const	AudioStreamsRemovedFromLibraryNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamsRemovedFromLibraryNotification";
 NSString * const	AudioStreamPlaybackDidStartNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidStartNotification";
 NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidStopNotification";
 NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidPauseNotification";
@@ -117,6 +120,7 @@ NSString * const	WatchFolderRemovedFromLibraryNotification	= @"org.sbooth.Play.A
 // Notification keys
 // ========================================
 NSString * const	AudioStreamObjectKey						= @"org.sbooth.Play.AudioStream";
+NSString * const	AudioStreamsObjectKey						= @"org.sbooth.Play.AudioStreams";
 NSString * const	PlaylistObjectKey							= @"org.sbooth.Play.Playlist";
 NSString * const	SmartPlaylistObjectKey						= @"org.sbooth.Play.SmartPlaylist";
 NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
@@ -474,6 +478,33 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	}
 	else {
 		[self addSelectedStreamsToPlayQueue:sender];
+/*		
+		NSView *view = [_streamTable enclosingScrollView];
+		NSRect rect = [view visibleRect];
+		NSBitmapImageRep *bitmap = [view bitmapImageRepForCachingDisplayInRect:rect];
+		[view cacheDisplayInRect:rect toBitmapImageRep:bitmap];
+		
+		NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect([[view window] frame].origin.x + [view frame].origin.x, [[view window] frame].origin.y + [view frame].origin.y, rect.size.width, rect.size.height)
+													   styleMask:NSBorderlessWindowMask 
+														 backing:NSBackingStoreBuffered 
+														   defer:NO];
+		
+		NSView *foo = [[AudioStreamTableAnimationView alloc] initWithFrame:[view frame]];
+		[window setContentView:foo];
+		
+		[foo setBitmap:bitmap];
+		NSRect rowRect = [_streamTable rectOfRow:[[_streamTable selectedRowIndexes] firstIndex]];
+		rowRect = [view convertRect:rowRect fromView:_streamTable];
+		if([view isFlipped]) {
+			rowRect.origin.y = [view frame].size.height - rowRect.origin.y - rowRect.size.height;
+		}
+		[foo setRect:rowRect];
+
+		[window orderFront:self];		
+		[NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
+		[window orderOut:self];
+				
+		[window release];*/
 	}
 	
 	[self updatePlayButtonState];

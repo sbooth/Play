@@ -417,6 +417,7 @@
 	NSEnumerator 		*enumerator 	= nil;
 	AudioStream 		*stream 		= nil;
 	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
+	NSMutableArray		*streams		= nil;
 	
 	// ========================================
 	// Broadcast the notifications
@@ -434,6 +435,7 @@
 	// ========================================
 	// Handle deletes
 	if(0 != [_deletedStreams count]) {
+		streams = [NSMutableArray array];
 		enumerator = [_deletedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
 			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
@@ -442,13 +444,14 @@
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [_deletedStreams objectEnumerator];
 		while((stream = [enumerator nextObject])) {
+			[streams addObject:stream];
 			[_cachedStreams removeObject:stream];
-
-			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamRemovedFromLibraryNotification 
-																object:self
-															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 		}
 		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];		
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamsRemovedFromLibraryNotification 
+															object:self
+														  userInfo:[NSDictionary dictionaryWithObject:streams forKey:AudioStreamsObjectKey]];
 		
 		[_deletedStreams removeAllObjects];
 		[indexes removeAllIndexes];
@@ -457,18 +460,20 @@
 	// ========================================
 	// And finally inserts
 	if(0 != [_insertedStreams count]) {
+		streams = [NSMutableArray array];
 		[indexes addIndexesInRange:NSMakeRange([_cachedStreams count], [_insertedStreams count])];
 
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [[_insertedStreams allObjects] objectEnumerator];
 		while((stream = [enumerator nextObject])) {
+			[streams addObject:stream];
 			[_cachedStreams addObject:stream];
-			
-			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamAddedToLibraryNotification 
-																object:self 
-															  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 		}
 		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
+		
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamsAddedToLibraryNotification 
+															object:self
+														  userInfo:[NSDictionary dictionaryWithObject:streams forKey:AudioStreamsObjectKey]];
 		
 		[_insertedStreams removeAllObjects];
 	}

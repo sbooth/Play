@@ -26,10 +26,8 @@
 
 - (BOOL) readProperties:(NSError **)error
 {
-	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path				= [_url path];
-	TagLib::MPEG::File				f					([path fileSystemRepresentation], true, TagLib::AudioProperties::Average);
-	TagLib::MPEG::Properties		*audioProperties;
+	NSString				*path		= [_url path];
+	TagLib::MPEG::File		f			([path fileSystemRepresentation], true, TagLib::AudioProperties::Average);
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
@@ -47,8 +45,8 @@
 		return NO;
 	}
 	
-	propertiesDictionary	= [NSMutableDictionary dictionary];
-	audioProperties			= f.audioProperties();
+	NSMutableDictionary			*propertiesDictionary		= [NSMutableDictionary dictionary];
+	TagLib::MPEG::Properties	*audioProperties			= f.audioProperties();
 	
 	if(NULL != audioProperties) {
 		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG Audio", @"Formats", @"") forKey:@"fileType"];		

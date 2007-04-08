@@ -50,6 +50,11 @@
 													 name:AudioStreamRemovedFromLibraryNotification
 												   object:nil];
 
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamRemoved:) 
+													 name:AudioStreamsRemovedFromLibraryNotification
+												   object:nil];
+		
 	}
 	return self;
 }

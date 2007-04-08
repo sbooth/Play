@@ -46,7 +46,17 @@
 		
 		[[NSNotificationCenter defaultCenter] addObserver:self 
 												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamsAddedToLibraryNotification
+												   object:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
 													 name:AudioStreamRemovedFromLibraryNotification
+												   object:nil];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(streamsChanged:) 
+													 name:AudioStreamsRemovedFromLibraryNotification
 												   object:nil];
 	}
 	return self;
