@@ -44,8 +44,8 @@
 		if(nil != error) {
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MP3 file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MP3 file" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MPEG file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"Not an MPEG file" forKey:NSLocalizedFailureReasonErrorKey];
 			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
 			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
