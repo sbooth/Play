@@ -21,7 +21,7 @@
 #import "AudioStreamDecoder.h"
 #include <mad/mad.h>
 
-@interface MADStreamDecoder : AudioStreamDecoder
+@interface MPEGStreamDecoder : AudioStreamDecoder
 {
 	int					_fd;
 	unsigned char		*_inputBuffer;

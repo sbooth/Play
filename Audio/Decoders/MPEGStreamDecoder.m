@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "MADStreamDecoder.h"
+#import "MPEGStreamDecoder.h"
 #import "AudioStream.h"
 
 #include <sys/types.h>
@@ -79,11 +79,11 @@ audio_linear_round(unsigned int bits,
 }
 // End madplay code
 
-@interface MADStreamDecoder (Private)
+@interface MPEGStreamDecoder (Private)
 - (BOOL) scanFile;
 @end
 
-@implementation MADStreamDecoder
+@implementation MPEGStreamDecoder
 
 - (NSString *) sourceFormatDescription
 {
@@ -359,7 +359,7 @@ audio_linear_round(unsigned int bits,
 
 @end
 
-@implementation MADStreamDecoder (Private)
+@implementation MPEGStreamDecoder (Private)
 
 - (BOOL) scanFile
 {
