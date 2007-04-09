@@ -442,7 +442,25 @@ audio_linear_round(unsigned int bits,
 		if(-1 == result) {
 			
 			if(MAD_RECOVERABLE(stream.error)) {
-				NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&stream));
+				
+				// Prevent ID3 tags from reporting recoverable frame errors
+				const uint8_t	*buffer			= stream.this_frame;
+				unsigned		buflen			= stream.bufend - stream.this_frame;
+				uint32_t		id3_length		= 0;
+
+				if(10 <= buflen && 'I' == buffer[0] && 'D' == buffer[1] && '3' == buffer[2]) {
+					id3_length = (((buffer[6] & 0x7F) << (3 * 7)) | ((buffer[7] & 0x7F) << (2 * 7)) |
+								  ((buffer[8] & 0x7F) << (1 * 7)) | ((buffer[9] & 0x7F) << (0 * 7)));
+					
+					// Add 10 bytes for ID3 header
+					id3_length += 10;
+					
+					mad_stream_skip(&_mad_stream, id3_length);
+				}
+				else {
+					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&stream));
+				}
+				
 				continue;
 			}
 			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
