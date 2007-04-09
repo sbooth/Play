@@ -127,8 +127,10 @@ audio_linear_round(unsigned int bits,
 	int result = lseek(_fd, seekPoint, SEEK_SET);
 	if(-1 != result) {
 		mad_stream_buffer(&_mad_stream, NULL, 0);
+
 		// Reset frame count to prevent early termination of playback
-		_mpegFramesDecoded = 0;
+		_mpegFramesDecoded	= 0;
+		_samplesDecoded		= 0;
 	}
 	
 	// Right now it's only possible to return an approximation of the audio frame
