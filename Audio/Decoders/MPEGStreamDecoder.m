@@ -450,7 +450,7 @@ audio_linear_round(unsigned int bits,
 				unsigned		buflen			= stream.bufend - stream.this_frame;
 				uint32_t		id3_length		= 0;
 
-				if(10 <= buflen && 'I' == buffer[0] && 'D' == buffer[1] && '3' == buffer[2]) {
+				if(10 <= buflen && 0x49 == buffer[0] && 0x44 == buffer[1] && 0x33 == buffer[2]) {
 					id3_length = (((buffer[6] & 0x7F) << (3 * 7)) | ((buffer[7] & 0x7F) << (2 * 7)) |
 								  ((buffer[8] & 0x7F) << (1 * 7)) | ((buffer[9] & 0x7F) << (0 * 7)));
 					
