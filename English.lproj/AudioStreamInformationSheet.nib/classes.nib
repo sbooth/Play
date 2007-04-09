@@ -7,6 +7,12 @@
             OUTLETS = {"_albumArtImageView" = NSImageView; "_sheet" = NSWindow; }; 
             SUPERCLASS = NSObject; 
         }, 
+        {
+            CLASS = AudioStreamInformationSheetWindow; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_tabView" = NSTabView; }; 
+            SUPERCLASS = NSWindow; 
+        }, 
         {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 

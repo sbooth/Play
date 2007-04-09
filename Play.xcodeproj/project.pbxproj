@@ -262,6 +262,7 @@
 		8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */; };
 		8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */; };
 		8CF41B230BC8587600540D3F /* MPEGStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF41B210BC8587600540D3F /* MPEGStreamDecoder.m */; };
+		8CF42AC00BC9C9E200540D3F /* AudioStreamInformationSheetWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF42ABE0BC9C9E200540D3F /* AudioStreamInformationSheetWindow.m */; };
 		8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */; };
 		8CFD465E0B96A22600F9094B /* PlayQueueNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CFD465C0B96A22500F9094B /* PlayQueueNode.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
@@ -681,6 +682,8 @@
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
 		8CF41B200BC8587600540D3F /* MPEGStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MPEGStreamDecoder.h; path = Audio/Decoders/MPEGStreamDecoder.h; sourceTree = "<group>"; };
 		8CF41B210BC8587600540D3F /* MPEGStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MPEGStreamDecoder.m; path = Audio/Decoders/MPEGStreamDecoder.m; sourceTree = "<group>"; };
+		8CF42ABD0BC9C9E200540D3F /* AudioStreamInformationSheetWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamInformationSheetWindow.h; path = AudioLibrary/AudioStreamInformationSheetWindow.h; sourceTree = "<group>"; };
+		8CF42ABE0BC9C9E200540D3F /* AudioStreamInformationSheetWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamInformationSheetWindow.m; path = AudioLibrary/AudioStreamInformationSheetWindow.m; sourceTree = "<group>"; };
 		8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
 		8CFD465B0B96A22500F9094B /* PlayQueueNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlayQueueNode.h; path = Browser/PlayQueueNode.h; sourceTree = "<group>"; };
 		8CFD465C0B96A22500F9094B /* PlayQueueNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlayQueueNode.m; path = Browser/PlayQueueNode.m; sourceTree = "<group>"; };
@@ -1167,6 +1170,8 @@
 				8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */,
 				8CAFB6980B87A6AB00B3A0EB /* BrowserOutlineView.h */,
 				8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */,
+				8CF42ABD0BC9C9E200540D3F /* AudioStreamInformationSheetWindow.h */,
+				8CF42ABE0BC9C9E200540D3F /* AudioStreamInformationSheetWindow.m */,
 			);
 			name = AudioLibrary;
 			sourceTree = "<group>";
@@ -1691,6 +1696,7 @@
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
 				8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */,
 				8CF41B230BC8587600540D3F /* MPEGStreamDecoder.m in Sources */,
+				8CF42AC00BC9C9E200540D3F /* AudioStreamInformationSheetWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
