@@ -20,6 +20,8 @@
                 playPause = id; 
                 playPreviousStream = id; 
                 removeSelectedStreams = id; 
+                rescanMetadata = id; 
+                showMetadataEditingSheet = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 

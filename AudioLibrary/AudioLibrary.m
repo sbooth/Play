@@ -396,6 +396,12 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return [_streamController canAdd];
 	}
 	else if([anItem action] == @selector(showStreamInformationSheet:)) {
+		return (1 == [[_streamController selectedObjects] count]);
+	}
+	else if([anItem action] == @selector(showMetadataEditingSheet:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([anItem action] == @selector(rescanMetadata:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
@@ -650,37 +656,42 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 {
 	NSArray *streams = [_streamController selectedObjects];
 		
+	if(1 != [streams count]) {
+		NSBeep();
+		return;
+	}
+	
+	AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
+	
+	[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
+	
+	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:streamInformationSheet];
+}
+
+- (IBAction) showMetadataEditingSheet:(id)sender
+{
+	NSArray *streams = [_streamController selectedObjects];
+	
 	if(0 == [streams count]) {
 		return;
 	}
-	else if(1 == [streams count]) {
-		AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
-		
-		[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-		[streamInformationSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
-		
-		[[CollectionManager manager] beginUpdate];
-		
-		[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
-									   modalForWindow:[self window] 
-										modalDelegate:self 
-									   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
-										  contextInfo:streamInformationSheet];
-	}
-	else {
-		AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
-		
-		[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-		[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
-
-		[[CollectionManager manager] beginUpdate];
-
-		[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
-									   modalForWindow:[self window] 
-										modalDelegate:self 
-									   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
-										  contextInfo:metadataEditingSheet];
-	}
+	
+	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
+	
+	[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
+	[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:metadataEditingSheet];
 }
 
 - (IBAction) showPlaylistInformationSheet:(id)sender
@@ -718,6 +729,23 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 									   didEndSelector:@selector(showSmartPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
 										  contextInfo:playlistInformationSheet];
 	}
+}
+
+- (IBAction) rescanMetadata:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[[CollectionManager manager] beginUpdate];
+	while((stream = [enumerator nextObject])) {
+		[stream rescanMetadata:sender];
+	}
+	[[CollectionManager manager] finishUpdate];
 }
 
 #pragma mark File Addition and Removal
@@ -1550,15 +1578,6 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 	AudioStreamInformationSheet *streamInformationSheet = (AudioStreamInformationSheet *)contextInfo;
 	
 	[sheet orderOut:self];
-	
-	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] finishUpdate];
-		[_streamController rearrangeObjects];
-	}
-	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] cancelUpdate];
-	}
-	
 	[streamInformationSheet release];
 }
 
@@ -1822,9 +1841,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		return;
 	}
 
-	// Rescan tags, if desired
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanTagsBeforePlay"]) {
-		[stream rescanTags:self];
+	// Rescan metadata, if desired
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanMetadataBeforePlay"]) {
+		[[CollectionManager manager] beginUpdate];
+		[stream rescanMetadata:self];
+		[[CollectionManager manager] finishUpdate];
 	}
 	
 	[stream setPlaying:YES];

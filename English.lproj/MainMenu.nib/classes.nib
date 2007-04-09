@@ -19,6 +19,8 @@
                 playPreviousStream = id; 
                 previousPlaylist = id; 
                 removeSelectedStreams = id; 
+                rescanMetadata = id; 
+                showMetadataEditingSheet = id; 
                 showPlaylistInformationSheet = id; 
                 showStreamInformationSheet = id; 
                 skipBackward = id; 

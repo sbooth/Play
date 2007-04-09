@@ -19,8 +19,6 @@
  */
 
 #import "AudioStreamInformationSheet.h"
-#import "AudioLibrary.h"
-#import "Genres.h"
 
 @implementation AudioStreamInformationSheet
 
@@ -35,11 +33,6 @@
 		}
 	}
 	return self;
-}
-
-- (void) awakeFromNib
-{
-	[_albumArtImageView setImage:[NSImage imageNamed:@"Play"]];
 }
 
 - (NSWindow *) sheet
@@ -57,34 +50,7 @@
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
 }
 
-/*- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
-{
-	return [_owner undoManager];
-}
-
-- (IBAction) undo:(id)sender
-{
-	[[_owner undoManager] undo];
-}
-
-- (IBAction) redo:(id)sender
-{
-	[[_owner undoManager] redo];
-}
-
-- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
-{
-	if([anItem action] == @selector(undo:)) {
-		return [[_owner undoManager] canUndo];
-	}
-	else if([anItem action] == @selector(redo:)) {
-		return [[_owner undoManager] canRedo];
-	}
-	
-	return YES;
-}*/
-
-- (IBAction) chooseAlbumArt:(id)sender
+/*- (IBAction) chooseAlbumArt:(id)sender
 {
 	NSOpenPanel *panel = [NSOpenPanel openPanel];
 	
@@ -106,11 +72,6 @@
 			}
 		}
 	}		
-}
-
-- (NSArray *) genres
-{
-	return [Genres sharedGenres];
-}
+}*/
 
 @end

@@ -165,7 +165,10 @@ extern NSString * const		WatchFolderObjectKey;			// WatchFolder
 - (IBAction)	jumpToPlayQueue:(id)sender;
 
 - (IBAction)	showStreamInformationSheet:(id)sender;
+- (IBAction)	showMetadataEditingSheet:(id)sender;
 - (IBAction)	showPlaylistInformationSheet:(id)sender;
+
+- (IBAction)	rescanMetadata:(id)sender;
 
 // ========================================
 // Current Streams

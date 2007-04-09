@@ -75,7 +75,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	return [stream autorelease];
 }
 
-- (IBAction) rescanTags:(id)sender
+- (IBAction) rescanMetadata:(id)sender
 {
 	NSError					*error				= nil;
 	AudioMetadataReader		*metadataReader		= [AudioMetadataReader metadataReaderForURL:[self valueForKey:StreamURLKey] error:&error];

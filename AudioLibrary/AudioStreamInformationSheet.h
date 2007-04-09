@@ -24,23 +24,14 @@
 
 @interface AudioStreamInformationSheet : NSObject
 {
-	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSImageView		*_albumArtImageView;
+	IBOutlet NSWindow	*_sheet;
 
-	AudioStream					*_stream;
-	NSArray						*_allStreams;
+	AudioStream			*_stream;
 }
 
 - (NSWindow *)			sheet;
 
 - (IBAction)			ok:(id)sender;
 - (IBAction)			cancel:(id)sender;
-
-//- (IBAction)			undo:(id)sender;
-//- (IBAction)			redo:(id)sender;
-
-- (IBAction)			chooseAlbumArt:(id)sender;
-
-- (NSArray *)			genres;
 
 @end
