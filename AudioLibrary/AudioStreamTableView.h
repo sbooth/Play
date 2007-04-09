@@ -40,6 +40,8 @@ extern NSString * const		iTunesPboardType;
 - (void) setHighlightedRow:(int)row;
 - (void) setDrawRowHighlight:(BOOL)flag;
 
+- (IBAction)	rescanTags:(id)sender;
+
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;
 

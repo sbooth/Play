@@ -21,6 +21,7 @@
 #import "AudioStreamTableView.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
+#import "CollectionManager.h"
 #import "SecondsFormatter.h"
 
 #import "CTBadge.h"
@@ -52,6 +53,9 @@
 			|| [menuItem action] == @selector(openWithFinder:)
 			|| [menuItem action] == @selector(openWith:)) {
 		return (kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(rescanTags:)) {
+		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else {
 		return YES;
@@ -142,6 +146,18 @@
 {
 	[super drawBackgroundInClipRect:clipRect];
 	[self drawRowHighlight];
+}
+
+- (IBAction) rescanTags:(id)sender
+{
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[[CollectionManager manager] beginUpdate];
+	while((stream = [enumerator nextObject])) {
+		[stream rescanTags:sender];
+	}
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) openWithFinder:(id)sender

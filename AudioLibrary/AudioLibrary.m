@@ -1821,6 +1821,11 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 		/*BOOL errorRecoveryDone =*/ [self presentError:error];
 		return;
 	}
+
+	// Rescan tags, if desired
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanTagsBeforePlay"]) {
+		[stream rescanTags:self];
+	}
 	
 	[stream setPlaying:YES];
 

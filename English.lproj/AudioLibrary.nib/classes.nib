@@ -55,6 +55,7 @@
                 convertWithMax = id; 
                 openWith = id; 
                 openWithFinder = id; 
+                rescanTags = id; 
                 revealInFinder = id; 
             }; 
             CLASS = AudioStreamTableView; 

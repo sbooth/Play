@@ -64,6 +64,8 @@ extern NSString * const		PropertiesBitrateKey;
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
 
+- (IBAction) rescanTags:(id)sender;
+
 - (NSString *) filename;
 - (NSString *) pathname;
 

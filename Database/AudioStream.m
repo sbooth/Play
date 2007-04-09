@@ -21,6 +21,7 @@
 #import "AudioStream.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "AudioMetadataReader.h"
 
 NSString * const	StreamURLKey							= @"url";
 
@@ -72,6 +73,37 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	}
 
 	return [stream autorelease];
+}
+
+- (IBAction) rescanTags:(id)sender
+{
+	NSError					*error				= nil;
+	AudioMetadataReader		*metadataReader		= [AudioMetadataReader metadataReaderForURL:[self valueForKey:StreamURLKey] error:&error];
+
+	if(nil == metadataReader) {
+/*		if(nil != error) {
+			[[AudioLibrary library] presentError:error];
+		}*/
+		return;
+	}
+	
+	BOOL result = [metadataReader readMetadata:&error];
+	if(NO == result) {
+/*		if(nil != error) {
+			[[AudioLibrary library] presentError:error];
+		}*/
+		return;
+	}
+	
+	NSDictionary	*metadata		= [metadataReader valueForKey:@"metadata"];
+	NSEnumerator	*enumerator		= [metadata keyEnumerator];
+	NSString		*key;
+	id				value;
+	
+	while((key = [enumerator nextObject])) {
+		value = [metadata valueForKey:key];
+		[self setValue:value forKey:key];
+	}
 }
 
 - (NSString *) filename
