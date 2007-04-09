@@ -1,17 +1,11 @@
 {
     IBClasses = (
         {
-            ACTIONS = {cancel = id; chooseAlbumArt = id; ok = id; }; 
+            ACTIONS = {cancel = id; ok = id; }; 
             CLASS = AudioStreamInformationSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_albumArtImageView" = NSImageView; "_sheet" = NSWindow; }; 
+            OUTLETS = {"_sheet" = NSWindow; }; 
             SUPERCLASS = NSObject; 
-        }, 
-        {
-            CLASS = AudioStreamInformationSheetWindow; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {"_tabView" = NSTabView; }; 
-            SUPERCLASS = NSWindow; 
         }, 
         {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
