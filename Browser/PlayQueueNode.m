@@ -30,14 +30,14 @@
 - (id) init
 {
 	if((self = [super initWithName:NSLocalizedStringFromTable(@"Play Queue", @"General", @"")])) {
-		[[AudioLibrary library] addObserver:self forKeyPath:@"playQueue" options:nil context:NULL];
+		[[AudioLibrary library] addObserver:self forKeyPath:PlayQueueKey options:nil context:NULL];
 	}
 	return self;
 }
 
 - (void) dealloc
 {
-	[[AudioLibrary library] removeObserver:self forKeyPath:@"playQueue"];
+	[[AudioLibrary library] removeObserver:self forKeyPath:PlayQueueKey];
 	
 	[super dealloc];
 }
