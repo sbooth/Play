@@ -18,6 +18,8 @@
 		8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */; };
 		8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */; };
 		8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */; };
+		8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */; };
+		8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */; };
 		8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F6E30B912006009200C4 /* WatchFolderNode.m */; };
 		8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7500B9128AC009200C4 /* GenresNode.m */; };
 		8C17F7630B91292F009200C4 /* GenreNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7610B91292F009200C4 /* GenreNode.m */; };
@@ -317,6 +319,9 @@
 		8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistNode.m; path = Browser/PlaylistNode.m; sourceTree = "<group>"; };
 		8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_playlist_entries_for_playlist.sql; path = SQL/delete_playlist_entries_for_playlist.sql; sourceTree = "<group>"; };
 		8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_playlist_entry.sql; path = SQL/insert_playlist_entry.sql; sourceTree = "<group>"; };
+		8C16C6D70BCB1F3700126A45 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FileAdditionProgressSheet.nib; sourceTree = "<group>"; };
+		8C16C6DD0BCB1FEA00126A45 /* FileAdditionProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileAdditionProgressSheet.h; path = AudioLibrary/FileAdditionProgressSheet.h; sourceTree = "<group>"; };
+		8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileAdditionProgressSheet.m; path = AudioLibrary/FileAdditionProgressSheet.m; sourceTree = "<group>"; };
 		8C17F6E20B912006009200C4 /* WatchFolderNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFolderNode.h; path = Browser/WatchFolderNode.h; sourceTree = "<group>"; };
 		8C17F6E30B912006009200C4 /* WatchFolderNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFolderNode.m; path = Browser/WatchFolderNode.m; sourceTree = "<group>"; };
 		8C17F74F0B9128AC009200C4 /* GenresNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenresNode.h; path = Browser/GenresNode.h; sourceTree = "<group>"; };
@@ -795,6 +800,7 @@
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1167,6 +1173,8 @@
 				8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */,
 				8CAFB6980B87A6AB00B3A0EB /* BrowserOutlineView.h */,
 				8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */,
+				8C16C6DD0BCB1FEA00126A45 /* FileAdditionProgressSheet.h */,
+				8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */,
 			);
 			name = AudioLibrary;
 			sourceTree = "<group>";
@@ -1532,6 +1540,7 @@
 				8C220AD40BB8A79F00808450 /* SmartPlaylistCriterion.nib in Resources */,
 				8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */,
 				8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */,
+				8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1691,6 +1700,7 @@
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
 				8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */,
 				8CF41B230BC8587600540D3F /* MPEGStreamDecoder.m in Sources */,
+				8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1711,6 +1721,14 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C16C6D70BCB1F3700126A45 /* English */,
+			);
+			name = FileAdditionProgressSheet.nib;
 			sourceTree = "<group>";
 		};
 		8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */ = {

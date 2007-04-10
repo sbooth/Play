@@ -1,0 +1,17 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {cancel = id; startProgressIndicator = id; stopProgressIndicator = id; }; 
+            CLASS = FileAdditionProgressSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_progressIndicator" = NSProgressIndicator; 
+                "_sheet" = NSWindow; 
+                "_textField" = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

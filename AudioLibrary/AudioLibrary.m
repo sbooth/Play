@@ -56,6 +56,7 @@
 #import "PlaylistInformationSheet.h"
 #import "SmartPlaylistInformationSheet.h"
 #import "NewWatchFolderSheet.h"
+#import "FileAdditionProgressSheet.h"
 
 #import "AudioStreamArrayController.h"
 #import "BrowserTreeController.h"
@@ -1563,7 +1564,61 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		clock_t start = clock();
 #endif
 		
-		[self addFiles:[panel filenames]];
+		[panel close];
+
+		FileAdditionProgressSheet *progressSheet = [[FileAdditionProgressSheet alloc] init];
+				
+		[[NSApplication sharedApplication] beginSheet:[progressSheet sheet]
+									   modalForWindow:[self window]
+										modalDelegate:nil
+									   didEndSelector:nil
+										  contextInfo:nil];
+		
+		NSModalSession modalSession = [[NSApplication sharedApplication] beginModalSessionForWindow:[progressSheet sheet]];
+		
+		NSString				*filename				= nil;
+		NSString				*path					= nil;
+		NSFileManager			*fileManager			= [NSFileManager defaultManager];
+		NSEnumerator			*filesEnumerator		= [[panel filenames] objectEnumerator];
+		NSDirectoryEnumerator	*directoryEnumerator	= nil;
+		BOOL					isDirectory				= NO;
+		BOOL					openSuccessful			= YES;
+		
+		[progressSheet startProgressIndicator:self];
+		[[CollectionManager manager] beginUpdate];
+		
+		while((filename = [filesEnumerator nextObject])) {
+			
+			// Perform a deep search for directories
+			if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
+				directoryEnumerator	= [fileManager enumeratorAtPath:filename];
+				
+				while((path = [directoryEnumerator nextObject])) {
+					[progressSheet setFilename:path];
+					openSuccessful &= [self addFile:[filename stringByAppendingPathComponent:path]];
+					
+					if(NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+						break;
+					}
+				}
+			}
+			else {
+				[progressSheet setFilename:filename];
+				openSuccessful = [self addFile:filename];
+			}
+			
+			if(NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+				break;
+			}
+		}
+		
+		[[CollectionManager manager] finishUpdate];
+		[progressSheet stopProgressIndicator:self];
+		
+		[NSApp endModalSession:modalSession];
+
+		[NSApp endSheet:[progressSheet sheet]];
+		[[progressSheet sheet] close];
 
 #if SQL_DEBUG
 		clock_t end = clock();
