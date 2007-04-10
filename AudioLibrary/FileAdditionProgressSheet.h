@@ -24,7 +24,6 @@
 {
 	IBOutlet NSWindow				*_sheet;
 	IBOutlet NSProgressIndicator	*_progressIndicator;
-	IBOutlet NSTextField			*_textField;
 }
 
 - (NSWindow *)		sheet;
@@ -33,7 +32,5 @@
 
 - (IBAction)		startProgressIndicator:(id)sender;
 - (IBAction)		stopProgressIndicator:(id)sender;
-
-- (void)			setFilename:(NSString *)filename;
 
 @end

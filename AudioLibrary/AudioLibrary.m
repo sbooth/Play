@@ -796,8 +796,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
 	
 	if(nil != stream) {
-		[_streamController addObject:stream];
-
 /*		if([_browserController selectedNodeIsPlaylist]) {
 			[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
 		}*/
@@ -1594,7 +1592,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 				directoryEnumerator	= [fileManager enumeratorAtPath:filename];
 				
 				while((path = [directoryEnumerator nextObject])) {
-					[progressSheet setFilename:path];
 					openSuccessful &= [self addFile:[filename stringByAppendingPathComponent:path]];
 					
 					if(NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
@@ -1603,7 +1600,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 				}
 			}
 			else {
-				[progressSheet setFilename:filename];
 				openSuccessful = [self addFile:filename];
 			}
 			
