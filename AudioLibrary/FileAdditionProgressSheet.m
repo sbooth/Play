@@ -56,10 +56,4 @@
 	[_progressIndicator stopAnimation:sender];
 }
 
-- (void) setFilename:(NSString *)filename
-{
-	NSString *displayName = [[NSFileManager defaultManager] displayNameAtPath:filename];
-	[_textField setStringValue:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Processing %@", @"General", @""), displayName]];
-}
-
 @end
