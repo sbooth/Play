@@ -34,6 +34,10 @@
 	else if([types containsObject:NSStringPboardType]) {
 		filenames = [NSArray arrayWithObject:[pboard stringForType:NSStringPboardType]];
 	}
+	else {
+		*error = NSLocalizedStringFromTable(@"No documents were chosen to open.", @"Errors", @"");
+		return;
+	}
 	
 	BOOL successfullyAdded = [[AudioLibrary library] addFiles:filenames];
 
@@ -50,11 +54,11 @@
 			[[AudioLibrary library] jumpToNowPlaying:self];
 		}
 		else {
-			*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
+			*error = NSLocalizedStringFromTable(@"The document is not in a format that Play understands.", @"Errors", @"");
 		}
 	}
 	else {
-		*error = NSLocalizedStringFromTable(@"The document was not in a format that Play understands.", @"Errors", @"");
+		*error = NSLocalizedStringFromTable(@"The document is not in a format that Play understands.", @"Errors", @"");
 	}
 }
 
