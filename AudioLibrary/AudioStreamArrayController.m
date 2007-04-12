@@ -23,6 +23,7 @@
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 #import "BrowserTreeController.h"
+#import "FileAdditionProgressSheet.h"
 
 // ========================================
 // Pboard Types
@@ -149,8 +150,28 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	
 	// Handle drops of files
 	if([bestType isEqualToString:NSFilenamesPboardType]) {
-		NSArray *filenames = [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
-		return [[AudioLibrary library] addFiles:filenames];
+		NSArray						*filenames		= [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
+		FileAdditionProgressSheet	*progressSheet	= [[FileAdditionProgressSheet alloc] init];
+		
+		[[NSApplication sharedApplication] beginSheet:[progressSheet sheet]
+									   modalForWindow:[[AudioLibrary library] window]
+										modalDelegate:nil
+									   didEndSelector:nil
+										  contextInfo:nil];
+		
+		NSModalSession modalSession = [[NSApplication sharedApplication] beginModalSessionForWindow:[progressSheet sheet]];
+		
+		[progressSheet startProgressIndicator:self];
+		BOOL result = [[AudioLibrary library] addFiles:filenames inModalSession:modalSession];
+		[progressSheet stopProgressIndicator:self];
+		
+		[NSApp endModalSession:modalSession];
+		
+		[NSApp endSheet:[progressSheet sheet]];
+		[[progressSheet sheet] close];
+		[progressSheet release];
+		
+		return result;
 	}
 	else if([bestType isEqualToString:NSURLPboardType]) {
 		NSURL *url = [NSURL URLFromPasteboard:[info draggingPasteboard]];

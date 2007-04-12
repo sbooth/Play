@@ -138,6 +138,7 @@ extern NSString * const		PlayQueueKey;
 
 - (BOOL)		addFile:(NSString *)filename;
 - (BOOL)		addFiles:(NSArray *)filenames;
+- (BOOL)		addFiles:(NSArray *)filenames inModalSession:(NSModalSession)modalSession;
 
 - (BOOL)		removeFile:(NSString *)filename;
 - (BOOL)		removeFiles:(NSArray *)filenames;

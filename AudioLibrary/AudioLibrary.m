@@ -511,6 +511,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	else {
 		[self addSelectedStreamsToPlayQueue:sender];
+		
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"alwaysPlayStreamsWhenDoubleClicked"]) {
+			[self playStreamAtIndex:[self countOfPlayQueue] - 1];
+		}
 /*		
 		NSView *view = [_streamTable enclosingScrollView];
 		NSRect rect = [view visibleRect];
@@ -795,16 +799,21 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	// Insert the object in the database
 	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
 	
-	if(nil != stream) {
-/*		if([_browserController selectedNodeIsPlaylist]) {
+/*	if(nil != stream) {
+		if([_browserController selectedNodeIsPlaylist]) {
 			[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
-		}*/
-	}
+		}
+	}*/
 		
 	return (nil != stream);
 }
 
 - (BOOL) addFiles:(NSArray *)filenames
+{
+	return [self addFiles:filenames inModalSession:NULL];
+}
+
+- (BOOL) addFiles:(NSArray *)filenames inModalSession:(NSModalSession)modalSession
 {
 	NSParameterAssert(nil != filenames);
 	
@@ -826,13 +835,21 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			
 			while((path = [directoryEnumerator nextObject])) {
 				openSuccessful &= [self addFile:[filename stringByAppendingPathComponent:path]];
+				
+				if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+					break;
+				}				
 			}
 		}
 		else {
 			openSuccessful = [self addFile:filename];
+			
+			if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+				break;
+			}				
 		}
 	}
-
+	
 	[[CollectionManager manager] finishUpdate];
 	
 	return openSuccessful;
@@ -1574,47 +1591,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		
 		NSModalSession modalSession = [[NSApplication sharedApplication] beginModalSessionForWindow:[progressSheet sheet]];
 		
-		NSString				*filename				= nil;
-		NSString				*path					= nil;
-		NSFileManager			*fileManager			= [NSFileManager defaultManager];
-		NSEnumerator			*filesEnumerator		= [[panel filenames] objectEnumerator];
-		NSDirectoryEnumerator	*directoryEnumerator	= nil;
-		BOOL					isDirectory				= NO;
-		BOOL					openSuccessful			= YES;
-		
 		[progressSheet startProgressIndicator:self];
-		[[CollectionManager manager] beginUpdate];
-		
-		while((filename = [filesEnumerator nextObject])) {
-			
-			// Perform a deep search for directories
-			if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
-				directoryEnumerator	= [fileManager enumeratorAtPath:filename];
-				
-				while((path = [directoryEnumerator nextObject])) {
-					openSuccessful &= [self addFile:[filename stringByAppendingPathComponent:path]];
-					
-					if(NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
-						break;
-					}
-				}
-			}
-			else {
-				openSuccessful = [self addFile:filename];
-			}
-			
-			if(NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
-				break;
-			}
-		}
-		
-		[[CollectionManager manager] finishUpdate];
+		[self addFiles:[panel filenames] inModalSession:modalSession];
 		[progressSheet stopProgressIndicator:self];
 		
 		[NSApp endModalSession:modalSession];
 
 		[NSApp endSheet:[progressSheet sheet]];
 		[[progressSheet sheet] close];
+		[progressSheet release];
 
 #if SQL_DEBUG
 		clock_t end = clock();
