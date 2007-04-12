@@ -512,6 +512,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	else {
 		[self addSelectedStreamsToPlayQueue:sender];
 		
+		// Alternate behavior
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"alwaysPlayStreamsWhenDoubleClicked"]) {
 			[self playStreamAtIndex:[self countOfPlayQueue] - 1];
 		}
@@ -1606,7 +1607,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		unsigned endCount = [[_streamController arrangedObjects] count];
 		unsigned filesAdded = endCount - startCount;
 		double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-		NSLog(@"Added %i files in %f seconds (%i files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
+		NSLog(@"Added %i files in %f seconds (%f files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
 #endif
 		
 		[_streamController rearrangeObjects];
