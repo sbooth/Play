@@ -559,7 +559,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+	NSLog(@"Loaded %i streams in %f seconds (%f per second)", [streams count], elapsed, (double)[streams count] / elapsed);
 #endif
 	
 	return [streams autorelease];
@@ -692,7 +692,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i streams in %f seconds (%i per second)", [streams count], elapsed, (double)[streams count] / elapsed);
+	NSLog(@"Loaded %i streams in %f seconds (%f per second)", [streams count], elapsed, (double)[streams count] / elapsed);
 #endif
 	
 	return [streams autorelease];
