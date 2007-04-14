@@ -277,14 +277,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
 	
-	NSDictionary *audioLibraryDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
 		[NSNumber numberWithBool:YES], @"rescanMetadataBeforePlayback",
-		[NSNumber numberWithBool:YES], @"limitPlayQueueHistorySize",
+		[NSNumber numberWithBool:NO], @"limitPlayQueueHistorySize",
 		[NSNumber numberWithInt:5], @"playQueueHistorySize",
 		nil];
 
-	[[NSUserDefaults standardUserDefaults] registerDefaults:audioLibraryDefaults];
+	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDictionary];
 }	
 
 + (AudioLibrary *) library
