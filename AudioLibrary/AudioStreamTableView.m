@@ -204,6 +204,9 @@
 {
 	if(_drawRowHighlight && -1 != _highlightedRow && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
 		NSRect rowRect = [self rectOfRow:_highlightedRow];
+		if(NSIsEmptyRect(rowRect)) {
+			return;
+		}
 		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
 		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];
 		
