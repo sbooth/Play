@@ -190,6 +190,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count;
 
+- (void) updatePlayQueueHistory;
+
 - (void) updatePlayButtonState;
 
 - (void) setupBrowser;
@@ -274,6 +276,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
+	
+	NSDictionary *audioLibraryDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
+		[NSNumber numberWithBool:YES], @"rescanMetadataBeforePlayback",
+		[NSNumber numberWithBool:YES], @"limitPlayQueueHistorySize",
+		[NSNumber numberWithInt:5], @"playQueueHistorySize",
+		nil];
+
+	[[NSUserDefaults standardUserDefaults] registerDefaults:audioLibraryDefaults];
 }	
 
 + (AudioLibrary *) library
@@ -469,7 +480,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return [[self undoManager] canRedo];
 	}
 	else if([anItem action] == @selector(addSelectedStreamsToPlayQueue:)) {
-		return (0 != [[_streamController selectedObjects] count]);
+		return (0 != [[_streamController selectedObjects] count] && NO == [_browserController selectedNodeIsPlayQueue]);
 	}
 	else if([anItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
 		return (0 != [[_streamController arrangedObjects] count]);
@@ -1724,6 +1735,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
 	
+	[self updatePlayQueueHistory];
+	
 	AudioStream *stream = [self objectInPlayQueueAtIndex:[self playbackIndex]];
 	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
 	
@@ -1882,8 +1895,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return;
 	}
 
+	[self updatePlayQueueHistory];
+	
 	// Rescan metadata, if desired
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanMetadataBeforePlay"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanMetadataBeforePlayback"]) {
 		[[CollectionManager manager] beginUpdate];
 		[stream rescanMetadata:self];
 		[[CollectionManager manager] finishUpdate];
@@ -1928,6 +1943,23 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self didChangeValueForKey:PlayQueueKey];
 	
 	[self updatePlayButtonState];
+}
+
+- (void) updatePlayQueueHistory
+{
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"limitPlayQueueHistorySize"] && NO == [self randomPlayback]) {
+		unsigned playQueueHistorySize	= [[NSUserDefaults standardUserDefaults] integerForKey:@"playQueueHistorySize"];
+		unsigned index					= [self playbackIndex];
+		
+		[self willChangeValueForKey:PlayQueueKey];
+		while(index > playQueueHistorySize) {
+			[_playQueue removeObjectAtIndex:0];
+			--index;
+		}
+		[self didChangeValueForKey:PlayQueueKey];
+
+		[self setPlaybackIndex:index];
+	}
 }
 
 - (void) updatePlayButtonState
@@ -1982,19 +2014,19 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[folderIcon setSize:NSMakeSize(16.0, 16.0)];
 	
-	IconFamily	*cdIconFamily		= [IconFamily iconFamilyWithSystemIcon:kGenericCDROMIcon];
+/*	IconFamily	*cdIconFamily		= [IconFamily iconFamilyWithSystemIcon:kGenericCDROMIcon];
 	NSImage		*cdIcon				= [cdIconFamily imageWithAllReps];
 
-	[cdIcon setSize:NSMakeSize(16.0, 16.0)];
+	[cdIcon setSize:NSMakeSize(16.0, 16.0)];*/
 
 	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
 	[browserRoot setIcon:folderIcon];
 	
 	_playQueueNode = [[PlayQueueNode alloc] init];
-	//	[_playQueueNode setIcon:cdIcon];
+//	[_playQueueNode setIcon:cdIcon];
 	
 	_libraryNode = [[LibraryNode alloc] init];
-	[_libraryNode setIcon:cdIcon];
+//	[_libraryNode setIcon:cdIcon];
 
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
