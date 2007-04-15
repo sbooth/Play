@@ -279,7 +279,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
-		[NSNumber numberWithBool:YES], @"rescanMetadataBeforePlayback",
+		[NSNumber numberWithBool:NO], @"rescanMetadataBeforePlayback",
 		[NSNumber numberWithBool:NO], @"limitPlayQueueHistorySize",
 		[NSNumber numberWithInt:5], @"playQueueHistorySize",
 		nil];
