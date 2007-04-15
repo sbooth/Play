@@ -163,11 +163,18 @@
 {
 	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	
+	NSString *title		= [stream valueForKey:MetadataTitleKey];
+	NSString *artist	= [stream valueForKey:MetadataArtistKey];
+
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableGrowlNotifications"]) {
-		[GrowlApplicationBridge notifyWithTitle:[stream valueForKey:MetadataTitleKey]
-									description:[stream valueForKey:MetadataAlbumTitleKey]
+
+		NSString *notificationTitle			= (nil == title ? @"" : title);
+		NSString *notificationDescription	= (nil == artist ? @"" : artist);
+				
+		[GrowlApplicationBridge notifyWithTitle:notificationTitle
+									description:notificationDescription
 							   notificationName:@"Stream Playback Started" 
-									   iconData:[stream valueForKey:@"albumArt"]
+									   iconData:nil/*[stream valueForKey:@"albumArt"]*/
 									   priority:0 
 									   isSticky:NO 
 								   clickContext:[stream valueForKey:ObjectIDKey]];
@@ -175,8 +182,6 @@
 	
 	// Update window title with the current stream
 	NSString *windowTitle	= nil;
-	NSString *title			= [stream valueForKey:MetadataTitleKey];
-	NSString *artist		= [stream valueForKey:MetadataArtistKey];
 	
 	if(nil != title && nil != artist) {
 		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
@@ -186,7 +191,10 @@
 	}
 	else if(nil != artist) {
 		windowTitle = artist;
-	}		
+	}
+	else {
+		windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+	}
 	
 	[[[AudioLibrary library] window] setTitle:windowTitle];
 	
