@@ -425,75 +425,85 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self stop:self];	
 }
 
-- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
+- (BOOL) validateMenuItem:(id <NSMenuItem>)menuItem
 {
-	if([anItem action] == @selector(playPause:)) {
+	if([menuItem action] == @selector(playPause:)) {
+		[menuItem setTitle:([[self player] isPlaying] ? NSLocalizedStringFromTable(@"Pause", @"Menus", @"") : NSLocalizedStringFromTable(@"Play", @"Menus", @""))];
 		return [self playButtonEnabled];
 	}
-	else if([anItem action] == @selector(addFiles:)) {
+	else if([menuItem action] == @selector(addFiles:)) {
 		return [_streamController canAdd];
 	}
-	else if([anItem action] == @selector(showStreamInformationSheet:)) {
+	else if([menuItem action] == @selector(showStreamInformationSheet:)) {
 		return (1 == [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(showMetadataEditingSheet:)) {
+	else if([menuItem action] == @selector(showMetadataEditingSheet:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(rescanMetadata:)) {
+	else if([menuItem action] == @selector(rescanMetadata:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(showPlaylistInformationSheet:)) {
+	else if([menuItem action] == @selector(showPlaylistInformationSheet:)) {
 		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
 	}
-	else if([anItem action] == @selector(skipForward:) 
-			|| [anItem action] == @selector(skipBackward:) 
-			|| [anItem action] == @selector(skipToEnd:) 
-			|| [anItem action] == @selector(skipToBeginning:)) {
+	else if([menuItem action] == @selector(skipForward:) 
+			|| [menuItem action] == @selector(skipBackward:) 
+			|| [menuItem action] == @selector(skipToEnd:) 
+			|| [menuItem action] == @selector(skipToBeginning:)) {
 		return [[self player] hasValidStream];
 	}
-	else if([anItem action] == @selector(playNextStream:)) {
+	else if([menuItem action] == @selector(playNextStream:)) {
 		return [self canPlayNextStream];
 	}
-	else if([anItem action] == @selector(playPreviousStream:)) {
+	else if([menuItem action] == @selector(playPreviousStream:)) {
 		return [self canPlayPreviousStream];
 	}
-	else if([anItem action] == @selector(insertPlaylist:)
-/*			|| [anItem action] == @selector(insertSmartPlaylist:)*/) {
+	else if([menuItem action] == @selector(insertPlaylist:)) {
 		return [_browserController canInsertPlaylist];
 	}
-	else if([anItem action] == @selector(insertPlaylistWithSelection:)) {
+	else if([menuItem action] == @selector(insertPlaylistWithSelection:)) {
 		return ([_browserController canInsertPlaylist] && 0 != [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(jumpToNowPlaying:)) {
+	else if([menuItem action] == @selector(jumpToNowPlaying:)) {
 		return (nil != [self nowPlaying] && 0 != [self countOfPlayQueue]);
 	}
-	else if([anItem action] == @selector(jumpToPlayQueue:)) {
+	else if([menuItem action] == @selector(jumpToPlayQueue:)) {
 		return (0 != [self countOfPlayQueue]);
 	}
-	else if([anItem action] == @selector(removeSelectedStreams:)) {
+	else if([menuItem action] == @selector(removeSelectedStreams:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
-	else if([anItem action] == @selector(undo:)) {
+	else if([menuItem action] == @selector(undo:)) {
 		return [[self undoManager] canUndo];
 	}
-	else if([anItem action] == @selector(redo:)) {
+	else if([menuItem action] == @selector(redo:)) {
 		return [[self undoManager] canRedo];
 	}
-	else if([anItem action] == @selector(addSelectedStreamsToPlayQueue:)) {
+	else if([menuItem action] == @selector(addSelectedStreamsToPlayQueue:)) {
 		return (0 != [[_streamController selectedObjects] count] && NO == [_browserController selectedNodeIsPlayQueue]);
 	}
-	else if([anItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
+	else if([menuItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
 		return (0 != [[_streamController arrangedObjects] count]);
 	}
-	else if([anItem action] == @selector(add10RandomStreamsToPlayQueue:)
-			|| [anItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
+	else if([menuItem action] == @selector(add10RandomStreamsToPlayQueue:)
+			|| [menuItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
 		return (0 != [[[[CollectionManager manager] streamManager] streams] count]);
 	}
-	else if([anItem action] == @selector(toggleRandomPlayback:)) {
+	else if([menuItem action] == @selector(toggleRandomPlayback:)) {
 		return (0 != [self countOfPlayQueue] && NO == [self loopPlayback]);
 	}
-	else if([anItem action] == @selector(toggleLoopPlayback:)) {
+	else if([menuItem action] == @selector(toggleLoopPlayback:)) {
 		return (0 != [self countOfPlayQueue] && NO == [self randomPlayback]);
+	}
+	else if([menuItem action] == @selector(toggleBrowser:)) {
+		int state = [_browserDrawer state];
+		if(NSDrawerClosingState == state || NSDrawerClosedState == state) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Show Browser", @"Menus", @"")];
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Hide Browser", @"Menus", @"")];
+		}
+		return YES;
 	}
 	
 	return YES;
