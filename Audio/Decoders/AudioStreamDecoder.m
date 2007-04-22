@@ -85,14 +85,19 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 {
 	NSParameterAssert(nil != stream);
 	
-	AudioStreamDecoder				*result;
-	NSString						*path;
-	NSString						*pathExtension;
-	NSURL							*url;
+	AudioStreamDecoder		*result;
+	NSURL					*url					= [stream valueForKey:StreamURLKey];
+	NSString				*path					= [url path];
+	NSString				*pathExtension			= [[path pathExtension] lowercaseString];
+/*	FSRef					ref;
+	NSString				*uti					= nil;	
 	
-	url								= [stream valueForKey:StreamURLKey];
-	path							= [url path];
-	pathExtension					= [[path pathExtension] lowercaseString];
+	FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, NULL);
+	
+	OSStatus lsResult = LSCopyItemAttribute(&ref, kLSRolesAll, kLSItemContentType, (CFTypeRef *)&uti);
+
+	NSLog(@"UTI for %@:%@", url, uti);
+	[uti release];*/
 	
 	if([pathExtension isEqualToString:@"flac"]) {
 		result = [[FLACStreamDecoder alloc] init];

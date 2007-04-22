@@ -51,8 +51,6 @@
 #import "AudioMetadataReader.h"
 #import "AudioMetadataWriter.h"
 
-#import "AudioStreamInformationSheet.h"
-#import "AudioMetadataEditingSheet.h"
 #import "PlaylistInformationSheet.h"
 #import "SmartPlaylistInformationSheet.h"
 #import "NewWatchFolderSheet.h"
@@ -61,13 +59,13 @@
 #import "AudioStreamArrayController.h"
 #import "BrowserTreeController.h"
 #import "AudioStreamTableView.h"
+#import "PlayQueueTableView.h"
 #import "BrowserOutlineView.h"
-//#import "AudioStreamTableAnimationView.h"
+#import "RBSplitView.h"
 
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
 #import "LibraryNode.h"
-#import "PlayQueueNode.h"
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
 #import "GenresNode.h"
@@ -161,10 +159,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 // ========================================
 @interface AudioLibrary (CallbackMethods)
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo;
-- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showNewWatchFolderSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
@@ -184,8 +178,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (unsigned) nextPlaybackIndex;
 - (void) setNextPlaybackIndex:(unsigned)nextPlaybackIndex;
 
-- (void) playStreamAtIndex:(unsigned)index;
-
 - (void) setPlayQueueFromArray:(NSArray *)streams;
 
 - (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count;
@@ -197,9 +189,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) setupBrowser;
 
 - (void) setupStreamTableColumns;
+- (void) setupPlayQueueTableColumns;
 
 - (void) saveStreamTableColumnOrder;
 - (IBAction) streamTableHeaderContextMenuSelected:(id)sender;
+
+- (void) savePlayQueueTableColumnOrder;
+- (IBAction) playQueueTableHeaderContextMenuSelected:(id)sender;
+
 - (IBAction) toggleRandomPlayback:(id)sender;
 - (IBAction) toggleLoopPlayback:(id)sender;
 
@@ -269,13 +266,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSDictionary *columnOrderArray = [NSArray arrayWithObjects:
 		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
 	
-	NSDictionary *streamTableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSDictionary *tableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
 		visibleColumnsDictionary, @"streamTableColumnVisibility",
 		columnSizesDictionary, @"streamTableColumnSizes",
 		columnOrderArray, @"streamTableColumnOrder",
+		visibleColumnsDictionary, @"playQueueTableColumnVisibility",
+		columnSizesDictionary, @"playQueueTableColumnSizes",
+		columnOrderArray, @"playQueueTableColumnOrder",
 		nil];
 	
-	[[NSUserDefaults standardUserDefaults] registerDefaults:streamTableDefaults];
+	[[NSUserDefaults standardUserDefaults] registerDefaults:tableDefaults];
 	
 	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
@@ -370,11 +370,13 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_streamTableHiddenColumns release], _streamTableHiddenColumns = nil;
 	[_streamTableHeaderContextMenu release], _streamTableHeaderContextMenu = nil;
 	[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
-
+	[_playQueueTableVisibleColumns release], _playQueueTableVisibleColumns = nil;
+	[_playQueueTableHiddenColumns release], _playQueueTableHiddenColumns = nil;
+	[_playQueueTableHeaderContextMenu release], _playQueueTableHeaderContextMenu = nil;
+	
 	[_playQueue release], _playQueue = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
-	[_playQueueNode release], _playQueueNode = nil;
 	
 	[super dealloc];
 }
@@ -388,7 +390,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) awakeFromNib
 {
 	// Setup streams table
-	[_streamTable setSearchColumnIdentifiers:[NSSet setWithObjects:@"title", @"albumTitle", @"artist", @"albumArtist", @"genre", @"composer", nil]];
+//	[_streamTable setSearchColumnIdentifiers:[NSSet setWithObjects:@"title", @"albumTitle", @"artist", @"albumArtist", @"genre", @"composer", nil]];
 
 	// Setup browser
 	[self setupBrowser];
@@ -411,6 +413,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	
 	[self setupStreamTableColumns];
+	[self setupPlayQueueTableColumns];
 }
 
 - (void) windowDidLoad
@@ -425,7 +428,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self stop:self];	
 }
 
-- (BOOL) validateMenuItem:(id <NSMenuItem>)menuItem
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
 	if([menuItem action] == @selector(playPause:)) {
 		[menuItem setTitle:([[self player] isPlaying] ? NSLocalizedStringFromTable(@"Pause", @"Menus", @"") : NSLocalizedStringFromTable(@"Play", @"Menus", @""))];
@@ -433,18 +436,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	else if([menuItem action] == @selector(addFiles:)) {
 		return [_streamController canAdd];
-	}
-	else if([menuItem action] == @selector(showStreamInformationSheet:)) {
-		return (1 == [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(showMetadataEditingSheet:)) {
-		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(rescanMetadata:)) {
-		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(showPlaylistInformationSheet:)) {
-		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
 	}
 	else if([menuItem action] == @selector(skipForward:) 
 			|| [menuItem action] == @selector(skipBackward:) 
@@ -459,31 +450,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return [self canPlayPreviousStream];
 	}
 	else if([menuItem action] == @selector(insertPlaylist:)) {
-		return [_browserController canInsertPlaylist];
-	}
-	else if([menuItem action] == @selector(insertPlaylistWithSelection:)) {
-		return ([_browserController canInsertPlaylist] && 0 != [[_streamController selectedObjects] count]);
+		return [_browserController canInsert];
 	}
 	else if([menuItem action] == @selector(jumpToNowPlaying:)) {
 		return (nil != [self nowPlaying] && 0 != [self countOfPlayQueue]);
-	}
-	else if([menuItem action] == @selector(jumpToPlayQueue:)) {
-		return (0 != [self countOfPlayQueue]);
-	}
-	else if([menuItem action] == @selector(removeSelectedStreams:)) {
-		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(undo:)) {
 		return [[self undoManager] canUndo];
 	}
 	else if([menuItem action] == @selector(redo:)) {
 		return [[self undoManager] canRedo];
-	}
-	else if([menuItem action] == @selector(addSelectedStreamsToPlayQueue:)) {
-		return (0 != [[_streamController selectedObjects] count] && NO == [_browserController selectedNodeIsPlayQueue]);
-	}
-	else if([menuItem action] == @selector(addCurrentStreamsToPlayQueue:)) {
-		return (0 != [[_streamController arrangedObjects] count]);
 	}
 	else if([menuItem action] == @selector(add10RandomStreamsToPlayQueue:)
 			|| [menuItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
@@ -505,7 +481,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		}
 		return YES;
 	}
-	
+	else if([menuItem action] == @selector(togglePlayQueue:)) {
+		if([[_splitView subviewWithIdentifier:@"playQueue"] isCollapsed]) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Show Play Queue", @"Menus", @"")];
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Hide Play Queue", @"Menus", @"")];
+		}
+		return YES;
+	}
+
 	return YES;
 }
 
@@ -516,114 +501,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_browserDrawer toggle:sender];
 }
 
-- (IBAction) streamTableDoubleClicked:(id)sender
+- (IBAction) togglePlayQueue:(id)sender
 {
-	if(0 == [[_streamController selectedObjects] count]) {
-		NSBeep();
-		return;
-	}
-
-	if([_browserController selectedNodeIsPlayQueue]) {
-		[self playStreamAtIndex:[_streamController selectionIndex]];
-	}
-	else if(0 == [self countOfPlayQueue]) {
-		[self addSelectedStreamsToPlayQueue:sender];
-		[self playStreamAtIndex:0];
+	RBSplitSubview *subView = [_splitView subviewWithIdentifier:@"playQueue"];
+	if([subView isCollapsed]) {
+		[subView expand];
 	}
 	else {
-		[self addSelectedStreamsToPlayQueue:sender];
-		
-		// Alternate behavior
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"alwaysPlayStreamsWhenDoubleClicked"]) {
-			[self playStreamAtIndex:[self countOfPlayQueue] - 1];
-		}
-/*		
-		NSView *view = [_streamTable enclosingScrollView];
-		NSRect rect = [view visibleRect];
-		NSBitmapImageRep *bitmap = [view bitmapImageRepForCachingDisplayInRect:rect];
-		[view cacheDisplayInRect:rect toBitmapImageRep:bitmap];
-		
-		NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect([[view window] frame].origin.x + [view frame].origin.x, [[view window] frame].origin.y + [view frame].origin.y, rect.size.width, rect.size.height)
-													   styleMask:NSBorderlessWindowMask 
-														 backing:NSBackingStoreBuffered 
-														   defer:NO];
-		
-		NSView *foo = [[AudioStreamTableAnimationView alloc] initWithFrame:[view frame]];
-		[window setContentView:foo];
-		
-		[foo setBitmap:bitmap];
-		NSRect rowRect = [_streamTable rectOfRow:[[_streamTable selectedRowIndexes] firstIndex]];
-		rowRect = [view convertRect:rowRect fromView:_streamTable];
-		if([view isFlipped]) {
-			rowRect.origin.y = [view frame].size.height - rowRect.origin.y - rowRect.size.height;
-		}
-		[foo setRect:rowRect];
-
-		[window orderFront:self];		
-		[NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.25]];
-		[window orderOut:self];
-				
-		[window release];*/
+		[subView collapse];
 	}
-	
-	[self updatePlayButtonState];
-}
-
-- (IBAction) browserViewDoubleClicked:(id)sender
-{
-	BrowserNode *node = [_browserController selectedNode];
-	
-	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
-		NSBeep();
-		return;
-	}
-
-	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
-	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject])) {
-		[_playQueue addObject:stream];
-	}
-	[self didChangeValueForKey:PlayQueueKey];
-	
-	[self updatePlayButtonState];
-}
-
-- (IBAction) addSelectedStreamsToPlayQueue:(id)sender
-{
-	if(0 == [[_streamController selectedObjects] count]) {
-		return;
-	}
-	
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
-	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject])) {
-		[_playQueue addObject:stream];
-	}
-	[self didChangeValueForKey:PlayQueueKey];
-	
-	[self updatePlayButtonState];
-}
-
-- (IBAction) addCurrentStreamsToPlayQueue:(id)sender
-{
-	if(0 == [[_streamController arrangedObjects] count]) {
-		return;
-	}
-	
-	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
-	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject])) {
-		[_playQueue addObject:stream];
-	}
-	[self didChangeValueForKey:PlayQueueKey];
-	
-	[self updatePlayButtonState];
 }
 
 - (IBAction) add10RandomStreamsToPlayQueue:(id)sender
@@ -634,19 +520,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (IBAction) add25RandomStreamsToPlayQueue:(id)sender
 {
 	[self addRandomStreamsFromLibraryToPlayQueue:25];
-}
-
-- (IBAction) removeSelectedStreams:(id)sender
-{
-	// If removing the currently playing stream from the library, stop playback
-	NSArray *streams = [_streamController selectedObjects];
-	if([streams containsObject:[self nowPlaying]] && ([_browserController selectedNodeIsLibrary] || [_browserController selectedNodeIsPlayQueue])) {
-		[self stop:sender];
-	}
-	
-	[[CollectionManager manager] beginUpdate];
-	[_streamController remove:sender];
-	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) openDocument:(id)sender
@@ -672,111 +545,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) jumpToNowPlaying:(id)sender
 {
-	if(nil != [self nowPlaying] && 0 != [self countOfPlayQueue] && [self selectPlayQueueNode]) {
+	if(nil != [self nowPlaying] && 0 != [self countOfPlayQueue]) {
+		RBSplitSubview *subView = [_splitView subviewWithIdentifier:@"playQueue"];
+		if([subView isCollapsed]) {
+			[subView expandWithAnimation];
+		}
 		[self scrollNowPlayingToVisible];
-		[_streamController setSelectionIndex:[self playbackIndex]];
+		[_playQueueController setSelectionIndex:[self playbackIndex]];
 	}
-}
-
-- (IBAction) jumpToPlayQueue:(id)sender
-{
-	/*BOOL success =*/ [self selectPlayQueueNode];
-}
-
-- (IBAction) showStreamInformationSheet:(id)sender
-{
-	NSArray *streams = [_streamController selectedObjects];
-		
-	if(1 != [streams count]) {
-		NSBeep();
-		return;
-	}
-	
-	AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
-	
-	[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-	
-	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
-								   modalForWindow:[self window] 
-									modalDelegate:self 
-								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:streamInformationSheet];
-}
-
-- (IBAction) showMetadataEditingSheet:(id)sender
-{
-	NSArray *streams = [_streamController selectedObjects];
-	
-	if(0 == [streams count]) {
-		return;
-	}
-	
-	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
-	
-	[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-	[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
-	
-	[[CollectionManager manager] beginUpdate];
-	
-	[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
-								   modalForWindow:[self window] 
-									modalDelegate:self 
-								   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:metadataEditingSheet];
-}
-
-- (IBAction) showPlaylistInformationSheet:(id)sender
-{
-	if(NO == [_browserController selectedNodeIsPlaylist] && NO == [_browserController selectedNodeIsSmartPlaylist]) {
-		NSBeep();
-		return;
-	}
-	
-	if([_browserController selectedNodeIsPlaylist]) {
-		PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
-		
-		[playlistInformationSheet setPlaylist:[(PlaylistNode *)[_browserController selectedNode] playlist]];
-		[playlistInformationSheet setOwner:self];
-		
-		[[CollectionManager manager] beginUpdate];
-		
-		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
-									   modalForWindow:[self window] 
-										modalDelegate:self 
-									   didEndSelector:@selector(showPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
-										  contextInfo:playlistInformationSheet];
-	}
-	else if([_browserController selectedNodeIsSmartPlaylist]) {
-		SmartPlaylistInformationSheet *playlistInformationSheet = [[SmartPlaylistInformationSheet alloc] init];
-		
-		[playlistInformationSheet setSmartPlaylist:[(SmartPlaylistNode *)[_browserController selectedNode] smartPlaylist]];
-		[playlistInformationSheet setOwner:self];
-		
-		[[CollectionManager manager] beginUpdate];
-		
-		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
-									   modalForWindow:[self window] 
-										modalDelegate:self 
-									   didEndSelector:@selector(showSmartPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
-										  contextInfo:playlistInformationSheet];
-	}
-}
-
-- (IBAction) rescanMetadata:(id)sender
-{
-	if(0 == [[_streamController selectedObjects] count]) {
-		NSBeep();
-		return;
-	}
-	
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
-	[[CollectionManager manager] beginUpdate];
-	while((stream = [enumerator nextObject])) {
-		[stream rescanMetadata:sender];
-	}
-	[[CollectionManager manager] finishUpdate];
 }
 
 #pragma mark File Addition and Removal
@@ -953,39 +729,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 }
 
-- (IBAction) insertPlaylistWithSelection:(id)sender
-{
-	// For some reason the call to insertPlaylistWithInitialValues: causes the _streamController selectedObjects to become nil
-	// ?? !!
-	NSDictionary	*initialValues		= [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
-	NSArray			*streamsToInsert	= [_streamController selectedObjects];
-	Playlist		*playlist			= [Playlist insertPlaylistWithInitialValues:initialValues];
-
-	if(nil != playlist) {
-		[playlist addStreams:streamsToInsert];
-
-		[_browserDrawer open:self];
-/*
-		NSEnumerator *enumerator = [[_browserController arrangedObjects] objectEnumerator];
-		id opaqueNode;
-		while((opaqueNode = [enumerator nextObject])) {
-			id node = [opaqueNode observedObject];
-			if([node isKindOfClass:[PlaylistNode class]] && [node playlist] == playlist) {
-				NSLog(@"found node:%@",opaqueNode);
-			} 
-		}*/
-		
-//		if([_browserController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
-//			// The playlist table has only one column for now
-//			[_browserOutlineView editColumn:0 row:[_browserOutlineView selectedRow] withEvent:nil select:YES];
-//		}
-	}
-	else {
-		NSBeep();
-		NSLog(@"Unable to create the playlist.");
-	}
-}
-
 - (IBAction) insertSmartPlaylist:(id)sender
 {
 	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Smart Playlist", @"General", @"") forKey:PlaylistNameKey];
@@ -1084,7 +827,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setPlayQueueFromArray:streams];
 		[self playStreamAtIndex:0];
 
-		[self selectPlayQueueNode];
 		[self scrollNowPlayingToVisible];		
 	}
 	
@@ -1111,7 +853,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			[self playStreamAtIndex:0];
 		}
 		else {
-			[self addSelectedStreamsToPlayQueue:sender];
+			[_streamTable addToPlayQueue:sender];
 			[self playStreamAtIndex:0];
 		}
 	}
@@ -1277,7 +1019,59 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 }
 
-#pragma mark Currently Playing Streams
+- (void) playStreamAtIndex:(unsigned)index
+{
+	NSParameterAssert([self countOfPlayQueue] > index);
+	
+	AudioStream *currentStream = [self nowPlaying];
+	
+	[[self player] stop];
+	
+	if(nil != currentStream) {
+		[currentStream setPlaying:NO];
+	}
+	
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
+	
+	[self setPlaybackIndex:index];
+	[self setNextPlaybackIndex:NSNotFound];
+	
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
+	
+	AudioStream		*stream		= [self objectInPlayQueueAtIndex:[self playbackIndex]];
+	NSError			*error		= nil;
+	BOOL			result		= [[self player] setStream:stream error:&error];
+	
+	if(NO == result) {
+		/*BOOL errorRecoveryDone =*/ [self presentError:error];
+		return;
+	}
+	
+	[self updatePlayQueueHistory];
+	
+	// Rescan metadata, if desired
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanMetadataBeforePlayback"]) {
+		[[CollectionManager manager] beginUpdate];
+		[stream rescanMetadata:self];
+		[[CollectionManager manager] finishUpdate];
+	}
+	
+	[stream setPlaying:YES];
+	
+	/*	if(nil == [stream valueForKey:@"albumArt"]) {
+		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
+	}*/
+	
+	[[self player] play];
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	
+	[self updatePlayButtonState];
+}
+
+#pragma mark Play Queue management
 
 - (unsigned) countOfPlayQueue
 {
@@ -1296,20 +1090,36 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index
 {
+	[_playQueue insertObject:stream atIndex:index];	
+
 	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
-
-	[_playQueue insertObject:stream atIndex:index];	
 }
 
 - (void) removeObjectFromPlayQueueAtIndex:(unsigned)index
 {
+	[_playQueue removeObjectAtIndex:index];	
+
 	if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
+}
+
+- (void) addStreamsToPlayQueue:(NSArray *)streams
+{
+	NSParameterAssert(nil != streams);
 	
-	[_playQueue removeObjectAtIndex:index];	
+	NSEnumerator	*enumerator		= [streams objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[self willChangeValueForKey:PlayQueueKey];
+	while((stream = [enumerator nextObject])) {
+		[_playQueue addObject:stream];
+	}
+	[self didChangeValueForKey:PlayQueueKey];
+	
+	[self updatePlayButtonState];
 }
 
 #pragma mark Browser support
@@ -1317,11 +1127,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (BOOL) selectLibraryNode
 {
 	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
-}
-
-- (BOOL) selectPlayQueueNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_playQueueNode]];
 }
 
 #pragma mark Properties
@@ -1407,68 +1212,68 @@ NSString * const	PlayQueueKey								= @"playQueue";
     return nil;
 }
 
-/*- (float) tableView:(NSTableView *)tableView heightOfRow:(int)row
-{
-	NSDictionary	*infoForBinding		= [tableView infoForBinding:NSContentBinding];
-	BOOL			highlight			= NO;
-	
-	if([_browserController selectedNodeIsPlayQueue] && nil != infoForBinding) {
-		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
-		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:row];
-		
-		highlight = ([stream isPlaying] && row == (int)[self playbackIndex]);
-	}
-	
-	return (highlight ? 18.0 : 16.0);
-}*/
-
 - (void) tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
-	// Only the PlayQueueNode should highlight the playing track
-	if(NO == [_browserController selectedNodeIsPlayQueue]) {
-		NSFont *font = [[NSFontManager sharedFontManager] convertFont:[cell font] toHaveTrait:NSUnboldFontMask];
-		[cell setFont:font];
-		return;
-	}
-	
-	NSDictionary *infoForBinding = [tableView infoForBinding:NSContentBinding];
-
-	if(nil != infoForBinding) {
-		NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
-		AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
-		BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
-
-		// Bold/unbold cell font as required
-		NSFont *font = [cell font];
-		font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:(highlight ? NSBoldFontMask : NSUnboldFontMask)];
-		[cell setFont:font];
+	if(tableView == _playQueueTable) {
+		NSDictionary *infoForBinding = [tableView infoForBinding:NSContentBinding];
+		
+		if(nil != infoForBinding) {
+			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
+			AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
+			BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
+			
+			// Bold/unbold cell font as required
+			NSFont *font = [cell font];
+			font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:(highlight ? NSBoldFontMask : NSUnboldFontMask)];
+			[cell setFont:font];
+		}
 	}
 }
 
 - (void) tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-	[self updatePlayButtonState];
+	if([aNotification object] == _streamTable) {
+		[self updatePlayButtonState];
+	}
 }
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
 {
-	[self saveStreamTableColumnOrder];
+	if([aNotification object] == _streamTable) {
+		[self saveStreamTableColumnOrder];
+	}
+	else if([aNotification object] == _playQueueTable) {
+		[self savePlayQueueTableColumnOrder];
+	}
 }
 
 - (void) tableViewColumnDidResize:(NSNotification *)aNotification
 {
-	NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
-	NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
-	id						column;
-	
-	while((column = [enumerator nextObject])) {
-		[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
+	if([aNotification object] == _streamTable) {
+		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
+		NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
+		id						column;
+		
+		while((column = [enumerator nextObject])) {
+			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
+		}
+		
+		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
 	}
-	
-	[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
+	else if([aNotification object] == _playQueueTable) {
+		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
+		NSEnumerator			*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
+		id						column;
+		
+		while((column = [enumerator nextObject])) {
+			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
+		}
+		
+		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"playQueueTableColumnSizes"];
+	}
 }
 
-- (void) configureTypeSelectTableView:(KFTypeSelectTableView *)tableView
+/*- (void) configureTypeSelectTableView:(KFTypeSelectTableView *)tableView
 {
     [tableView setSearchWraps:YES];
 }
@@ -1481,7 +1286,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (NSString *) typeSelectTableView:(id)tableView stringValueForTableColumn:(NSTableColumn *)column row:(int)row
 {
 	return [[[_streamController arrangedObjects] objectAtIndex:row] valueForKey:[column identifier]];
-}
+}*/
 
 @end
 
@@ -1531,10 +1336,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_streamController setContent:nil];
 	[_streamController setFilterPredicate:nil];
 	
-	
 	// Don't do anything except possibly save the sort descriptors if the user selected nothing
 	if(nil == node) {
-		[_streamTable setDrawRowHighlight:NO];
 
 		if(NO == [oldStreamsNode streamsAreOrdered]) {
 			[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
@@ -1544,8 +1347,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return;
 	}
 	
-	[_streamTable setDrawRowHighlight:[node isKindOfClass:[PlayQueueNode class]]];
-
 	// Bind to a new stream source if one was selected
 	if([[node exposedBindings] containsObject:@"streams"]) {
 		AudioStreamCollectionNode *newStreamsNode = (AudioStreamCollectionNode *)node;
@@ -1635,65 +1436,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 }
 
-- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{
-	AudioStreamInformationSheet *streamInformationSheet = (AudioStreamInformationSheet *)contextInfo;
-	
-	[sheet orderOut:self];
-	[streamInformationSheet release];
-}
-
-- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{
-	AudioMetadataEditingSheet *metadataEditingSheet = (AudioMetadataEditingSheet *)contextInfo;
-	
-	[sheet orderOut:self];
-	
-	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] finishUpdate];
-		[_streamController rearrangeObjects];
-	}
-	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] cancelUpdate];
-	}
-	
-	[metadataEditingSheet release];
-}
-
-- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{
-	PlaylistInformationSheet *playlistInformationSheet = (PlaylistInformationSheet *)contextInfo;
-	
-	[sheet orderOut:self];
-	
-	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] finishUpdate];
-	}
-	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] cancelUpdate];
-		// TODO: refresh affected objects
-	}
-	
-	[playlistInformationSheet release];
-}
-
-- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{
-	SmartPlaylistInformationSheet *playlistInformationSheet = (SmartPlaylistInformationSheet *)contextInfo;
-	
-	[sheet orderOut:self];
-	
-	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] finishUpdate];
-	}
-	else if(NSCancelButton == returnCode) {
-		[[CollectionManager manager] cancelUpdate];
-		// TODO: refresh affected objects
-	}
-	
-	[playlistInformationSheet release];
-}
-
 - (void) showNewWatchFolderSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	NewWatchFolderSheet *newWatchFolderSheet = (NewWatchFolderSheet *)contextInfo;
@@ -1743,7 +1485,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self setPlaybackIndex:[self nextPlaybackIndex]];
 	[self setNextPlaybackIndex:NSNotFound];
 	
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	
 	[self updatePlayQueueHistory];
 	
@@ -1779,7 +1521,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[[CollectionManager manager] finishUpdate];
 	
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	
 	[self setPlaybackIndex:NSNotFound];
 	
@@ -1848,7 +1590,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) scrollNowPlayingToVisible
 {
-	[_streamTable scrollRowToVisible:[self playbackIndex]];
+	[_playQueueTable scrollRowToVisible:[self playbackIndex]];
 }
 
 - (void)		setPlayButtonEnabled:(BOOL)playButtonEnabled		{ _playButtonEnabled = playButtonEnabled; }
@@ -1862,72 +1604,18 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	_playbackIndex = playbackIndex;
 	
 	if(NSNotFound != [self playbackIndex]) {
-		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-		
-		[_streamTable setHighlightedRow:_playbackIndex];
-		[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
+		[_playQueueTable setHighlightedRow:_playbackIndex];
+		[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	}
 	else {
-		[_streamTable setHighlightedRow:-1];
+		[_playQueueTable setHighlightedRow:-1];
 	}
 
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:oldPlaybackIndex]];
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:oldPlaybackIndex]];
 }
 
 - (unsigned)	nextPlaybackIndex									{ return _nextPlaybackIndex; }
 - (void)		setNextPlaybackIndex:(unsigned)nextPlaybackIndex	{ _nextPlaybackIndex = nextPlaybackIndex; }
-
-- (void) playStreamAtIndex:(unsigned)index
-{
-	NSParameterAssert([self countOfPlayQueue] > index);
-
-	AudioStream *currentStream = [self nowPlaying];
-	
-	[[self player] stop];
-	
-	if(nil != currentStream) {
-		[currentStream setPlaying:NO];
-	}
-	
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-	
-	[self setPlaybackIndex:index];
-	[self setNextPlaybackIndex:NSNotFound];
-	
-	[_streamTable setNeedsDisplayInRect:[_streamTable rectOfRow:[self playbackIndex]]];
-	
-	AudioStream		*stream		= [self objectInPlayQueueAtIndex:[self playbackIndex]];
-	NSError			*error		= nil;
-	BOOL			result		= [[self player] setStream:stream error:&error];
-	
-	if(NO == result) {
-		/*BOOL errorRecoveryDone =*/ [self presentError:error];
-		return;
-	}
-
-	[self updatePlayQueueHistory];
-	
-	// Rescan metadata, if desired
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rescanMetadataBeforePlayback"]) {
-		[[CollectionManager manager] beginUpdate];
-		[stream rescanMetadata:self];
-		[[CollectionManager manager] finishUpdate];
-	}
-	
-	[stream setPlaying:YES];
-
-/*	if(nil == [stream valueForKey:@"albumArt"]) {
-		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
-	}*/
-	
-	[[self player] play];
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
-	
-	[self updatePlayButtonState];
-}
 
 - (void) setPlayQueueFromArray:(NSArray *)streams
 {
@@ -2032,9 +1720,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
 	[browserRoot setIcon:folderIcon];
 	
-	_playQueueNode = [[PlayQueueNode alloc] init];
-//	[_playQueueNode setIcon:cdIcon];
-	
 	_libraryNode = [[LibraryNode alloc] init];
 //	[_libraryNode setIcon:cdIcon];
 
@@ -2060,7 +1745,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	RecentlyAddedNode *recentlyAddedNode = [[RecentlyAddedNode alloc] init];
 	RecentlyPlayedNode *recentlyPlayedNode = [[RecentlyPlayedNode alloc] init];
 	
-	[browserRoot addChild:_playQueueNode];
 	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[mostPopularNode autorelease]];
 	[browserRoot addChild:[recentlyAddedNode autorelease]];
@@ -2088,7 +1772,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) setupStreamTableColumns
 {
-	id <NSMenuItem> contextMenuItem;	
+	NSMenuItem		*contextMenuItem;	
 	id				obj;
 	int				menuIndex, i;
 	
@@ -2145,6 +1829,65 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_streamTable setDelegate:self];
 }
 
+- (void) setupPlayQueueTableColumns
+{
+	NSMenuItem		*contextMenuItem;	
+	id				obj;
+	int				menuIndex, i;
+	
+	// Setup stream table columns
+	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnVisibility"];
+	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnSizes"];
+	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnOrder"];
+	
+	NSArray			*tableColumns		= [_playQueueTable tableColumns];
+	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
+	
+	_playQueueTableVisibleColumns		= [[NSMutableSet alloc] init];
+	_playQueueTableHiddenColumns		= [[NSMutableSet alloc] init];
+	_playQueueTableHeaderContextMenu	= [[NSMenu alloc] initWithTitle:@"Play Queue Table Header Context Menu"];
+	
+	[[_playQueueTable headerView] setMenu:_playQueueTableHeaderContextMenu];
+	
+	// Keep our changes from generating notifications to ourselves
+	[_playQueueTable setDelegate:nil];
+	
+	while((obj = [enumerator nextObject])) {
+		menuIndex = 0;
+		
+		while(menuIndex < [_playQueueTableHeaderContextMenu numberOfItems] 
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_playQueueTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+			menuIndex++;
+		}
+		
+		contextMenuItem = [_playQueueTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(playQueueTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
+		
+		[contextMenuItem setTarget:self];
+		[contextMenuItem setRepresentedObject:obj];
+		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
+		
+		//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
+		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
+		
+		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
+			[_playQueueTableVisibleColumns addObject:obj];
+		}
+		else {
+			[_playQueueTableHiddenColumns addObject:obj];
+			[_playQueueTable removeTableColumn:obj];
+		}
+	}
+	
+	i = 0;
+	enumerator = [orderArray objectEnumerator];
+	while((obj = [enumerator nextObject])) {
+		[_playQueueTable moveColumn:[_playQueueTable columnWithIdentifier:obj] toColumn:i];
+		++i;
+	}
+	
+	[_playQueueTable setDelegate:self];
+}
+
 #pragma mark Stream Table Management
 
 - (void) saveStreamTableColumnOrder
@@ -2158,6 +1901,20 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
+	//	[[NSUserDefaults standardUserDefaults] synchronize];
+}	
+
+- (void) savePlayQueueTableColumnOrder
+{
+	NSMutableArray	*identifiers	= [NSMutableArray array];
+	NSEnumerator	*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
+	id				obj;
+	
+	while((obj = [enumerator nextObject])) {
+		[identifiers addObject:[obj identifier]];
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"playQueueTableColumnOrder"];
 	//	[[NSUserDefaults standardUserDefaults] synchronize];
 }	
 
@@ -2190,6 +1947,39 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
+	
+	[self saveStreamTableColumnOrder];
+}
+
+- (IBAction) playQueueTableHeaderContextMenuSelected:(id)sender
+{
+	if(NSOnState == [sender state]) {
+		[sender setState:NSOffState];
+		[_playQueueTableHiddenColumns addObject:[sender representedObject]];
+		[_playQueueTableVisibleColumns removeObject:[sender representedObject]];
+		[_playQueueTable removeTableColumn:[sender representedObject]];
+	}
+	else {
+		[sender setState:NSOnState];
+		[_playQueueTable addTableColumn:[sender representedObject]];
+		[_playQueueTableVisibleColumns addObject:[sender representedObject]];
+		[_playQueueTableHiddenColumns removeObject:[sender representedObject]];
+	}
+	
+	NSMutableDictionary	*visibleDictionary	= [NSMutableDictionary dictionary];
+	NSEnumerator		*enumerator			= [_playQueueTableVisibleColumns objectEnumerator];
+	id					obj;
+	
+	while((obj = [enumerator nextObject])) {
+		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
+	}
+	
+	enumerator = [_playQueueTableHiddenColumns objectEnumerator];
+	while((obj = [enumerator nextObject])) {
+		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"playQueueTableColumnVisibility"];
 	
 	[self saveStreamTableColumnOrder];
 }

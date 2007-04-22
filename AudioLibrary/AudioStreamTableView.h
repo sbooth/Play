@@ -19,7 +19,6 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "KFTypeSelectTableView.h"
 
 // ========================================
 // Pboard Types
@@ -28,17 +27,21 @@ extern NSString * const		AudioStreamPboardType;
 extern NSString * const		AudioStreamTableMovedRowsPboardType;
 extern NSString * const		iTunesPboardType;
 
-@interface AudioStreamTableView : KFTypeSelectTableView 
+@interface AudioStreamTableView : NSTableView 
 {
 	IBOutlet NSArrayController *_streamController;
-
-@private
-	int _highlightedRow;
-	BOOL _drawRowHighlight;
 }
 
-- (void)		setHighlightedRow:(int)row;
-- (void)		setDrawRowHighlight:(BOOL)flag;
+// ========================================
+// Action Methods
+- (IBAction)	addToPlayQueue:(id)sender;
+
+- (IBAction)	streamInformation:(id)sender;
+
+- (IBAction)	editMetadata:(id)sender;
+- (IBAction)	rescanMetadata:(id)sender;
+
+- (IBAction)	remove:(id)sender;
 
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;
@@ -46,5 +49,9 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	convertWithMax:(id)sender;
 
 - (IBAction)	openWith:(id)sender;
+
+- (IBAction)	insertPlaylistWithSelection:(id)sender;
+
+- (IBAction)	doubleClickAction:(id)sender;
 
 @end

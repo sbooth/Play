@@ -23,9 +23,11 @@
 @class AudioStream, Playlist;
 @class AudioPlayer;
 @class CollectionManager;
+@class PlayQueueTableView;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
-@class BrowserNode, LibraryNode, PlayQueueNode;
+@class BrowserNode, LibraryNode;
+@class RBSplitView;
 
 // ========================================
 // Notification Names
@@ -76,11 +78,16 @@ extern NSString * const		PlayQueueKey;
 // ========================================
 @interface AudioLibrary : NSWindowController
 {
+	IBOutlet NSArrayController				*_playQueueController;
 	IBOutlet AudioStreamArrayController		*_streamController;
+	
 	IBOutlet BrowserTreeController			*_browserController;
 	
+	IBOutlet PlayQueueTableView				*_playQueueTable;
 	IBOutlet AudioStreamTableView			*_streamTable;
+
 	IBOutlet BrowserOutlineView				*_browserOutlineView;
+	IBOutlet RBSplitView					*_splitView;
 	
 	IBOutlet NSButton		*_playPauseButton;
 	
@@ -101,12 +108,14 @@ extern NSString * const		PlayQueueKey;
 	unsigned				_nextPlaybackIndex;
 	
 	LibraryNode				*_libraryNode;
-	PlayQueueNode			*_playQueueNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
 	NSMenu					*_streamTableHeaderContextMenu;
 	NSArray					*_streamTableSavedSortDescriptors;	
+	NSMutableSet			*_playQueueTableVisibleColumns;
+	NSMutableSet			*_playQueueTableHiddenColumns;
+	NSMenu					*_playQueueTableHeaderContextMenu;
 }
 
 // ========================================
@@ -132,6 +141,8 @@ extern NSString * const		PlayQueueKey;
 - (IBAction)	playNextStream:(id)sender;
 - (IBAction)	playPreviousStream:(id)sender;
 
+- (void)		playStreamAtIndex:(unsigned)index;
+
 // ========================================
 // File addition and removal
 - (IBAction)	openDocument:(id)sender;
@@ -146,8 +157,6 @@ extern NSString * const		PlayQueueKey;
 // ========================================
 // Playlist manipulation
 - (IBAction)	insertPlaylist:(id)sender;
-- (IBAction)	insertPlaylistWithSelection:(id)sender;
-
 - (IBAction)	insertSmartPlaylist:(id)sender;
 
 - (IBAction)	insertWatchFolder:(id)sender;
@@ -155,40 +164,28 @@ extern NSString * const		PlayQueueKey;
 // ========================================
 // Action methods
 - (IBAction)	toggleBrowser:(id)sender;
+- (IBAction)	togglePlayQueue:(id)sender;
 
-- (IBAction)	streamTableDoubleClicked:(id)sender;
-- (IBAction)	browserViewDoubleClicked:(id)sender;
-
-- (IBAction)	addSelectedStreamsToPlayQueue:(id)sender;
-- (IBAction)	addCurrentStreamsToPlayQueue:(id)sender;
 - (IBAction)	add10RandomStreamsToPlayQueue:(id)sender;
 - (IBAction)	add25RandomStreamsToPlayQueue:(id)sender;
 
-- (IBAction)	removeSelectedStreams:(id)sender;
-
 - (IBAction)	jumpToLibrary:(id)sender;
 - (IBAction)	jumpToNowPlaying:(id)sender;
-- (IBAction)	jumpToPlayQueue:(id)sender;
-
-- (IBAction)	showStreamInformationSheet:(id)sender;
-- (IBAction)	showMetadataEditingSheet:(id)sender;
-- (IBAction)	showPlaylistInformationSheet:(id)sender;
-
-- (IBAction)	rescanMetadata:(id)sender;
 
 // ========================================
-// Current Streams
+// Play Queue management
 - (unsigned)		countOfPlayQueue;
 - (AudioStream *)	objectInPlayQueueAtIndex:(unsigned)index;
 - (void)			getPlayQueue:(id *)buffer range:(NSRange)aRange;
 
-- (void) insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index;
-- (void) removeObjectFromPlayQueueAtIndex:(unsigned)index;
+- (void)			insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index;
+- (void)			removeObjectFromPlayQueueAtIndex:(unsigned)index;
+
+- (void)			addStreamsToPlayQueue:(NSArray *)streams;
 
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;
-- (BOOL)		selectPlayQueueNode;
 
 // ========================================
 // Library properties

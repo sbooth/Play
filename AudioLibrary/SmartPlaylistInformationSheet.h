@@ -33,7 +33,6 @@
 	
 @private
 	SmartPlaylist				*_playlist;
-	AudioLibrary				*_owner;
 
 	NSMutableArray				*_criteria;
 	NSCompoundPredicateType		_predicateType;
@@ -44,14 +43,8 @@
 - (IBAction)			ok:(id)sender;
 - (IBAction)			cancel:(id)sender;
 
-- (AudioLibrary *)		owner;
-- (void)				setOwner:(AudioLibrary *)owner;
-
 - (SmartPlaylist *)		smartPlaylist;
 - (void)				setSmartPlaylist:(SmartPlaylist *)playlist;
-
-//- (IBAction)			undo:(id)sender;
-//- (IBAction)			redo:(id)sender;
 
 - (IBAction)			add:(id)sender;
 - (IBAction)			remove:(id)sender;

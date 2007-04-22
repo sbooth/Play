@@ -21,7 +21,6 @@
 #import <Cocoa/Cocoa.h>
 
 @class Playlist;
-@class AudioLibrary;
 
 @interface PlaylistInformationSheet : NSObject
 {
@@ -29,7 +28,6 @@
 	
 @private
 	Playlist					*_playlist;
-	AudioLibrary				*_owner;
 }
 
 - (NSWindow *)		sheet;
@@ -37,13 +35,7 @@
 - (IBAction)		ok:(id)sender;
 - (IBAction)		cancel:(id)sender;
 
-- (AudioLibrary *)	owner;
-- (void)			setOwner:(AudioLibrary *)owner;
-
 - (Playlist *)		playlist;
 - (void)			setPlaylist:(Playlist *)playlist;
-
-//- (IBAction)		undo:(id)sender;
-//- (IBAction)		redo:(id)sender;
 
 @end

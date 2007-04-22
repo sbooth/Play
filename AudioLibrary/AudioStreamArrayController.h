@@ -31,7 +31,6 @@ extern NSString * const		iTunesPboardType;
 
 @interface AudioStreamArrayController : NSArrayController
 {
-	IBOutlet NSTableView			*_tableView;
 	IBOutlet BrowserTreeController	*_browserController;
 }
 

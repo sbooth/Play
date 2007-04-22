@@ -4,33 +4,24 @@
             ACTIONS = {
                 add10RandomStreamsToPlayQueue = id; 
                 add25RandomStreamsToPlayQueue = id; 
-                addCurrentStreamsToPlayQueue = id; 
-                addSelectedStreamsToPlayQueue = id; 
-                browserViewDoubleClicked = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
                 insertSmartPlaylist = id; 
                 insertWatchFolder = id; 
                 jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
-                jumpToPlayQueue = id; 
                 openDocument = id; 
                 play = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
-                removeSelectedStreams = id; 
-                rescanMetadata = id; 
-                showMetadataEditingSheet = id; 
-                showPlaylistInformationSheet = id; 
-                showStreamInformationSheet = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
                 skipToEnd = id; 
                 stop = id; 
-                streamTableDoubleClicked = id; 
                 toggleBrowser = id; 
+                togglePlayQueue = id; 
             }; 
             CLASS = AudioLibrary; 
             LANGUAGE = ObjC; 
@@ -40,25 +31,32 @@
                 "_browserDrawer" = NSDrawer; 
                 "_browserOutlineView" = BrowserOutlineView; 
                 "_playPauseButton" = NSButton; 
+                "_playQueueController" = NSArrayController; 
+                "_playQueueTable" = PlayQueueTableView; 
+                "_splitView" = RBSplitView; 
                 "_streamController" = AudioStreamArrayController; 
                 "_streamTable" = AudioStreamTableView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
-        {CLASS = AudioLibraryWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
         {
             CLASS = AudioStreamArrayController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_browserController" = BrowserTreeController; "_tableView" = NSTableView; }; 
+            OUTLETS = {"_browserController" = BrowserTreeController; }; 
             SUPERCLASS = NSArrayController; 
         }, 
         {
             ACTIONS = {
+                addToPlayQueue = id; 
                 convertWithMax = id; 
+                doubleClickAction = id; 
+                editMetadata = id; 
                 openWith = id; 
                 openWithFinder = id; 
-                rescanTags = id; 
+                remove = id; 
+                rescanMetadata = id; 
                 revealInFinder = id; 
+                streamInformation = id; 
             }; 
             CLASS = AudioStreamTableView; 
             LANGUAGE = ObjC; 
@@ -68,11 +66,7 @@
         {
             CLASS = BrowserOutlineView; 
             LANGUAGE = ObjC; 
-            OUTLETS = {
-                "_browserController" = BrowserTreeController; 
-                "_playQueueMenu" = NSMenu; 
-                "_playlistMenu" = NSMenu; 
-            }; 
+            OUTLETS = {"_browserController" = BrowserTreeController; "_playlistMenu" = NSMenu; }; 
             SUPERCLASS = NSOutlineView; 
         }, 
         {
@@ -81,7 +75,33 @@
             OUTLETS = {"_outlineView" = NSOutlineView; }; 
             SUPERCLASS = NSTreeController; 
         }, 
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+        {
+            ACTIONS = {
+                addToPlayQueue = id; 
+                convertWithMax = id; 
+                editMetadata = id; 
+                openWith = id; 
+                openWithFinder = id; 
+                playlistInformation = id; 
+                remove = id; 
+                rescanMetadata = id; 
+                revealInFinder = id; 
+                streamInformation = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            CLASS = PlayQueueArrayController; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = AudioStreamArrayController; 
+        }, 
+        {
+            CLASS = PlayQueueTableView; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = AudioStreamTableView; 
+        }
     ); 
     IBVersion = 1; 
 }

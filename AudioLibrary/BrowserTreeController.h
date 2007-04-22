@@ -24,21 +24,18 @@
 // Pboard Types
 // ========================================
 extern NSString * const		AudioStreamPboardType;
+extern NSString * const		PlaylistPboardType;
+extern NSString * const		SmartPlaylistPboardType;
 
-@class BrowserNode;
-@class PlaylistNode;
-@class SmartPlaylistNode;
+@class BrowserNode, PlaylistNode, SmartPlaylistNode;
 
 @interface BrowserTreeController : NSTreeController
 {
 	IBOutlet NSOutlineView *_outlineView;
 }
 
-- (BOOL) canInsertPlaylist;
-
 - (BrowserNode *) selectedNode;
 
-- (BOOL) selectedNodeIsPlayQueue;
 - (BOOL) selectedNodeIsLibrary;
 - (BOOL) selectedNodeIsPlaylist;
 - (BOOL) selectedNodeIsSmartPlaylist;

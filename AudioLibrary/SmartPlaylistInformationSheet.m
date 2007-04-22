@@ -46,7 +46,6 @@
 - (void) dealloc
 {
 	[_playlist release], _playlist = nil;
-	[_owner release], _owner = nil;
 	[_criteria release], _criteria = nil;
 	
 	[super dealloc];
@@ -81,17 +80,6 @@
 - (IBAction) cancel:(id)sender
 {
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
-}
-
-- (AudioLibrary *) owner
-{
-	return _owner;
-}
-
-- (void) setOwner:(AudioLibrary *)owner
-{
-	[_owner release];
-	_owner = [owner retain];
 }
 
 - (SmartPlaylist *) smartPlaylist

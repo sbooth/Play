@@ -19,9 +19,17 @@
  */
 
 #import "AudioStreamTableView.h"
+
 #import "AudioStream.h"
+#import "Playlist.h"
 #import "AudioLibrary.h"
+
+#import "AudioStreamInformationSheet.h"
+#import "AudioMetadataEditingSheet.h"
+
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
+
 #import "SecondsFormatter.h"
 
 #import "CTBadge.h"
@@ -29,15 +37,15 @@
 #define kMaximumStreamsForContextMenuAction 10
 
 @interface AudioStreamTableView (Private)
-- (void) drawRowHighlight;
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 @implementation AudioStreamTableView
 
 - (void) awakeFromNib
 {
-	_highlightedRow = -1;
 	[self registerForDraggedTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil]];
 	NSFormatter *formatter = [[SecondsFormatter alloc] init];
 	[[[self tableColumnWithIdentifier:@"duration"] dataCell] setFormatter:formatter];
@@ -46,7 +54,25 @@
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
-	if([menuItem action] == @selector(convertWithMax:)) {
+	if([menuItem action] == @selector(addToPlayQueue:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(streamInformation:)) {
+		return (1 == [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(editMetadata:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(rescanMetadata:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(remove:)) {
+		return [_streamController canRemove];
+	}
+	else if([menuItem action] == @selector(insertPlaylistWithSelection:)) {
+		return (/*[_browserController canInsert] && */0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(convertWithMax:)) {
 		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(revealInFinder:)
@@ -54,9 +80,8 @@
 			|| [menuItem action] == @selector(openWith:)) {
 		return (kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
 	}
-	else {
-		return YES;
-	}
+
+	return YES;
 }
 
 - (void) keyDown:(NSEvent *)event
@@ -64,13 +89,20 @@
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
-	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
-		if(-1 == [self selectedRow]) {
-			NSBeep();
-		}
-		else {
-			[[AudioLibrary library] removeSelectedStreams:event];
-		}
+	if(0x0020 == key && 0 == flags) {
+		[[AudioLibrary library] playPause:self];
+	}
+	else if(NSCarriageReturnCharacter == key && 0 == flags) {
+		[self doubleClickAction:event];
+	}
+	else if(0xf702 == key && 0 == flags) {
+		[[AudioLibrary library] skipBackward:self];
+	}
+	else if(0xf703 == key && 0 == flags) {
+		[[AudioLibrary library] skipForward:self];
+	}
+	else if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
+		[self remove:event];
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 
@@ -123,26 +155,88 @@
 	return nil;
 }
 
-- (void) setHighlightedRow:(int)row
+- (IBAction) addToPlayQueue:(id)sender
 {
-	_highlightedRow = row;
+	NSArray *streams = [_streamController selectedObjects];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+
+	[[AudioLibrary library] addStreamsToPlayQueue:streams];
 }
 
-- (void) setDrawRowHighlight:(BOOL)flag
+- (IBAction) streamInformation:(id)sender
 {
-	_drawRowHighlight = flag;
+	NSArray *streams = [_streamController selectedObjects];
+
+	if(1 != [streams count]) {
+		NSBeep();
+		return;
+	}
+	
+	AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
+	
+	[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
+	
+	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:streamInformationSheet];
 }
 
-- (void) drawRect:(NSRect)drawRect
+- (IBAction) editMetadata:(id)sender
 {
-	[self drawRowHighlight];
-	[super drawRect:drawRect];
+	NSArray *streams = [_streamController selectedObjects];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+	
+	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
+	
+	[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
+	[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showMetadataEditingSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:metadataEditingSheet];
 }
 
-- (void) drawBackgroundInClipRect:(NSRect)clipRect
+- (IBAction) rescanMetadata:(id)sender
 {
-	[super drawBackgroundInClipRect:clipRect];
-	[self drawRowHighlight];
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	[[CollectionManager manager] beginUpdate];
+	while((stream = [enumerator nextObject])) {
+		[stream rescanMetadata:sender];
+	}
+	[[CollectionManager manager] finishUpdate];
+}
+
+- (IBAction) remove:(id)sender
+{
+	if(NO == [_streamController canRemove]) {
+		NSBeep();
+		return;
+	}
+	
+	[[CollectionManager manager] beginUpdate];
+	[_streamController remove:sender];
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) openWithFinder:(id)sender
@@ -196,31 +290,61 @@
 					  contextInfo:NULL];	
 }
 
+- (IBAction) insertPlaylistWithSelection:(id)sender
+{
+	NSDictionary	*initialValues		= [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSArray			*streamsToInsert	= [_streamController selectedObjects];
+	Playlist		*playlist			= [Playlist insertPlaylistWithInitialValues:initialValues];
+	
+	if(nil != playlist) {
+		[playlist addStreams:streamsToInsert];
+		
+//		[_browserDrawer open:self];
+		/*
+		 NSEnumerator *enumerator = [[_browserController arrangedObjects] objectEnumerator];
+		 id opaqueNode;
+		 while((opaqueNode = [enumerator nextObject])) {
+			 id node = [opaqueNode observedObject];
+			 if([node isKindOfClass:[PlaylistNode class]] && [node playlist] == playlist) {
+				 NSLog(@"found node:%@",opaqueNode);
+			 } 
+		 }*/
+		
+		//		if([_browserController setSelectedObjects:[NSArray arrayWithObject:playlist]]) {
+		//			// The playlist table has only one column for now
+		//			[_browserOutlineView editColumn:0 row:[_browserOutlineView selectedRow] withEvent:nil select:YES];
+		//		}
+	}
+	else {
+		NSBeep();
+		NSLog(@"Unable to create the playlist.");
+	}
+}
+
+- (IBAction) doubleClickAction:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	if(0 == [[AudioLibrary library] countOfPlayQueue]) {
+		[[AudioLibrary library] addStreamsToPlayQueue:[_streamController selectedObjects]];
+		[[AudioLibrary library] playStreamAtIndex:0];
+	}
+	else {
+		[[AudioLibrary library] addStreamsToPlayQueue:[_streamController selectedObjects]];
+		
+		// Alternate behavior
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"alwaysPlayStreamsWhenDoubleClicked"]) {
+			[[AudioLibrary library] playStreamAtIndex:[[AudioLibrary library] countOfPlayQueue] - 1];
+		}
+	}
+}
+
 @end
 
 @implementation AudioStreamTableView (Private)
-
-- (void) drawRowHighlight
-{
-	if(_drawRowHighlight && -1 != _highlightedRow && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
-		NSRect rowRect = [self rectOfRow:_highlightedRow];
-		if(NSIsEmptyRect(rowRect)) {
-			return;
-		}
-		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
-		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];
-		
-		[highlightImage lockFocus];
-		[highlightGradient fillRect:NSMakeRect(0, 0, rowRect.size.width, rowRect.size.height) angle:90];
-		[highlightImage unlockFocus];
-		
-		[highlightImage compositeToPoint:NSMakePoint(rowRect.origin.x, rowRect.origin.y + [highlightImage size].height)
-							   operation:NSCompositeSourceAtop
-								fraction:1.0];
-		
-		[highlightImage release];
-	}
-}
 
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
@@ -242,6 +366,31 @@
 			}
 		}
 	}
+}
+
+- (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioStreamInformationSheet *streamInformationSheet = (AudioStreamInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	[streamInformationSheet release];
+}
+
+- (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	AudioMetadataEditingSheet *metadataEditingSheet = (AudioMetadataEditingSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] finishUpdate];
+		[_streamController rearrangeObjects];
+	}
+	else if(NSCancelButton == returnCode) {
+		[[CollectionManager manager] cancelUpdate];
+	}
+	
+	[metadataEditingSheet release];
 }
 
 @end

@@ -31,7 +31,16 @@ extern NSString * const		AudioStreamPboardType;
 {
 	IBOutlet BrowserTreeController	*_browserController;
 	IBOutlet NSMenu					*_playlistMenu;
-	IBOutlet NSMenu					*_playQueueMenu;
 }
+
+// ========================================
+// Action Methods
+- (IBAction)	addToPlayQueue:(id)sender;
+
+- (IBAction)	playlistInformation:(id)sender;
+
+- (IBAction)	remove:(id)sender;
+
+- (IBAction) doubleClickAction:(id)sender;
 
 @end

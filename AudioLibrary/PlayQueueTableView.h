@@ -19,13 +19,18 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "AudioStreamCollectionNode.h"
+#import "AudioStreamTableView.h"
 
 // ========================================
-// A node coupled to the library's playback context
+// Pboard Types
 // ========================================
-@interface PlayQueueNode : AudioStreamCollectionNode
+extern NSString * const		PlayQueueTableMovedRowsPboardType;
+
+@interface PlayQueueTableView : AudioStreamTableView 
 {
+	int _highlightedRow;
 }
+
+- (void) setHighlightedRow:(int)row;
 
 @end

@@ -21,13 +21,29 @@
 #import "BrowserOutlineView.h"
 #import "BrowserTreeController.h"
 #import "AudioStreamCollectionNode.h"
+#import "CollectionManager.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
+#import "PlaylistInformationSheet.h"
+#import "SmartPlaylistInformationSheet.h"
 #import "NSBezierPath_RoundRectMethods.h"
 #import "CTGradient.h"
+#import "CTBadge.h"
 
 static float widthOffset	= 5.0;
 static float heightOffset	= 3.0;
+
+// ========================================
+// Completely bogus NSTreeController bindings hack
+// ========================================
+@interface NSObject (NSTreeControllerBogosity)
+- (id) observedObject;
+@end
+
+@interface BrowserOutlineView (Private)
+- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+@end
 
 @implementation BrowserOutlineView
 
@@ -36,28 +52,62 @@ static float heightOffset	= 3.0;
 	[self registerForDraggedTypes:[NSArray arrayWithObject:AudioStreamPboardType]];
 }
 
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{
+	if([menuItem action] == @selector(addToPlayQueue:)) {
+		BrowserNode *node = [_browserController selectedNode];
+		return ([node isKindOfClass:[AudioStreamCollectionNode class]] && 0 != [(AudioStreamCollectionNode *)node countOfStreams]);
+	}
+	else if([menuItem action] == @selector(playlistInformation:)) {
+		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
+	}
+	else if([menuItem action] == @selector(remove:)) {
+		return [_browserController canRemove];
+	}
+	
+	return YES;
+}
+
 - (void) keyDown:(NSEvent *)event
 {
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
 	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
-		if(-1 == [self selectedRow] || NO == [_browserController canRemove]) {
-			NSBeep();
-		}
-		else {
-			[_browserController remove:event];
-		}
+		[self remove:event];
 	}
 	else if(0x0020 == key && 0 == flags) {
 		[[AudioLibrary library] playPause:self];
 	}
 	else if(NSCarriageReturnCharacter == key && 0 == flags) {
-		[[AudioLibrary library] browserViewDoubleClicked:self];
+		[self doubleClickAction:event];
 	}
 	else {
 		[super keyDown:event]; // let somebody else handle the event 
 	}
+}
+
+- (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
+{
+	BrowserNode *node			= [[self itemAtRow:[dragRows firstIndex]] observedObject];
+
+	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
+		return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
+	}
+	
+	NSImage		*badgeImage		= [[CTBadge systemBadge] smallBadgeForValue:[(AudioStreamCollectionNode *)node countOfStreams]];
+	NSSize		badgeSize		= [badgeImage size];
+	NSImage		*dragImage		= [[NSImage alloc] initWithSize:NSMakeSize(48, 48)];
+	NSImage		*genericIcon	= [NSImage imageNamed:@"Generic"];
+	
+	[genericIcon setSize:NSMakeSize(48, 48)];
+	
+	[dragImage lockFocus];
+	[badgeImage compositeToPoint:NSMakePoint(48 - badgeSize.width, 48 - badgeSize.height) operation:NSCompositeSourceOver];  
+	[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver fraction:0.75];
+	[dragImage unlockFocus];
+	
+	return dragImage;
 }
 
 - (NSMenu *) menuForEvent:(NSEvent *)event
@@ -77,9 +127,6 @@ static float heightOffset	= 3.0;
 		
 		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
 			return _playlistMenu;
-		}
-		else if([_browserController selectedNodeIsPlayQueue]) {
-			return _playQueueMenu;
 		}
 		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]]) {
 			return [self menu];
@@ -143,5 +190,134 @@ static float heightOffset	= 3.0;
 	[[self backgroundColor] set];
 	NSRectFill(clipRect);
 }*/
+
+- (IBAction) addToPlayQueue:(id)sender
+{
+	BrowserNode *node = [_browserController selectedNode];
+	
+	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
+		NSBeep();
+		return;
+	}
+	
+	NSArray *streams = [node valueForKey:@"streams"];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] addStreamsToPlayQueue:streams];
+}
+
+- (IBAction) playlistInformation:(id)sender
+{
+	if(NO == [_browserController selectedNodeIsPlaylist] && NO == [_browserController selectedNodeIsSmartPlaylist]) {
+		NSBeep();
+		return;
+	}
+	
+	if([_browserController selectedNodeIsPlaylist]) {
+		PlaylistInformationSheet *playlistInformationSheet = [[PlaylistInformationSheet alloc] init];
+		
+		[playlistInformationSheet setPlaylist:[(PlaylistNode *)[_browserController selectedNode] playlist]];
+		
+		[[CollectionManager manager] beginUpdate];
+		
+		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+									   modalForWindow:[[AudioLibrary library] window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:playlistInformationSheet];
+	}
+	else if([_browserController selectedNodeIsSmartPlaylist]) {
+		SmartPlaylistInformationSheet *playlistInformationSheet = [[SmartPlaylistInformationSheet alloc] init];
+		
+		[playlistInformationSheet setSmartPlaylist:[(SmartPlaylistNode *)[_browserController selectedNode] smartPlaylist]];
+		
+		[[CollectionManager manager] beginUpdate];
+		
+		[[NSApplication sharedApplication] beginSheet:[playlistInformationSheet sheet] 
+									   modalForWindow:[[AudioLibrary library] window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showSmartPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:playlistInformationSheet];
+	}
+}
+
+- (IBAction) remove:(id)sender
+{
+	if(NO == [_browserController canRemove]) {
+		NSBeep();
+		return;
+	}
+	
+	[[CollectionManager manager] beginUpdate];
+	[_browserController remove:sender];
+	[[CollectionManager manager] finishUpdate];
+}
+
+- (IBAction) doubleClickAction:(id)sender
+{
+	BrowserNode *node = [_browserController selectedNode];
+	
+	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
+		NSBeep();
+		return;
+	}
+	
+	NSArray *streams = [node valueForKey:@"streams"];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+
+	if(0 == [[AudioLibrary library] countOfPlayQueue]) {
+		[[AudioLibrary library] addStreamsToPlayQueue:streams];
+		[[AudioLibrary library] playStreamAtIndex:0];
+	}
+	else {
+		[[AudioLibrary library] addStreamsToPlayQueue:streams];
+	}
+}
+
+@end
+
+@implementation BrowserOutlineView (Private)
+
+- (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	PlaylistInformationSheet *playlistInformationSheet = (PlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] finishUpdate];
+	}
+	else if(NSCancelButton == returnCode) {
+		[[CollectionManager manager] cancelUpdate];
+		// TODO: refresh affected objects
+	}
+	
+	[playlistInformationSheet release];
+}
+
+- (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	SmartPlaylistInformationSheet *playlistInformationSheet = (SmartPlaylistInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] finishUpdate];
+	}
+	else if(NSCancelButton == returnCode) {
+		[[CollectionManager manager] cancelUpdate];
+		// TODO: refresh affected objects
+	}
+	
+	[playlistInformationSheet release];
+}
 
 @end

@@ -22,12 +22,19 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "BrowserNode.h"
+#import "LibraryNode.h"
 #import "PlaylistNode.h"
 #import "SmartPlaylistNode.h"
-#import "LibraryNode.h"
-#import "PlayQueueNode.h"
 #import "WatchFolderNode.h"
+#import "AudioStream.h"
 #import "Playlist.h"
+#import "SmartPlaylist.h"
+
+// ========================================
+// Pboard Types
+// ========================================
+NSString * const PlaylistPboardType						= @"org.sbooth.Play.Playlist.PboardType";
+NSString * const SmartPlaylistPboardType				= @"org.sbooth.Play.SmartPlaylist.PboardType";
 
 // ========================================
 // Completely bogus NSTreeController bindings hack
@@ -64,21 +71,11 @@
 
 #pragma mark Overrides
 
-- (BOOL) canInsertPlaylist
-{
-	return [self canInsert];
-}
-
 - (BrowserNode *) selectedNode
 {
 	NSArray *selectedObjects = [self selectedObjects];
 
 	return (0 == [selectedObjects count] ? nil : [selectedObjects objectAtIndex:0]);
-}
-
-- (BOOL) selectedNodeIsPlayQueue
-{
-	return [[self selectedNode] isKindOfClass:[PlayQueueNode class]];
 }
 
 - (BOOL) selectedNodeIsLibrary
@@ -111,6 +108,7 @@
 			return YES;
 		}
 	}
+	
 	return NO;
 }
 
@@ -121,11 +119,72 @@
 
 #pragma mark Drag and Drop
 
+- (BOOL) outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
+{
+	NSEnumerator		*enumerator		= [items objectEnumerator];
+	BrowserNode			*node			= nil;
+	Playlist			*playlist		= nil;
+	SmartPlaylist		*smartPlaylist	= nil;
+	NSArray				*streams		= nil;
+	NSMutableArray		*objectIDs		= [NSMutableArray array];
+	AudioStream			*stream			= nil;
+	BOOL				success			= NO;
+	unsigned			i;
+	
+	while((node = [[enumerator nextObject] observedObject])) {
+
+		if([node isKindOfClass:[PlaylistNode class]]) {
+			playlist	= [(PlaylistNode *)node playlist];
+			streams		= [playlist streams];
+
+			for(i = 0; i < [streams count]; ++i) {
+				stream = [streams objectAtIndex:i];				
+				[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
+			}
+			
+			[pboard declareTypes:[NSArray arrayWithObjects:PlaylistPboardType, AudioStreamPboardType, nil] owner:nil];
+			[pboard addTypes:[NSArray arrayWithObjects:PlaylistPboardType, AudioStreamPboardType, nil] owner:nil];
+			
+			success = [pboard setPropertyList:[playlist valueForKey:ObjectIDKey] forType:PlaylistPboardType];
+			success &= [pboard setPropertyList:objectIDs forType:AudioStreamPboardType];
+		}
+		else if([node isKindOfClass:[SmartPlaylistNode class]]) {
+			smartPlaylist	= [(SmartPlaylistNode *)node smartPlaylist];
+			streams			= [smartPlaylist streams];
+			
+			for(i = 0; i < [streams count]; ++i) {
+				stream = [streams objectAtIndex:i];
+				[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
+			}
+			
+			[pboard declareTypes:[NSArray arrayWithObjects:SmartPlaylistPboardType, AudioStreamPboardType, nil] owner:nil];
+			[pboard addTypes:[NSArray arrayWithObjects:SmartPlaylistPboardType, AudioStreamPboardType, nil] owner:nil];
+			
+			success = [pboard setPropertyList:[smartPlaylist valueForKey:ObjectIDKey] forType:SmartPlaylistPboardType];
+			success &= [pboard setPropertyList:objectIDs forType:AudioStreamPboardType];
+		}
+		else if([node isKindOfClass:[AudioStreamCollectionNode class]]) {
+			for(i = 0; i < [(AudioStreamCollectionNode *)node countOfStreams]; ++i) {
+				stream = [(AudioStreamCollectionNode *)node objectInStreamsAtIndex:i];
+				[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
+			}
+			
+			[pboard declareTypes:[NSArray arrayWithObjects:AudioStreamPboardType, nil] owner:nil];
+			[pboard addTypes:[NSArray arrayWithObjects:AudioStreamPboardType, nil] owner:nil];
+			
+			success = [pboard setPropertyList:objectIDs forType:AudioStreamPboardType];
+		}
+		
+	}
+	
+	return success;
+}
+
 - (NSDragOperation) outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
 {
 	BrowserNode *node = [item observedObject];
 	
-	return ([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[PlayQueueNode class]] ? NSDragOperationCopy : NSDragOperationNone);
+	return ([node isKindOfClass:[PlaylistNode class]] ? NSDragOperationCopy : NSDragOperationNone);
 }
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
@@ -135,18 +194,6 @@
 
 	if([node isKindOfClass:[PlaylistNode class]]) {
 		[[(PlaylistNode *)node playlist] addStreamsWithIDs:objectIDs];		
-		return YES;
-	}
-	if([node isKindOfClass:[PlayQueueNode class]]) {
-		NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
-		NSNumber		*objectID		= nil;
-		AudioStream		*stream			= nil;
-		
-		while((objectID = [enumerator nextObject])) {
-			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-			[(PlayQueueNode *)node insertObject:stream inStreamsAtIndex:[(PlayQueueNode *)node countOfStreams]];
-		}
-		
 		return YES;
 	}
 		

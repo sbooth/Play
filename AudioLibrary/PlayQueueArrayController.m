@@ -18,8 +18,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamArrayController.h"
+#import "PlayQueueArrayController.h"
 #import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 #import "BrowserTreeController.h"
@@ -28,9 +29,7 @@
 // ========================================
 // Pboard Types
 // ========================================
-NSString * const AudioStreamPboardType					= @"org.sbooth.Play.AudioStream.PboardType";
-NSString * const AudioStreamTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibrary.AudioStreamTable.MovedRowsPboardType";
-NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
+NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibrary.PlayQueueTable.MovedRowsPboardType";
 
 @interface AudioLibrary (Private)
 - (unsigned) playbackIndex;
@@ -43,7 +42,7 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 - (int) rowsAboveRow:(int)row inIndexSet:(NSIndexSet *)indexSet;
 @end
 
-@implementation AudioStreamArrayController
+@implementation PlayQueueArrayController
 
 - (BOOL) tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
@@ -52,20 +51,20 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	AudioStream			*stream			= nil;
 	BOOL				success			= NO;
 	unsigned			i;
-		
+	
 	for(i = 0; i < [objects count]; ++i) {
-		stream = [objects objectAtIndex:i];				
+		stream = [objects objectAtIndex:i];		
 		[objectIDs addObject:[stream valueForKey:ObjectIDKey]];
 	}
 	
-	[pboard declareTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, nil] owner:nil];
-	[pboard addTypes:[NSArray arrayWithObjects:AudioStreamTableMovedRowsPboardType, AudioStreamPboardType, nil] owner:nil];
+	[pboard declareTypes:[NSArray arrayWithObjects:PlayQueueTableMovedRowsPboardType, AudioStreamPboardType, nil] owner:nil];
+	[pboard addTypes:[NSArray arrayWithObjects:PlayQueueTableMovedRowsPboardType, AudioStreamPboardType, nil] owner:nil];
 	
 	success = [pboard setPropertyList:objectIDs forType:AudioStreamPboardType];
 	
 	// Copy the row numbers to the pasteboard
     NSData *indexData = [NSKeyedArchiver archivedDataWithRootObject:rowIndexes];
-	success &= [pboard setData:indexData forType:AudioStreamTableMovedRowsPboardType];
+	success &= [pboard setData:indexData forType:PlayQueueTableMovedRowsPboardType];
 	
 	return success;
 }
@@ -74,8 +73,8 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 {
 	NSDragOperation dragOperation = NSDragOperationNone;
 	
-	// Move rows if this is an internal drag and the library is displaying an ordered set of streams
-	if(tableView == [info draggingSource] && [[AudioLibrary library] streamsAreOrdered]) {
+	// Move rows if this is an internal drag
+	if(tableView == [info draggingSource]) {
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 		dragOperation = NSDragOperationMove;
 	}
@@ -93,34 +92,68 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
     if(0 > row) {
 		row = 0;
 	}
-	
-	// First handle internal drops for reordering ordered streams
+
+	// First handle internal drops for reordering
     if(tableView == [info draggingSource]) {
-		if(NO == [[AudioLibrary library] streamsAreOrdered]) {
-			return NO;
-		}
-		
-		NSData			*indexData		= [[info draggingPasteboard] dataForType:AudioStreamTableMovedRowsPboardType];
+		NSData			*indexData		= [[info draggingPasteboard] dataForType:PlayQueueTableMovedRowsPboardType];
 		NSIndexSet		*rowIndexes		= [NSKeyedUnarchiver unarchiveObjectWithData:indexData];
+		unsigned		playbackIndex	= NSNotFound;
 		int				rowsAbove;
 		NSRange			range;
+		
+		// If the currently playing stream is being dragged, determine what its new index will be
+		// First count how many rows with indexes less than the currently playing stream's index are being dragged
+		if([rowIndexes containsIndex:[[AudioLibrary library] playbackIndex]]) {
+			unsigned count		= 0;
+			unsigned index		= [rowIndexes lastIndex];
+			
+			while(NSNotFound != index) {
+				if(index < [[AudioLibrary library] playbackIndex]) {
+					++count;				
+				}
+				index = [rowIndexes indexLessThanIndex:index];
+			}
+			
+			playbackIndex = count;
+			
+			// Don't let the library reorder the playbackIndex during the drag
+			[[AudioLibrary library] setPlaybackIndex:NSNotFound];
+		}
 		
 		[self moveObjectsInArrangedObjectsFromIndexes:rowIndexes toIndex:row];
 		
 		rowsAbove	= [self rowsAboveRow:row inIndexSet:rowIndexes];
 		range		= NSMakeRange(row - rowsAbove, [rowIndexes count]);
 		rowIndexes	= [NSIndexSet indexSetWithIndexesInRange:range];
-
+		
+		// Adjust the current playbackIndex, if the currently playing stream was dragged
+		if(NSNotFound != playbackIndex) {
+			[[AudioLibrary library] setPlaybackIndex:(row - rowsAbove + playbackIndex)];
+		}
+		
 		[self setSelectionIndexes:rowIndexes];
 		
 		return YES;
 	}
-
-	NSArray			*supportedTypes		= [NSArray arrayWithObjects:NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil];
+	
+	NSArray			*supportedTypes		= [NSArray arrayWithObjects:AudioStreamPboardType, NSFilenamesPboardType, NSURLPboardType, iTunesPboardType, nil];
 	NSString		*bestType			= [[info draggingPasteboard] availableTypeFromArray:supportedTypes];	
 	
+	if([bestType isEqualToString:AudioStreamPboardType]) {
+		NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:AudioStreamPboardType];		
+		NSEnumerator	*enumerator		= [objectIDs reverseObjectEnumerator];
+		NSNumber		*objectID		= nil;
+		AudioStream		*stream			= nil;
+			
+		while((objectID = [enumerator nextObject])) {
+			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
+			[self insertObject:stream atArrangedObjectIndex:row];
+		}
+		
+		return YES;
+	}
 	// Handle drops of files
-	if([bestType isEqualToString:NSFilenamesPboardType]) {
+	else if([bestType isEqualToString:NSFilenamesPboardType]) {
 		NSArray						*filenames		= [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 		FileAdditionProgressSheet	*progressSheet	= [[FileAdditionProgressSheet alloc] init];
 		
@@ -141,6 +174,10 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 		[NSApp endSheet:[progressSheet sheet]];
 		[[progressSheet sheet] close];
 		[progressSheet release];
+		
+		if(result) {
+			result = [[AudioLibrary library] playFiles:filenames];
+		}
 		
 		return result;
 	}
@@ -170,76 +207,6 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	}
 	
 	return NO;
-}
-
-@end
-
-@implementation AudioStreamArrayController (Private)
-
-- (void) moveObjectsInArrangedObjectsFromIndexes:(NSIndexSet*)indexSet toIndex:(unsigned)insertIndex
-{
-	NSArray			*objects					= [self arrangedObjects];
-	unsigned		index						= [indexSet lastIndex];
-	unsigned		aboveInsertIndexCount		= 0;
-	unsigned		removeIndex;
-	id				object;
-	
-	[[CollectionManager manager] beginUpdate];
-	
-	while(NSNotFound != index) {
-		if(index >= insertIndex) {
-			removeIndex = index + aboveInsertIndexCount;
-			++aboveInsertIndexCount;
-		}
-		else {
-			removeIndex = index;
-			--insertIndex;
-		}
-		object = [[objects objectAtIndex:removeIndex] retain];
-		[self removeObjectAtArrangedObjectIndex:removeIndex];
-		[self insertObject:[object autorelease] atArrangedObjectIndex:insertIndex];
-		
-		index = [indexSet indexLessThanIndex:index];
-	}
-
-	[[CollectionManager manager] finishUpdate];
-}
-
-- (NSIndexSet *) indexSetForRows:(NSArray *)rows
-{
-	NSArray					*arrangedObjects		= [self arrangedObjects];
-	NSEnumerator			*enumerator				= nil;
-	NSMutableIndexSet		*indexSet				= [NSMutableIndexSet indexSet];
-	NSEnumerator			*rowEnumerator			= [rows objectEnumerator];
-	id						object;
-	NSNumber				*objectID;
-	
-	while((objectID = [rowEnumerator nextObject])) {
-		enumerator = [arrangedObjects objectEnumerator];
-		while((object = [enumerator nextObject])) {
-			if([[object valueForKey:ObjectIDKey] isEqual:objectID]) {
-				[indexSet addIndex:[arrangedObjects indexOfObject:object]];
-			}
-		}
-	}
-	
-	return indexSet;
-}
-
-- (int) rowsAboveRow:(int)row inIndexSet:(NSIndexSet *)indexSet
-{
-	int				i				= 0;
-	unsigned		currentIndex	= [indexSet firstIndex];
-	
-	while(NSNotFound != currentIndex) {
-		if(currentIndex < (unsigned)row) {
-			++i;
-		}
-		
-		currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
-	}
-	
-	return i;
 }
 
 @end
