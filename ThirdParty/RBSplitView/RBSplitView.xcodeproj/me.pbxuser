@@ -1,0 +1,159 @@
+// !$*UTF8*$!
+{
+	0259C573FE90428111CA0C5A /* Project object */ = {
+		activeBuildConfigurationName = Release;
+		activeExecutable = 8C445CF50BD165A3009011B6 /* SampleApp */;
+		activeTarget = D5E003C5073299CB00594182 /* Build All */;
+		codeSenseManager = 8C445D040BD165C2009011B6 /* Code sense */;
+		executables = (
+			8C445CF50BD165A3009011B6 /* SampleApp */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					243,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 198532477;
+			PBXWorkspaceStateSaveDate = 198532477;
+		};
+		sourceControlManager = 8C445D030BD165C2009011B6 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	0259C57AFE90428111CA0C5A /* RBSplitView.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1154, 3164}}";
+			sepNavSelRange = "{513, 0}";
+			sepNavVisRect = "{{0, 1459}, {857, 755}}";
+			sepNavWindowFrame = "{{15, 4}, {902, 828}}";
+		};
+	};
+	8C445CF50BD165A3009011B6 /* SampleApp */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = SampleApp;
+		sourceDirectories = (
+		);
+	};
+	8C445D030BD165C2009011B6 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+		scmType = "";
+	};
+	8C445D040BD165C2009011B6 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	8D1AC9600486D14A00FE50C9 /* Palette */ = {
+		activeExec = 0;
+	};
+	D500FD5608170D550085E138 /* Programming Topics.rtfd */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 3147}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 2107}, {857, 1040}}";
+			sepNavWindowFrame = "{{61, 33}, {902, 1098}}";
+		};
+	};
+	D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 1025}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {857, 1025}}";
+			sepNavWindowFrame = "{{38, 54}, {902, 1098}}";
+		};
+	};
+	D51D05F407FF2A55001EE379 /* RBSplitSubview.ibclassdescription */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 1025}}";
+			sepNavSelRange = "{118, 0}";
+			sepNavVisRect = "{{0, 0}, {857, 1025}}";
+			sepNavWindowFrame = "{{15, 75}, {902, 1098}}";
+		};
+	};
+	D51D05FB07FF2B2E001EE379 /* RBSplitView.ibclassdescription */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 1025}}";
+			sepNavSelRange = "{179, 0}";
+			sepNavVisRect = "{{0, 0}, {857, 1025}}";
+			sepNavWindowFrame = "{{38, 54}, {902, 1098}}";
+		};
+	};
+	D54EA85F0750E978001EDAAC /* RBSplitView.rtf */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 8874}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 2358}, {857, 1040}}";
+			sepNavWindowFrame = "{{84, 12}, {902, 1098}}";
+		};
+	};
+	D5D769E308290CB1000E7ABB /* Read Me.rtfd */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {857, 3803}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {857, 770}}";
+			sepNavWindowFrame = "{{15, 4}, {902, 828}}";
+		};
+	};
+	D5E002A007328E1100594182 /* Framework */ = {
+		activeExec = 0;
+	};
+	D5E003B8073298FC00594182 /* Library */ = {
+		activeExec = 0;
+	};
+	D5E003C5073299CB00594182 /* Build All */ = {
+		activeExec = 0;
+	};
+	D5EA8A08074CF5AB00AE807E /* SampleApp */ = {
+		activeExec = 0;
+		executables = (
+			8C445CF50BD165A3009011B6 /* SampleApp */,
+		);
+	};
+	D5EA8A2F074CF6DE00AE807E /* main.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1112, 2324}}";
+			sepNavSelRange = "{2324, 52}";
+			sepNavVisRect = "{{0, 154}, {857, 1025}}";
+			sepNavWindowFrame = "{{61, 33}, {902, 1098}}";
+		};
+	};
+}
