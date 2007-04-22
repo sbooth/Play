@@ -77,6 +77,7 @@
         }, 
         {
             ACTIONS = {
+                "" = id; 
                 addToPlayQueue = id; 
                 convertWithMax = id; 
                 editMetadata = id; 
