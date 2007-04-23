@@ -244,6 +244,7 @@
 		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
 		8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */; };
 		8CB3DC240B82E0E400B5F8A3 /* LibraryNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DC220B82E0E400B5F8A3 /* LibraryNode.m */; };
+		8CB3DD230BDBDCE700B5E828 /* artsenvironment.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3DD220BDBDCE700B5E828 /* artsenvironment.png */; };
 		8CB3DDE90B83058C00B5F8A3 /* AudioStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DDE50B83058C00B5F8A3 /* AudioStreamManager.m */; };
 		8CB3DDEB0B83058C00B5F8A3 /* CollectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DDE70B83058C00B5F8A3 /* CollectionManager.m */; };
 		8CB3DE6E0B83097B00B5F8A3 /* Playlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B6C20B7BB1E5006BF010 /* Playlist.m */; };
@@ -663,6 +664,7 @@
 		8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BrowserOutlineView.m; path = AudioLibrary/BrowserOutlineView.m; sourceTree = "<group>"; };
 		8CB3DC210B82E0E400B5F8A3 /* LibraryNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibraryNode.h; path = Browser/LibraryNode.h; sourceTree = "<group>"; };
 		8CB3DC220B82E0E400B5F8A3 /* LibraryNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LibraryNode.m; path = Browser/LibraryNode.m; sourceTree = "<group>"; };
+		8CB3DD220BDBDCE700B5E828 /* artsenvironment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = artsenvironment.png; path = Images/artsenvironment.png; sourceTree = "<group>"; };
 		8CB3DDE40B83058C00B5F8A3 /* AudioStreamManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamManager.h; path = Database/AudioStreamManager.h; sourceTree = "<group>"; };
 		8CB3DDE50B83058C00B5F8A3 /* AudioStreamManager.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamManager.m; path = Database/AudioStreamManager.m; sourceTree = "<group>"; };
 		8CB3DDE60B83058C00B5F8A3 /* CollectionManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CollectionManager.h; path = Database/CollectionManager.h; sourceTree = "<group>"; };
@@ -1202,6 +1204,7 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8CB3DD220BDBDCE700B5E828 /* artsenvironment.png */,
 				8C9C2E6C0B7310C100CE799A /* Add_Pressed.png */,
 				8C9C2E6D0B7310C100CE799A /* Add.png */,
 				8C9C2E6E0B7310C100CE799A /* DynamicPlaylist.png */,
@@ -1561,6 +1564,7 @@
 				8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */,
 				8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */,
 				8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */,
+				8CB3DD230BDBDCE700B5E828 /* artsenvironment.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -222,8 +222,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self setKeys:[NSArray arrayWithObjects:PlayQueueKey, @"playbackIndex", @"randomPlayback", @"loopPlayback", nil] triggerChangeNotificationsForDependentKey:@"canPlayPreviousStream"];
 	[self setKeys:[NSArray arrayWithObjects:@"playbackIndex", nil] triggerChangeNotificationsForDependentKey:@"nowPlaying"];
 	
-	// Setup table column defaults
-	NSDictionary *visibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+	// Setup stream table column defaults
+	NSDictionary *streamTableVisibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"id",
 		[NSNumber numberWithBool:YES], @"title",
 		[NSNumber numberWithBool:YES], @"albumTitle",
@@ -243,7 +243,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"filename",
 		nil];
 	
-	NSDictionary *columnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSDictionary *streamTableColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithFloat:50], @"id",
 		[NSNumber numberWithFloat:186], @"title",
 		[NSNumber numberWithFloat:128], @"albumTitle",
@@ -263,16 +263,62 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:55], @"filename",
 		nil];
 	
-	NSDictionary *columnOrderArray = [NSArray arrayWithObjects:
+	NSDictionary *streamTableColumnOrderArray = [NSArray arrayWithObjects:
 		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
+
+	// Setup play queue column defaults
+	NSDictionary *playQueueVisibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+		[NSNumber numberWithBool:YES], @"nowPlaying",
+		[NSNumber numberWithBool:NO], @"id",
+		[NSNumber numberWithBool:YES], @"title",
+		[NSNumber numberWithBool:YES], @"albumTitle",
+		[NSNumber numberWithBool:YES], @"artist",
+		[NSNumber numberWithBool:NO], @"albumArtist",
+		[NSNumber numberWithBool:YES], @"genre",
+		[NSNumber numberWithBool:YES], @"track",
+		[NSNumber numberWithBool:NO], @"disc",
+		[NSNumber numberWithBool:NO], @"fileType",
+		[NSNumber numberWithBool:YES], @"formatType",
+		[NSNumber numberWithBool:NO], @"composer",
+		[NSNumber numberWithBool:YES], @"duration",
+		[NSNumber numberWithBool:NO], @"playCount",
+		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"date",
+		[NSNumber numberWithBool:NO], @"compilation",
+		[NSNumber numberWithBool:NO], @"filename",
+		nil];
+	
+	NSDictionary *playQueueColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+		[NSNumber numberWithFloat:18], @"nowPlaying",
+		[NSNumber numberWithFloat:50], @"id",
+		[NSNumber numberWithFloat:186], @"title",
+		[NSNumber numberWithFloat:128], @"albumTitle",
+		[NSNumber numberWithFloat:129], @"artist",
+		[NSNumber numberWithFloat:129], @"albumArtist",
+		[NSNumber numberWithFloat:63], @"genre",
+		[NSNumber numberWithFloat:54], @"track",
+		[NSNumber numberWithFloat:54], @"disc",
+		[NSNumber numberWithFloat:88], @"fileType",
+		[NSNumber numberWithFloat:88], @"formatType",
+		[NSNumber numberWithFloat:99], @"composer",
+		[NSNumber numberWithFloat:74], @"duration",
+		[NSNumber numberWithFloat:72], @"playCount",
+		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:50], @"date",
+		[NSNumber numberWithFloat:70], @"compilation",
+		[NSNumber numberWithFloat:55], @"filename",
+		nil];
+	
+	NSDictionary *playQueueColumnOrderArray = [NSArray arrayWithObjects:
+		@"nowPlaying", @"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
 	
 	NSDictionary *tableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
-		visibleColumnsDictionary, @"streamTableColumnVisibility",
-		columnSizesDictionary, @"streamTableColumnSizes",
-		columnOrderArray, @"streamTableColumnOrder",
-		visibleColumnsDictionary, @"playQueueTableColumnVisibility",
-		columnSizesDictionary, @"playQueueTableColumnSizes",
-		columnOrderArray, @"playQueueTableColumnOrder",
+		streamTableVisibleColumnsDictionary, @"streamTableColumnVisibility",
+		streamTableColumnSizesDictionary, @"streamTableColumnSizes",
+		streamTableColumnOrderArray, @"streamTableColumnOrder",
+		playQueueVisibleColumnsDictionary, @"playQueueTableColumnVisibility",
+		playQueueColumnSizesDictionary, @"playQueueTableColumnSizes",
+		playQueueColumnOrderArray, @"playQueueTableColumnOrder",
 		nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:tableDefaults];
@@ -1221,6 +1267,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			NSArrayController	*arrayController	= [infoForBinding objectForKey:NSObservedObjectKey];
 			AudioStream			*stream				= [[arrayController arrangedObjects] objectAtIndex:rowIndex];
 			BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
+			
+			// Icon for now playing
+			if([[aTableColumn identifier] isEqual:@"nowPlaying"]) {
+				[cell setImage:(highlight ? [NSImage imageNamed:@"artsenvironment"] : nil)];
+			}
 			
 			// Bold/unbold cell font as required
 			NSFont *font = [cell font];
