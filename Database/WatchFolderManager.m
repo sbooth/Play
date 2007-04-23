@@ -130,7 +130,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t start = clock();
 #endif
 	
@@ -146,7 +146,7 @@
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Loaded folder in %f seconds", elapsed);
@@ -546,7 +546,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t start = clock();
 #endif
 	
@@ -560,7 +560,7 @@
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Loaded %i folders in %f seconds (%f per second)", [folders count], elapsed, (double)[folders count] / elapsed);
@@ -608,7 +608,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t start = clock();
 #endif
 	
@@ -641,7 +641,7 @@
 		success = NO;
 	}
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream insertion time = %f seconds", elapsed);
@@ -662,7 +662,7 @@
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t start = clock();
 #endif
 	
@@ -680,7 +680,7 @@
 	result = sqlite3_clear_bindings(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to clear sql statement bindings (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-#if SQL_DEBUG_
+#if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream update time = %f seconds", elapsed);

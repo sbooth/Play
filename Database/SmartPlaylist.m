@@ -117,7 +117,7 @@ NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
 }
 
-- (NSString *) debugDscription
+- (NSString *) debugDescription
 {
 	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:PlaylistNameKey]];
 }
