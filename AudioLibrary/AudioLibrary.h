@@ -183,6 +183,8 @@ extern NSString * const		PlayQueueKey;
 
 - (void)			addStreamsToPlayQueue:(NSArray *)streams;
 
+- (IBAction)		clearPlayQueue:(id)sender;
+
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;

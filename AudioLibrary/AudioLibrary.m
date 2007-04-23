@@ -536,7 +536,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		}
 		return YES;
 	}
-
+	else if([menuItem action] == @selector(clearPlayQueue:)) {
+		return (0 != [self countOfPlayQueue]);
+	}
+	
 	return YES;
 }
 
@@ -1169,6 +1172,17 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	[self didChangeValueForKey:PlayQueueKey];
 	
+	[self updatePlayButtonState];
+}
+
+- (IBAction) clearPlayQueue:(id)sender
+{
+	[self stop:sender];
+	
+	[self willChangeValueForKey:PlayQueueKey];
+	[_playQueue removeAllObjects];
+	[self didChangeValueForKey:PlayQueueKey];
+
 	[self updatePlayButtonState];
 }
 

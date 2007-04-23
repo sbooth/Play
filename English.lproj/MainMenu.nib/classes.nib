@@ -6,6 +6,7 @@
                 add25RandomStreamsToPlayQueue = id; 
                 addFiles = id; 
                 addToPlayQueue = id; 
+                clearPlayQueue = id; 
                 editMetadata = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
