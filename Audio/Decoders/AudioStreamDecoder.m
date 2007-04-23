@@ -85,12 +85,13 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 {
 	NSParameterAssert(nil != stream);
 	
-	AudioStreamDecoder		*result;
-	NSURL					*url					= [stream valueForKey:StreamURLKey];
-	NSString				*path					= [url path];
-	NSString				*pathExtension			= [[path pathExtension] lowercaseString];
+	AudioStreamDecoder		*result				= nil;
+	NSURL					*url				= [stream valueForKey:StreamURLKey];
+	NSString				*path				= [url path];
+	NSString				*pathExtension		= [[path pathExtension] lowercaseString];
+
 /*	FSRef					ref;
-	NSString				*uti					= nil;	
+	NSString				*uti				= nil;	
 	
 	FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, NULL);
 	
@@ -99,41 +100,57 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	NSLog(@"UTI for %@:%@", url, uti);
 	[uti release];*/
 	
+	// Ensure the file exists
+	if(NO == [[NSFileManager defaultManager] fileExistsAtPath:[url path]]) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" could not be found.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:@"File Not Found" forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:@"The file may have been renamed or deleted, or exist on removable media." forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
+		}
+		return nil;	
+	}
+	
 	if([pathExtension isEqualToString:@"flac"]) {
 		result = [[FLACStreamDecoder alloc] init];
 		[result setStream:stream];
 	}
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		OggStreamType			type		= oggStreamType(url);
+		OggStreamType type = oggStreamType(url);
 		
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
 			
 			if(nil != error) {
-				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 				
 				switch(type) {
 					case kOggStreamTypeInvalid:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					case kOggStreamTypeUnknown:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					default:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 				}
 				
-				*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-															  code:AudioStreamDecoderFileFormatNotRecognizedError 
-														  userInfo:errorDictionary];
+				*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+											 code:AudioStreamDecoderFileFormatNotRecognizedError 
+										 userInfo:errorDictionary];
 			}
 			
 			return nil;
@@ -170,20 +187,17 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	}
 	else {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary;
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			errorDictionary			= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 			[errorDictionary setObject:@"File Format Not Recognized" forKey:NSLocalizedFailureReasonErrorKey];
 			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-														  code:AudioStreamDecoderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
-		
-		result = nil;
+		return nil;
 	}
 	
 	return [result autorelease];

@@ -40,21 +40,17 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	NSParameterAssert(nil != url);
 	NSParameterAssert([url isFileURL]);
 	
-	AudioMetadataWriter				*result;
-	NSString						*path;
-	NSString						*pathExtension;
-	
-	path							= [url path];
-	pathExtension					= [[path pathExtension] lowercaseString];
+	AudioMetadataWriter		*result				= nil;
+	NSString				*path				= [url path];
+	NSString				*pathExtension		= [[path pathExtension] lowercaseString];
 	
 	if([pathExtension isEqualToString:@"flac"]) {
-		result						= [[FLACMetadataWriter alloc] init];
-		
+		result = [[FLACMetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		OggStreamType			type		= oggStreamType(url);
+		OggStreamType type = oggStreamType(url);
 
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
 
@@ -63,27 +59,27 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 				
 				switch(type) {
 					case kOggStreamTypeInvalid:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					case kOggStreamTypeUnknown:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					default:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 				}
 				
-				*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-															  code:AudioMetadataWriterFileFormatNotRecognizedError 
-														  userInfo:errorDictionary];
+				*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+											 code:AudioMetadataWriterFileFormatNotRecognizedError 
+										 userInfo:errorDictionary];
 			}
 			
 			return nil;
@@ -99,28 +95,23 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
-		result						= [[MusepackMetadataWriter alloc] init];
-		
+		result = [[MusepackMetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
-		result						= [[MP3MetadataWriter alloc] init];
-		
+		result = [[MP3MetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
-		result						= [[MP4MetadataWriter alloc] init];
-		
+		result = [[MP4MetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
-		result						= [[WavPackMetadataWriter alloc] init];
-		
+		result = [[WavPackMetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
-		result						= [[MonkeysAudioMetadataWriter alloc] init];
-		
+		result = [[MonkeysAudioMetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
@@ -129,16 +120,15 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 			
 			errorDictionary			= [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 			[errorDictionary setObject:@"File Format Not Recognized" forKey:NSLocalizedFailureReasonErrorKey];
 			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
-		}*/
-		
-		result						= nil;
+		*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+									 code:AudioMetadataWriterFileFormatNotRecognizedError 
+								 userInfo:errorDictionary];
+	}*/
+		return nil;
 	}
 	
 	return [result autorelease];

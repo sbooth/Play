@@ -250,7 +250,9 @@ audio_linear_round(unsigned int bits,
 			bytesRead = read(_fd, readStartPointer, bytesToRead);
 			
 			if(-1 == bytesRead) {
+#if DEBUG
 				NSLog(@"Read error: %s.", strerror(errno));
+#endif
 				break;
 			}
 			
@@ -275,7 +277,9 @@ audio_linear_round(unsigned int bits,
 		if(-1 == result) {
 
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
+#if DEBUG
 				NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+#endif
 				continue;
 			}
 			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
@@ -287,7 +291,9 @@ audio_linear_round(unsigned int bits,
 				continue;
 			}
 			else {
+#if DEBUG
 				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+#endif
 				return;
 			}
 		}
@@ -424,7 +430,9 @@ audio_linear_round(unsigned int bits,
 			bytesRead = read(fd, readStartPointer, bytesToRead);
 			
 			if(-1 == bytesRead) {
+#if DEBUG
 				NSLog(@"Read error: %s.", strerror(errno));
+#endif
 				break;
 			}
 			
@@ -460,7 +468,9 @@ audio_linear_round(unsigned int bits,
 					mad_stream_skip(&_mad_stream, id3_length);
 				}
 				else {
+#if DEBUG
 					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&stream));
+#endif
 				}
 				
 				continue;
@@ -473,7 +483,9 @@ audio_linear_round(unsigned int bits,
 				continue;
 			}
 			else {
+#if DEBUG
 				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&stream));
+#endif
 				break;
 			}
 		}

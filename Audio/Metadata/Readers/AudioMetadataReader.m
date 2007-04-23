@@ -40,21 +40,17 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	NSParameterAssert(nil != url);
 	NSParameterAssert([url isFileURL]);
 	
-	AudioMetadataReader				*result;
-	NSString						*path;
-	NSString						*pathExtension;
-	
-	path							= [url path];
-	pathExtension					= [[path pathExtension] lowercaseString];
+	AudioMetadataReader		*result				= nil;
+	NSString				*path				= [url path];;
+	NSString				*pathExtension		= [[path pathExtension] lowercaseString];;
 	
 	if([pathExtension isEqualToString:@"flac"]) {
-		result						= [[FLACMetadataReader alloc] init];
-		
+		result = [[FLACMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	// Determine the content type of the ogg stream
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		OggStreamType			type		= oggStreamType(url);
+		OggStreamType type = oggStreamType(url);
 
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
 
@@ -63,27 +59,27 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 				
 				switch(type) {
 					case kOggStreamTypeInvalid:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					case kOggStreamTypeUnknown:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					default:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 				}
 				
-				*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-															  code:AudioMetadataReaderFileFormatNotRecognizedError 
-														  userInfo:errorDictionary];
+				*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+											 code:AudioMetadataReaderFileFormatNotRecognizedError 
+										 userInfo:errorDictionary];
 			}
 			
 			return nil;
@@ -99,33 +95,27 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
-		result						= [[MusepackMetadataReader alloc] init];
-		
+		result = [[MusepackMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
-		result						= [[MP3MetadataReader alloc] init];
-		
+		result = [[MP3MetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp4"] || [pathExtension isEqualToString:@"m4a"]) {
-		result						= [[MP4MetadataReader alloc] init];
-		
+		result = [[MP4MetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
-		result						= [[WavPackMetadataReader alloc] init];
-		
+		result = [[WavPackMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
-		result						= [[MonkeysAudioMetadataReader alloc] init];
-		
+		result = [[MonkeysAudioMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
-		result						= [[AudioMetadataReader alloc] init];
-		
+		result = [[AudioMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	

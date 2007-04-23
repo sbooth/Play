@@ -40,49 +40,45 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	NSParameterAssert(nil != url);
 	NSParameterAssert([url isFileURL]);
 	
-	AudioPropertiesReader			*result;
-	NSString						*path;
-	NSString						*pathExtension;
-	
-	path							= [url path];
-	pathExtension					= [[path pathExtension] lowercaseString];
+	AudioPropertiesReader		*result				= nil;
+	NSString					*path				= [url path];;
+	NSString					*pathExtension		= [[path pathExtension] lowercaseString];;
 	
 	if([pathExtension isEqualToString:@"flac"]) {
-		result						= [[FLACPropertiesReader alloc] init];
-		
+		result = [[FLACPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ogg"]) {
-		OggStreamType			type		= oggStreamType(url);
+		OggStreamType type = oggStreamType(url);
 		
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
 			
 			if(nil != error) {
-				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 				
 				switch(type) {
 					case kOggStreamTypeInvalid:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					case kOggStreamTypeUnknown:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					default:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
 						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 				}
 				
-				*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-															  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-														  userInfo:errorDictionary];
+				*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+											 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+										 userInfo:errorDictionary];
 			}
 			
 			return nil;
@@ -98,46 +94,38 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mpc"]) {
-		result						= [[MusepackPropertiesReader alloc] init];
-		
+		result = [[MusepackPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"wv"]) {
-		result						= [[WavPackPropertiesReader alloc] init];
-		
+		result = [[WavPackPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
-		result						= [[MonkeysAudioPropertiesReader alloc] init];
-		
+		result = [[MonkeysAudioPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([pathExtension isEqualToString:@"mp3"]) {
-		result						= [[MP3PropertiesReader alloc] init];
-		
+		result = [[MP3PropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else if([getCoreAudioExtensions() containsObject:pathExtension]) {
-		result						= [[CoreAudioPropertiesReader alloc] init];
-		
+		result = [[CoreAudioPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary;
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			errorDictionary			= [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 			[errorDictionary setObject:@"File Format Not Recognized" forKey:NSLocalizedFailureReasonErrorKey];
 			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
-		
-		result						= nil;
+		return nil;
 	}
 	
 	return [result autorelease];
