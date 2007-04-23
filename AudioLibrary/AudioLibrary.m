@@ -1620,7 +1620,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSArray *streams = _playQueue;
 	
-	if(nil == stream || 0 == [streams count]) {
+	if(nil == stream || 1 >= [streams count]) {
 		[self setNextPlaybackIndex:NSNotFound];
 	}
 	else if([self randomPlayback]) {
@@ -1636,14 +1636,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
 	}
 	
-#if DEBUG
-	NSLog(@"requestNextStream:%@", [self objectInPlayQueueAtIndex:[self nextPlaybackIndex]]);
-#endif
 	
 	if(NSNotFound != [self nextPlaybackIndex]) {
 		NSError		*error		= nil;
 		BOOL		result		= [[self player] setNextStream:[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]] error:&error];
-		
+
 		if(NO == result) {
 			if(nil != error) {
 				[self presentError:error];
