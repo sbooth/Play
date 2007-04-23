@@ -1849,7 +1849,8 @@
 					"THREADSAFE=0",
 					"SQLITE_THREAD_OVERRIDE_LOCK=-1",
 					"SQLITE_OMIT_LOAD_EXTENSION=1",
-					SQL_DEBUG,
+					"SQL_DEBUG=1",
+					"DEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

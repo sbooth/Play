@@ -70,8 +70,10 @@
 
 - (BOOL) cleanupDecoder:(NSError **)error
 {
-	WavpackCloseFile(_wpc);
-	_wpc = NULL;
+	if(NULL != _wpc) {
+		WavpackCloseFile(_wpc);
+		_wpc = NULL;
+	}
 
 	[super cleanupDecoder:error];
 	

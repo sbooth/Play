@@ -306,7 +306,6 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	_atEndOfStream = atEndOfStream;
 }
 
-
 // ========================================
 // Decoder control
 // ========================================
@@ -329,7 +328,11 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 - (BOOL) stopDecoding:(NSError **)error
 {
 	[self setKeepProcessingFile:NO];
-	return [self cleanupDecoder:error];
+
+	// To avoid waiting for the thread to exit here, let the thread close the file
+	// and clean up the decoder
+	
+	return YES;
 }
 
 // ========================================
@@ -382,6 +385,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	NSAutoreleasePool		*pool				= [[NSAutoreleasePool alloc] init];
 	mach_timespec_t			timeout				= { 2, 0 };
 
+	[myself retain];
 	[myself setThreadPolicy];
 
 	// Process the file
@@ -392,6 +396,9 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		semaphore_timedwait([myself semaphore], timeout);
 	}
 
+	[myself cleanupDecoder:nil];
+	[myself release];
+	
 	[pool release];
 }
 

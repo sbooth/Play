@@ -80,7 +80,7 @@
 
 - (BOOL) cleanupDecoder:(NSError **)error
 {
-	int		result		= ov_clear(&_vf); 
+	int result = ov_clear(&_vf); 
 	
 	if(0 != result) {
 		NSLog(@"ov_clear failed");

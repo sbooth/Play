@@ -241,12 +241,12 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 - (BOOL) cleanupDecoder:(NSError **)error
 {
-	FLAC__bool					result;
-	
-	result = FLAC__stream_decoder_finish(_flac);
-	NSAssert1(YES == result, @"FLAC__stream_decoder_finish failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
-	
-	FLAC__stream_decoder_delete(_flac),		_flac = NULL;
+	if(NULL != _flac) {
+		FLAC__bool result = FLAC__stream_decoder_finish(_flac);
+		NSAssert1(YES == result, @"FLAC__stream_decoder_finish failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
+		
+		FLAC__stream_decoder_delete(_flac), _flac = NULL;
+	}	
 	
 	[super cleanupDecoder:error];
 	

@@ -63,7 +63,6 @@
 #if DEBUG
 static void dumpASBD(const AudioStreamBasicDescription *asbd)
 {
-	NSLog(@"====================");
 	NSLog(@"mSampleRate         %f", asbd->mSampleRate);
 	NSLog(@"mFormatID           %.4s", (const char *)(&asbd->mFormatID));
 	NSLog(@"mFormatFlags        %u", asbd->mFormatFlags);
@@ -91,14 +90,10 @@ MyRenderer(void							*inRefCon,
 		   AudioBufferList				*ioData)
 
 {
-	NSAutoreleasePool		*pool;
-	AudioPlayer				*player;
-	AudioStreamDecoder		*streamDecoder;
-	UInt32					framesRead, currentBuffer, originalBufferSize;
-
-	pool					= [[NSAutoreleasePool alloc] init];
-	player					= (AudioPlayer *)inRefCon;
-	streamDecoder			= [player streamDecoder];
+	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+	AudioPlayer			*player				= (AudioPlayer *)inRefCon;
+	AudioStreamDecoder	*streamDecoder		= [player streamDecoder];;
+	UInt32				currentBuffer;
 	
 	if(nil == streamDecoder) {
 		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
@@ -111,8 +106,8 @@ MyRenderer(void							*inRefCon,
 		return noErr;
 	}
 	
-	originalBufferSize		= ioData->mBuffers[0].mDataByteSize;
-	framesRead				= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
+	UInt32 originalBufferSize	= ioData->mBuffers[0].mDataByteSize;
+	UInt32 framesRead			= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
 		
 #if DEBUG
 	if(framesRead != inNumberFrames) {
@@ -172,19 +167,10 @@ MyRenderNotification(void							*inRefCon,
 					 UInt32                          inNumFrames, 
 					 AudioBufferList                 *ioData)
 {
-	NSAutoreleasePool		*pool;
-	AudioPlayer				*player;
-	
-	pool					= [[NSAutoreleasePool alloc] init];
-	player					= (AudioPlayer *)inRefCon;
+	NSAutoreleasePool	*pool		= [[NSAutoreleasePool alloc] init];
+	AudioPlayer			*player		= (AudioPlayer *)inRefCon;
 	
 	if(kAudioUnitRenderAction_PostRender & (*ioActionFlags)) {
-
-#if DEBUG
-		if(kAudioTimeStampSampleTimeValid & inTimeStamp->mFlags) {
-			NSLog(@"PostRender time = %f", inTimeStamp->mSampleTime/44100.);
-		}
-#endif
 
 		[player didReadFrames:inNumFrames];
 //		[[player runLoop] performSelector:@selector(didReadFrames:) 
@@ -331,6 +317,8 @@ MyRenderNotification(void							*inRefCon,
 		[[self streamDecoder] stopDecoding:error];
 		[self setStreamDecoder:nil];
 	}
+	
+	_requestedNextStream = NO;
 	
 	streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
 	if(nil == streamDecoder) {
@@ -724,7 +712,7 @@ MyRenderNotification(void							*inRefCon,
 	_frameCounter			+= frameCount;
 	seconds					= (NSTimeInterval) (_frameCounter / [[self streamDecoder] pcmFormat].mSampleRate);
 	secondsRemaining		= (NSTimeInterval) ([[self streamDecoder] framesRemaining] / [[self streamDecoder] pcmFormat].mSampleRate);
-	
+
 	if(2.0 > secondsRemaining && nil == [self nextStreamDecoder] && NO == _requestedNextStream) {
 		_requestedNextStream = YES;
 		[_owner performSelectorOnMainThread:@selector(requestNextStream) withObject:nil waitUntilDone:NO];

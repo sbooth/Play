@@ -81,13 +81,12 @@
 
 - (BOOL) cleanupDecoder:(NSError **)error
 {
-	int								result;
+	if(NULL != _file) {
+		int result = fclose(_file);
+		NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
+		_file = NULL;
+	}
 	
-	result							= fclose(_file);
-	_file							= NULL;
-	
-	NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
-
 	[super cleanupDecoder:error];
 	
 	return YES;

@@ -143,12 +143,13 @@
 
 - (BOOL) cleanupDecoder:(NSError **)error
 {
-	OSStatus	result;
+	if(NULL != _extAudioFile) {
+		// Close the output file
+		OSStatus result = ExtAudioFileDispose(_extAudioFile);
+		NSAssert1(noErr == result, @"ExtAudioFileDispose failed: %@", UTCreateStringForOSType(result));
+		_extAudioFile = NULL;
+	}
 	
-	// Close the output file
-	result		= ExtAudioFileDispose(_extAudioFile);
-	NSAssert1(noErr == result, @"ExtAudioFileDispose failed: %@", UTCreateStringForOSType(result));
-
 	[super cleanupDecoder:error];
 
 	return YES;

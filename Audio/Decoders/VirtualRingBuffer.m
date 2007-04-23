@@ -280,7 +280,7 @@ void *allocateVirtualBuffer(UInt32 bufferLength)
     // Success!
     return (void *)realAddress;
 
-#if DEBUG
+#if DEBUG_
     // Here's a little test...
     *realAddress = '?';
     if (*virtualAddress != '?')

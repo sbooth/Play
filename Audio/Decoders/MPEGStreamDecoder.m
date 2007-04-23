@@ -190,7 +190,7 @@ audio_linear_round(unsigned int bits,
 	mad_synth_finish(&_mad_synth);
 	mad_frame_finish(&_mad_frame);
 	mad_stream_finish(&_mad_stream);
-	
+
 	free(_inputBuffer), _inputBuffer = NULL;
 	close(_fd), _fd = -1;
 	

@@ -1141,6 +1141,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
+	
+	[self updatePlayButtonState];
 }
 
 - (void) removeObjectFromPlayQueueAtIndex:(unsigned)index
@@ -1150,6 +1152,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
+
+	[self updatePlayButtonState];
 }
 
 - (void) addStreamsToPlayQueue:(NSArray *)streams
@@ -1576,10 +1580,18 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[self setPlaybackIndex:NSNotFound];
 	
-	// If the player isn't playing, it's the end of the road for now
+	// If the player isn't playing, it could be because the streams have different PCM formats
 	if(NO == [[self player] isPlaying]) {
-		[[self player] reset];
-		[self updatePlayButtonState];
+		
+		// Next stream was requested by player, but the PCM format differs so gapless playback was impossible
+		if(NSNotFound != [self nextPlaybackIndex]) {
+			[self playStreamAtIndex:[self nextPlaybackIndex]];
+		}
+		// Otherwise stop
+		else {
+			[[self player] reset];
+			[self updatePlayButtonState];
+		}
 	}
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
@@ -1611,7 +1623,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 #if DEBUG
-	NSLog(@"requestNextStream:%@",[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]]);
+	NSLog(@"requestNextStream:%@", [self objectInPlayQueueAtIndex:[self nextPlaybackIndex]]);
 #endif
 	
 	if(NSNotFound != [self nextPlaybackIndex]) {
