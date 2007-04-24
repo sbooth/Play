@@ -891,16 +891,17 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	if(NO == [[self player] hasValidStream]) {
-		if([self randomPlayback]) {
+		if(0 != [self countOfPlayQueue]) {
+			unsigned playIndex = ([self randomPlayback] ? (unsigned)(genrand_real2() * [self countOfPlayQueue]) : 0);			
+			[self playStreamAtIndex:playIndex];
+		}
+		else if([self randomPlayback]) {
 			NSArray		*streams			= (1 < [[_streamController selectedObjects] count] ? [_streamController selectedObjects] : [_streamController arrangedObjects]);
 			double		randomNumber		= genrand_real2();
 			unsigned	randomIndex			= (unsigned)(randomNumber * [streams count]);
 			
 			[self setPlayQueueFromArray:streams];
 			[self playStreamAtIndex:randomIndex];
-		}
-		else if(0 != [self countOfPlayQueue]) {
-			[self playStreamAtIndex:0];
 		}
 		else {
 			[_streamTable addToPlayQueue:sender];
