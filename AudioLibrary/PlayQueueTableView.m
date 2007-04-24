@@ -24,6 +24,10 @@
 #import "SecondsFormatter.h"
 #import "CTGradient.h"
 
+@interface AudioLibrary (Private)
+- (unsigned) playbackIndex;
+@end
+
 @interface PlayQueueTableView (Private)
 - (void) drawRowHighlight;
 @end
@@ -51,8 +55,7 @@
 - (IBAction) remove:(id)sender
 {
 	// If removing the currently playing stream, stop playback
-	NSArray *streams = [_streamController selectedObjects];
-	if([streams containsObject:[[AudioLibrary library] nowPlaying]]) {
+	if([[_streamController selectionIndexes] containsIndex:[[AudioLibrary library] playbackIndex]]) {
 		[[AudioLibrary library] stop:sender];
 	}
 	
@@ -101,7 +104,8 @@
 		}
 		
 		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
-		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];
+//		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];
+ 		CTGradient *highlightGradient = [CTGradient aquaNormalGradient];
 		
 		[highlightImage lockFocus];
 		[highlightGradient fillRect:NSMakeRect(0, 0, rowRect.size.width, rowRect.size.height) angle:90];

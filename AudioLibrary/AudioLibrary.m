@@ -326,6 +326,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
 		[NSNumber numberWithBool:NO], @"rescanMetadataBeforePlayback",
+		[NSNumber numberWithBool:NO], @"removeStreamsFromPlayQueueWhenFinished",
 		[NSNumber numberWithBool:NO], @"limitPlayQueueHistorySize",
 		[NSNumber numberWithInt:5], @"playQueueHistorySize",
 		nil];
@@ -1092,7 +1093,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	BOOL			result		= [[self player] setStream:stream error:&error];
 	
 	if(NO == result) {
-		/*BOOL errorRecoveryDone =*/ [self presentError:error];
+		[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:nil contextInfo:NULL];
+		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];
+		[self setPlaybackIndex:NSNotFound];
 		return;
 	}
 	
@@ -1141,6 +1144,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue insertObject:stream atIndex:index];	
 
+	if(NSNotFound != [self nextPlaybackIndex] && index < [self playbackIndex]) {
+		[self setNextPlaybackIndex:[self nextPlaybackIndex] + 1];
+	}
+
 	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
@@ -1152,7 +1159,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue removeObjectAtIndex:index];	
 
-	if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
+	if(NSNotFound != [self nextPlaybackIndex] && index <= [self playbackIndex]) {
+		[self setNextPlaybackIndex:[self nextPlaybackIndex] - 1];
+	}
+
+/*	if(index == [self playbackIndex]) {
+		[self stop:self];
+		[self setPlaybackIndex:NSNotFound];
+	}
+	else*/ if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
 
@@ -1559,7 +1574,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self updatePlayQueueHistory];
 	
 	AudioStream *stream = [self objectInPlayQueueAtIndex:[self playbackIndex]];
-	NSAssert(nil != stream, @"Playback started for stream index not in playback context.");
+	NSAssert(nil != stream, @"Playback started for stream index not in play queue.");
 	
 	[stream setPlaying:YES];
 	
@@ -1591,6 +1606,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[[CollectionManager manager] finishUpdate];
 	
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
+	
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
+		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];	
+	}
 	
 	[self setPlaybackIndex:NSNotFound];
 	
@@ -1643,8 +1662,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 		if(NO == result) {
 			if(nil != error) {
-				[self presentError:error];
+				[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:nil contextInfo:NULL];
 			}
+			[self setNextPlaybackIndex:NSNotFound];
 		}
 	}
 }
@@ -1719,7 +1739,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) updatePlayQueueHistory
 {
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"limitPlayQueueHistorySize"] && NO == [self randomPlayback]) {
+	if(NO == [[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"limitPlayQueueHistorySize"] && NO == [self randomPlayback]) {
 		unsigned playQueueHistorySize	= [[NSUserDefaults standardUserDefaults] integerForKey:@"playQueueHistorySize"];
 		unsigned index					= [self playbackIndex];
 		
