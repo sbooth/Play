@@ -138,9 +138,10 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 		[self valueForKey:MetadataTitleKey]];
 }
 
-- (NSString *) debugDscription
+- (NSString *) debugDescription
 {
-	return [NSString stringWithFormat:@"<%@: %x> [%@] %@ (%@ - %@)", [self class], 
+	return [NSString stringWithFormat:@"<%@: %x> [%@] %@ (%@ - %@)",
+		[self class], 
 		self, 
 		[self valueForKey:ObjectIDKey], 
 		[self filename], 

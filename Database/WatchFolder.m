@@ -117,7 +117,7 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 	return [NSString stringWithFormat:@"[%@] %@", [self valueForKey:ObjectIDKey], [self valueForKey:WatchFolderNameKey]];
 }
 
-- (NSString *) debugDscription
+- (NSString *) debugDescription
 {
 	return [NSString stringWithFormat:@"<%@, %x> [%@] %@", [self class], self, [self valueForKey:ObjectIDKey], [self valueForKey:WatchFolderNameKey]];
 }
