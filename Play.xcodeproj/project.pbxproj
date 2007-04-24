@@ -250,6 +250,7 @@
 		8CB3DE6E0B83097B00B5F8A3 /* Playlist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B6C20B7BB1E5006BF010 /* Playlist.m */; };
 		8CB3DEAC0B837A1900B5F8A3 /* ArtistsNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DEAA0B837A1900B5F8A3 /* ArtistsNode.m */; };
 		8CB3DEFF0B837FAE00B5F8A3 /* ArtistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3DEFD0B837FAE00B5F8A3 /* ArtistNode.m */; };
+		8CB3E3EB0BDD40E800B5E828 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3E3E90BDD40E800B5E828 /* Credits.rtf */; };
 		8CB3E4CF0B84592100B5F8A3 /* AlbumsNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3E4CD0B84592100B5F8A3 /* AlbumsNode.m */; };
 		8CB3E4D70B84592D00B5F8A3 /* AlbumNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3E4D50B84592D00B5F8A3 /* AlbumNode.m */; };
 		8CBEF1B50B7733770067CAE1 /* begin_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */; };
@@ -673,6 +674,7 @@
 		8CB3DEAA0B837A1900B5F8A3 /* ArtistsNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ArtistsNode.m; path = Browser/ArtistsNode.m; sourceTree = "<group>"; };
 		8CB3DEFC0B837FAE00B5F8A3 /* ArtistNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArtistNode.h; path = Browser/ArtistNode.h; sourceTree = "<group>"; };
 		8CB3DEFD0B837FAE00B5F8A3 /* ArtistNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ArtistNode.m; path = Browser/ArtistNode.m; sourceTree = "<group>"; };
+		8CB3E3EA0BDD40E800B5E828 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		8CB3E4CC0B84592100B5F8A3 /* AlbumsNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlbumsNode.h; path = Browser/AlbumsNode.h; sourceTree = "<group>"; };
 		8CB3E4CD0B84592100B5F8A3 /* AlbumsNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AlbumsNode.m; path = Browser/AlbumsNode.m; sourceTree = "<group>"; };
 		8CB3E4D40B84592D00B5F8A3 /* AlbumNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlbumNode.h; path = Browser/AlbumNode.h; sourceTree = "<group>"; };
@@ -798,6 +800,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CB3E3E90BDD40E800B5E828 /* Credits.rtf */,
 				8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */,
 				8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */,
 				8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */,
@@ -1565,6 +1568,7 @@
 				8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */,
 				8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */,
 				8CB3DD230BDBDCE700B5E828 /* artsenvironment.png in Resources */,
+				8CB3E3EB0BDD40E800B5E828 /* Credits.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1819,6 +1823,14 @@
 				8C9C40210B745B4700CE799A /* English */,
 			);
 			name = AudioMetadataEditingSheet.nib;
+			sourceTree = "<group>";
+		};
+		8CB3E3E90BDD40E800B5E828 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CB3E3EA0BDD40E800B5E828 /* English */,
+			);
+			name = Credits.rtf;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
