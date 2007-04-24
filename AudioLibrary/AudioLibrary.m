@@ -1665,7 +1665,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			if(nil != error) {
 				[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:nil contextInfo:NULL];
 			}
-			[self setNextPlaybackIndex:NSNotFound];
+//			[self setNextPlaybackIndex:NSNotFound];
 		}
 	}
 }
