@@ -64,6 +64,7 @@ extern NSString * const		PropertiesBitrateKey;
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
 
+- (IBAction) resetPlayCount:(id)sender;
 - (IBAction) rescanMetadata:(id)sender;
 
 - (NSString *) filename;

@@ -37,6 +37,7 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	addToPlayQueue:(id)sender;
 
 - (IBAction)	streamInformation:(id)sender;
+- (IBAction)	resetPlayCount:(id)sender;
 
 - (IBAction)	editMetadata:(id)sender;
 - (IBAction)	rescanMetadata:(id)sender;

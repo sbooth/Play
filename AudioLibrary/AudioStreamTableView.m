@@ -60,6 +60,9 @@
 	else if([menuItem action] == @selector(streamInformation:)) {
 		return (1 == [[_streamController selectedObjects] count]);
 	}
+	else if([menuItem action] == @selector(resetPlayCount:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
 	else if([menuItem action] == @selector(editMetadata:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
@@ -185,6 +188,20 @@
 									modalDelegate:self 
 								   didEndSelector:@selector(showStreamInformationSheetDidEnd:returnCode:contextInfo:) 
 									  contextInfo:streamInformationSheet];
+}
+
+- (IBAction) resetPlayCount:(id)sender
+{
+	NSArray *streams = [_streamController selectedObjects];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+
+	[[CollectionManager manager] beginUpdate];
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(resetPlayCount:) withObject:sender];
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) editMetadata:(id)sender

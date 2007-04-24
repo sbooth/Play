@@ -77,7 +77,6 @@
         }, 
         {
             ACTIONS = {
-                "" = id; 
                 addToPlayQueue = id; 
                 convertWithMax = id; 
                 editMetadata = id; 
@@ -86,6 +85,7 @@
                 playlistInformation = id; 
                 remove = id; 
                 rescanMetadata = id; 
+                resetPlayCount = id; 
                 revealInFinder = id; 
                 streamInformation = id; 
             }; 

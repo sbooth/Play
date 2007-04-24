@@ -75,6 +75,11 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	return [stream autorelease];
 }
 
+- (IBAction) resetPlayCount:(id)sender
+{
+	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsPlayCountKey];
+}
+
 - (IBAction) rescanMetadata:(id)sender
 {
 	NSError					*error				= nil;
