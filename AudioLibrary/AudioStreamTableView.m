@@ -196,6 +196,9 @@
 		return;
 	}
 	
+	// Sync with disk before updating
+//	[self rescanMetadata:sender];
+	
 	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
 	
 	[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
@@ -217,13 +220,8 @@
 		return;
 	}
 	
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
 	[[CollectionManager manager] beginUpdate];
-	while((stream = [enumerator nextObject])) {
-		[stream rescanMetadata:sender];
-	}
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(rescanMetadata:) withObject:sender];
 	[[CollectionManager manager] finishUpdate];
 }
 
