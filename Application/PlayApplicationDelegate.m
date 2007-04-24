@@ -19,6 +19,8 @@
  */
 
 #import "PlayApplicationDelegate.h"
+#import "CollectionManager.h"
+#import "AudioStreamManager.h"
 #import "ServicesProvider.h"
 #import "AudioLibrary.h"
 #import "AudioScrobbler.h"
@@ -33,6 +35,7 @@
 - (void) playbackDidComplete:(NSNotification *)aNotification;
 - (void) streamDidChange:(NSNotification *)aNotification;
 - (void) streamsDidChange:(NSNotification *)aNotification;
+- (void) setWindowTitleForStream:(AudioStream *)stream;
 @end
 
 @implementation PlayApplicationDelegate
@@ -68,6 +71,20 @@
 - (void) applicationWillFinishLaunching:(NSNotification *)aNotification
 {
 	[[AudioLibrary library] showWindow:self];
+	
+	// Restore the play queue
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rememberPlayQueue"]) {
+		NSArray				*objectIDs		= [[NSUserDefaults standardUserDefaults] arrayForKey:@"savedPlayQueueStreams"];
+		NSEnumerator		*enumerator		= [objectIDs objectEnumerator];
+		NSNumber			*objectID		= nil;
+		NSMutableArray		*streams		= [NSMutableArray array];
+		
+		while((objectID = [enumerator nextObject])) {
+			[streams addObject:[[[CollectionManager manager] streamManager] streamForID:objectID]];
+		}
+		
+		[[AudioLibrary library] addStreamsToPlayQueue:streams];
+	}
 }
 
 - (void) applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -121,6 +138,12 @@
 
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	
+	// Save the play queue
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rememberPlayQueue"]) {
+		NSArray *objectIDs = [[AudioLibrary library] valueForKeyPath:[NSString stringWithFormat:@"%@.%@", PlayQueueKey, ObjectIDKey]];
+		[[NSUserDefaults standardUserDefaults] setObject:objectIDs forKey:@"savedPlayQueueStreams"];
+	}
 }
 
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
@@ -180,23 +203,7 @@
 								   clickContext:[stream valueForKey:ObjectIDKey]];
 	}
 	
-	// Update window title with the current stream
-	NSString *windowTitle	= nil;
-	
-	if(nil != title && nil != artist) {
-		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
-	}
-	else if(nil != title) {
-		windowTitle = title;
-	}
-	else if(nil != artist) {
-		windowTitle = artist;
-	}
-	else {
-		windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	}
-	
-	[[[AudioLibrary library] window] setTitle:windowTitle];
+	[self setWindowTitleForStream:stream];
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
 		[[self scrobbler] start:stream];
@@ -227,7 +234,7 @@
 - (void) playbackDidComplete:(NSNotification *)aNotification
 {
 	// Reset window title to default
-	[[[AudioLibrary library] window] setTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"]];
+	[self setWindowTitleForStream:nil];
 }
 
 - (void) streamDidChange:(NSNotification *)aNotification
@@ -235,6 +242,10 @@
 	AudioStream				*stream			= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 	NSError					*error			= nil;
 	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
+
+	if([stream isPlaying]) {
+		[self setWindowTitleForStream:stream];
+	}
 
 	if(nil != metadataWriter) {
 		BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
@@ -253,12 +264,38 @@
 	while((stream = [enumerator nextObject])) {
 		error			= nil;
 		metadataWriter	= [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
+
+		if([stream isPlaying]) {
+			[self setWindowTitleForStream:stream];
+		}
 		
 		if(nil != metadataWriter) {
 			BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
 			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
 		}
 	}
+}
+
+- (void) setWindowTitleForStream:(AudioStream *)stream
+{
+	NSString *title			= [stream valueForKey:MetadataTitleKey];
+	NSString *artist		= [stream valueForKey:MetadataArtistKey];		
+	NSString *windowTitle	= nil;
+	
+	if(nil != title && nil != artist) {
+		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
+	}
+	else if(nil != title) {
+		windowTitle = title;
+	}
+	else if(nil != artist) {
+		windowTitle = artist;
+	}
+	else {
+		windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+	}
+	
+	[[[AudioLibrary library] window] setTitle:windowTitle];
 }
 
 @end
