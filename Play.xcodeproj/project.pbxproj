@@ -84,6 +84,7 @@
 		8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
 		8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC10BDF215500605141 /* ComposerNode.m */; };
 		8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC30BDF215500605141 /* ComposersNode.m */; };
+		8C8E3D2C0BDF26D600605141 /* ShortcutRecorder.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */; };
 		8C9C240C0B7249E000CE799A /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */; };
 		8C9C240D0B7249E000CE799A /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FE0B7249E000CE799A /* AIPlasticInfoButton.m */; };
 		8C9C240E0B7249E000CE799A /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24000B7249E000CE799A /* AIPlasticMinusButton.m */; };
@@ -445,6 +446,7 @@
 		8C8E3BC10BDF215500605141 /* ComposerNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposerNode.m; path = Browser/ComposerNode.m; sourceTree = "<group>"; };
 		8C8E3BC20BDF215500605141 /* ComposersNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposersNode.h; path = Browser/ComposersNode.h; sourceTree = "<group>"; };
 		8C8E3BC30BDF215500605141 /* ComposersNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposersNode.m; path = Browser/ComposersNode.m; sourceTree = "<group>"; };
+		8C8E3D2B0BDF26D500605141 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/ShortcutRecorder.strings; sourceTree = "<group>"; };
 		8C9C23FB0B7249E000CE799A /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticButton.h; sourceTree = "<group>"; };
 		8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AIPlasticButton.m; sourceTree = "<group>"; };
 		8C9C23FD0B7249E000CE799A /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -826,6 +828,7 @@
 				8C9C28870B724D1600CE799A /* AppleScript */,
 				8C9C377C0B739C9800CE799A /* SQL */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				8C8E3D200BDF266F00605141 /* Strings */,
 				8C9C2E920B7310D100CE799A /* Icons */,
 				8C9C2E690B7310AC00CE799A /* Images */,
 				8C9C23F70B72490400CE799A /* Third Party */,
@@ -1055,6 +1058,14 @@
 				8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */,
 			);
 			name = RBSplitView;
+			sourceTree = "<group>";
+		};
+		8C8E3D200BDF266F00605141 /* Strings */ = {
+			isa = PBXGroup;
+			children = (
+				8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */,
+			);
+			name = Strings;
 			sourceTree = "<group>";
 		};
 		8C9C23F70B72490400CE799A /* Third Party */ = {
@@ -1683,6 +1694,7 @@
 				8CB940910BDEF79000405DB4 /* HotKeyPreferences.nib in Resources */,
 				8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */,
 				8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */,
+				8C8E3D2C0BDF26D600605141 /* ShortcutRecorder.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1923,6 +1935,14 @@
 				8C220AC70BB8A79E00808450 /* English */,
 			);
 			name = WatchFolderInformationSheet.nib;
+			sourceTree = "<group>";
+		};
+		8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C8E3D2B0BDF26D500605141 /* English */,
+			);
+			name = ShortcutRecorder.strings;
 			sourceTree = "<group>";
 		};
 		8C9C2EB20B73131900CE799A /* AudioLibrary.nib */ = {
