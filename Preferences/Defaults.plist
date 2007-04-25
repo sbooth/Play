@@ -20,5 +20,26 @@
 	<false/>
 	<key>playQueueHistorySize</key>
 	<real>5.0</real>
+	<key>playPauseHotKey</key>
+	<dict>
+		<key>keyCode</key>
+		<integer>-1</integer>
+		<key>modifiers</key>
+		<integer>0</integer>
+	</dict>
+	<key>playNextStreamHotKey</key>
+	<dict>
+		<key>keyCode</key>
+		<integer>-1</integer>
+		<key>modifiers</key>
+		<integer>0</integer>
+	</dict>
+	<key>playPreviousStreamHotKey</key>
+	<dict>
+		<key>keyCode</key>
+		<integer>-1</integer>
+		<key>modifiers</key>
+		<integer>0</integer>
+	</dict>
 </dict>
 </plist>

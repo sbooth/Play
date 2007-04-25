@@ -46,7 +46,7 @@
 		[keyCombo release];
 	}
 
-	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"nextStreamHotKey"];
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"playNextStreamHotKey"];
 	
 	if(nil != dictionary) {
 		keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
@@ -56,7 +56,7 @@
 		[keyCombo release];
 	}
 
-	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"previousStreamHotKey"];
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"playPreviousStreamHotKey"];
 	
 	if(nil != dictionary) {
 		keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
@@ -83,14 +83,14 @@
 	else if(aRecorder == _nextStreamShortcutRecorder) {
 		PTKeyCombo *keyCombo = [PTKeyCombo keyComboWithKeyCode:[aRecorder keyCombo].code
 													 modifiers:[aRecorder cocoaToCarbonFlags:[aRecorder keyCombo].flags]];
-		[[NSUserDefaults standardUserDefaults] setObject:[keyCombo plistRepresentation] forKey:@"nextStreamHotKey"];
+		[[NSUserDefaults standardUserDefaults] setObject:[keyCombo plistRepresentation] forKey:@"playNextStreamHotKey"];
 		
 		[(PlayApplicationDelegate *)[[NSApplication sharedApplication] delegate] registerPlayNextStreamHotKey:keyCombo];
 	}
 	else if(aRecorder == _previousStreamShortcutRecorder) {
 		PTKeyCombo *keyCombo = [PTKeyCombo keyComboWithKeyCode:[aRecorder keyCombo].code
 													 modifiers:[aRecorder cocoaToCarbonFlags:[aRecorder keyCombo].flags]];
-		[[NSUserDefaults standardUserDefaults] setObject:[keyCombo plistRepresentation] forKey:@"previousStreamHotKey"];
+		[[NSUserDefaults standardUserDefaults] setObject:[keyCombo plistRepresentation] forKey:@"playPreviousStreamHotKey"];
 		
 		[(PlayApplicationDelegate *)[[NSApplication sharedApplication] delegate] registerPlayPreviousStreamHotKey:keyCombo];
 	}

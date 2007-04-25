@@ -83,14 +83,14 @@
 		[keyCombo release];
 	}
 
-	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"nextStreamHotKey"];
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"playNextStreamHotKey"];
 	if(nil != dictionary) {
 		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
 		[self registerPlayNextStreamHotKey:keyCombo];
 		[keyCombo release];
 	}
 	
-	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"previousStreamHotKey"];
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"playPreviousStreamHotKey"];
 	if(nil != dictionary) {
 		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
 		[self registerPlayPreviousStreamHotKey:keyCombo];
