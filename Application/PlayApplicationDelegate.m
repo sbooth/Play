@@ -26,6 +26,7 @@
 #import "AudioScrobbler.h"
 #import "AudioStream.h"
 #import "AudioMetadataWriter.h"
+#import "PreferencesController.h"
 
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
@@ -42,11 +43,16 @@
 
 + (void) initialize
 {
-	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithBool:YES], @"enableAudioScrobbler",
-		[NSNumber numberWithBool:YES], @"enableGrowlNotifications",
-		nil];
-	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDictionary];
+	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
+	if(nil == defaultsPath) {
+		NSLog(@"Missing resource: Defaults.plist");
+		return;
+	}
+	
+	NSDictionary *initialValuesDictionary = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];		
+	
+	[[NSUserDefaults standardUserDefaults] registerDefaults:initialValuesDictionary];
+	[[NSUserDefaultsController sharedUserDefaultsController] setInitialValues:initialValuesDictionary];
 }
 
 - (AudioLibrary *) library
@@ -154,6 +160,11 @@
 	}
 	
 	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
+}
+
+- (IBAction) showPreferences:(id)sender
+{
+	[[PreferencesController sharedPreferences] showWindow:sender];
 }
 
 #pragma mark Growl

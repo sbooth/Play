@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,19 +19,19 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import <Growl/GrowlApplicationBridge.h>
 
-@class AudioLibrary;
-@class AudioScrobbler;
+// ========================================
+// Identifiers for toolbar items
+// ========================================
+extern NSString	* const		GeneralPreferencesToolbarItemIdentifier;
+extern NSString * const		HotKeyPreferencesToolbarItemIdentifier;
 
-@interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
+@interface PreferencesController : NSWindowController
 {
-	AudioScrobbler		*_scrobbler;
 }
 
-- (AudioLibrary *)		library;
-- (AudioScrobbler *)	scrobbler;
++ (PreferencesController *)		sharedPreferences;
 
-- (IBAction)			showPreferences:(id)sender;
+- (void)						selectPreferencePane:(NSString *)itemIdentifier;
 
 @end

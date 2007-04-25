@@ -25,20 +25,16 @@
 - (NSString *) stringForObjectValue:(id)object
 {
 	NSString		*result			= nil;
-	unsigned		value;
 	unsigned		days			= 0;
 	unsigned		hours			= 0;
-	unsigned		minutes			= 0;
-	unsigned		seconds			= 0;
 	
 	if(nil == object || NO == [object isKindOfClass:[NSNumber class]]) {
 		return nil;
 	}
 	
-	value		= [object unsignedIntValue];
-	
-	seconds		= value % 60;
-	minutes		= value / 60;
+	unsigned value			= [object unsignedIntValue];
+	unsigned seconds		= value % 60;
+	unsigned minutes		= value / 60;
 	
 	while(60 <= minutes) {
 		minutes -= 60;

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SUCheckAtStartup</key>
+	<true/>
+	<key>enableAudioScrobbler</key>
+	<true/>
+	<key>enableGrowlNotifications</key>
+	<true/>
+	<key>rememberPlayQueue</key>
+	<false/>
+	<key>alwaysPlayStreamsWhenDoubleClicked</key>
+	<false/>
+	<key>rescanMetadataBeforePlayback</key>
+	<false/>
+	<key>removeStreamsFromPlayQueueWhenFinished</key>
+	<true/>
+	<key>limitPlayQueueHistorySize</key>
+	<false/>
+	<key>playQueueHistorySize</key>
+	<real>5.0</real>
+</dict>
+</plist>

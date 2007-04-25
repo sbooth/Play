@@ -244,7 +244,7 @@
 
 - (IBAction) remove:(id)sender
 {
-	if(NO == [_streamController canRemove]) {
+	if(NO == [_streamController canRemove] || 0 == [[_streamController selectedObjects] count]) {
 		NSBeep();
 		return;
 	}

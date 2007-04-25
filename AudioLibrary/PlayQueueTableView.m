@@ -54,6 +54,11 @@
 
 - (IBAction) remove:(id)sender
 {
+	if(NO == [_streamController canRemove] || 0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+
 	// If removing the currently playing stream, stop playback
 	if([[_streamController selectionIndexes] containsIndex:[[AudioLibrary library] playbackIndex]]) {
 		[[AudioLibrary library] stop:sender];

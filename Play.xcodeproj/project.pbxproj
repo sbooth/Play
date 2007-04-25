@@ -253,6 +253,24 @@
 		8CB3E3EB0BDD40E800B5E828 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3E3E90BDD40E800B5E828 /* Credits.rtf */; };
 		8CB3E4CF0B84592100B5F8A3 /* AlbumsNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3E4CD0B84592100B5F8A3 /* AlbumsNode.m */; };
 		8CB3E4D70B84592D00B5F8A3 /* AlbumNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3E4D50B84592D00B5F8A3 /* AlbumNode.m */; };
+		8CB3EC870BDDA2B000B5E828 /* PTHotKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC810BDDA2B000B5E828 /* PTHotKey.m */; };
+		8CB3EC890BDDA2B000B5E828 /* PTHotKeyCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC830BDDA2B000B5E828 /* PTHotKeyCenter.m */; };
+		8CB3EC8B0BDDA2B000B5E828 /* PTKeyCombo.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */; };
+		8CB3EC980BDDA2FD00B5E828 /* RemoveShortcut.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */; };
+		8CB3EC990BDDA2FD00B5E828 /* RemoveShortcutPressed.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */; };
+		8CB3EC9A0BDDA2FD00B5E828 /* RemoveShortcutRollover.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */; };
+		8CB3EC9C0BDDA2FD00B5E828 /* ShortcutRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */; };
+		8CB3EC9E0BDDA2FD00B5E828 /* ShortcutRecorderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */; };
+		8CB3EC9F0BDDA2FD00B5E828 /* Snapback.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */; };
+		8CB3F29B0BDDA75300B5E828 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3F2990BDDA75300B5E828 /* PreferencesController.m */; };
+		8CB3F2BF0BDDAC4900B5E828 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */; };
+		8CB3F2C70BDDACC800B5E828 /* GeneralPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */; };
+		8CB3F2CF0BDDAD5B00B5E828 /* GeneralPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */; };
+		8CB3FECB0BDDB28200B5E828 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3FECA0BDDB28200B5E828 /* Defaults.plist */; };
+		8CB9408A0BDEF76700405DB4 /* HotKeyPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB940880BDEF76700405DB4 /* HotKeyPreferencesController.m */; };
+		8CB940910BDEF79000405DB4 /* HotKeyPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */; };
+		8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */; };
+		8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */; };
 		8CBEF1B50B7733770067CAE1 /* begin_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */; };
 		8CBEF1BB0B77338C0067CAE1 /* commit_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1BA0B77338C0067CAE1 /* commit_transaction.sql */; };
 		8CBEF1C70B7735140067CAE1 /* rollback_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1C60B7735140067CAE1 /* rollback_transaction.sql */; };
@@ -679,6 +697,32 @@
 		8CB3E4CD0B84592100B5F8A3 /* AlbumsNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AlbumsNode.m; path = Browser/AlbumsNode.m; sourceTree = "<group>"; };
 		8CB3E4D40B84592D00B5F8A3 /* AlbumNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlbumNode.h; path = Browser/AlbumNode.h; sourceTree = "<group>"; };
 		8CB3E4D50B84592D00B5F8A3 /* AlbumNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AlbumNode.m; path = Browser/AlbumNode.m; sourceTree = "<group>"; };
+		8CB3EC800BDDA2B000B5E828 /* PTHotKey.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PTHotKey.h; path = ThirdParty/PTHotKey/PTHotKey.h; sourceTree = "<group>"; };
+		8CB3EC810BDDA2B000B5E828 /* PTHotKey.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PTHotKey.m; path = ThirdParty/PTHotKey/PTHotKey.m; sourceTree = "<group>"; };
+		8CB3EC820BDDA2B000B5E828 /* PTHotKeyCenter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PTHotKeyCenter.h; path = ThirdParty/PTHotKey/PTHotKeyCenter.h; sourceTree = "<group>"; };
+		8CB3EC830BDDA2B000B5E828 /* PTHotKeyCenter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PTHotKeyCenter.m; path = ThirdParty/PTHotKey/PTHotKeyCenter.m; sourceTree = "<group>"; };
+		8CB3EC840BDDA2B000B5E828 /* PTKeyCombo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PTKeyCombo.h; path = ThirdParty/PTHotKey/PTKeyCombo.h; sourceTree = "<group>"; };
+		8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PTKeyCombo.m; path = ThirdParty/PTHotKey/PTKeyCombo.m; sourceTree = "<group>"; };
+		8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcut.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcut.tif; sourceTree = "<group>"; };
+		8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcutPressed.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcutPressed.tif; sourceTree = "<group>"; };
+		8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcutRollover.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcutRollover.tif; sourceTree = "<group>"; };
+		8CB3EC930BDDA2FD00B5E828 /* ShortcutRecorder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ShortcutRecorder.h; path = ThirdParty/ShortcutRecorder/ShortcutRecorder.h; sourceTree = "<group>"; };
+		8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ShortcutRecorder.m; path = ThirdParty/ShortcutRecorder/ShortcutRecorder.m; sourceTree = "<group>"; };
+		8CB3EC950BDDA2FD00B5E828 /* ShortcutRecorderCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ShortcutRecorderCell.h; path = ThirdParty/ShortcutRecorder/ShortcutRecorderCell.h; sourceTree = "<group>"; };
+		8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ShortcutRecorderCell.m; path = ThirdParty/ShortcutRecorder/ShortcutRecorderCell.m; sourceTree = "<group>"; };
+		8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = Snapback.tiff; path = ThirdParty/ShortcutRecorder/Snapback.tiff; sourceTree = "<group>"; };
+		8CB3F2980BDDA75300B5E828 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PreferencesController.h; path = Preferences/PreferencesController.h; sourceTree = "<group>"; };
+		8CB3F2990BDDA75300B5E828 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PreferencesController.m; path = Preferences/PreferencesController.m; sourceTree = "<group>"; };
+		8CB3F2BA0BDDAC4900B5E828 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Preferences.nib; sourceTree = "<group>"; };
+		8CB3F2C20BDDACC800B5E828 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/GeneralPreferences.nib; sourceTree = "<group>"; };
+		8CB3F2CC0BDDAD5B00B5E828 /* GeneralPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = GeneralPreferencesController.h; path = Preferences/GeneralPreferencesController.h; sourceTree = "<group>"; };
+		8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = GeneralPreferencesController.m; path = Preferences/GeneralPreferencesController.m; sourceTree = "<group>"; };
+		8CB3FECA0BDDB28200B5E828 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; name = Defaults.plist; path = Preferences/Defaults.plist; sourceTree = "<group>"; };
+		8CB940870BDEF76700405DB4 /* HotKeyPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = HotKeyPreferencesController.h; path = Preferences/HotKeyPreferencesController.h; sourceTree = "<group>"; };
+		8CB940880BDEF76700405DB4 /* HotKeyPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = HotKeyPreferencesController.m; path = Preferences/HotKeyPreferencesController.m; sourceTree = "<group>"; };
+		8CB9408C0BDEF79000405DB4 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/HotKeyPreferences.nib; sourceTree = "<group>"; };
+		8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = GeneralPreferencesToolbarImage.tiff; path = Images/GeneralPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
+		8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = HotKeyPreferencesToolbarImage.tiff; path = Images/HotKeyPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = begin_transaction.sql; path = SQL/begin_transaction.sql; sourceTree = "<group>"; };
 		8CBEF1BA0B77338C0067CAE1 /* commit_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = commit_transaction.sql; path = SQL/commit_transaction.sql; sourceTree = "<group>"; };
 		8CBEF1C60B7735140067CAE1 /* rollback_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = rollback_transaction.sql; path = SQL/rollback_transaction.sql; sourceTree = "<group>"; };
@@ -770,6 +814,7 @@
 				8C9C3E9B0B742FCF00CE799A /* Metadata Writers */,
 				8C9C288A0B724D3200CE799A /* AudioScrobbler */,
 				29B97315FDCFA39411CA2CEA /* Application */,
+				8CB3F2940BDDA72500B5E828 /* Preferences */,
 				8C9C32240B73340700CE799A /* Formatters */,
 				8C9C31D80B732F0000CE799A /* Utilities */,
 				8C9C28870B724D1600CE799A /* AppleScript */,
@@ -800,6 +845,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */,
+				8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */,
+				8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */,
 				8CB3E3E90BDD40E800B5E828 /* Credits.rtf */,
 				8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */,
 				8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */,
@@ -1010,8 +1058,10 @@
 				8C17FC5F0B95337C009200C4 /* KFTypeSelectTableView */,
 				8C53D8DC0BAEFCE000F21790 /* NSBezierPath_RoundRectMethods */,
 				8CA1EE640B89697300AE4C2E /* NSTreeController Extensions */,
+				8CB3EC7F0BDDA29700B5E828 /* PTHotKey */,
 				8C6ACE6C0BD55F4700CDFEB2 /* RBSplitView */,
 				8C9C30C60B73277000CE799A /* SFMT */,
+				8CB3EC8F0BDDA2DD00B5E828 /* ShortcutRecorder */,
 				8C9C24FD0B724B0E00CE799A /* sqlite3 */,
 				8C17F7AF0B913D2E009200C4 /* UKKQueue */,
 			);
@@ -1207,6 +1257,8 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */,
+				8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */,
 				8CB3DD220BDBDCE700B5E828 /* artsenvironment.png */,
 				8C9C2E6C0B7310C100CE799A /* Add_Pressed.png */,
 				8C9C2E6D0B7310C100CE799A /* Add.png */,
@@ -1440,6 +1492,48 @@
 			name = "NSTreeController Extensions";
 			sourceTree = "<group>";
 		};
+		8CB3EC7F0BDDA29700B5E828 /* PTHotKey */ = {
+			isa = PBXGroup;
+			children = (
+				8CB3EC800BDDA2B000B5E828 /* PTHotKey.h */,
+				8CB3EC810BDDA2B000B5E828 /* PTHotKey.m */,
+				8CB3EC820BDDA2B000B5E828 /* PTHotKeyCenter.h */,
+				8CB3EC830BDDA2B000B5E828 /* PTHotKeyCenter.m */,
+				8CB3EC840BDDA2B000B5E828 /* PTKeyCombo.h */,
+				8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */,
+			);
+			name = PTHotKey;
+			sourceTree = "<group>";
+		};
+		8CB3EC8F0BDDA2DD00B5E828 /* ShortcutRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */,
+				8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */,
+				8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */,
+				8CB3EC930BDDA2FD00B5E828 /* ShortcutRecorder.h */,
+				8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */,
+				8CB3EC950BDDA2FD00B5E828 /* ShortcutRecorderCell.h */,
+				8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */,
+				8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */,
+			);
+			name = ShortcutRecorder;
+			sourceTree = "<group>";
+		};
+		8CB3F2940BDDA72500B5E828 /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				8CB940870BDEF76700405DB4 /* HotKeyPreferencesController.h */,
+				8CB940880BDEF76700405DB4 /* HotKeyPreferencesController.m */,
+				8CB3FECA0BDDB28200B5E828 /* Defaults.plist */,
+				8CB3F2CC0BDDAD5B00B5E828 /* GeneralPreferencesController.h */,
+				8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */,
+				8CB3F2980BDDA75300B5E828 /* PreferencesController.h */,
+				8CB3F2990BDDA75300B5E828 /* PreferencesController.m */,
+			);
+			name = Preferences;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1482,6 +1576,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8CB3FECB0BDDB28200B5E828 /* Defaults.plist in Resources */,
 				8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */,
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				8C9C24100B7249E000CE799A /* i.png in Resources */,
@@ -1569,6 +1664,15 @@
 				8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */,
 				8CB3DD230BDBDCE700B5E828 /* artsenvironment.png in Resources */,
 				8CB3E3EB0BDD40E800B5E828 /* Credits.rtf in Resources */,
+				8CB3EC980BDDA2FD00B5E828 /* RemoveShortcut.tif in Resources */,
+				8CB3EC990BDDA2FD00B5E828 /* RemoveShortcutPressed.tif in Resources */,
+				8CB3EC9A0BDDA2FD00B5E828 /* RemoveShortcutRollover.tif in Resources */,
+				8CB3EC9F0BDDA2FD00B5E828 /* Snapback.tiff in Resources */,
+				8CB3F2BF0BDDAC4900B5E828 /* Preferences.nib in Resources */,
+				8CB3F2C70BDDACC800B5E828 /* GeneralPreferences.nib in Resources */,
+				8CB940910BDEF79000405DB4 /* HotKeyPreferences.nib in Resources */,
+				8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */,
+				8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1731,6 +1835,14 @@
 				8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */,
 				8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */,
 				8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */,
+				8CB3EC870BDDA2B000B5E828 /* PTHotKey.m in Sources */,
+				8CB3EC890BDDA2B000B5E828 /* PTHotKeyCenter.m in Sources */,
+				8CB3EC8B0BDDA2B000B5E828 /* PTKeyCombo.m in Sources */,
+				8CB3EC9C0BDDA2FD00B5E828 /* ShortcutRecorder.m in Sources */,
+				8CB3EC9E0BDDA2FD00B5E828 /* ShortcutRecorderCell.m in Sources */,
+				8CB3F29B0BDDA75300B5E828 /* PreferencesController.m in Sources */,
+				8CB3F2CF0BDDAD5B00B5E828 /* GeneralPreferencesController.m in Sources */,
+				8CB9408A0BDEF76700405DB4 /* HotKeyPreferencesController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1831,6 +1943,30 @@
 				8CB3E3EA0BDD40E800B5E828 /* English */,
 			);
 			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CB3F2BA0BDDAC4900B5E828 /* English */,
+			);
+			name = Preferences.nib;
+			sourceTree = "<group>";
+		};
+		8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CB3F2C20BDDACC800B5E828 /* English */,
+			);
+			name = GeneralPreferences.nib;
+			sourceTree = "<group>";
+		};
+		8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CB9408C0BDEF79000405DB4 /* English */,
+			);
+			name = HotKeyPreferences.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

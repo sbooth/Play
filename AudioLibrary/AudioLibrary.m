@@ -1145,11 +1145,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue insertObject:stream atIndex:index];	
 
-	if(NSNotFound != [self nextPlaybackIndex] && index < [self playbackIndex]) {
+	if(NSNotFound != [self nextPlaybackIndex] && index >= [self nextPlaybackIndex]) {
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] + 1];
 	}
 
-	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
+	if(NSNotFound != [self playbackIndex] && index >= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
 	
@@ -1160,7 +1160,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue removeObjectAtIndex:index];	
 
-	if(NSNotFound != [self nextPlaybackIndex] && index <= [self playbackIndex]) {
+	if(NSNotFound != [self nextPlaybackIndex] && index < [self nextPlaybackIndex]) {
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] - 1];
 	}
 
@@ -1608,7 +1608,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"] && [self nextPlaybackIndex] != [self playbackIndex]) {
 		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];	
 	}
 	
@@ -1644,8 +1644,21 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setNextPlaybackIndex:NSNotFound];
 	}
 	else if([self randomPlayback]) {
-		double randomNumber = genrand_real2();
-		[self setNextPlaybackIndex:(unsigned)(randomNumber * [streams count])];
+		double		randomNumber;
+		unsigned	randomIndex;
+		
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
+			do {
+				randomNumber	= genrand_real2();
+				randomIndex		= (unsigned)(randomNumber * [streams count]);
+			} while(randomIndex == [self playbackIndex]);
+		}
+		else {
+			randomNumber	= genrand_real2();
+			randomIndex		= (unsigned)(randomNumber * [streams count]);
+		}
+		
+		[self setNextPlaybackIndex:randomIndex];
 	}
 	else if([self loopPlayback]) {
 		streamIndex = [self playbackIndex];		
@@ -1934,7 +1947,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnVisibility"];
 	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnSizes"];
 	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnOrder"];
-	
+
 	NSArray			*tableColumns		= [_playQueueTable tableColumns];
 	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
 	
@@ -1961,7 +1974,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[contextMenuItem setRepresentedObject:obj];
 		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
 		
-		//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
+//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
 		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
 		
 		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
@@ -2076,7 +2089,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"playQueueTableColumnVisibility"];
 	
-	[self saveStreamTableColumnOrder];
+	[self savePlayQueueTableColumnOrder];
 }
 
 #pragma mark Bogosity

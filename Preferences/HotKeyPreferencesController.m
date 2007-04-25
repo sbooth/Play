@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,20 +18,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
-#import <Growl/GrowlApplicationBridge.h>
+#import "HotKeyPreferencesController.h"
 
-@class AudioLibrary;
-@class AudioScrobbler;
+@implementation HotKeyPreferencesController
 
-@interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
+- (id) init
 {
-	AudioScrobbler		*_scrobbler;
+	if((self = [super initWithWindowNibName:@"HotKeyPreferences"])) {
+	}
+	return self;
 }
-
-- (AudioLibrary *)		library;
-- (AudioScrobbler *)	scrobbler;
-
-- (IBAction)			showPreferences:(id)sender;
 
 @end
