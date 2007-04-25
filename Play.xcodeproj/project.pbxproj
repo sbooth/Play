@@ -82,6 +82,8 @@
 		8C663A210B7FB1C800A226F0 /* Library.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C663A200B7FB1C800A226F0 /* Library.icns */; };
 		8C6ACE760BD55F6E00CDFEB2 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */; };
 		8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
+		8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC10BDF215500605141 /* ComposerNode.m */; };
+		8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC30BDF215500605141 /* ComposersNode.m */; };
 		8C9C240C0B7249E000CE799A /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */; };
 		8C9C240D0B7249E000CE799A /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C23FE0B7249E000CE799A /* AIPlasticInfoButton.m */; };
 		8C9C240E0B7249E000CE799A /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24000B7249E000CE799A /* AIPlasticMinusButton.m */; };
@@ -439,6 +441,10 @@
 		8C6ACE720BD55F6D00CDFEB2 /* RBSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitView.h; path = ThirdParty/RBSplitView/Source/RBSplitView.h; sourceTree = "<group>"; };
 		8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitView.m; path = ThirdParty/RBSplitView/Source/RBSplitView.m; sourceTree = "<group>"; };
 		8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPrivateDefines.h; path = ThirdParty/RBSplitView/Source/RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
+		8C8E3BC00BDF215500605141 /* ComposerNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposerNode.h; path = Browser/ComposerNode.h; sourceTree = "<group>"; };
+		8C8E3BC10BDF215500605141 /* ComposerNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposerNode.m; path = Browser/ComposerNode.m; sourceTree = "<group>"; };
+		8C8E3BC20BDF215500605141 /* ComposersNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposersNode.h; path = Browser/ComposersNode.h; sourceTree = "<group>"; };
+		8C8E3BC30BDF215500605141 /* ComposersNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposersNode.m; path = Browser/ComposersNode.m; sourceTree = "<group>"; };
 		8C9C23FB0B7249E000CE799A /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticButton.h; sourceTree = "<group>"; };
 		8C9C23FC0B7249E000CE799A /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AIPlasticButton.m; sourceTree = "<group>"; };
 		8C9C23FD0B7249E000CE799A /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -948,6 +954,10 @@
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
+				8C8E3BC00BDF215500605141 /* ComposerNode.h */,
+				8C8E3BC10BDF215500605141 /* ComposerNode.m */,
+				8C8E3BC20BDF215500605141 /* ComposersNode.h */,
+				8C8E3BC30BDF215500605141 /* ComposersNode.m */,
 				8C220CC60BB978C100808450 /* MostPopularNode.h */,
 				8C220CC70BB978C100808450 /* MostPopularNode.m */,
 				8C22086F0BB7028900808450 /* RecentlyPlayedNode.h */,
@@ -1843,6 +1853,8 @@
 				8CB3F29B0BDDA75300B5E828 /* PreferencesController.m in Sources */,
 				8CB3F2CF0BDDAD5B00B5E828 /* GeneralPreferencesController.m in Sources */,
 				8CB9408A0BDEF76700405DB4 /* HotKeyPreferencesController.m in Sources */,
+				8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */,
+				8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

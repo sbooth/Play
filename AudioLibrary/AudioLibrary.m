@@ -69,6 +69,7 @@
 #import "ArtistsNode.h"
 #import "AlbumsNode.h"
 #import "GenresNode.h"
+#import "ComposersNode.h"
 #import "PlaylistsNode.h"
 #import "PlaylistNode.h"
 #import "SmartPlaylistsNode.h"
@@ -1837,6 +1838,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
 	[albumsNode setIcon:folderIcon];
 
+	ComposersNode *composersNode = [[ComposersNode alloc] init];
+	[composersNode setIcon:folderIcon];
+	
 	GenresNode *genresNode = [[GenresNode alloc] init];
 	[genresNode setIcon:folderIcon];
 
@@ -1859,6 +1863,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[browserRoot addChild:[recentlyPlayedNode autorelease]];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
+	[browserRoot addChild:[composersNode autorelease]];
 	[browserRoot addChild:[genresNode autorelease]];
 	[browserRoot addChild:[playlistsNode autorelease]];
 	[browserRoot addChild:[smartPlaylistsNode autorelease]];

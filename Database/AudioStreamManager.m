@@ -139,6 +139,13 @@
 	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataGenreKey, genre]];
 }
 
+- (NSArray *) streamsForComposer:(NSString *)composer
+{
+	NSParameterAssert(nil != composer);
+	
+	return [[self streams] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", MetadataComposerKey, composer]];
+}
+
 - (NSArray *) streamsContainedByURL:(NSURL *)url
 {
 	NSParameterAssert(nil != url);
