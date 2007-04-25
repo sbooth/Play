@@ -27,6 +27,9 @@
 #import "AudioStream.h"
 #import "AudioMetadataWriter.h"
 #import "PreferencesController.h"
+#import "PTHotKey.h"
+#import "PTHotKeyCenter.h"
+#import "PTKeyCombo.h"
 
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
@@ -71,6 +74,28 @@
 - (void) awakeFromNib
 {
 	[GrowlApplicationBridge setGrowlDelegate:self];
+
+	// Register hot keys
+	NSDictionary *dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"playPauseHotKey"];
+	if(nil != dictionary) {
+		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
+		[self registerPlayPauseHotKey:keyCombo];
+		[keyCombo release];
+	}
+
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"nextStreamHotKey"];
+	if(nil != dictionary) {
+		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
+		[self registerPlayNextStreamHotKey:keyCombo];
+		[keyCombo release];
+	}
+	
+	dictionary = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"previousStreamHotKey"];
+	if(nil != dictionary) {
+		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
+		[self registerPlayPreviousStreamHotKey:keyCombo];
+		[keyCombo release];
+	}
 }
 
 
@@ -165,6 +190,47 @@
 - (IBAction) showPreferences:(id)sender
 {
 	[[PreferencesController sharedPreferences] showWindow:sender];
+}
+
+#pragma mark Hot Keys
+
+- (void) registerPlayPauseHotKey:(PTKeyCombo *)keyCombo
+{
+	 [[PTHotKeyCenter sharedCenter] unregisterHotKey:[[PTHotKeyCenter sharedCenter] hotKeyWithIdentifier:@"playPause"]];
+	 
+	 PTHotKey *playPauseHotKey = [[PTHotKey alloc] initWithIdentifier:@"playPause" keyCombo:keyCombo];
+	 
+	 [playPauseHotKey setTarget:[AudioLibrary library]];
+	 [playPauseHotKey setAction:@selector(playPause:)];
+	 
+	 [[PTHotKeyCenter sharedCenter] registerHotKey:playPauseHotKey];
+	 [playPauseHotKey release];
+}
+
+- (void) registerPlayNextStreamHotKey:(PTKeyCombo *)keyCombo
+{
+	[[PTHotKeyCenter sharedCenter] unregisterHotKey:[[PTHotKeyCenter sharedCenter] hotKeyWithIdentifier:@"nextStream"]];
+	
+	PTHotKey *nextStreamHotKey = [[PTHotKey alloc] initWithIdentifier:@"nextStream" keyCombo:keyCombo];
+	
+	[nextStreamHotKey setTarget:[AudioLibrary library]];
+	[nextStreamHotKey setAction:@selector(playNextStream:)];
+	
+	[[PTHotKeyCenter sharedCenter] registerHotKey:nextStreamHotKey];
+	[nextStreamHotKey release];
+}
+
+- (void) registerPlayPreviousStreamHotKey:(PTKeyCombo *)keyCombo
+{
+	[[PTHotKeyCenter sharedCenter] unregisterHotKey:[[PTHotKeyCenter sharedCenter] hotKeyWithIdentifier:@"previousStream"]];
+	
+	PTHotKey *previousStreamHotKey = [[PTHotKey alloc] initWithIdentifier:@"previousStream" keyCombo:keyCombo];
+	
+	[previousStreamHotKey setTarget:[AudioLibrary library]];
+	[previousStreamHotKey setAction:@selector(playPreviousStream:)];
+	
+	[[PTHotKeyCenter sharedCenter] registerHotKey:previousStreamHotKey];
+	[previousStreamHotKey release];
 }
 
 #pragma mark Growl

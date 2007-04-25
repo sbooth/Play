@@ -7,9 +7,13 @@
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {}; 
             CLASS = HotKeyPreferencesController; 
             LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_nextStreamShortcutRecorder" = ShortcutRecorder; 
+                "_playPauseShortcutRecorder" = ShortcutRecorder; 
+                "_previousStreamShortcutRecorder" = ShortcutRecorder; 
+            }; 
             SUPERCLASS = NSWindowController; 
         }
     ); 

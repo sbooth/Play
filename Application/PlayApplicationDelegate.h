@@ -23,6 +23,7 @@
 
 @class AudioLibrary;
 @class AudioScrobbler;
+@class PTKeyCombo;
 
 @interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
@@ -33,5 +34,10 @@
 - (AudioScrobbler *)	scrobbler;
 
 - (IBAction)			showPreferences:(id)sender;
+
+// Hot key support
+- (void)				registerPlayPauseHotKey:(PTKeyCombo *)keyCombo;
+- (void)				registerPlayNextStreamHotKey:(PTKeyCombo *)keyCombo;
+- (void)				registerPlayPreviousStreamHotKey:(PTKeyCombo *)keyCombo;
 
 @end

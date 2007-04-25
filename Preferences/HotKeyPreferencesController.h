@@ -20,8 +20,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class ShortcutRecorder;
+
 @interface HotKeyPreferencesController : NSWindowController
 {
+	IBOutlet ShortcutRecorder		*_playPauseShortcutRecorder;
+	IBOutlet ShortcutRecorder		*_nextStreamShortcutRecorder;
+	IBOutlet ShortcutRecorder		*_previousStreamShortcutRecorder;
 }
 
 @end
