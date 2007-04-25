@@ -949,49 +949,76 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) stop:(id)sender
 {
+	if(NO == [[self player] hasValidStream]) {
+		NSBeep();
+		return;
+	}
+
 	AudioStream *stream = [self nowPlaying];
 
 	[self setPlaybackIndex:NSNotFound];
 	[self setNextPlaybackIndex:NSNotFound];
 
-	if([[self player] hasValidStream]) {
-		
-		if([[self player] isPlaying]) {
-			[[self player] stop];
-		}
-		
-		[[self player] reset];
-
-		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStopNotification 
-															object:self
-														  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	if([[self player] isPlaying]) {
+		[[self player] stop];
 	}
+	
+	[[self player] reset];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStopNotification 
+														object:self
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 	
 	[self updatePlayButtonState];
 }
 
 - (IBAction) skipForward:(id)sender
 {
+	if(NO == [[self player] streamSupportsSeeking]) {
+		NSBeep();
+		return;
+	}
+	
 	[[self player] skipForward];
 }
 
 - (IBAction) skipBackward:(id)sender
 {
+	if(NO == [[self player] streamSupportsSeeking]) {
+		NSBeep();
+		return;
+	}
+
 	[[self player] skipBackward];
 }
 
 - (IBAction) skipToEnd:(id)sender
 {
+	if(NO == [[self player] streamSupportsSeeking]) {
+		NSBeep();
+		return;
+	}
+
 	[[self player] skipToEnd];
 }
 
 - (IBAction) skipToBeginning:(id)sender
 {
+	if(NO == [[self player] streamSupportsSeeking]) {
+		NSBeep();
+		return;
+	}
+
 	[[self player] skipToBeginning];
 }
 
 - (IBAction) playNextStream:(id)sender
 {
+	if(NO == [self canPlayNextStream]) {
+		NSBeep();
+		return;
+	}
+	
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
@@ -1034,6 +1061,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) playPreviousStream:(id)sender
 {
+	if(NO == [self canPlayPreviousStream]) {
+		NSBeep();
+		return;
+	}
+
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
 	
