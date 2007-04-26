@@ -674,7 +674,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
 	NSDirectoryEnumerator	*directoryEnumerator	= nil;
 	BOOL					isDirectory				= NO;
-	BOOL					openSuccessful			= YES;
+	BOOL					openSuccessful			= NO;
 	
 	[[CollectionManager manager] beginUpdate];
 	
@@ -685,7 +685,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			directoryEnumerator	= [fileManager enumeratorAtPath:filename];
 			
 			while((path = [directoryEnumerator nextObject])) {
-				openSuccessful &= [self addFile:[filename stringByAppendingPathComponent:path]];
+				openSuccessful |= [self addFile:[filename stringByAppendingPathComponent:path]];
 				
 				if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
 					break;
@@ -849,31 +849,63 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	NSParameterAssert(nil != filenames);
 
-	BOOL			success			= YES;
-	NSEnumerator	*enumerator		= [filenames objectEnumerator];
-	NSString		*filename		= nil;
-	AudioStream		*stream			= nil;
-	NSMutableArray	*streams		= [NSMutableArray array];
+	NSString				*filename				= nil;
+	NSString				*path					= nil;
+	NSFileManager			*fileManager			= [NSFileManager defaultManager];
+	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
+	NSDirectoryEnumerator	*directoryEnumerator	= nil;
+	BOOL					isDirectory				= NO;
+	BOOL					playSuccessful			= NO;
+	BOOL					addSuccessful			= NO;
+	AudioStream				*stream					= nil;
+	NSMutableArray			*streams				= [NSMutableArray array];
 	
 	// First try to find these files in our library
-	while(success && (filename = [enumerator nextObject])) {
-		stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+	while((filename = [filesEnumerator nextObject])) {
 		
-		// If it wasn't found, try and add it
-		if(nil == stream) {
-			success &= [self addFile:filename];
-			if(success) {
-				stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+		// Perform a deep search for directories
+		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
+			directoryEnumerator	= [fileManager enumeratorAtPath:filename];
+			
+			while((path = [directoryEnumerator nextObject])) {
+
+				// Determine if the stream is in the library already
+				stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:[filename stringByAppendingPathComponent:path]]];
+				
+				// If it isn't, try and add it
+				if(nil == stream) {
+					addSuccessful = [self addFile:[filename stringByAppendingPathComponent:path]];
+					if(addSuccessful) {
+						stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:[filename stringByAppendingPathComponent:path]]];
+					}
+				}
+				
+				if(nil != stream) {
+					[streams addObject:stream];
+					playSuccessful = YES;
+				}				
 			}
 		}
-
-		if(nil != stream) {
-			[streams addObject:stream];
-		}
+		else {
+			stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+			
+			// If it isn't, try and add it
+			if(nil == stream) {
+				addSuccessful = [self addFile:[filename stringByAppendingPathComponent:path]];
+				if(addSuccessful) {
+					stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+				}
+			}
+			
+			if(nil != stream) {
+				[streams addObject:stream];
+				playSuccessful = YES;
+			}			
+		}		
 	}
 
 	// Replace current streams with the files, and play the first one
-	if(nil != stream) {
+	if(playSuccessful) {
 		if([[self player] isPlaying]) {
 			[self stop:self];
 		}
@@ -883,7 +915,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self scrollNowPlayingToVisible];		
 	}
 	
-	return success;
+	return playSuccessful;
 }
 
 - (IBAction) play:(id)sender
