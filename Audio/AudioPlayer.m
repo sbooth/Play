@@ -30,35 +30,34 @@
 // AudioPlayer callbacks
 // ========================================
 @interface AudioLibrary (AudioPlayerCallbackMethods)
-- (void)	streamPlaybackDidStart;
-- (void)	streamPlaybackDidComplete;
-
-- (void)	requestNextStream;
+- (void) streamPlaybackDidStart;
+- (void) streamPlaybackDidComplete;
+- (void) requestNextStream;
 @end
 
 @interface AudioPlayer (Private)
-- (AudioUnit)			audioUnit;
+- (AudioUnit) audioUnit;
 
-- (NSFormatter *)		secondsFormatter;
+- (NSFormatter *) secondsFormatter;
 
-- (NSRunLoop *)			runLoop;
+- (NSRunLoop *) runLoop;
 
 - (AudioStreamDecoder *) streamDecoder;
-- (void)				setStreamDecoder:(AudioStreamDecoder *)streamDecoder;
+- (void) setStreamDecoder:(AudioStreamDecoder *)streamDecoder;
 
 - (AudioStreamDecoder *) nextStreamDecoder;
-- (void)				setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder;
+- (void) setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder;
 
-//- (void)				didReachEndOfStream:(id)arg;
-- (void)				didReachEndOfStream;
-//- (void)				didReadFrames:(NSNumber *)frameCount;
-- (void)				didReadFrames:(UInt32)frameCount;
+//- (void) didReachEndOfStream:(id)arg;
+- (void) didReachEndOfStream;
+//- (void) didReadFrames:(NSNumber *)frameCount;
+- (void) didReadFrames:(UInt32)frameCount;
 
-- (void)				didStartUsingNextStreamDecoder;
+- (void) didStartUsingNextStreamDecoder;
+- (void) currentFrameNeedsUpdate;
 
-- (void)				currentFrameNeedsUpdate;
-
-- (void)				setPlaying:(BOOL)playing;
+- (void) setPlaying:(BOOL)playing;
+- (void) setOutputDeviceUID:(NSString *)deviceUID;
 @end
 
 #if DEBUG
@@ -211,10 +210,8 @@ MyRenderNotification(void							*inRefCon,
 - (id) init
 {
 	if((self = [super init])) {
-		OSStatus					err;
 		ComponentResult				s;
 		ComponentDescription		desc;
-		Component					comp;
 		AURenderCallbackStruct		input;
 		
 		desc.componentType			= kAudioUnitType_Output;
@@ -223,7 +220,7 @@ MyRenderNotification(void							*inRefCon,
 		desc.componentFlags			= 0;
 		desc.componentFlagsMask		= 0;
 		
-		comp						= FindNextComponent(NULL, &desc);
+		Component comp = FindNextComponent(NULL, &desc);
 		
 		if(NULL == comp) {
 			printf ("FindNextComponent\n");
@@ -231,40 +228,14 @@ MyRenderNotification(void							*inRefCon,
 			[self release];
 			return nil;
 		}
-		
-		err = OpenAComponent(comp, &_audioUnit);
+				
+		OSStatus err = OpenAComponent(comp, &_audioUnit);
 		
 		if(noErr != err || NULL == comp) {
 			printf ("OpenAComponent=%ld\n", err);
 			
 			[self release];
 			return nil;
-		}
-		
-		// Set the output device
-		NSString *outputDevice = [[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"];
-		if(NO == [outputDevice isEqualToString:@""]) {
-			AudioDeviceID deviceID = kAudioDeviceUnknown;
-			AudioValueTranslation translation;
-			translation.mInputData = &outputDevice;
-			translation.mInputDataSize = sizeof(outputDevice);
-			translation.mOutputData = &deviceID;
-			translation.mOutputDataSize = sizeof(deviceID);
-			UInt32 size = sizeof(AudioValueTranslation);
-			err = AudioHardwareGetProperty(kAudioHardwarePropertyDeviceForUID,
-										   &size,
-										   &translation);
-			if(noErr == err && kAudioDeviceUnknown != deviceID) {
-				err = AudioUnitSetProperty(_audioUnit,
-										   kAudioOutputUnitProperty_CurrentDevice,
-										   kAudioUnitScope_Global,
-										   0,
-										   &deviceID,
-										   sizeof(deviceID));
-			}
-			else {
-				NSLog(@"Error setting output device");
-			}
 		}
 		
 		// Set up a callback function to generate output to the output unit
@@ -296,6 +267,15 @@ MyRenderNotification(void							*inRefCon,
 
 		_secondsFormatter	= [[SecondsFormatter alloc] init];
 		_runLoop			= [[NSRunLoop currentRunLoop] retain];
+		
+		// Set the output device
+		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
+		
+		// Listen for changes to the output device
+		[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self 
+																  forKeyPath:@"values.outputAudioDeviceUID"
+																	 options:nil
+																	 context:NULL];		
 	}
 	return self;
 }
@@ -303,6 +283,9 @@ MyRenderNotification(void							*inRefCon,
 - (void) dealloc
 {
 	[self stop];
+
+	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self 
+																 forKeyPath:@"values.outputAudioDeviceUID"];
 	
 	ComponentResult result = AudioUnitUninitialize(_audioUnit);
 	if(noErr != result) {
@@ -325,6 +308,14 @@ MyRenderNotification(void							*inRefCon,
 - (AudioLibrary *)		owner									{ return _owner; }
 - (void)				setOwner:(AudioLibrary *)owner			{ _owner = owner; }
 
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+	if(object == [NSUserDefaultsController sharedUserDefaultsController] && [keyPath isEqualToString:@"values.outputAudioDeviceUID"]) {
+		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
+	}
+}
+
+
 #pragma mark Stream Management
 
 - (BOOL) setStream:(AudioStream *)stream error:(NSError **)error
@@ -333,7 +324,6 @@ MyRenderNotification(void							*inRefCon,
 	
 	BOOL							result;
 	AudioStreamBasicDescription		pcmFormat;
-	AudioStreamDecoder				*streamDecoder;
 
 	if(nil != [self nextStreamDecoder]) {
 		[[self nextStreamDecoder] stopDecoding:error];
@@ -347,7 +337,7 @@ MyRenderNotification(void							*inRefCon,
 	
 	_requestedNextStream = NO;
 	
-	streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
+	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
 	if(nil == streamDecoder) {
 		if(nil != error) {
 			
@@ -551,7 +541,7 @@ MyRenderNotification(void							*inRefCon,
 
 - (Float32) volume
 {
-	Float32				volume;	
+	Float32				volume		= 0;	
 	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
 															kHALOutputParam_Volume,
 															kAudioUnitScope_Global,
@@ -772,6 +762,46 @@ MyRenderNotification(void							*inRefCon,
 - (void) setPlaying:(BOOL)playing
 {
 	_playing = playing;
+}
+
+- (void) setOutputDeviceUID:(NSString *)deviceUID
+{
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	if(nil == deviceUID || [deviceUID isEqual:[NSNull null]] || [deviceUID isEqualToString:@""]) {
+		specifierSize = sizeof(deviceID);
+		status = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, 
+										  &specifierSize, 
+										  &deviceID);
+	}
+	else {
+		AudioValueTranslation translation;
+		
+		translation.mInputData			= &deviceUID;
+		translation.mInputDataSize		= sizeof(deviceUID);
+		translation.mOutputData			= &deviceID;
+		translation.mOutputDataSize		= sizeof(deviceID);
+		specifierSize					= sizeof(translation);
+		
+		status = AudioHardwareGetProperty(kAudioHardwarePropertyDeviceForUID, 
+										  &specifierSize, 
+										  &translation);
+	}
+
+	if(noErr == status && kAudioDeviceUnknown != deviceID) {
+		status = AudioUnitSetProperty(_audioUnit,
+									  kAudioOutputUnitProperty_CurrentDevice,
+									  kAudioUnitScope_Global,
+									  0,
+									  &deviceID,
+									  sizeof(deviceID));
+	}
+	else {
+		NSLog(@"Error setting output device");
+	}
+	
 }
 
 @end

@@ -27,10 +27,6 @@
 {
 	if((self = [super initWithWindowNibName:@"OutputPreferences"])) {
 		_outputDevices = [[NSMutableArray alloc] init];
-		[_outputDevices addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			NSLocalizedStringFromTable(@"System Default", @"Preferences", @""), @"name",
-			@"", @"UID",
-			nil]];
 	}
 	return self;
 }
