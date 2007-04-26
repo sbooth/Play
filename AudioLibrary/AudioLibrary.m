@@ -473,7 +473,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) windowWillClose:(NSNotification *)aNotification
 {
-	[self stop:self];	
+	if([[self player] hasValidStream]) {
+		[self stop:self];
+	}
 }
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
