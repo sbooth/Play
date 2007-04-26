@@ -24,6 +24,7 @@
 #import "AudioStreamDecoder.h"
 
 #include <CoreServices/CoreServices.h>
+#include <CoreAudio/CoreAudio.h>
 
 // ========================================
 // AudioPlayer callbacks
@@ -238,6 +239,32 @@ MyRenderNotification(void							*inRefCon,
 			
 			[self release];
 			return nil;
+		}
+		
+		// Set the output device
+		NSString *outputDevice = [[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"];
+		if(NO == [outputDevice isEqualToString:@""]) {
+			AudioDeviceID deviceID = kAudioDeviceUnknown;
+			AudioValueTranslation translation;
+			translation.mInputData = &outputDevice;
+			translation.mInputDataSize = sizeof(outputDevice);
+			translation.mOutputData = &deviceID;
+			translation.mOutputDataSize = sizeof(deviceID);
+			UInt32 size = sizeof(AudioValueTranslation);
+			err = AudioHardwareGetProperty(kAudioHardwarePropertyDeviceForUID,
+										   &size,
+										   &translation);
+			if(noErr == err && kAudioDeviceUnknown != deviceID) {
+				err = AudioUnitSetProperty(_audioUnit,
+										   kAudioOutputUnitProperty_CurrentDevice,
+										   kAudioUnitScope_Global,
+										   0,
+										   &deviceID,
+										   sizeof(deviceID));
+			}
+			else {
+				NSLog(@"Error setting output device");
+			}
 		}
 		
 		// Set up a callback function to generate output to the output unit

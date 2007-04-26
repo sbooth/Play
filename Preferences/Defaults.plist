@@ -41,5 +41,7 @@
 		<key>modifiers</key>
 		<integer>0</integer>
 	</dict>
+	<key>outputAudioDeviceUID</key>
+	<string></string>
 </dict>
 </plist>

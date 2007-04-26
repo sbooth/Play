@@ -29,6 +29,7 @@ static PreferencesController *sharedPreferences = nil;
 
 NSString * const	GeneralPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.General";
 NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.HotKey";
+NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.Output";
 
 @interface PreferencesController (Private)
 - (IBAction) selectPreferencePaneUsingToolbar:(id)sender;
@@ -182,6 +183,17 @@ NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
 	}
+    else if([itemIdentifier isEqualToString:OutputPreferencesToolbarItemIdentifier]) {
+        toolbarItem = [[[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier] autorelease];
+		
+		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
+		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Configure the output device used by Play", @"Preferences", @"")];
+		[toolbarItem setImage:[NSImage imageNamed:@"OutputPreferencesToolbarImage"]];
+		
+		[toolbarItem setTarget:self];
+		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
+	}
 	
     return toolbarItem;
 }
@@ -191,6 +203,7 @@ NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	return [NSArray arrayWithObjects:
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
+		OutputPreferencesToolbarItemIdentifier,
 		nil];
 }
 
@@ -199,6 +212,7 @@ NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	return [NSArray arrayWithObjects:
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
+		OutputPreferencesToolbarItemIdentifier,
 		NSToolbarSeparatorItemIdentifier,
 		NSToolbarSpaceItemIdentifier,
 		NSToolbarFlexibleSpaceItemIdentifier,
@@ -210,6 +224,7 @@ NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	return [NSArray arrayWithObjects:
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
+		OutputPreferencesToolbarItemIdentifier,
 		nil];
 }
 

@@ -20,19 +20,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-// ========================================
-// Identifiers for toolbar items
-// ========================================
-extern NSString	* const		GeneralPreferencesToolbarItemIdentifier;
-extern NSString * const		HotKeyPreferencesToolbarItemIdentifier;
-extern NSString * const		OutputPreferencesToolbarItemIdentifier;
-
-@interface PreferencesController : NSWindowController
+@interface OutputPreferencesController : NSWindowController
 {
+	IBOutlet NSPopUpButton		*_devicePopUpButton;
+	NSMutableArray				*_outputDevices;
 }
 
-+ (PreferencesController *)		sharedPreferences;
 
-- (void)						selectPreferencePane:(NSString *)itemIdentifier;
+- (IBAction) outputDeviceChanged:(id)sender;
 
 @end
