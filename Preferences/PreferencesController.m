@@ -166,7 +166,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		
 		[toolbarItem setLabel:NSLocalizedStringFromTable(@"General", @"Preferences", @"")];
 		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"General", @"Preferences", @"")];		
-		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Control the general behavior of Play", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Options that control the general behavior of Play", @"Preferences", @"")];
 		[toolbarItem setImage:[NSImage imageNamed:@"GeneralPreferencesToolbarImage"]];
 		
 		[toolbarItem setTarget:self];
@@ -177,7 +177,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		
 		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Hot Keys", @"Preferences", @"")];
 		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Hot Keys", @"Preferences", @"")];
-		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Configure hot keys used to control Play", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Specify hot keys used to control Play", @"Preferences", @"")];
 		[toolbarItem setImage:[NSImage imageNamed:@"HotKeyPreferencesToolbarImage"]];
 		
 		[toolbarItem setTarget:self];
@@ -188,7 +188,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		
 		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
 		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
-		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Configure the output device used by Play", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Set the output device used by Play", @"Preferences", @"")];
 		[toolbarItem setImage:[NSImage imageNamed:@"OutputPreferencesToolbarImage"]];
 		
 		[toolbarItem setTarget:self];
