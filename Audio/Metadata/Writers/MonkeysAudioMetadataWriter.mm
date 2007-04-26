@@ -32,7 +32,7 @@ static void setField(CAPETag		*f,
 	str_utf16		*fieldName		= NULL;
 
 	fieldName		= GetUTF16FromANSI(name);
-	NSCAssert(NULL != fieldName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSCAssert(NULL != fieldName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	f->RemoveField(fieldName);
 	
@@ -53,10 +53,10 @@ static void setField(CAPETag		*f,
 	int						result;
 	
 	chars = GetUTF16FromANSI([path fileSystemRepresentation]);
-	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	f = new CAPETag(chars);
-	NSAssert(NULL != f, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != f, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	if(NULL == f) {
 		if(nil != error) {

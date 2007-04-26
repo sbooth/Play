@@ -83,7 +83,7 @@
 	// Set up the decoder
 	mpc_decoder_setup(&decoder, &reader_file.reader);
 	boolResult		= mpc_decoder_initialize(&decoder, &streaminfo);
-	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Exceptions", @""));
+	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Errors", @""));
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	

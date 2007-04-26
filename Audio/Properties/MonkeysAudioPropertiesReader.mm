@@ -38,7 +38,7 @@
 	// Setup converter
 	path			= [[self valueForKey:StreamURLKey] path];
 	chars			= GetUTF16FromANSI([path fileSystemRepresentation]);
-	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	decompressor	= CreateIAPEDecompress(chars, &result);	
 	if(NULL == decompressor || ERROR_SUCCESS != result) {

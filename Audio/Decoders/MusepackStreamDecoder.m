@@ -25,7 +25,7 @@
 
 - (NSString *) sourceFormatDescription
 {
-	return [NSString stringWithFormat:@"%@, %u channels, %u Hz", NSLocalizedStringFromTable(@"Musepack", @"Formats", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
+	return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@, %u channels, %u Hz", @"Formats", @""), NSLocalizedStringFromTable(@"Musepack", @"Formats", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
 }
 
 - (BOOL) supportsSeeking
@@ -48,19 +48,41 @@
 	[super setupDecoder:error];
 
 	_file							= fopen([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
-	NSAssert1(NULL != _file, @"Unable to open the input file (%s).", strerror(errno));	
+	if(NULL == _file) {		
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be found.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:[[[self stream] valueForKey:StreamURLKey] path]]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Not Found", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file may have been renamed or deleted, or exist on removable media.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
+		}
+		return NO;
+	}
 	
 	mpc_reader_setup_file_reader(&_reader_file, _file);
 	
 	// Get input file information
 	mpc_streaminfo_init(&streaminfo);
 	intResult						= mpc_streaminfo_read(&streaminfo, &_reader_file.reader);
-	NSAssert(ERROR_CODE_OK == intResult, NSLocalizedStringFromTable(@"The file does not appear to be a valid Musepack file.", @"Exceptions", @""));
+	if(ERROR_CODE_OK != intResult) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Musepack stream.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:[[[self stream] valueForKey:StreamURLKey] path]]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Musepack stream", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
+		}
+		fclose(_file), _file = NULL;
+		return NO;
+	}
 	
 	// Set up the decoder
 	mpc_decoder_setup(&_decoder, &_reader_file.reader);
 	boolResult						= mpc_decoder_initialize(&_decoder, &streaminfo);
-	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Exceptions", @""));
+	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Errors", @""));
 	
 	[self setTotalFrames:mpc_streaminfo_get_length_samples(&streaminfo)];
 
@@ -112,9 +134,9 @@
 				
 		// Decode the data
 		framesRead		= mpc_decoder_decode(&_decoder, mpcBuffer, 0, 0);
-//		NSAssert((mpc_uint32_t)-1 != framesRead, NSLocalizedStringFromTable(@"Musepack decoding error.", @"Exceptions", @""));
+//		NSAssert((mpc_uint32_t)-1 != framesRead, NSLocalizedStringFromTable(@"Musepack decoding error.", @"Errors", @""));
 		if((mpc_uint32_t)-1 == framesRead) {
-			NSLog(NSLocalizedStringFromTable(@"Musepack decoding error.", @"Exceptions", @""));
+			NSLog(NSLocalizedStringFromTable(@"Musepack decoding error.", @"Errors", @""));
 			return;
 		}
 					

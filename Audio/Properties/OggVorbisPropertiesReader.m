@@ -78,7 +78,7 @@
 	}
 	
 	result							= ov_test_open(&vf);
-	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Exceptions", @""));
+	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Errors", @""));
 	
 	// Get input file information
 	ovInfo							= ov_info(&vf, -1);
@@ -103,7 +103,7 @@
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
 	result							= ov_clear(&vf);
-	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to close the input file.", @"Exceptions", @""));
+	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to close the input file.", @"Errors", @""));
 	
 	return YES;
 }

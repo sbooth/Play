@@ -71,6 +71,16 @@
 		8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
 		8C5574E70BBC1FB40047B89C /* mad.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
 		8C55786E0BBCD97C0047B89C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5578500BBCD97C0047B89C /* QuartzCore.framework */; };
+		8C58380C0BDFBCCF00E43C9E /* AudioStream.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */; };
+		8C58380D0BDFBCCF00E43C9E /* Database.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5837FA0BDFBCCF00E43C9E /* Database.strings */; };
+		8C58380E0BDFBCCF00E43C9E /* Errors.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5837FC0BDFBCCF00E43C9E /* Errors.strings */; };
+		8C58380F0BDFBCCF00E43C9E /* Formats.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5837FE0BDFBCCF00E43C9E /* Formats.strings */; };
+		8C5838100BDFBCCF00E43C9E /* Genres.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838000BDFBCCF00E43C9E /* Genres.strings */; };
+		8C5838110BDFBCCF00E43C9E /* Library.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838020BDFBCCF00E43C9E /* Library.strings */; };
+		8C5838120BDFBCCF00E43C9E /* Menus.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838040BDFBCCF00E43C9E /* Menus.strings */; };
+		8C5838130BDFBCCF00E43C9E /* Player.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838060BDFBCCF00E43C9E /* Player.strings */; };
+		8C5838140BDFBCCF00E43C9E /* Preferences.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838080BDFBCCF00E43C9E /* Preferences.strings */; };
+		8C5838150BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C58380A0BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -426,6 +436,16 @@
 		8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSBezierPath_RoundRectMethods.m; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.m; sourceTree = "<group>"; };
 		8C5574E10BBC1FA80047B89C /* mad.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mad.framework; path = Frameworks/mad.framework; sourceTree = "<group>"; };
 		8C5578500BBCD97C0047B89C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		8C5837F90BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioStream.strings; sourceTree = "<group>"; };
+		8C5837FB0BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Database.strings; sourceTree = "<group>"; };
+		8C5837FD0BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Errors.strings; sourceTree = "<group>"; };
+		8C5837FF0BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Formats.strings; sourceTree = "<group>"; };
+		8C5838010BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Genres.strings; sourceTree = "<group>"; };
+		8C5838030BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Library.strings; sourceTree = "<group>"; };
+		8C5838050BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Menus.strings; sourceTree = "<group>"; };
+		8C5838070BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Player.strings; sourceTree = "<group>"; };
+		8C5838090BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Preferences.strings; sourceTree = "<group>"; };
+		8C58380B0BDFBCCF00E43C9E /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/SmartPlaylistCriteria.strings; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -1063,6 +1083,16 @@
 		8C8E3D200BDF266F00605141 /* Strings */ = {
 			isa = PBXGroup;
 			children = (
+				8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */,
+				8C5837FA0BDFBCCF00E43C9E /* Database.strings */,
+				8C5837FC0BDFBCCF00E43C9E /* Errors.strings */,
+				8C5837FE0BDFBCCF00E43C9E /* Formats.strings */,
+				8C5838000BDFBCCF00E43C9E /* Genres.strings */,
+				8C5838020BDFBCCF00E43C9E /* Library.strings */,
+				8C5838040BDFBCCF00E43C9E /* Menus.strings */,
+				8C5838060BDFBCCF00E43C9E /* Player.strings */,
+				8C5838080BDFBCCF00E43C9E /* Preferences.strings */,
+				8C58380A0BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings */,
 				8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */,
 			);
 			name = Strings;
@@ -1695,6 +1725,16 @@
 				8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */,
 				8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */,
 				8C8E3D2C0BDF26D600605141 /* ShortcutRecorder.strings in Resources */,
+				8C58380C0BDFBCCF00E43C9E /* AudioStream.strings in Resources */,
+				8C58380D0BDFBCCF00E43C9E /* Database.strings in Resources */,
+				8C58380E0BDFBCCF00E43C9E /* Errors.strings in Resources */,
+				8C58380F0BDFBCCF00E43C9E /* Formats.strings in Resources */,
+				8C5838100BDFBCCF00E43C9E /* Genres.strings in Resources */,
+				8C5838110BDFBCCF00E43C9E /* Library.strings in Resources */,
+				8C5838120BDFBCCF00E43C9E /* Menus.strings in Resources */,
+				8C5838130BDFBCCF00E43C9E /* Player.strings in Resources */,
+				8C5838140BDFBCCF00E43C9E /* Preferences.strings in Resources */,
+				8C5838150BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1935,6 +1975,86 @@
 				8C220AC70BB8A79E00808450 /* English */,
 			);
 			name = WatchFolderInformationSheet.nib;
+			sourceTree = "<group>";
+		};
+		8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5837F90BDFBCCF00E43C9E /* English */,
+			);
+			name = AudioStream.strings;
+			sourceTree = "<group>";
+		};
+		8C5837FA0BDFBCCF00E43C9E /* Database.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5837FB0BDFBCCF00E43C9E /* English */,
+			);
+			name = Database.strings;
+			sourceTree = "<group>";
+		};
+		8C5837FC0BDFBCCF00E43C9E /* Errors.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5837FD0BDFBCCF00E43C9E /* English */,
+			);
+			name = Errors.strings;
+			sourceTree = "<group>";
+		};
+		8C5837FE0BDFBCCF00E43C9E /* Formats.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5837FF0BDFBCCF00E43C9E /* English */,
+			);
+			name = Formats.strings;
+			sourceTree = "<group>";
+		};
+		8C5838000BDFBCCF00E43C9E /* Genres.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5838010BDFBCCF00E43C9E /* English */,
+			);
+			name = Genres.strings;
+			sourceTree = "<group>";
+		};
+		8C5838020BDFBCCF00E43C9E /* Library.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5838030BDFBCCF00E43C9E /* English */,
+			);
+			name = Library.strings;
+			sourceTree = "<group>";
+		};
+		8C5838040BDFBCCF00E43C9E /* Menus.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5838050BDFBCCF00E43C9E /* English */,
+			);
+			name = Menus.strings;
+			sourceTree = "<group>";
+		};
+		8C5838060BDFBCCF00E43C9E /* Player.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5838070BDFBCCF00E43C9E /* English */,
+			);
+			name = Player.strings;
+			sourceTree = "<group>";
+		};
+		8C5838080BDFBCCF00E43C9E /* Preferences.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C5838090BDFBCCF00E43C9E /* English */,
+			);
+			name = Preferences.strings;
+			sourceTree = "<group>";
+		};
+		8C58380A0BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C58380B0BDFBCCF00E43C9E /* English */,
+			);
+			name = SmartPlaylistCriteria.strings;
 			sourceTree = "<group>";
 		};
 		8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */ = {

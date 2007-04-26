@@ -37,7 +37,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Library", @"Library", @"")])) {
 
 		[[NSNotificationCenter defaultCenter] addObserver:self 
 												 selector:@selector(streamsChanged:) 

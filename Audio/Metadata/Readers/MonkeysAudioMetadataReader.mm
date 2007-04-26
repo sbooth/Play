@@ -39,16 +39,16 @@
 	path							= [[self valueForKey:StreamURLKey] path];
 
 	chars = GetUTF16FromANSI([path fileSystemRepresentation]);
-	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	f = new CAPETag(chars);
-	NSAssert(NULL != f, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != f, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 
 	metadataDictionary			= [NSMutableDictionary dictionary];
 
 	// Album title
 	tagName		= GetUTF16FromANSI("ALBUM");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"albumTitle"];
@@ -57,7 +57,7 @@
 	
 	// Artist
 	tagName		= GetUTF16FromANSI("ARTIST");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"artist"];
@@ -66,7 +66,7 @@
 	
 	// Composer
 	tagName		= GetUTF16FromANSI("COMPOSER");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"composer"];
@@ -75,7 +75,7 @@
 	
 	// Genre
 	tagName		= GetUTF16FromANSI("GENRE");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"genre"];
@@ -84,7 +84,7 @@
 	
 	// Year
 	tagName		= GetUTF16FromANSI("YEAR");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"date"];
@@ -93,7 +93,7 @@
 	
 	// Comment
 	tagName		= GetUTF16FromANSI("COMMENT");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"comment"];
@@ -102,7 +102,7 @@
 	
 	// Track title
 	tagName		= GetUTF16FromANSI("TITLE");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"title"];
@@ -111,7 +111,7 @@
 	
 	// Track number
 	tagName		= GetUTF16FromANSI("TRACK");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"trackNumber"];
@@ -120,7 +120,7 @@
 	
 	// Track total
 	tagName		= GetUTF16FromANSI("TRACKTOTAL");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"trackTotal"];
@@ -129,7 +129,7 @@
 	
 	// Disc number
 	tagName		= GetUTF16FromANSI("DISCNUMBER");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"discNumber"];
@@ -138,7 +138,7 @@
 	
 	// Discs in set
 	tagName		= GetUTF16FromANSI("DISCTOTAL");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"discTotal"];
@@ -147,7 +147,7 @@
 	
 	// Compilation
 	tagName		= GetUTF16FromANSI("COMPILATION");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:@"compilation"];
@@ -156,7 +156,7 @@
 	
 	// ISRC
 	tagName		= GetUTF16FromANSI("ISRC");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"isrc"];
@@ -165,7 +165,7 @@
 	
 	// MCN
 	tagName		= GetUTF16FromANSI("MCN");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	tag			= f->GetTagField(tagName);
 	if(NULL != tag && tag->GetIsUTF8Text()) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:@"mcn"];

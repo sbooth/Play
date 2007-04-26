@@ -37,7 +37,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Recently Added", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Recently Added", @"Library", @"")])) {
 		_count = 25;
 
 		[[[CollectionManager manager] streamManager] addObserver:self 

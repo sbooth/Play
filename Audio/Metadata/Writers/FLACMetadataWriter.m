@@ -31,10 +31,10 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	FLAC__bool									result;
 	
 	result			= FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, [key cStringUsingEncoding:NSASCIIStringEncoding], [value UTF8String]);
-	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Exceptions", @""), @"FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair");	
+	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Errors", @""), @"FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair");	
 	
 	result = FLAC__metadata_object_vorbiscomment_replace_comment(block, entry, NO, NO);
-	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Exceptions", @""), @"FLAC__metadata_object_vorbiscomment_replace_comment");	
+	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Errors", @""), @"FLAC__metadata_object_vorbiscomment_replace_comment");	
 }
 
 @implementation FLACMetadataWriter

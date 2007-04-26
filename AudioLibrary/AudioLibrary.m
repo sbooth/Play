@@ -762,7 +762,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) insertPlaylist:(id)sender
 {
-	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"Library", @"") forKey:PlaylistNameKey];
 	Playlist *playlist = [Playlist insertPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
 		[_browserDrawer open:self];
@@ -782,7 +782,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) insertSmartPlaylist:(id)sender
 {
-	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Smart Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSDictionary *initialValues = [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Smart Playlist", @"Library", @"") forKey:PlaylistNameKey];
 	SmartPlaylist *playlist = [SmartPlaylist insertSmartPlaylistWithInitialValues:initialValues];
 	if(nil != playlist) {
 		[_browserDrawer open:self];
@@ -1858,7 +1858,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 	[cdIcon setSize:NSMakeSize(16.0, 16.0)];*/
 
-	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"General", @"")];
+	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"Library", @"")];
 	[browserRoot setIcon:folderIcon];
 	
 	_libraryNode = [[LibraryNode alloc] init];

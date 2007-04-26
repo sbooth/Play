@@ -34,7 +34,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Genres", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Genres", @"Library", @"")])) {
 		[self loadChildren];
 		
 		[[[CollectionManager manager] streamManager] addObserver:self 

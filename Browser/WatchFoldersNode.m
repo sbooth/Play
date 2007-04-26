@@ -33,7 +33,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Watch Folders", @"Library", @"")])) {
 		[self loadChildren];
 		[[[CollectionManager manager] watchFolderManager] addObserver:self 
 														   forKeyPath:@"watchFolders"

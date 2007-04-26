@@ -307,7 +307,7 @@
 
 - (IBAction) insertPlaylistWithSelection:(id)sender
 {
-	NSDictionary	*initialValues		= [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"General", @"") forKey:PlaylistNameKey];
+	NSDictionary	*initialValues		= [NSDictionary dictionaryWithObject:NSLocalizedStringFromTable(@"Untitled Playlist", @"Library", @"") forKey:PlaylistNameKey];
 	NSArray			*streamsToInsert	= [_streamController selectedObjects];
 	Playlist		*playlist			= [Playlist insertPlaylistWithInitialValues:initialValues];
 	

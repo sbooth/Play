@@ -33,7 +33,7 @@
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Smart Playlists", @"General", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Smart Playlists", @"Library", @"")])) {
 		[self loadChildren];
 		[[[CollectionManager manager] smartPlaylistManager] addObserver:self 
 															 forKeyPath:@"smartPlaylists"

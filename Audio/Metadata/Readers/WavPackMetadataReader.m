@@ -58,7 +58,7 @@
 	len			= WavpackGetTagItem(wpc, "ALBUM", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "ALBUM", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"albumTitle"];
@@ -69,7 +69,7 @@
 	len			= WavpackGetTagItem(wpc, "ARTIST", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "ARTIST", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"artist"];
@@ -80,7 +80,7 @@
 	len			= WavpackGetTagItem(wpc, "COMPOSER", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "COMPOSER", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"composer"];
@@ -91,7 +91,7 @@
 	len			= WavpackGetTagItem(wpc, "GENRE", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "GENRE", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"genre"];
@@ -102,7 +102,7 @@
 	len			= WavpackGetTagItem(wpc, "YEAR", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "YEAR", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"date"];
@@ -113,7 +113,7 @@
 	len			= WavpackGetTagItem(wpc, "COMMENT", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "COMMENT", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"comment"];
@@ -124,7 +124,7 @@
 	len			= WavpackGetTagItem(wpc, "TITLE", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "TITLE", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"title"];
@@ -135,7 +135,7 @@
 	len			= WavpackGetTagItem(wpc, "TRACK", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "TRACK", tagValue, len + 1);
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"trackNumber"];
@@ -146,7 +146,7 @@
 	len			= WavpackGetTagItem(wpc, "TRACKTOTAL", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "TRACKTOTAL", tagValue, len + 1);
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"trackTotal"];
@@ -157,7 +157,7 @@
 	len			= WavpackGetTagItem(wpc, "DISCNUMBER", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "DISCNUMBER", tagValue, len + 1);
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"discNumber"];
@@ -168,7 +168,7 @@
 	len			= WavpackGetTagItem(wpc, "DISCTOTAL", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "DISCTOTAL", tagValue, len + 1);
 		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"albumTitle"];
@@ -179,7 +179,7 @@
 	len			= WavpackGetTagItem(wpc, "COMPILATION", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "COMPILATION", tagValue, len + 1);
 		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tagValue] intValue]] forKey:@"compilation"];
@@ -190,7 +190,7 @@
 	len			= WavpackGetTagItem(wpc, "MCN", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "MCN", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"mcn"];
@@ -201,7 +201,7 @@
 	len			= WavpackGetTagItem(wpc, "ISRC", NULL, 0);
 	if(0 != len) {
 		tagValue = (char *)calloc(len + 1, sizeof(char));
-		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Exceptions", @""));
+		NSAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		WavpackGetTagItem(wpc, "ISRC", tagValue, len + 1);
 		[metadataDictionary setValue:[NSString stringWithUTF8String:tagValue] forKey:@"isrc"];
