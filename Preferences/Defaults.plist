@@ -9,7 +9,7 @@
 	<key>enableGrowlNotifications</key>
 	<true/>
 	<key>rememberPlayQueue</key>
-	<false/>
+	<true/>
 	<key>alwaysPlayStreamsWhenDoubleClicked</key>
 	<false/>
 	<key>rescanMetadataBeforePlayback</key>
