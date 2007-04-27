@@ -26,10 +26,13 @@
 {
 	int			_socket;
 	BOOL		_doPortStepping;
-	in_port_t	_lastPort;
+	in_port_t	_port;
 }
 
-- (in_port_t)	connectToHost:(NSString *)hostname port:(in_port_t)port;
+- (BOOL)		connectToHost:(NSString *)hostname port:(in_port_t)port;
+
+- (BOOL)		isConnected;
+- (in_port_t)	connectedPort;
 
 - (void)		send:(NSString *)data;
 - (NSString *)	receive;

@@ -209,17 +209,18 @@ escapeForLastFM(NSString *string)
 
 		if(nil != command) {
 			@try {
-				port = [client connectToHost:@"localhost" port:port];
-				[client send:command];
-
-				[command release];
-				
-				response = [client receive];
-				if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
-					NSLog(@"AudioScrobbler error: %@", response);
+				if([client connectToHost:@"localhost" port:port]) {
+					port = [client connectedPort];
+					[client send:command];
+					[command release];
+					
+					response = [client receive];
+					if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
+						NSLog(@"AudioScrobbler error: %@", response);
+					}
+					
+					[client shutdown];
 				}
-				
-				[client shutdown];
 			}
 			
 			@catch(NSException *exception) {
@@ -234,15 +235,16 @@ escapeForLastFM(NSString *string)
 	
 	// Send a final stop command to cleanup
 	@try {
-		port = [client connectToHost:@"localhost" port:port];
-		[client send:[NSString stringWithFormat:@"STOP c=%@\n", [myself pluginID]]];
-
-		response = [client receive];
-		if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
-			NSLog(@"AudioScrobbler error: %@", response);
+		if([client connectToHost:@"localhost" port:port]) {
+			[client send:[NSString stringWithFormat:@"STOP c=%@\n", [myself pluginID]]];
+			
+			response = [client receive];
+			if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
+				NSLog(@"AudioScrobbler error: %@", response);
+			}
+			
+			[client shutdown];
 		}
-
-		[client shutdown];
 	}
 	
 	@catch(NSException *exception) {
