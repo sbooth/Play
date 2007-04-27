@@ -6,7 +6,7 @@
 #***********************************************************************
 # This file runs all tests.
 #
-# $Id: quick.test,v 1.47 2006/11/23 21:09:11 drh Exp $
+# $Id: quick.test,v 1.52 2007/04/16 17:07:55 drh Exp $
 
 proc lshift {lvar} {
   upvar $lvar l
@@ -43,14 +43,18 @@ set EXCLUDE {
   btree6.test
   corrupt.test
   crash.test
+  crash2.test
+  exclusive3.test
   loadext.test
   malloc.test
   malloc2.test
   malloc3.test
   memleak.test
+  misc7.test
   misuse.test
   quick.test
   speed1.test
+  speed2.test
 
   autovacuum_crash.test
   btree8.test
@@ -81,6 +85,13 @@ foreach testfile [lsort -dictionary [glob $testdir/*.test]] {
     puts "$tail did not close all files: $sqlite_open_file_count"
     incr nErr
     lappend ::failList $tail
+    set sqlite_open_file_count 0
+  }
+  if {$::sqlite3_tsd_count} {
+    puts "Thread-specific data leak: $::sqlite3_tsd_count instances"
+    incr nErr
+    lappend ::failList $tail
+    set ::sqlite3_tsd_count 0
   }
 }
 source $testdir/misuse.test

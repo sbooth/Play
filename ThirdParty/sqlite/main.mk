@@ -101,6 +101,7 @@ SRC = \
   $(TOP)/src/select.c \
   $(TOP)/src/shell.c \
   $(TOP)/src/sqlite.h.in \
+  $(TOP)/src/sqlite3ext.h \
   $(TOP)/src/sqliteInt.h \
   $(TOP)/src/table.c \
   $(TOP)/src/tclsqlite.c \
@@ -130,6 +131,24 @@ SRC += \
   $(TOP)/ext/fts1/fts1_porter.c \
   $(TOP)/ext/fts1/fts1_tokenizer.h \
   $(TOP)/ext/fts1/fts1_tokenizer1.c
+SRC += \
+  $(TOP)/ext/fts2/fts2.c \
+  $(TOP)/ext/fts2/fts2.h \
+  $(TOP)/ext/fts2/fts2_hash.c \
+  $(TOP)/ext/fts2/fts2_hash.h \
+  $(TOP)/ext/fts2/fts2_porter.c \
+  $(TOP)/ext/fts2/fts2_tokenizer.h \
+  $(TOP)/ext/fts2/fts2_tokenizer1.c
+
+# Generated source code files
+#
+SRC += \
+  keywordhash.h \
+  opcodes.c \
+  opcodes.h \
+  parse.c \
+  parse.h \
+  sqlite3.h
 
 
 # Source code to the test files.
@@ -138,6 +157,7 @@ TESTSRC = \
   $(TOP)/src/btree.c \
   $(TOP)/src/date.c \
   $(TOP)/src/func.c \
+  $(TOP)/src/insert.c \
   $(TOP)/src/main.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_os2.c \
@@ -154,8 +174,10 @@ TESTSRC = \
   $(TOP)/src/test6.c \
   $(TOP)/src/test7.c \
   $(TOP)/src/test8.c \
+  $(TOP)/src/test9.c \
   $(TOP)/src/test_autoext.c \
   $(TOP)/src/test_async.c \
+  $(TOP)/src/test_hexio.c \
   $(TOP)/src/test_md5.c \
   $(TOP)/src/test_schema.c \
   $(TOP)/src/test_server.c \
@@ -182,16 +204,19 @@ HDR = \
 
 # Header files used by extensions
 #
-HDR += \
+EXTHDR += \
   $(TOP)/ext/fts1/fts1.h \
   $(TOP)/ext/fts1/fts1_hash.h \
   $(TOP)/ext/fts1/fts1_tokenizer.h
+EXTHDR += \
+  $(TOP)/ext/fts2/fts2.h \
+  $(TOP)/ext/fts2/fts2_hash.h \
+  $(TOP)/ext/fts2/fts2_tokenizer.h
 
 
 # Header files used by the VDBE submodule
 #
 VDBEHDR = \
-   $(HDR) \
    $(TOP)/src/vdbeInt.h
 
 # This is the default Makefile target.  The objects listed here
@@ -222,12 +247,17 @@ objects: $(LIBOBJ_ORIG)
 # files are automatically generated.  This target takes care of
 # all that automatic generation.
 #
-target_source:	$(SRC) $(VDBEHDR) opcodes.c keywordhash.h
+target_source:	$(SRC)
 	rm -rf tsrc
 	mkdir tsrc
-	cp $(SRC) $(VDBEHDR) tsrc
+	cp -f $(SRC) $(TOP)/src/*.h tsrc 2>/dev/null
 	rm tsrc/sqlite.h.in tsrc/parse.y
-	cp parse.c opcodes.c keywordhash.h tsrc
+
+sqlite3.c:	target_source $(TOP)/tool/mksqlite3c.tcl
+	tclsh $(TOP)/tool/mksqlite3c.tcl
+	cp sqlite3.c tclsqlite3.c
+	cat $(TOP)/src/tclsqlite.c >>tclsqlite3.c
+	tclsh $(TOP)/tool/mksqlite3internalh.tcl
 
 # Rules to build the LEMON compiler generator
 #
@@ -371,22 +401,22 @@ util.o:	$(TOP)/src/util.c $(HDR)
 vacuum.o:	$(TOP)/src/vacuum.c $(HDR)
 	$(TCCX) -c $(TOP)/src/vacuum.c
 
-vdbe.o:	$(TOP)/src/vdbe.c $(VDBEHDR)
+vdbe.o:	$(TOP)/src/vdbe.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbe.c
 
-vdbeapi.o:	$(TOP)/src/vdbeapi.c $(VDBEHDR)
+vdbeapi.o:	$(TOP)/src/vdbeapi.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbeapi.c
 
-vdbeaux.o:	$(TOP)/src/vdbeaux.c $(VDBEHDR)
+vdbeaux.o:	$(TOP)/src/vdbeaux.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbeaux.c
 
-vdbefifo.o:	$(TOP)/src/vdbefifo.c $(VDBEHDR)
+vdbefifo.o:	$(TOP)/src/vdbefifo.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbefifo.c
 
-vdbemem.o:	$(TOP)/src/vdbemem.c $(VDBEHDR)
+vdbemem.o:	$(TOP)/src/vdbemem.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbemem.c
 
-vtab.o:	$(TOP)/src/vtab.c $(VDBEHDR)
+vtab.o:	$(TOP)/src/vtab.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vtab.c
 
 where.o:	$(TOP)/src/where.c $(HDR)

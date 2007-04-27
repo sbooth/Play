@@ -1,7 +1,7 @@
 #
 # Run this Tcl script to generate the lang-*.html files.
 #
-set rcsid {$Id: lang.tcl,v 1.122 2007/02/13 02:03:25 drh Exp $}
+set rcsid {$Id: lang.tcl,v 1.128 2007/04/06 11:26:00 drh Exp $}
 source common.tcl
 
 if {[llength $argv]>0} {
@@ -12,7 +12,7 @@ if {[llength $argv]>0} {
 
 header {Query Language Understood by SQLite}
 puts {
-<h1>SQL As Understood By SQLite</h1>
+<h1 class="pdf_section">SQL As Understood By SQLite</h1>
 
 <p>The SQLite library understands most of the standard SQL
 language.  But it does <a href="omitted.html">omit some features</a>
@@ -31,7 +31,7 @@ by SQLite.  Many low-level productions are omitted.  For detailed information
 on the language that SQLite understands, refer to the source code and
 the grammar file "parse.y".</p>
 
-
+<div class="pdf_ignore">
 <p>SQLite implements the follow syntax:</p>
 <p><ul>
 }
@@ -83,6 +83,7 @@ foreach {section} [lsort -index 0 -dictionary {
   puts "<li><a href=\"[slink $s_tag]\">$s_title</a></li>"
 }
 puts {</ul></p>
+</div>
 
 <p>Details on the implementation of each command are provided in
 the sequel.</p>
@@ -657,7 +658,7 @@ UPDATE OF <column-list>
 }
 
 Syntax {trigger-action} {
-[ FOR EACH ROW | FOR EACH STATEMENT ] [ WHEN <expression> ] 
+[ FOR EACH ROW ] [ WHEN <expression> ] 
 BEGIN 
   <trigger-step> ; [ <trigger-step> ; ]*
 END
@@ -1094,7 +1095,7 @@ Parameters can take several forms:
 </p
 
 <blockquote>
-<table>
+<table class="pdf_functions">
 <tr>
 <td align="right" valign="top"><b>?</b><i>NNN</i></td><td width="20"></td>
 <td>A question mark followed by a number <i>NNN</i> holds a spot for the
@@ -1257,7 +1258,7 @@ functions may be written in C and added to the database engine using
 the <a href="capi3ref.html#cfunc">sqlite3_create_function()</a>
 API.</p>
 
-<table border=0 cellpadding=10>
+<table border=0 cellpadding=10 class="pdf_functions">
 <tr>
 <td valign="top" align="right" width=120>abs(<i>X</i>)</td>
 <td valign="top">Return the absolute value of argument <i>X</i>.</td>
@@ -1314,7 +1315,8 @@ characters is returned, not the number of bytes.</td>
 <tr>
 <td valign="top" align="right">
 <a name="likeFunc"></a>
-like(<i>X</i>,<i>Y</i> [,<i>Z</i>])</td>
+like(<i>X</i>,<i>Y</i>)<br>
+like(<i>X</i>,<i>Y</i>,<i>Z</i>)</td>
 <td valign="top">
 This function is used to implement the "<b>X LIKE Y [ESCAPE Z]</b>"
 syntax of SQL. If the optional ESCAPE clause is present, then the
@@ -1347,6 +1349,16 @@ converted to lower case.  The C library <b>tolower()</b> routine is used
 for the conversion, which means that this function might not
 work correctly on UTF-8 characters.</td>
 </tr>
+
+<tr>
+<td valign="top" align="right">
+<a name="ltrimFunc">
+ltrim(<i>X</i>)<br>ltrim(<i>X</i>,<i>Y</i>)</td>
+<td valign="top">Return a string formed by removing any and all
+characters that appear in <i>Y</i> from the left side of <i>X</i>.
+If the <i>Y</i> argument is omitted, spaces are removed.</td>
+</tr>
+
 
 <tr>
 <td valign="top" align="right">max(<i>X</i>,<i>Y</i>,...)</td>
@@ -1391,6 +1403,15 @@ between -9223372036854775808 and +9223372036854775807.</td>
 
 <tr>
 <td valign="top" align="right">
+<a name="replaceFunc">
+replace(<i>X</i>,<i>Y</i>,<i>Z</i>)</td>
+<td valign="top">Return a string formed by substituting string <i>Z</i> for
+every occurrance of string <i>Y</i> in string <i>X</i>.  The BINARY
+collating sequence is used for comparisons.</td>
+</tr>
+
+<tr>
+<td valign="top" align="right">
 <a name="randomblobFunc">
 randomblob(<i>N</i>)</td>
 <td valign="top">Return a <i>N</i>-byte blob containing pseudo-random bytes.
@@ -1402,6 +1423,15 @@ randomblob(<i>N</i>)</td>
 <td valign="top">Round off the number <i>X</i> to <i>Y</i> digits to the
 right of the decimal point.  If the <i>Y</i> argument is omitted, 0 is 
 assumed.</td>
+</tr>
+
+<tr>
+<td valign="top" align="right">
+<a name="rtrimFunc">
+rtrim(<i>X</i>)<br>rtrim(<i>X</i>,<i>Y</i>)</td>
+<td valign="top">Return a string formed by removing any and all
+characters that appear in <i>Y</i> from the right side of <i>X</i>.
+If the <i>Y</i> argument is omitted, spaces are removed.</td>
 </tr>
 
 <tr>
@@ -1428,6 +1458,16 @@ the the first character of the substring is found by counting from the
 right rather than the left.  If SQLite is configured to support UTF-8,
 then characters indices refer to actual UTF-8 characters, not bytes.</td>
 </tr>
+
+<tr>
+<td valign="top" align="right">
+<a name="trimFunc">
+trim(<i>X</i>)<br>trim(<i>X</i>,<i>Y</i>)</td>
+<td valign="top">Return a string formed by removing any and all
+characters that appear in <i>Y</i> from both ends of <i>X</i>.
+If the <i>Y</i> argument is omitted, spaces are removed.</td>
+</tr>
+
 
 <tr>
 <td valign="top" align="right">typeof(<i>X</i>)</td>
@@ -1470,7 +1510,7 @@ of distinct values of column X instead of the total number of non-null
 values in column X.
 </p>
 
-<table border=0 cellpadding=10>
+<table border=0 cellpadding=10 class="pdf_functions">
 <tr>
 <td valign="top" align="right" width=120>avg(<i>X</i>)</td>
 <td valign="top">Return the average value of all non-NULL <i>X</i> within a
@@ -1849,15 +1889,23 @@ The VACUUM command cleans
 the main database by copying its contents to a temporary database file and 
 reloading the original database file from the copy.  This eliminates 
 free pages,  aligns table data to be contiguous, and otherwise cleans 
-up the database file structure. It is not possible to perform the same
-process on an attached database file.</p>
+up the database file structure.</p>
 
-<p>This command will fail if there is an active transaction.  This 
-command has no effect on an in-memory database.</p>
+<p>VACUUM only works on the main database.
+It is not possible to VACUUM an attached database file.</p>
+
+<p>The VACUUM command will fail if there is an active transaction.
+The VACUUM command is a no-op for in-memory databases.</p>
 
 <p>As of SQLite version 3.1, an alternative to using the VACUUM command
 is auto-vacuum mode, enabled using the 
-<a href="pragma.html#pragma_auto_vacuum">auto_vacuum pragma</a>.</p>
+<a href="pragma.html#pragma_auto_vacuum">auto_vacuum pragma</a>.
+When auto-vacuum is enabled for a database, large deletes cause
+the size of the database file to shrink.  However, auto-vacuum
+also causes excess fragmentation of the database file.  And auto-vacuum
+does not compact partially filled pages of the database as VACUUM
+does.
+</p>
 }
 
 # A list of keywords.  A asterisk occurs after the keyword if it is on
@@ -1865,9 +1913,11 @@ is auto-vacuum mode, enabled using the
 #
 set keyword_list [lsort {
    ABORT*
+   ADD
    AFTER*
    ALL
    ALTER
+   ANALYZE*
    AND
    AS
    ASC*
@@ -1879,6 +1929,7 @@ set keyword_list [lsort {
    BY
    CASCADE*
    CASE
+   CAST*
    CHECK
    COLLATE
    COMMIT
@@ -1913,6 +1964,7 @@ set keyword_list [lsort {
    GLOB*
    GROUP
    HAVING
+   IF*
    IGNORE*
    IMMEDIATE*
    IN
@@ -1941,8 +1993,10 @@ set keyword_list [lsort {
    OR
    ORDER
    OUTER
+   PLAN*
    PRAGMA*
    PRIMARY
+   QUERY*
    RAISE*
    REFERENCES
    REINDEX*
@@ -1954,7 +2008,6 @@ set keyword_list [lsort {
    ROW*
    SELECT
    SET
-   STATEMENT*
    TABLE
    TEMP*
    TEMPORARY*
@@ -1969,27 +2022,31 @@ set keyword_list [lsort {
    VACUUM*
    VALUES
    VIEW*
+   VIRTUAL*
    WHEN
    WHERE
 }]
 
 
 
-Section {SQLite keywords} keywords
+puts {<DIV class="pdf_section">}
+Section {SQLite Keywords} keywords 
+puts {</DIV>}
 
 puts {
 <p>The SQL standard specifies a huge number of keywords which may not
-be used as the names of tables, indices, columns, or databases.  The
-list is so long that few people can remember them all.  For most SQL
-code, your safest bet is to never use any English language word as the
-name of a user-defined object.</p>
+be used as the names of tables, indices, columns, databases, user-defined
+functions, collations, virtual table modules, or any other named object.
+The list of keywords is so long that few people can remember them all.
+For most SQL code, your safest bet is to never use any English language
+word as the name of a user-defined object.</p>
 
 <p>If you want to use a keyword as a name, you need to quote it.  There
 are three ways of quoting keywords in SQLite:</p>
 
 <p>
 <blockquote>
-<table>
+<table class="pdf_functions">
 <tr>	<td valign="top"><b>'keyword'</b></td><td width="20"></td>
 	<td>A keyword in single quotes is interpreted as a literal string
         if it occurs in a context where a string literal is allowed, otherwise
@@ -2009,14 +2066,16 @@ are three ways of quoting keywords in SQLite:</p>
 
 <p>Quoted keywords are unaesthetic.
 To help you avoid them, SQLite allows many keywords to be used unquoted
-as the names of databases, tables, indices, triggers, views, and/or columns.
+as the names of databases, tables, indices, triggers, views, columns,
+user-defined functions, collations, attached databases, and virtual
+function modules.
 In the list of keywords that follows, those that can be used as identifiers
 are shown in an italic font.  Keywords that must be quoted in order to be
 used as identifiers are shown in bold.</p>
 
 <p>
 SQLite adds new keywords from time to time when it take on new features.
-So to prevent you code from being broken by future enhancements, you should
+So to prevent your code from being broken by future enhancements, you should
 normally quote any indentifier that is an English language word, even if
 you do not have to.
 </p>
@@ -2026,7 +2085,7 @@ The following are the keywords currently recognized by SQLite:
 </p>
 
 <blockquote>
-<table width="100%">
+<table width="100%" class="pdf_keywords">
 <tr>
 <td align="left" valign="top" width="20%">
 }
@@ -2060,7 +2119,7 @@ puts {
 system objects.  They can be used as an identifier for a different 
 type of object.</p>
 
-<blockquote><b>
+<blockquote class="pdf_keywords"><b>
   _ROWID_<br>
   MAIN<br>
   OID<br>
@@ -2072,7 +2131,9 @@ type of object.</p>
 </b></blockquote>
 }
 
+puts {<DIV class="pdf_ignore">}
 footer $rcsid
 if {[string length $outputdir]} {
   footer $rcsid
 }
+puts {</DIV>}

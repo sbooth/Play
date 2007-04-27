@@ -48,7 +48,7 @@ typedef struct simple_tokenizer_cursor {
 /* Forward declaration */
 static const sqlite3_tokenizer_module simpleTokenizerModule;
 
-static int isDelim(simple_tokenizer *t, unsigned char c){
+static int simpleDelim(simple_tokenizer *t, unsigned char c){
   return c<0x80 && t->delim[c];
 }
 
@@ -61,7 +61,9 @@ static int simpleCreate(
 ){
   simple_tokenizer *t;
 
-  t = (simple_tokenizer *) calloc(sizeof(simple_tokenizer), 1);
+  t = (simple_tokenizer *) calloc(sizeof(*t), 1);
+  if( t==NULL ) return SQLITE_NOMEM;
+
   /* TODO(shess) Delimiters need to remain the same from run to run,
   ** else we need to reindex.  One solution would be a meta-table to
   ** track such information in the database, then we'd only want this
@@ -111,7 +113,9 @@ static int simpleOpen(
 ){
   simple_tokenizer_cursor *c;
 
-  c = (simple_tokenizer_cursor *) malloc(sizeof(simple_tokenizer_cursor));
+  c = (simple_tokenizer_cursor *) malloc(sizeof(*c));
+  if( c==NULL ) return SQLITE_NOMEM;
+
   c->pInput = pInput;
   if( pInput==0 ){
     c->nBytes = 0;
@@ -160,13 +164,13 @@ static int simpleNext(
     int iStartOffset;
 
     /* Scan past delimiter characters */
-    while( c->iOffset<c->nBytes && isDelim(t, p[c->iOffset]) ){
+    while( c->iOffset<c->nBytes && simpleDelim(t, p[c->iOffset]) ){
       c->iOffset++;
     }
 
     /* Count non-delimiter characters. */
     iStartOffset = c->iOffset;
-    while( c->iOffset<c->nBytes && !isDelim(t, p[c->iOffset]) ){
+    while( c->iOffset<c->nBytes && !simpleDelim(t, p[c->iOffset]) ){
       c->iOffset++;
     }
 
@@ -175,6 +179,7 @@ static int simpleNext(
       if( n>c->nTokenAllocated ){
         c->nTokenAllocated = n+20;
         c->pToken = realloc(c->pToken, c->nTokenAllocated);
+        if( c->pToken==NULL ) return SQLITE_NOMEM;
       }
       for(i=0; i<n; i++){
         /* TODO(shess) This needs expansion to handle UTF-8

@@ -70,7 +70,9 @@ static int porterCreate(
   sqlite3_tokenizer **ppTokenizer
 ){
   porter_tokenizer *t;
-  t = (porter_tokenizer *) calloc(sizeof(porter_tokenizer), 1);
+  t = (porter_tokenizer *) calloc(sizeof(*t), 1);
+  if( t==NULL ) return SQLITE_NOMEM;
+
   *ppTokenizer = &t->base;
   return SQLITE_OK;
 }
@@ -96,7 +98,9 @@ static int porterOpen(
 ){
   porter_tokenizer_cursor *c;
 
-  c = (porter_tokenizer_cursor *) malloc(sizeof(porter_tokenizer_cursor));
+  c = (porter_tokenizer_cursor *) malloc(sizeof(*c));
+  if( c==NULL ) return SQLITE_NOMEM;
+
   c->zInput = zInput;
   if( zInput==0 ){
     c->nInput = 0;
@@ -560,7 +564,7 @@ static void porter_stemmer(const char *zIn, int nIn, char *zOut, int *pnOut){
 ** part of a token.  In other words, delimiters all must have
 ** values of 0x7f or lower.
 */
-static const char isIdChar[] = {
+static const char porterIdChar[] = {
 /* x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF */
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,  /* 3x */
     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  /* 4x */
@@ -568,8 +572,7 @@ static const char isIdChar[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  /* 6x */
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,  /* 7x */
 };
-#define idChar(C)  (((ch=C)&0x80)!=0 || (ch>0x2f && isIdChar[ch-0x30]))
-#define isDelim(C) (((ch=C)&0x80)==0 && (ch<0x30 || !isIdChar[ch-0x30]))
+#define isDelim(C) (((ch=C)&0x80)==0 && (ch<0x30 || !porterIdChar[ch-0x30]))
 
 /*
 ** Extract the next token from a tokenization cursor.  The cursor must
@@ -605,6 +608,7 @@ static int porterNext(
       if( n>c->nAllocated ){
         c->nAllocated = n+20;
         c->zToken = realloc(c->zToken, c->nAllocated);
+        if( c->zToken==NULL ) return SQLITE_NOMEM;
       }
       porter_stemmer(&z[iStartOffset], n, c->zToken, pnBytes);
       *pzToken = c->zToken;

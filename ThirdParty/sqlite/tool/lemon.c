@@ -3197,8 +3197,13 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   for(i=0; i<rp->nrhs; i++) used[i] = 0;
   lhsused = 0;
 
+  if( rp->code==0 ){
+    rp->code = "\n";
+    rp->line = rp->ruleline;
+  }
+
   append_str(0,0,0,0);
-  for(cp=(rp->code?rp->code:""); *cp; cp++){
+  for(cp=rp->code; *cp; cp++){
     if( isalpha(*cp) && (cp==rp->code || (!isalnum(cp[-1]) && cp[-1]!='_')) ){
       char saved;
       for(xp= &cp[1]; isalnum(*xp) || *xp=='_'; xp++);
@@ -3512,18 +3517,13 @@ int mhflag;     /* Output in makeheaders format if true */
        lemp->wildcard->index); lineno++;
   }
   print_stack_union(out,lemp,&lineno,mhflag);
+  fprintf(out, "#ifndef YYSTACKDEPTH\n"); lineno++;
   if( lemp->stacksize ){
-    if( atoi(lemp->stacksize)<=0 ){
-      ErrorMsg(lemp->filename,0,
-"Illegal stack size: [%s].  The stack size should be an integer constant.",
-        lemp->stacksize);
-      lemp->errorcnt++;
-      lemp->stacksize = "100";
-    }
     fprintf(out,"#define YYSTACKDEPTH %s\n",lemp->stacksize);  lineno++;
   }else{
     fprintf(out,"#define YYSTACKDEPTH 100\n");  lineno++;
   }
+  fprintf(out, "#endif\n"); lineno++;
   if( mhflag ){
     fprintf(out,"#if INTERFACE\n"); lineno++;
   }

@@ -1,8 +1,8 @@
-set rcsid {$Id: capi3ref.tcl,v 1.51 2007/01/10 12:57:29 drh Exp $}
+set rcsid {$Id: capi3ref.tcl,v 1.55 2007/04/16 15:35:24 drh Exp $}
 source common.tcl
 header {C/C++ Interface For SQLite Version 3}
 puts {
-<h2>C/C++ Interface For SQLite Version 3</h2>
+<h2 class=pdf_section>C/C++ Interface For SQLite Version 3</h2>
 }
 
 proc api {name prototype desc {notused x}} {
@@ -429,6 +429,18 @@ int sqlite3_column_type(sqlite3_stmt*, int iCol);
 <tr><td> BLOB </td><td>    TEXT </td><td>  Add a \\000 terminator if needed</td></tr>
 </table>
 </blockquote>
+
+  Note that when type conversions occur, pointers returned by prior
+  calls to sqlite3_column_blob(), sqlite3_column_text(), and/or
+  sqlite3_column_text16() may be invalidated.  So, for example, if
+  you initially call sqlite3_column_text() and get back a pointer to
+  a UTF-8 string, then you call sqlite3_column_text16(), after the
+  call to sqlite3_column_text16() the pointer returned by the prior
+  call to sqlite3_column_text() will likely point to deallocated memory.
+  Attempting to use the original pointer might lead to heap corruption
+  or a segfault.  Note also that calls  to sqlite3_column_bytes()
+  and sqlite3_column_bytes16() can also cause type conversion that
+  and deallocate prior buffers.  Use these routines carefully.
 }
 
 api {} {
@@ -1350,7 +1362,7 @@ int sqlite3_set_authorizer(
  the access attempt or NULL if this access attempt is directly from 
  input SQL code.
 
- The return value of the authorization function should be one of the
+ The return value of the authorization callback function should be one of the
  constants SQLITE_OK, SQLITE_DENY, or SQLITE_IGNORE.  A return of
  SQLITE_OK means that the operation is permitted and that 
  sqlite3_prepare_v2() can proceed as normal.
@@ -1365,6 +1377,12 @@ int sqlite3_set_authorizer(
  user-entered SQL.  An appropriate callback can deny the user-entered
  SQL access certain operations (ex: anything that changes the database)
  or to deny access to certain tables or columns within the database.
+
+ SQLite is not reentrant through the authorization callback function.
+ The authorization callback function should not attempt to invoke
+ any other SQLite APIs for the same database connection.  If the
+ authorization callback function invokes some other SQLite API, an
+ SQLITE_MISUSE error or a segmentation fault may result.
 }
 
 api {} {
@@ -1621,6 +1639,10 @@ api {} {
   thread-specific storage so that it will be available for sharing
   with other connections.
 
+  Virtual tables cannot be used with a shared cache.  When shared
+  cache is enabled, the sqlite3_create_module() API used to register
+  virtual tables will always return an error.
+
   This routine returns SQLITE_OK if shared cache was
   enabled or disabled successfully.  An error code is returned
   otherwise.
@@ -1716,6 +1738,7 @@ foreach name [lsort [array names name_to_idx]] {
 #parray name_to_idx
 #parray sname
 incr n -1
+puts "<DIV class=pdf_ignore>"
 puts {<table width="100%" cellpadding="5"><tr>}
 set nrow [expr {($n+2)/3}]
 set i 0
@@ -1734,6 +1757,7 @@ for {set j 0} {$j<3} {incr j} {
 }
 puts "</table>"
 puts "<!-- $n entries.  $nrow rows in 3 columns -->"
+puts "</DIV>"
 
 proc resolve_name {ignore_list name} {
   global name_to_idx
@@ -1750,7 +1774,7 @@ foreach name [lsort [array names name_to_idx]] {
   set done($i) 1
   foreach {namelist prototype desc} [lindex $apilist $i] break
   foreach name $namelist {
-    puts "<a name=\"$name\">"
+    puts "<a name=\"$name\"></a>"
   }
   puts "<p><hr></p>"
   puts "<blockquote><pre>"
@@ -1767,4 +1791,6 @@ foreach name [lsort [array names name_to_idx]] {
   puts "<p>$d3</p>"
 }
 
+puts "<DIV class=pdf_ignore>"
 footer $rcsid
+puts "</DIV>"

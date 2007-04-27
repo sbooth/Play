@@ -1,7 +1,7 @@
 #
 # Run this Tcl script to generate the pragma.html file.
 #
-set rcsid {$Id: pragma.tcl,v 1.20 2007/02/02 12:33:17 drh Exp $}
+set rcsid {$Id: pragma.tcl,v 1.22 2007/04/02 00:53:19 drh Exp $}
 source common.tcl
 header {Pragma statements supported by SQLite}
 
@@ -27,21 +27,21 @@ different in the following important respects:
     Unknown pragmas are simply ignored. This means if there is a typo in 
     a pragma statement the library does not inform the user of the fact.
 <li>Some pragmas take effect during the SQL compilation stage, not the
-    execution stage. This means if using the C-language sqlite3_compile(), 
+    execution stage. This means if using the C-language sqlite3_prepare(), 
     sqlite3_step(), sqlite3_finalize() API (or similar in a wrapper 
     interface), the pragma may be applied to the library during the 
-    sqlite3_compile() call.
+    sqlite3_prepare() call.
 <li>The pragma command is unlikely to be compatible with any other SQL
     engine.
 </ul>
 
 <p>The available pragmas fall into four basic categories:</p>
 <ul>
-<li>Pragmas used to <a href="#schema">query the schema</a> of the current 
-    database.
 <li>Pragmas used to <a href="#modify">modify the operation</a> of the 
     SQLite library in some manner, or to query for the current mode of 
     operation.
+<li>Pragmas used to <a href="#schema">query the schema</a> of the current 
+    database.
 <li>Pragmas used to <a href="#version">query or modify the databases two 
     version values</a>, the schema-version and the user-version.
 <li>Pragmas used to <a href="#debug">debug the library</a> and verify that
@@ -235,6 +235,51 @@ puts {
     effect on databases that already exist.</p>
 </li>
 
+<a name="pragma_locking_mode"></a>
+<li><p><b>PRAGMA locking_mode;
+       <br>PRAGMA locking_mode = <i>NORMAL | EXCLUSIVE</i></b></p>
+    <p>This pragma sets or queries the database connection locking-mode. 
+    The locking-mode is either NORMAL or EXCLUSIVE.
+
+    <p>In NORMAL locking-mode (the default), a database connection
+    unlocks the database file at the conclusion of each read or
+    write transaction. When the locking-mode is set to EXCLUSIVE, the
+    database connection never releases file-locks. The first time the
+    database is read in EXCLUSIVE mode, a shared lock is obtained and 
+    held. The first time the database is written, an exclusive lock is
+    obtained and held.</p>
+
+    <p>Database locks obtained by a connection in EXCLUSIVE mode may be
+    released either by closing the database connection, or by setting the
+    locking-mode back to NORMAL using this pragma and then accessing the
+    database file (for read or write). Simply setting the locking-mode to
+    NORMAL is not enough - locks are not be released until the next time
+    the database file is accessed.</p>
+
+    <p>There are two reasons to set the locking-mode to EXCLUSIVE. One
+    is if the application actually wants to prevent other processes from
+    accessing the database file. The other is that a small number of
+    filesystem operations are saved by optimizations enabled in this
+    mode. This may be significant in embedded environments.</p>
+
+    <p>When the locking_mode pragma specifies a particular database,
+    for example:</p>
+
+    <blockquote>
+PRAGMA <b>main.</b>locking_mode=EXCLUSIVE;
+    </blockquote>
+
+    <p>Then the locking mode applies only to the named database.  If no
+    database name qualifier preceeds the "locking_mode" keyword then
+    the locking mode is applied to all databases, including any new
+    databases added by subsequent <a href="lang_attach.html">ATTACH</a>
+    commands.</p>
+
+   <p>The "temp" database (in which TEMP tables and indices are stored)
+   always uses exclusive locking mode.  The locking mode of temp cannot
+   be changed.  All other databases use the normal locking mode by default
+   and are effected by this pragma.</p>
+</li>
 
 <a name="pragma_page_size"></a>
 <li><p><b>PRAGMA page_size;

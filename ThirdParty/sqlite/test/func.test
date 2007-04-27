@@ -11,7 +11,7 @@
 # This file implements regression tests for SQLite library.  The
 # focus of this file is testing built-in functions.
 #
-# $Id: func.test,v 1.57 2007/01/29 17:58:28 drh Exp $
+# $Id: func.test,v 1.60 2007/04/10 13:51:19 drh Exp $
 
 set testdir [file dirname $argv0]
 source $testdir/tester.tcl
@@ -325,6 +325,9 @@ do_test func-9.5 {
 do_test func-9.10 {
   execsql {SELECT hex(x'00112233445566778899aAbBcCdDeEfF')}
 } {00112233445566778899AABBCCDDEEFF}
+do_test func-9.11 {
+  execsql {SELECT hex(replace('abcdefg','ef','12'))}
+} {61626364313267}
 
 # Use the "sqlite_register_test_function" TCL command which is part of
 # the text fixture in order to verify correct operation of some of
@@ -440,7 +443,6 @@ do_test func-12.7 {
 # Test that the auxdata API for scalar functions works. This test uses
 # a special user-defined function only available in test builds,
 # test_auxdata(). Function test_auxdata() takes any number of arguments.
-btree_breakpoint
 do_test func-13.1 {
   execsql {
     SELECT test_auxdata('hello world');
@@ -728,5 +730,99 @@ if {![catch {db eval {SELECT soundex('hello')}}]} {
     } $sdx
   }
 }
+
+# Tests of the REPLACE function.
+#
+do_test func-21.1 {
+  catchsql {
+    SELECT replace(1,2);
+  }
+} {1 {wrong number of arguments to function replace()}}
+do_test func-21.2 {
+  catchsql {
+    SELECT replace(1,2,3,4);
+  }
+} {1 {wrong number of arguments to function replace()}}
+do_test func-21.3 {
+  execsql {
+    SELECT typeof(replace("This is the main test string", NULL, "ALT"));
+  }
+} {null}
+do_test func-21.4 {
+  execsql {
+    SELECT typeof(replace(NULL, "main", "ALT"));
+  }
+} {null}
+do_test func-21.5 {
+  execsql {
+    SELECT typeof(replace("This is the main test string", "main", NULL));
+  }
+} {null}
+do_test func-21.6 {
+  execsql {
+    SELECT replace("This is the main test string", "main", "ALT");
+  }
+} {{This is the ALT test string}}
+do_test func-21.7 {
+  execsql {
+    SELECT replace("This is the main test string", "main", "larger-main");
+  }
+} {{This is the larger-main test string}}
+do_test func-21.8 {
+  execsql {
+    SELECT replace("aaaaaaa", "a", "0123456789");
+  }
+} {0123456789012345678901234567890123456789012345678901234567890123456789}
+
+# Tests for the TRIM, LTRIM and RTRIM functions.
+#
+do_test func-22.1 {
+  catchsql {SELECT trim(1,2,3)}
+} {1 {wrong number of arguments to function trim()}}
+do_test func-22.2 {
+  catchsql {SELECT ltrim(1,2,3)}
+} {1 {wrong number of arguments to function ltrim()}}
+do_test func-22.3 {
+  catchsql {SELECT rtrim(1,2,3)}
+} {1 {wrong number of arguments to function rtrim()}}
+do_test func-22.4 {
+  execsql {SELECT trim('  hi  ');}
+} {hi}
+do_test func-22.5 {
+  execsql {SELECT ltrim('  hi  ');}
+} {{hi  }}
+do_test func-22.6 {
+  execsql {SELECT rtrim('  hi  ');}
+} {{  hi}}
+do_test func-22.7 {
+  execsql {SELECT trim('  hi  ','xyz');}
+} {{  hi  }}
+do_test func-22.8 {
+  execsql {SELECT ltrim('  hi  ','xyz');}
+} {{  hi  }}
+do_test func-22.9 {
+  execsql {SELECT rtrim('  hi  ','xyz');}
+} {{  hi  }}
+do_test func-22.10 {
+  execsql {SELECT trim('xyxzy  hi  zzzy','xyz');}
+} {{  hi  }}
+do_test func-22.11 {
+  execsql {SELECT ltrim('xyxzy  hi  zzzy','xyz');}
+} {{  hi  zzzy}}
+do_test func-22.12 {
+  execsql {SELECT rtrim('xyxzy  hi  zzzy','xyz');}
+} {{xyxzy  hi  }}
+do_test func-22.13 {
+  execsql {SELECT trim('  hi  ','');}
+} {{  hi  }}
+do_test func-22.20 {
+  execsql {SELECT typeof(trim(NULL));}
+} {null}
+do_test func-22.21 {
+  execsql {SELECT typeof(trim(NULL,'xyz'));}
+} {null}
+do_test func-22.22 {
+  execsql {SELECT typeof(trim('hello',NULL));}
+} {null}
 
 finish_test

@@ -11,7 +11,7 @@
 # This file implements some common TCL routines used for regression
 # testing the SQLite library
 #
-# $Id: tester.tcl,v 1.72 2007/01/04 14:58:14 drh Exp $
+# $Id: tester.tcl,v 1.79 2007/04/19 12:30:54 drh Exp $
 
 # Make sure tclsqlite3 was compiled correctly.  Abort now with an
 # error message if not.
@@ -119,21 +119,30 @@ proc do_test {name cmd expected} {
   } else {
     puts " Ok"
   }
+  flush stdout
 }
 
 # Run an SQL script.  
 # Return the number of microseconds per statement.
 #
 proc speed_trial {name numstmt units sql} {
-  puts -nonewline [format {%-20.20s } $name...]
+  puts -nonewline [format {%-21.21s } $name...]
   flush stdout
   set speed [time {sqlite3_exec_nr db $sql}]
   set tm [lindex $speed 0]
-  set per [expr {$tm/(1.0*$numstmt)}]
   set rate [expr {1000000.0*$numstmt/$tm}]
-  set u1 us/$units
   set u2 $units/s
-  puts [format {%20.3f %-7s %20.5f %s} $per $u1 $rate $u2]
+  puts [format {%12d uS %20.5f %s} $tm $rate $u2]
+  global total_time
+  set total_time [expr {$total_time+$tm}]
+}
+proc speed_trial_init {name} {
+  global total_time
+  set total_time 0
+}
+proc speed_trial_summary {name} {
+  global total_time
+  puts [format {%-21.21s %12d uS TOTAL} $name $total_time]
 }
 
 # The procedure uses the special "sqlite_malloc_stat" command
@@ -309,16 +318,47 @@ proc ifcapable {expr code {else ""} {elsecode ""}} {
 # error message. This is "child process exited abnormally" if the crash
 # occured.
 #
-proc crashsql {crashdelay crashfile sql} {
+#   crashsql -delay CRASHDELAY -file CRASHFILE ?-blocksize BLOCKSIZE $sql
+#
+proc crashsql {args} {
   if {$::tcl_platform(platform)!="unix"} {
     error "crashsql should only be used on unix"
   }
+
+  set blocksize ""
+  set crashdelay 1
+  set crashfile ""
+  set sql [lindex $args end]
+  
+  for {set ii 0} {$ii < [llength $args]-1} {incr ii 2} {
+    set z [lindex $args $ii]
+    set n [string length $z]
+    set z2 [lindex $args [expr $ii+1]]
+
+    if     {$n>1 && [string first $z -delay]==0}     {set crashdelay $z2} \
+    elseif {$n>1 && [string first $z -file]==0}      {set crashfile $z2}  \
+    elseif {$n>1 && [string first $z -blocksize]==0} {set blocksize $z2}  \
+    else   { error "Unrecognized option: $z" }
+  }
+
+  if {$crashfile eq ""} {
+    error "Compulsory option -file missing"
+  }
+
   set cfile [file join [pwd] $crashfile]
 
   set f [open crash.tcl w]
-  puts $f "sqlite3_crashparams $crashdelay $cfile"
+  puts $f "sqlite3_crashparams $crashdelay $cfile $blocksize"
+  puts $f "set sqlite_pending_byte $::sqlite_pending_byte"
   puts $f "sqlite3 db test.db"
-  puts $f "db eval {pragma cache_size = 10}"
+
+  # This block sets the cache size of the main database to 10
+  # pages. This is done in case the build is configured to omit
+  # "PRAGMA cache_size".
+  puts $f {db eval {SELECT * FROM sqlite_master;}}
+  puts $f {set bt [btree_from_db db]}
+  puts $f {btree_set_cache_size $bt 10}
+
   puts $f "db eval {"
   puts $f   "$sql"
   puts $f "}"
@@ -342,6 +382,7 @@ proc crashsql {crashdelay crashfile sql} {
 #     -sqlbody          TCL script to run with IO error simulation.
 #     -exclude          List of 'N' values not to test.
 #     -erc              Use extended result codes
+#     -persist          Make simulated I/O errors persistent
 #     -start            Value of 'N' to begin with (default 1)
 #
 #     -cksum            Boolean. If true, test that the database does
@@ -353,6 +394,7 @@ proc do_ioerr_test {testname args} {
   set ::ioerropts(-cksum) 0
   set ::ioerropts(-erc) 0
   set ::ioerropts(-count) 100000000
+  set ::ioerropts(-persist) 1
   array set ::ioerropts $args
 
   set ::go 1
@@ -392,6 +434,7 @@ proc do_ioerr_test {testname args} {
   
     # Set the Nth IO error to fail.
     do_test $testname.$n.2 [subst {
+      set ::sqlite_io_error_persist $::ioerropts(-persist)
       set ::sqlite_io_error_pending $n
     }] $n
   
@@ -410,26 +453,33 @@ proc do_ioerr_test {testname args} {
     # a result of the script, the Nth will fail.
     do_test $testname.$n.3 {
       set r [catch $::ioerrorbody msg]
-      # puts rc=[sqlite3_errcode $::DB]
       set rc [sqlite3_errcode $::DB]
       if {$::ioerropts(-erc)} {
-        # In extended result mode, all IOERRs are qualified 
+        # If we are in extended result code mode, make sure all of the
+        # IOERRs we get back really do have their extended code values.
+        # If an extended result code is returned, the sqlite3_errcode
+        # TCLcommand will return a string of the form:  SQLITE_IOERR+nnnn
+        # where nnnn is a number
         if {[regexp {^SQLITE_IOERR} $rc] && ![regexp {IOERR\+\d} $rc]} {
           return $rc
         }
       } else {
-        # Not in extended result mode, no errors are qualified
+        # If we are not in extended result code mode, make sure no
+        # extended error codes are returned.
         if {[regexp {\+\d} $rc]} {
           return $rc
         }
       }
+      # The test repeats as long as $::go is true.  
       set ::go [expr {$::sqlite_io_error_pending<=0}]
       set s [expr $::sqlite_io_error_hit==0]
       set ::sqlite_io_error_hit 0
-      # puts "$::sqlite_io_error_pending $r $msg"
-      # puts "r=$r s=$s go=$::go msg=\"$msg\""
+
+      # One of two things must have happened. either
+      #   1.  We never hit the IO error and the SQL returned OK
+      #   2.  An IO error was hit and the SQL failed
+      #
       expr { ($s && !$r && !$::go) || (!$s && $r && $::go) }
-      # expr {$::sqlite_io_error_pending>0 || $r!=0}
     } {1}
 
     # If an IO error occured, then the checksum of the database should
@@ -448,6 +498,7 @@ proc do_ioerr_test {testname args} {
     }
   }
   set ::sqlite_io_error_pending 0
+  set ::sqlite_io_error_persist 0
   unset ::ioerropts
 }
 

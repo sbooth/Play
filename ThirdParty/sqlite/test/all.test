@@ -10,12 +10,14 @@
 #***********************************************************************
 # This file runs all tests.
 #
-# $Id: all.test,v 1.36 2006/11/23 21:09:11 drh Exp $
+# $Id: all.test,v 1.40 2007/04/16 17:07:55 drh Exp $
 
 set testdir [file dirname $argv0]
 source $testdir/tester.tcl
 rename finish_test really_finish_test
-proc finish_test {} {memleak_check}
+proc finish_test {} {
+  memleak_check
+}
 
 if {[file exists ./sqlite_test_count]} {
   set COUNT [exec cat ./sqlite_test_count]
@@ -51,12 +53,12 @@ set EXCLUDE {
   all.test
   async.test
   crash.test
+  crash2.test
   autovacuum_crash.test
   quick.test
   malloc.test
   misuse.test
   memleak.test
-  speed1.test
 }
 
 # Files to include in the test.  If this list is empty then everything
@@ -90,6 +92,13 @@ for {set Counter 0} {$Counter<$COUNT && $nErr==0} {incr Counter} {
       puts "$tail did not close all files: $sqlite_open_file_count"
       incr nErr
       lappend ::failList $tail
+      set sqlite_open_file_count 0
+    }
+    if {$::sqlite3_tsd_count} {
+      puts "Thread-specific data leak: $::sqlite3_tsd_count instances"
+      incr nErr
+      lappend ::failList $tail
+      set ::sqlite3_tsd_count 0
     }
   }
   if {[info exists Leak]} {
@@ -121,6 +130,7 @@ if {$LeakList!=""} {
 #
 if {$::tcl_platform(platform)=="unix"} {
   source $testdir/crash.test
+  source $testdir/crash2.test
   ifcapable !default_autovacuum {
     source $testdir/autovacuum_crash.test
   }

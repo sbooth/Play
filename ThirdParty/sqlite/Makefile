@@ -26,7 +26,7 @@ BCC = gcc -g -O2
 # will run on the target platform.  (BCC and TCC are usually the
 # same unless your are cross-compiling.)
 #
-TCC = gcc -g -O2 -DOS_UNIX=1 -DHAVE_USLEEP=1 -I. -I${TOP}/src
+TCC = gcc -g -O2 -I. -I${TOP}/src
 
 # Define -DNDEBUG to compile without debugging (i.e., for production usage)
 # Omitting the define will cause extra debugging code to be inserted and
@@ -76,8 +76,8 @@ TEMP_STORE = -DTEMP_STORE=1
 # Version numbers and release number for the SQLite being compiled.
 #
 VERSION = 3.3
-VERSION_NUMBER = 3003013
-RELEASE = 3.3.13
+VERSION_NUMBER = 3003017
+RELEASE = 3.3.17
 
 # Filename extensions
 #
@@ -107,7 +107,7 @@ LIBTOOL = ./libtool
 ALLOWRELEASE = 
 
 # libtool compile/link/install
-LTCOMPILE = $(LIBTOOL) --mode=compile $(TCC)
+LTCOMPILE = $(LIBTOOL) --mode=compile --tag=CC $(TCC)
 LTLINK = $(LIBTOOL) --mode=link $(TCC)
 LTINSTALL = $(LIBTOOL) --mode=install $(INSTALL)
 
@@ -203,6 +203,7 @@ TESTSRC = \
   $(TOP)/src/btree.c \
   $(TOP)/src/date.c \
   $(TOP)/src/func.c \
+  $(TOP)/src/insert.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_os2.c \
   $(TOP)/src/os_unix.c \
@@ -218,8 +219,10 @@ TESTSRC = \
   $(TOP)/src/test6.c \
   $(TOP)/src/test7.c \
   $(TOP)/src/test8.c \
+  $(TOP)/src/test9.c \
   $(TOP)/src/test_autoext.c \
   $(TOP)/src/test_async.c \
+  $(TOP)/src/test_hexio.c \
   $(TOP)/src/test_md5.c \
   $(TOP)/src/test_schema.c \
   $(TOP)/src/test_server.c \
@@ -299,6 +302,9 @@ target_source:	$(SRC) parse.c opcodes.c keywordhash.h $(VDBEHDR)
 	cp $(SRC) $(VDBEHDR) tsrc
 	rm tsrc/sqlite.h.in tsrc/parse.y
 	cp parse.c opcodes.c keywordhash.h tsrc
+
+sqlite3.c:	target_source $(TOP)/tool/mksqlite3c.tcl
+	tclsh $(TOP)/tool/mksqlite3c.tcl
 
 # Rules to build the LEMON compiler generator
 #

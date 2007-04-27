@@ -1,7 +1,7 @@
 #
 # Run this TCL script to generate HTML for the download.html file.
 #
-set rcsid {$Id: download.tcl,v 1.23 2006/10/08 18:56:57 drh Exp $}
+set rcsid {$Id: download.tcl,v 1.26 2007/04/09 13:18:47 drh Exp $}
 source common.tcl
 header {SQLite Download Page}
 
@@ -69,7 +69,13 @@ Product sqlite-V3.so.gz {
 
 Product fts1-V3.so.gz {
   A precompiled 
-  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsOne">FTS Module</a> 
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsOne">FTS1 Module</a> 
+  for Linux.
+}
+
+Product fts2-V3.so.gz {
+  A precompiled 
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsTwo">FTS2 Module</a> 
   for Linux.
 }
 
@@ -106,7 +112,13 @@ Product sqlitedll-V3.zip {
 
 Product fts1dll-V3.zip {
   A precompiled 
-  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsOne">FTS Module</a> 
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsOne">FTS1 Module</a> 
+  for win32.
+}
+
+Product fts2dll-V3.zip {
+  A precompiled 
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=FtsTwo">FTS2 Module</a> 
   for win32.
 }
 
@@ -124,12 +136,10 @@ Product {sqlite-V3.tar.gz} {
 }
 
 Product {sqlite-source-V3.zip} {
-  This ZIP archive contains pure C source code for the SQLite library.
+  This ZIP archive contains pure C code for the SQLite library.
   Unlike the tarballs below, all of the preprocessing and automatic
-  code generation has already been done on these C source code, so they
-  can be processed directly with any ordinary C compiler.
-  This file is provided as a service to
-  MS-Windows users who lack the build support infrastructure of Unix.
+  code generation has already been done on these C code files, so they
+  can be converted to object code directly with any ordinary C compiler.
 }
 
 Product {sqlite-V3-tea.tar.gz} {

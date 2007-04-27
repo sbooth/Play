@@ -25,6 +25,79 @@ proc chng {date desc} {
   puts "<DD><P><UL>$desc</UL></P></DD>"
 }
 
+chng {2007 April 25 (3.3.17)} {
+<li>When the "write_version" value of the database header is larger than
+    what the library understands, make the database read-only instead of
+    unreadable.</li>
+<li>Other minor bug fixes</li>
+}
+
+chng {2007 April 18 (3.3.16)} {
+<li>Fix a bug that caused VACUUM to fail if NULLs appeared in a
+    UNIQUE column.</li>
+<li>Reinstate performance improvements that were added in 3.3.14
+    but regressed in 3.3.15.</li>
+<li>Fix problems with the handling of ORDER BY expressions on
+    compound SELECT statements in subqueries.</li>
+<li>Fix a potential segfault when destroying locks on WinCE in
+    a multi-threaded environment.</li>
+<li>Documentation updates.</li>
+}
+
+chng {2007 April 9 (3.3.15)} {
+<li>Fix a bug introduced in 3.3.14 that caused a rollback of
+    CREATE TEMP TABLE to leave the database connection wedged.</li>
+<li>Fix a bug that caused an extra NULL row to be returned when
+    a descending query was interrupted by a change to the database.</li>
+<li>The FOR EACH STATEMENT clause on a trigger now causes a syntax
+    error.  It used to be silently ignored.</li>
+<li>Fix an obscure and relatively harmless problem that might have caused
+    a resource leak following an I/O error.</li>
+<li>Many improvements to the test suite.  Test coverage now exceeded 98%</li>
+}
+
+chng {2007 April 2 (3.3.14)} {
+<li>Fix a <a href="http://www.sqlite.org/cvstrac/tktview?tn=2273">bug</a>
+    in 3.3.13 that could cause a segfault when the IN operator
+    is used one one term of a two-column index and the right-hand side of
+    the IN operator contains a NULL.</li>
+<li>Added a new OS interface method for determining the sector size
+    of underlying media:  sqlite3OsSectorSize().</li>
+<li>A new algorithm for statements of the form
+    INSERT INTO <i>table1</i> SELECT * FROM <i>table2</i>
+    is faster and reduces fragmentation.  VACUUM uses statements of
+    this form and thus runs faster and defragments better.</li>
+<li>Performance enhancements through reductions in disk I/O:
+<ul>
+<li>Do not read the last page of an overflow chain when
+    deleting the row - just add that page to the freelist.</li>
+<li>Do not store pages being deleted in the 
+    rollback journal.</li>
+<li>Do not read in the (meaningless) content of
+    pages extracted from the freelist.</li>
+<li>Do not flush the page cache (and thus avoiding
+    a cache refill) unless another process changes the underlying
+    database file.</li>
+<li>Truncate rather than delete the rollback journal when committing
+    a transaction in exclusive access mode, or when committing the TEMP
+    database.</li>
+</ul></li>
+<li>Added support for exclusive access mode using
+    <a href="pragma.html#pragma_locking_mode">
+    "PRAGMA locking_mode=EXCLUSIVE"</a></li>
+<li>Use heap space instead of stack space for large buffers in the
+    pager - useful on embedded platforms with  stack-space
+    limitations.</li>
+<li>Add a makefile target "sqlite3.c" that builds an amalgamation containing
+    the core SQLite library C code in a single file.</li>
+<li>Get the library working correctly when compiled 
+    with GCC option "-fstrict-aliasing".</li>
+<li>Removed the vestigal SQLITE_PROTOCOL error.</li>
+<li>Improvements to test coverage, other minor bugs fixed,
+    memory leaks plugged,
+    code refactored and/or recommented in places for easier reading.</li>
+}
+
 chng {2007 February 13 (3.3.13)} {
 <li>Add a "fragmentation" measurement in the output of sqlite3_analyzer.</li>
 <li>Add the COLLATE operator used to explicitly set the collating sequence

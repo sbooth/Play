@@ -11,17 +11,21 @@
 # This file implements regression tests for SQLite library.  The
 # focus of this script is measuring executing speed.
 #
-# $Id: speed1.test,v 1.2 2006/11/30 13:06:00 drh Exp $
+# $Id: speed1.test,v 1.5 2007/03/31 22:34:16 drh Exp $
 #
 
 set testdir [file dirname $argv0]
 source $testdir/tester.tcl
+speed_trial_init speed1
+
+# Set a uniform random seed
+expr srand(0)
 
 set sqlout [open speed1.txt w]
 proc tracesql {sql} {
   puts $::sqlout $sql\;
 }
-db trace tracesql
+#db trace tracesql
 
 # The number_name procedure below converts its argment (an integer)
 # into a string which is the English-language name for that number.
@@ -61,11 +65,15 @@ proc number_name {n} {
 #
 do_test speed1-1.0 {
   execsql {
-pragma page_size=4096;
+    PRAGMA page_size=1024;
+    PRAGMA cache_size=8192;
+    PRAGMA locking_mode=EXCLUSIVE;
     CREATE TABLE t1(a INTEGER, b INTEGER, c TEXT);
     CREATE TABLE t2(a INTEGER, b INTEGER, c TEXT);
     CREATE INDEX i2a ON t2(a);
     CREATE INDEX i2b ON t2(b);
+  }
+  execsql {
     SELECT name FROM sqlite_master ORDER BY 1;
   }
 } {i2a i2b t1 t2}
@@ -276,5 +284,6 @@ speed_trial speed1-random-del2 20000 row {
 do_test speed1-1.2 {
   db one {SELECT count(*) FROM t1}
 } 10000
+speed_trial_summary speed1
 
 finish_test

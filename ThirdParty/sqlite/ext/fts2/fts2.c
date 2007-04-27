@@ -304,6 +304,25 @@ SQLITE_EXTENSION_INIT1
 # define TRACE(A)
 #endif
 
+/* It is not safe to call isspace(), tolower(), or isalnum() on
+** hi-bit-set characters.  This is the same solution used in the
+** tokenizer.
+*/
+/* TODO(shess) The snippet-generation code should be using the
+** tokenizer-generated tokens rather than doing its own local
+** tokenization.
+*/
+/* TODO(shess) Is __isascii() a portable version of (c&0x80)==0? */
+static int safe_isspace(char c){
+  return (c&0x80)==0 ? isspace(c) : 0;
+}
+static int safe_tolower(char c){
+  return (c&0x80)==0 ? tolower(c) : c;
+}
+static int safe_isalnum(char c){
+  return (c&0x80)==0 ? isalnum(c) : 0;
+}
+
 typedef enum DocListType {
   DL_DOCIDS,              /* docids only */
   DL_POSITIONS,           /* docids + positions */
@@ -504,7 +523,7 @@ static void appendList(StringBuffer *sb, int nString, char **azString){
 
 static int endsInWhiteSpace(StringBuffer *p){
   return stringBufferLength(p)>0 &&
-    isspace(stringBufferData(p)[stringBufferLength(p)-1]);
+    safe_isspace(stringBufferData(p)[stringBufferLength(p)-1]);
 }
 
 /* If the StringBuffer ends in something other than white space, add a
@@ -690,6 +709,7 @@ static void docListValidate(DocListType iType, const char *pData, int nData,
 ** dlwDestroy - clear the writer's memory.  Does not free buffer.
 ** dlwAppend - append raw doclist data to buffer.
 ** dlwAdd - construct doclist element and append to buffer.
+**    Only apply dlwAdd() to DL_DOCIDS doclists (else use PLWriter).
 */
 typedef struct DLWriter {
   DocListType iType;
@@ -751,24 +771,14 @@ static void dlwAppend(DLWriter *pWriter,
   }
   pWriter->iPrevDocid = iLastDocid;
 }
-static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid,
-                   const char *pPosList, int nPosList){
+static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid){
   char c[VARINT_MAX];
   int n = putVarint(c, iDocid-pWriter->iPrevDocid);
 
   assert( pWriter->iPrevDocid<iDocid );
-  assert( pPosList==0 || pWriter->iType>DL_DOCIDS );
+  assert( pWriter->iType==DL_DOCIDS );
 
   dataBufferAppend(pWriter->b, c, n);
-
-  if( pWriter->iType>DL_DOCIDS ){
-    n = putVarint(c, 0);
-    if( nPosList>0 ){
-      dataBufferAppend2(pWriter->b, pPosList, nPosList, c, n);
-    }else{
-      dataBufferAppend(pWriter->b, c, n);
-    }
-  }
   pWriter->iPrevDocid = iDocid;
 }
 
@@ -854,11 +864,10 @@ static void plrStep(PLReader *pReader){
   pReader->nData -= n;
 }
 
-static void plrInit(PLReader *pReader, DocListType iType,
-                    const char *pData, int nData){
-  pReader->pData = pData;
-  pReader->nData = nData;
-  pReader->iType = iType;
+static void plrInit(PLReader *pReader, DLReader *pDLReader){
+  pReader->pData = dlrPosData(pDLReader);
+  pReader->nData = dlrPosDataLen(pDLReader);
+  pReader->iType = pDLReader->iType;
   pReader->iColumn = 0;
   pReader->iPosition = 0;
   pReader->iStartOffset = 0;
@@ -872,34 +881,38 @@ static void plrDestroy(PLReader *pReader){
 /*******************************************************************/
 /* PLWriter is used in constructing a document's position list.  As a
 ** convenience, if iType is DL_DOCIDS, PLWriter becomes a no-op.
+** PLWriter writes to the associated DLWriter's buffer.
 **
 ** plwInit - init for writing a document's poslist.
-** plwReset - reset the writer for a new document.
 ** plwDestroy - clear a writer.
-** plwNew - malloc storage and initialize it.
-** plwDelete - clear and free storage.
-** plwDlwAdd - append the docid and poslist to a doclist writer.
 ** plwAdd - append position and offset information.
+** plwTerminate - add any necessary doclist terminator.
+**
+** Calling plwAdd() after plwTerminate() may result in a corrupt
+** doclist.
 */
-/* TODO(shess) PLWriter is used in two ways.  fulltextUpdate() uses it
-** in construction of a new doclist.  docListTrim() and mergePosList()
-** use it when trimming.  In the former case, it wants to own the
-** DataBuffer, in the latter it's possible it could encode into a
-** pre-existing DataBuffer.
+/* TODO(shess) Until we've written the second item, we can cache the
+** first item's information.  Then we'd have three states:
+**
+** - initialized with docid, no positions.
+** - docid and one position.
+** - docid and multiple positions.
+**
+** Only the last state needs to actually write to dlw->b, which would
+** be an improvement in the DLCollector case.
 */
 typedef struct PLWriter {
-  DataBuffer b;
+  DLWriter *dlw;
 
-  sqlite_int64 iDocid;
-  DocListType iType;
   int iColumn;    /* the last column written */
   int iPos;       /* the last position written */
   int iOffset;    /* the last start offset written */
 } PLWriter;
 
-static void plwDlwAdd(PLWriter *pWriter, DLWriter *dlWriter){
-  dlwAdd(dlWriter, pWriter->iDocid, pWriter->b.pData, pWriter->b.nData);
-}
+/* TODO(shess) In the case where the parent is reading these values
+** from a PLReader, we could optimize to a copy if that PLReader has
+** the same type as pWriter.
+*/
 static void plwAdd(PLWriter *pWriter, int iColumn, int iPos,
                    int iStartOffset, int iEndOffset){
   /* Worst-case space for POS_COLUMN, iColumn, iPosDelta,
@@ -908,7 +921,10 @@ static void plwAdd(PLWriter *pWriter, int iColumn, int iPos,
   char c[5*VARINT_MAX];
   int n = 0;
 
-  if( pWriter->iType==DL_DOCIDS ) return;
+  /* Ban plwAdd() after plwTerminate(). */
+  assert( pWriter->iPos!=-1 );
+
+  if( pWriter->dlw->iType==DL_DOCIDS ) return;
 
   if( iColumn!=pWriter->iColumn ){
     n += putVarint(c+n, POS_COLUMN);
@@ -920,82 +936,158 @@ static void plwAdd(PLWriter *pWriter, int iColumn, int iPos,
   assert( iPos>=pWriter->iPos );
   n += putVarint(c+n, POS_BASE+(iPos-pWriter->iPos));
   pWriter->iPos = iPos;
-  if( pWriter->iType==DL_POSITIONS_OFFSETS ){
+  if( pWriter->dlw->iType==DL_POSITIONS_OFFSETS ){
     assert( iStartOffset>=pWriter->iOffset );
     n += putVarint(c+n, iStartOffset-pWriter->iOffset);
     pWriter->iOffset = iStartOffset;
     assert( iEndOffset>=iStartOffset );
     n += putVarint(c+n, iEndOffset-iStartOffset);
   }
-  dataBufferAppend(&pWriter->b, c, n);
+  dataBufferAppend(pWriter->dlw->b, c, n);
 }
-static void plwReset(PLWriter *pWriter,
-                     sqlite_int64 iDocid, DocListType iType){
-  dataBufferReset(&pWriter->b);
-  pWriter->iDocid = iDocid;
-  pWriter->iType = iType;
+static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid){
+  char c[VARINT_MAX];
+  int n;
+
+  pWriter->dlw = dlw;
+
+  assert( iDocid>pWriter->dlw->iPrevDocid );
+  n = putVarint(c, iDocid-pWriter->dlw->iPrevDocid);
+  dataBufferAppend(pWriter->dlw->b, c, n);
+  pWriter->dlw->iPrevDocid = iDocid;
+
   pWriter->iColumn = 0;
   pWriter->iPos = 0;
   pWriter->iOffset = 0;
 }
-static void plwInit(PLWriter *pWriter, sqlite_int64 iDocid, DocListType iType){
-  dataBufferInit(&pWriter->b, 0);
-  plwReset(pWriter, iDocid, iType);
-}
-static PLWriter *plwNew(sqlite_int64 iDocid, DocListType iType){
-  PLWriter *pWriter = malloc(sizeof(PLWriter));
-  plwInit(pWriter, iDocid, iType);
-  return pWriter;
+/* TODO(shess) Should plwDestroy() also terminate the doclist?  But
+** then plwDestroy() would no longer be just a destructor, it would
+** also be doing work, which isn't consistent with the overall idiom.
+** Another option would be for plwAdd() to always append any necessary
+** terminator, so that the output is always correct.  But that would
+** add incremental work to the common case with the only benefit being
+** API elegance.  Punt for now.
+*/
+static void plwTerminate(PLWriter *pWriter){
+  if( pWriter->dlw->iType>DL_DOCIDS ){
+    char c[VARINT_MAX];
+    int n = putVarint(c, POS_END);
+    dataBufferAppend(pWriter->dlw->b, c, n);
+  }
+#ifndef NDEBUG
+  /* Mark as terminated for assert in plwAdd(). */
+  pWriter->iPos = -1;
+#endif
 }
 static void plwDestroy(PLWriter *pWriter){
-  dataBufferDestroy(&pWriter->b);
   SCRAMBLE(pWriter);
 }
-static void plwDelete(PLWriter *pWriter){
-  plwDestroy(pWriter);
-  free(pWriter);
+
+/*******************************************************************/
+/* DLCollector wraps PLWriter and DLWriter to provide a
+** dynamically-allocated doclist area to use during tokenization.
+**
+** dlcNew - malloc up and initialize a collector.
+** dlcDelete - destroy a collector and all contained items.
+** dlcAddPos - append position and offset information.
+** dlcAddDoclist - add the collected doclist to the given buffer.
+** dlcNext - terminate the current document and open another.
+*/
+typedef struct DLCollector {
+  DataBuffer b;
+  DLWriter dlw;
+  PLWriter plw;
+} DLCollector;
+
+/* TODO(shess) This could also be done by calling plwTerminate() and
+** dataBufferAppend().  I tried that, expecting nominal performance
+** differences, but it seemed to pretty reliably be worth 1% to code
+** it this way.  I suspect it's the incremental malloc overhead (some
+** percentage of the plwTerminate() calls will cause a realloc), so
+** this might be worth revisiting if the DataBuffer implementation
+** changes.
+*/
+static void dlcAddDoclist(DLCollector *pCollector, DataBuffer *b){
+  if( pCollector->dlw.iType>DL_DOCIDS ){
+    char c[VARINT_MAX];
+    int n = putVarint(c, POS_END);
+    dataBufferAppend2(b, pCollector->b.pData, pCollector->b.nData, c, n);
+  }else{
+    dataBufferAppend(b, pCollector->b.pData, pCollector->b.nData);
+  }
+}
+static void dlcNext(DLCollector *pCollector, sqlite_int64 iDocid){
+  plwTerminate(&pCollector->plw);
+  plwDestroy(&pCollector->plw);
+  plwInit(&pCollector->plw, &pCollector->dlw, iDocid);
+}
+static void dlcAddPos(DLCollector *pCollector, int iColumn, int iPos,
+                      int iStartOffset, int iEndOffset){
+  plwAdd(&pCollector->plw, iColumn, iPos, iStartOffset, iEndOffset);
+}
+
+static DLCollector *dlcNew(sqlite_int64 iDocid, DocListType iType){
+  DLCollector *pCollector = malloc(sizeof(DLCollector));
+  dataBufferInit(&pCollector->b, 0);
+  dlwInit(&pCollector->dlw, iType, &pCollector->b);
+  plwInit(&pCollector->plw, &pCollector->dlw, iDocid);
+  return pCollector;
+}
+static void dlcDelete(DLCollector *pCollector){
+  plwDestroy(&pCollector->plw);
+  dlwDestroy(&pCollector->dlw);
+  dataBufferDestroy(&pCollector->b);
+  SCRAMBLE(pCollector);
+  free(pCollector);
 }
 
 
 /* Copy the doclist data of iType in pData/nData into *out, trimming
 ** unnecessary data as we go.  Only columns matching iColumn are
-** copied, all columns copied if iColimn is -1.  Elements with no
+** copied, all columns copied if iColumn is -1.  Elements with no
 ** matching columns are dropped.  The output is an iOutType doclist.
+*/
+/* NOTE(shess) This code is only valid after all doclists are merged.
+** If this is run before merges, then doclist items which represent
+** deletion will be trimmed, and will thus not effect a deletion
+** during the merge.
 */
 static void docListTrim(DocListType iType, const char *pData, int nData,
                         int iColumn, DocListType iOutType, DataBuffer *out){
   DLReader dlReader;
   DLWriter dlWriter;
-  PLWriter plWriter;
 
   assert( iOutType<=iType );
 
   dlrInit(&dlReader, iType, pData, nData);
   dlwInit(&dlWriter, iOutType, out);
-  plwInit(&plWriter, 0, iOutType);
 
   while( !dlrAtEnd(&dlReader) ){
     PLReader plReader;
+    PLWriter plWriter;
     int match = 0;
 
-    plrInit(&plReader, dlReader.iType,
-            dlrPosData(&dlReader), dlrPosDataLen(&dlReader));
-    plwReset(&plWriter, dlrDocid(&dlReader), iOutType);
+    plrInit(&plReader, &dlReader);
 
     while( !plrAtEnd(&plReader) ){
       if( iColumn==-1 || plrColumn(&plReader)==iColumn ){
-        match = 1;
+        if( !match ){
+          plwInit(&plWriter, &dlWriter, dlrDocid(&dlReader));
+          match = 1;
+        }
         plwAdd(&plWriter, plrColumn(&plReader), plrPosition(&plReader),
                plrStartOffset(&plReader), plrEndOffset(&plReader));
       }
       plrStep(&plReader);
     }
-    if( match ) plwDlwAdd(&plWriter, &dlWriter);
+    if( match ){
+      plwTerminate(&plWriter);
+      plwDestroy(&plWriter);
+    }
 
     plrDestroy(&plReader);
     dlrStep(&dlReader);
   }
-  plwDestroy(&plWriter);
   dlwDestroy(&dlWriter);
   dlrDestroy(&dlReader);
 }
@@ -1146,9 +1238,8 @@ static void mergePosList(DLReader *pLeft, DLReader *pRight, DLWriter *pOut){
   assert( dlrDocid(pLeft)==dlrDocid(pRight) );
   assert( pOut->iType!=DL_POSITIONS_OFFSETS );
 
-  plrInit(&left, pLeft->iType, dlrPosData(pLeft), dlrPosDataLen(pLeft));
-  plrInit(&right, pRight->iType, dlrPosData(pRight), dlrPosDataLen(pRight));
-  plwInit(&writer, dlrDocid(pLeft), pOut->iType);
+  plrInit(&left, pLeft);
+  plrInit(&right, pRight);
 
   while( !plrAtEnd(&left) && !plrAtEnd(&right) ){
     if( plrColumn(&left)<plrColumn(&right) ){
@@ -1160,23 +1251,23 @@ static void mergePosList(DLReader *pLeft, DLReader *pRight, DLWriter *pOut){
     }else if( plrPosition(&left)+1>plrPosition(&right) ){
       plrStep(&right);
     }else{
-      match = 1;
+      if( !match ){
+        plwInit(&writer, pOut, dlrDocid(pLeft));
+        match = 1;
+      }
       plwAdd(&writer, plrColumn(&right), plrPosition(&right), 0, 0);
       plrStep(&left);
       plrStep(&right);
     }
   }
 
-  /* TODO(shess) We could remember the output position, encode the
-  ** docid, then encode the poslist directly into the output.  If no
-  ** match, we back out to the stored output position.  This would
-  ** also reduce the malloc count.
-  */
-  if( match ) plwDlwAdd(&writer, pOut);
+  if( match ){
+    plwTerminate(&writer);
+    plwDestroy(&writer);
+  }
 
   plrDestroy(&left);
   plrDestroy(&right);
-  plwDestroy(&writer);
 }
 
 /* We have two doclists with positions:  pLeft and pRight.
@@ -1246,7 +1337,7 @@ static void docListAndMerge(
     }else if( dlrDocid(&right)<dlrDocid(&left) ){
       dlrStep(&right);
     }else{
-      dlwAdd(&writer, dlrDocid(&left), 0, 0);
+      dlwAdd(&writer, dlrDocid(&left));
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1283,14 +1374,20 @@ static void docListOrMerge(
   dlwInit(&writer, DL_DOCIDS, pOut);
 
   while( !dlrAtEnd(&left) || !dlrAtEnd(&right) ){
-    if( dlrAtEnd(&right) || dlrDocid(&left)<dlrDocid(&right) ){
-      dlwAdd(&writer, dlrDocid(&left), 0, 0);
+    if( dlrAtEnd(&right) ){
+      dlwAdd(&writer, dlrDocid(&left));
       dlrStep(&left);
-    }else if( dlrAtEnd(&left) || dlrDocid(&right)<dlrDocid(&left) ){
-      dlwAdd(&writer, dlrDocid(&right), 0, 0);
+    }else if( dlrAtEnd(&left) ){
+      dlwAdd(&writer, dlrDocid(&right));
+      dlrStep(&right);
+    }else if( dlrDocid(&left)<dlrDocid(&right) ){
+      dlwAdd(&writer, dlrDocid(&left));
+      dlrStep(&left);
+    }else if( dlrDocid(&right)<dlrDocid(&left) ){
+      dlwAdd(&writer, dlrDocid(&right));
       dlrStep(&right);
     }else{
-      dlwAdd(&writer, dlrDocid(&left), 0, 0);
+      dlwAdd(&writer, dlrDocid(&left));
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1328,7 +1425,7 @@ static void docListExceptMerge(
       dlrStep(&right);
     }
     if( dlrAtEnd(&right) || dlrDocid(&left)<dlrDocid(&right) ){
-      dlwAdd(&writer, dlrDocid(&left), 0, 0);
+      dlwAdd(&writer, dlrDocid(&left));
     }
     dlrStep(&left);
   }
@@ -1569,6 +1666,21 @@ struct fulltext_vtab {
   /* The statement used to prepare pLeafSelectStmts. */
 #define LEAF_SELECT \
   "select block from %_segments where rowid between ? and ? order by rowid"
+
+  /* These buffer pending index updates during transactions.
+  ** nPendingData estimates the memory size of the pending data.  It
+  ** doesn't include the hash-bucket overhead, nor any malloc
+  ** overhead.  When nPendingData exceeds kPendingThreshold, the
+  ** buffer is flushed even before the transaction closes.
+  ** pendingTerms stores the data, and is only valid when nPendingData
+  ** is >=0 (nPendingData<0 means pendingTerms has not been
+  ** initialized).  iPrevDocid is the last docid written, used to make
+  ** certain we're inserting in sorted order.
+  */
+  int nPendingData;
+#define kPendingThreshold (1*1024*1024)
+  sqlite_int64 iPrevDocid;
+  fts2Hash pendingTerms;
 };
 
 /*
@@ -1818,13 +1930,14 @@ static void freeStringArray(int nString, const char **pString){
   int i;
 
   for (i=0 ; i < nString ; ++i) {
-    free((void *) pString[i]);
+    if( pString[i]!=NULL ) free((void *) pString[i]);
   }
   free((void *) pString);
 }
 
 /* select * from %_content where rowid = [iRow]
  * The caller must delete the returned array and all strings in it.
+ * null fields will be NULL in the returned array.
  *
  * TODO: Perhaps we should return pointer/length strings here for consistency
  * with other code which uses pointer/length. */
@@ -1848,7 +1961,11 @@ static int content_select(fulltext_vtab *v, sqlite_int64 iRow,
 
   values = (const char **) malloc(v->nColumn * sizeof(const char *));
   for(i=0; i<v->nColumn; ++i){
-    values[i] = string_dup((char*)sqlite3_column_text(s, i));
+    if( sqlite3_column_type(s, i)==SQLITE_NULL ){
+      values[i] = NULL;
+    }else{
+      values[i] = string_dup((char*)sqlite3_column_text(s, i));
+    }
   }
 
   /* We expect only one row.  We must execute another sqlite3_step()
@@ -2048,6 +2165,14 @@ static int segdir_delete(fulltext_vtab *v, int iLevel){
   return sql_single_step_statement(v, SEGDIR_DELETE_STMT, &s);
 }
 
+/* TODO(shess) clearPendingTerms() is far down the file because
+** writeZeroSegment() is far down the file because LeafWriter is far
+** down the file.  Consider refactoring the code to move the non-vtab
+** code above the vtab code so that we don't need this forward
+** reference.
+*/
+static int clearPendingTerms(fulltext_vtab *v);
+
 /*
 ** Free the memory used to contain a fulltext_vtab structure.
 */
@@ -2073,7 +2198,9 @@ static void fulltext_vtab_destroy(fulltext_vtab *v){
     v->pTokenizer->pModule->xDestroy(v->pTokenizer);
     v->pTokenizer = NULL;
   }
-  
+
+  clearPendingTerms(v);
+
   free(v->azColumn);
   for(i = 0; i < v->nColumn; ++i) {
     sqlite3_free(v->azContentColumn[i]);
@@ -2128,7 +2255,7 @@ static int getToken(const char *z, int *tokenType){
       return 0;
     }
     case ' ': case '\t': case '\n': case '\f': case '\r': {
-      for(i=1; isspace(z[i]); i++){}
+      for(i=1; safe_isspace(z[i]); i++){}
       *tokenType = TOKEN_SPACE;
       return i;
     }
@@ -2280,7 +2407,7 @@ static void tokenListToIdList(char **azIn){
   int i, j;
   if( azIn ){
     for(i=0, j=-1; azIn[i]; i++){
-      if( isalnum(azIn[i][0]) || azIn[i][1] ){
+      if( safe_isalnum(azIn[i][0]) || azIn[i][1] ){
         dequoteString(azIn[i]);
         if( j>=0 ){
           azIn[j] = azIn[i];
@@ -2329,11 +2456,11 @@ static char *firstToken(char *zIn, char **pzTail){
 ** s[] is t[].
 */
 static int startsWith(const char *s, const char *t){
-  while( isspace(*s) ){ s++; }
+  while( safe_isspace(*s) ){ s++; }
   while( *t ){
-    if( tolower(*s++)!=tolower(*t++) ) return 0;
+    if( safe_tolower(*s++)!=safe_tolower(*t++) ) return 0;
   }
-  return *s!='_' && !isalnum(*s);
+  return *s!='_' && !safe_isalnum(*s);
 }
 
 /*
@@ -2445,7 +2572,7 @@ static int parseSpec(TableSpec *pSpec, int argc, const char *const*argv,
     char *p;
     pSpec->azContentColumn[i] = sqlite3_mprintf("c%d%s", i, azArg[i]);
     for (p = pSpec->azContentColumn[i]; *p ; ++p) {
-      if( !isalnum(*p) ) *p = '_';
+      if( !safe_isalnum(*p) ) *p = '_';
     }
   }
 
@@ -2546,6 +2673,9 @@ static int constructVtab(
   if( rc!=SQLITE_OK ) goto err;
 
   memset(v->pFulltextStatements, 0, sizeof(v->pFulltextStatements));
+
+  /* Indicate that the buffer is not live. */
+  v->nPendingData = -1;
 
   *ppVTab = &v->base;
   TRACE(("FTS2 Connect %p\n", v));
@@ -2905,10 +3035,10 @@ static int wordBoundary(
     }
   }
   for(i=1; i<=10; i++){
-    if( isspace(zDoc[iBreak-i]) ){
+    if( safe_isspace(zDoc[iBreak-i]) ){
       return iBreak - i + 1;
     }
-    if( isspace(zDoc[iBreak+i]) ){
+    if( safe_isspace(zDoc[iBreak+i]) ){
       return iBreak + i + 1;
     }
   }
@@ -3123,6 +3253,9 @@ static int docListOfTerm(
   /* No phrase search if no position info. */
   assert( pQTerm->nPhrase==0 || DL_DEFAULT!=DL_DOCIDS );
 
+  /* This code should never be called with buffered updates. */
+  assert( v->nPendingData<0 );
+
   dataBufferInit(&left, 0);
   rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm,
                   0<pQTerm->nPhrase ? DL_POSITIONS : DL_DOCIDS, &left);
@@ -3295,6 +3428,9 @@ static int parseQuery(
   return SQLITE_OK;
 }
 
+/* TODO(shess) Refactor the code to remove this forward decl. */
+static int flushPendingTerms(fulltext_vtab *v);
+
 /* Perform a full-text query using the search expression in
 ** zInput[0..nInput-1].  Return a list of matching documents
 ** in pResult.
@@ -3314,6 +3450,18 @@ static int fulltextQuery(
   DataBuffer left, right, or, new;
   int nNot = 0;
   QueryTerm *aTerm;
+
+  /* TODO(shess) Instead of flushing pendingTerms, we could query for
+  ** the relevant term and merge the doclist into what we receive from
+  ** the database.  Wait and see if this is a common issue, first.
+  **
+  ** A good reason not to flush is to not generate update-related
+  ** error codes from here.
+  */
+
+  /* Flush any buffered updates before executing the query. */
+  rc = flushPendingTerms(v);
+  if( rc!=SQLITE_OK ) return rc;
 
   /* TODO(shess) I think that the queryClear() calls below are not
   ** necessary, because fulltextClose() already clears the query.
@@ -3513,10 +3661,11 @@ static int fulltextRowid(sqlite3_vtab_cursor *pCursor, sqlite_int64 *pRowid){
   return SQLITE_OK;
 }
 
-/* Add all terms in [zText] to the given hash table.  If [iColumn] > 0,
- * we also store positions and offsets in the hash table using the given
- * column number. */
-static int buildTerms(fulltext_vtab *v, fts2Hash *terms, sqlite_int64 iDocid,
+/* Add all terms in [zText] to pendingTerms table.  If [iColumn] > 0,
+** we also store positions and offsets in the hash table using that
+** column number.
+*/
+static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
                       const char *zText, int iColumn){
   sqlite3_tokenizer *pTokenizer = v->pTokenizer;
   sqlite3_tokenizer_cursor *pCursor;
@@ -3533,7 +3682,8 @@ static int buildTerms(fulltext_vtab *v, fts2Hash *terms, sqlite_int64 iDocid,
                                                &pToken, &nTokenBytes,
                                                &iStartOffset, &iEndOffset,
                                                &iPosition) ){
-    PLWriter *p;
+    DLCollector *p;
+    int nData;                   /* Size of doclist before our update. */
 
     /* Positions can't be negative; we use -1 as a terminator internally. */
     if( iPosition<0 ){
@@ -3541,14 +3691,24 @@ static int buildTerms(fulltext_vtab *v, fts2Hash *terms, sqlite_int64 iDocid,
       return SQLITE_ERROR;
     }
 
-    p = fts2HashFind(terms, pToken, nTokenBytes);
+    p = fts2HashFind(&v->pendingTerms, pToken, nTokenBytes);
     if( p==NULL ){
-      p = plwNew(iDocid, DL_DEFAULT);
-      fts2HashInsert(terms, pToken, nTokenBytes, p);
+      nData = 0;
+      p = dlcNew(iDocid, DL_DEFAULT);
+      fts2HashInsert(&v->pendingTerms, pToken, nTokenBytes, p);
+
+      /* Overhead for our hash table entry, the key, and the value. */
+      v->nPendingData += sizeof(struct fts2HashElem)+sizeof(*p)+nTokenBytes;
+    }else{
+      nData = p->b.nData;
+      if( p->dlw.iPrevDocid!=iDocid ) dlcNext(p, iDocid);
     }
     if( iColumn>=0 ){
-      plwAdd(p, iColumn, iPosition, iStartOffset, iEndOffset);
+      dlcAddPos(p, iColumn, iPosition, iStartOffset, iEndOffset);
     }
+
+    /* Accumulate data added by dlcNew or dlcNext, and dlcAddPos. */
+    v->nPendingData += p->b.nData-nData;
   }
 
   /* TODO(shess) Check return?  Should this be able to cause errors at
@@ -3560,21 +3720,22 @@ static int buildTerms(fulltext_vtab *v, fts2Hash *terms, sqlite_int64 iDocid,
   return rc;
 }
 
-/* Add doclists for all terms in [pValues] to the hash table [terms]. */
-static int insertTerms(fulltext_vtab *v, fts2Hash *terms, sqlite_int64 iRowid,
-                sqlite3_value **pValues){
+/* Add doclists for all terms in [pValues] to pendingTerms table. */
+static int insertTerms(fulltext_vtab *v, sqlite_int64 iRowid,
+                       sqlite3_value **pValues){
   int i;
   for(i = 0; i < v->nColumn ; ++i){
     char *zText = (char*)sqlite3_value_text(pValues[i]);
-    int rc = buildTerms(v, terms, iRowid, zText, i);
+    int rc = buildTerms(v, iRowid, zText, i);
     if( rc!=SQLITE_OK ) return rc;
   }
   return SQLITE_OK;
 }
 
-/* Add empty doclists for all terms in the given row's content to the hash
- * table [pTerms]. */
-static int deleteTerms(fulltext_vtab *v, fts2Hash *pTerms, sqlite_int64 iRowid){
+/* Add empty doclists for all terms in the given row's content to
+** pendingTerms.
+*/
+static int deleteTerms(fulltext_vtab *v, sqlite_int64 iRowid){
   const char **pValues;
   int i, rc;
 
@@ -3585,7 +3746,7 @@ static int deleteTerms(fulltext_vtab *v, fts2Hash *pTerms, sqlite_int64 iRowid){
   if( rc!=SQLITE_OK ) return rc;
 
   for(i = 0 ; i < v->nColumn; ++i) {
-    rc = buildTerms(v, pTerms, iRowid, pValues[i], -1);
+    rc = buildTerms(v, iRowid, pValues[i], -1);
     if( rc!=SQLITE_OK ) break;
   }
 
@@ -3593,41 +3754,58 @@ static int deleteTerms(fulltext_vtab *v, fts2Hash *pTerms, sqlite_int64 iRowid){
   return SQLITE_OK;
 }
 
+/* TODO(shess) Refactor the code to remove this forward decl. */
+static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid);
+
 /* Insert a row into the %_content table; set *piRowid to be the ID of the
- * new row.  Fill [pTerms] with new doclists for the %_term table. */
+** new row.  Add doclists for terms to pendingTerms.
+*/
 static int index_insert(fulltext_vtab *v, sqlite3_value *pRequestRowid,
-                        sqlite3_value **pValues,
-                        sqlite_int64 *piRowid, fts2Hash *pTerms){
+                        sqlite3_value **pValues, sqlite_int64 *piRowid){
   int rc;
 
   rc = content_insert(v, pRequestRowid, pValues);  /* execute an SQL INSERT */
   if( rc!=SQLITE_OK ) return rc;
+
   *piRowid = sqlite3_last_insert_rowid(v->db);
-  return insertTerms(v, pTerms, *piRowid, pValues);
+  rc = initPendingTerms(v, *piRowid);
+  if( rc!=SQLITE_OK ) return rc;
+
+  return insertTerms(v, *piRowid, pValues);
 }
 
-/* Delete a row from the %_content table; fill [pTerms] with empty doclists
- * to be written to the %_term table. */
-static int index_delete(fulltext_vtab *v, sqlite_int64 iRow, fts2Hash *pTerms){
-  int rc = deleteTerms(v, pTerms, iRow);
+/* Delete a row from the %_content table; add empty doclists for terms
+** to pendingTerms.
+*/
+static int index_delete(fulltext_vtab *v, sqlite_int64 iRow){
+  int rc = initPendingTerms(v, iRow);
   if( rc!=SQLITE_OK ) return rc;
+
+  rc = deleteTerms(v, iRow);
+  if( rc!=SQLITE_OK ) return rc;
+
   return content_delete(v, iRow);  /* execute an SQL DELETE */
 }
 
-/* Update a row in the %_content table; fill [pTerms] with new doclists for the
- * %_term table. */
+/* Update a row in the %_content table; add delete doclists to
+** pendingTerms for old terms not in the new data, add insert doclists
+** to pendingTerms for terms in the new data.
+*/
 static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
-                        sqlite3_value **pValues, fts2Hash *pTerms){
+                        sqlite3_value **pValues){
+  int rc = initPendingTerms(v, iRow);
+  if( rc!=SQLITE_OK ) return rc;
+
   /* Generate an empty doclist for each term that previously appeared in this
    * row. */
-  int rc = deleteTerms(v, pTerms, iRow);
+  rc = deleteTerms(v, iRow);
   if( rc!=SQLITE_OK ) return rc;
 
   rc = content_update(v, pValues, iRow);  /* execute an SQL UPDATE */
   if( rc!=SQLITE_OK ) return rc;
 
   /* Now add positions for terms which appear in the updated row. */
-  return insertTerms(v, pTerms, iRow, pValues);
+  return insertTerms(v, iRow, pValues);
 }
 
 /*******************************************************************/
@@ -4911,6 +5089,9 @@ static int loadSegmentLeaf(fulltext_vtab *v, const char *pData, int nData,
   assert( nData>1 );
   assert( *pData=='\0' );
 
+  /* This code should never be called with buffered updates. */
+  assert( v->nPendingData<0 );
+
   leafReaderInit(pData, nData, &reader);
   while( !leafReaderAtEnd(&reader) ){
     int c = leafReaderTermCmp(&reader, pTerm, nTerm);
@@ -4948,6 +5129,9 @@ static int loadSegment(fulltext_vtab *v, const char *pData, int nData,
   sqlite3_stmt *s = NULL;
 
   assert( nData>1 );
+
+  /* This code should never be called with buffered updates. */
+  assert( v->nPendingData<0 );
 
   /* Process data as an interior node until we reach a leaf. */
   while( *pData!='\0' ){
@@ -5011,6 +5195,9 @@ static int termSelect(fulltext_vtab *v, int iColumn,
   int rc = sql_get_statement(v, SEGDIR_SELECT_ALL_STMT, &s);
   if( rc!=SQLITE_OK ) return rc;
 
+  /* This code should never be called with buffered updates. */
+  assert( v->nPendingData<0 );
+
   dataBufferInit(&doclist, 0);
 
   /* Traverse the segments from oldest to newest so that newer doclist
@@ -5045,7 +5232,7 @@ static int termSelect(fulltext_vtab *v, int iColumn,
 typedef struct TermData {
   const char *pTerm;
   int nTerm;
-  PLWriter *pWriter;
+  DLCollector *pCollector;
 } TermData;
 
 /* Orders TermData elements in strcmp fashion ( <0 for less-than, 0
@@ -5081,7 +5268,7 @@ static int writeZeroSegment(fulltext_vtab *v, fts2Hash *pTerms){
     assert( i<n );
     pData[i].pTerm = fts2HashKey(e);
     pData[i].nTerm = fts2HashKeysize(e);
-    pData[i].pWriter = fts2HashData(e);
+    pData[i].pCollector = fts2HashData(e);
   }
   assert( i==n );
 
@@ -5096,22 +5283,66 @@ static int writeZeroSegment(fulltext_vtab *v, fts2Hash *pTerms){
   leafWriterInit(0, idx, &writer);
   dataBufferInit(&dl, 0);
   for(i=0; i<n; i++){
-    DLWriter dlw;
     dataBufferReset(&dl);
-    dlwInit(&dlw, DL_DEFAULT, &dl);
-    plwDlwAdd(pData[i].pWriter, &dlw);
+    dlcAddDoclist(pData[i].pCollector, &dl);
     rc = leafWriterStep(v, &writer,
                         pData[i].pTerm, pData[i].nTerm, dl.pData, dl.nData);
-    dlwDestroy(&dlw);
     if( rc!=SQLITE_OK ) goto err;
   }
-  dataBufferDestroy(&dl);
   rc = leafWriterFinalize(v, &writer);
 
  err:
+  dataBufferDestroy(&dl);
   free(pData);
   leafWriterDestroy(&writer);
   return rc;
+}
+
+/* If pendingTerms has data, free it. */
+static int clearPendingTerms(fulltext_vtab *v){
+  if( v->nPendingData>=0 ){
+    fts2HashElem *e;
+    for(e=fts2HashFirst(&v->pendingTerms); e; e=fts2HashNext(e)){
+      dlcDelete(fts2HashData(e));
+    }
+    fts2HashClear(&v->pendingTerms);
+    v->nPendingData = -1;
+  }
+  return SQLITE_OK;
+}
+
+/* If pendingTerms has data, flush it to a level-zero segment, and
+** free it.
+*/
+static int flushPendingTerms(fulltext_vtab *v){
+  if( v->nPendingData>=0 ){
+    int rc = writeZeroSegment(v, &v->pendingTerms);
+    clearPendingTerms(v);
+    return rc;
+  }
+  return SQLITE_OK;
+}
+
+/* If pendingTerms is "too big", or docid is out of order, flush it.
+** Regardless, be certain that pendingTerms is initialized for use.
+*/
+static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid){
+  /* TODO(shess) Explore whether partially flushing the buffer on
+  ** forced-flush would provide better performance.  I suspect that if
+  ** we ordered the doclists by size and flushed the largest until the
+  ** buffer was half empty, that would let the less frequent terms
+  ** generate longer doclists.
+  */
+  if( iDocid<=v->iPrevDocid || v->nPendingData>kPendingThreshold ){
+    int rc = flushPendingTerms(v);
+    if( rc!=SQLITE_OK ) return rc;
+  }
+  if( v->nPendingData<0 ){
+    fts2HashInit(&v->pendingTerms, FTS2_HASH_STRING, 1);
+    v->nPendingData = 0;
+  }
+  v->iPrevDocid = iDocid;
+  return SQLITE_OK;
 }
 
 /* This function implements the xUpdate callback; it's the top-level entry
@@ -5119,16 +5350,12 @@ static int writeZeroSegment(fulltext_vtab *v, fts2Hash *pTerms){
 static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
                    sqlite_int64 *pRowid){
   fulltext_vtab *v = (fulltext_vtab *) pVtab;
-  fts2Hash terms;   /* maps term string -> PosList */
   int rc;
-  fts2HashElem *e;
 
   TRACE(("FTS2 Update %p\n", pVtab));
-  
-  fts2HashInit(&terms, FTS2_HASH_STRING, 1);
 
   if( nArg<2 ){
-    rc = index_delete(v, sqlite3_value_int64(ppArg[0]), &terms);
+    rc = index_delete(v, sqlite3_value_int64(ppArg[0]));
   } else if( sqlite3_value_type(ppArg[0]) != SQLITE_NULL ){
     /* An update:
      * ppArg[0] = old rowid
@@ -5142,7 +5369,7 @@ static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
       rc = SQLITE_ERROR;  /* we don't allow changing the rowid */
     } else {
       assert( nArg==2+v->nColumn+1);
-      rc = index_update(v, rowid, &ppArg[2], &terms);
+      rc = index_update(v, rowid, &ppArg[2]);
     }
   } else {
     /* An insert:
@@ -5151,18 +5378,40 @@ static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
      * ppArg[2+v->nColumn] = value for magic column (we ignore this)
      */
     assert( nArg==2+v->nColumn+1);
-    rc = index_insert(v, ppArg[1], &ppArg[2], pRowid, &terms);
+    rc = index_insert(v, ppArg[1], &ppArg[2], pRowid);
   }
-
-  if( rc==SQLITE_OK ) rc = writeZeroSegment(v, &terms);
-
-  /* clean up */
-  for(e=fts2HashFirst(&terms); e; e=fts2HashNext(e)){
-    plwDelete(fts2HashData(e));
-  }
-  fts2HashClear(&terms);
 
   return rc;
+}
+
+static int fulltextSync(sqlite3_vtab *pVtab){
+  TRACE(("FTS2 xSync()\n"));
+  return flushPendingTerms((fulltext_vtab *)pVtab);
+}
+
+static int fulltextBegin(sqlite3_vtab *pVtab){
+  fulltext_vtab *v = (fulltext_vtab *) pVtab;
+  TRACE(("FTS2 xBegin()\n"));
+
+  /* Any buffered updates should have been cleared by the previous
+  ** transaction.
+  */
+  assert( v->nPendingData<0 );
+  return clearPendingTerms(v);
+}
+
+static int fulltextCommit(sqlite3_vtab *pVtab){
+  fulltext_vtab *v = (fulltext_vtab *) pVtab;
+  TRACE(("FTS2 xCommit()\n"));
+
+  /* Buffered updates should have been cleared by fulltextSync(). */
+  assert( v->nPendingData<0 );
+  return clearPendingTerms(v);
+}
+
+static int fulltextRollback(sqlite3_vtab *pVtab){
+  TRACE(("FTS2 xRollback()\n"));
+  return clearPendingTerms((fulltext_vtab *)pVtab);
 }
 
 /*
@@ -5258,10 +5507,10 @@ static const sqlite3_module fulltextModule = {
   /* xColumn       */ fulltextColumn,
   /* xRowid        */ fulltextRowid,
   /* xUpdate       */ fulltextUpdate,
-  /* xBegin        */ 0, 
-  /* xSync         */ 0,
-  /* xCommit       */ 0,
-  /* xRollback     */ 0,
+  /* xBegin        */ fulltextBegin,
+  /* xSync         */ fulltextSync,
+  /* xCommit       */ fulltextCommit,
+  /* xRollback     */ fulltextRollback,
   /* xFindFunction */ fulltextFindFunction,
 };
 

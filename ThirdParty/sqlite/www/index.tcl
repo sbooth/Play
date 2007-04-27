@@ -31,7 +31,9 @@ Features include:
     (2<sup><small>41</small></sup> bytes) in size.</li>
 <li>Strings and BLOBs up to 2 gibibytes (2<sup><small>31</small></sup> bytes)
     in size.</li>
-<li>Small code footprint: less than 250KiB fully configured or less
+<li>Small code footprint: 
+    <a href="http://www.sqlite.org/cvstrac/wiki?p=SizeOfSqlite">
+    less than 250KiB</a> fully configured or less
     than 150KiB with optional features omitted.</li>
 <li><a href="speed.html">Faster</a> than popular client/server database
     engines for most common operations.</li>
@@ -40,7 +42,11 @@ Features include:
     Bindings for many other languages 
     <a href="http://www.sqlite.org/cvstrac/wiki?p=SqliteWrappers">
     available separately.</a></li>
-<li>Well-commented source code with over 95% test coverage.</li>
+<li>Well-commented source code with over 98% test coverage.</li>
+<li>Available as a 
+    <a href="http://www.sqlite.org/cvstrac/wiki?p=TheAmalgamation">
+    single ANSI-C source-code file</a> that you can easily drop into
+    another project.
 <li>Self-contained: no external dependencies.</li>
 <li>Sources are in the <a href="copyright.html">public domain</a>.
     Use for any purpose.</li>
@@ -67,6 +73,36 @@ proc newsitem {date title text} {
   puts "<hr width=\"50%\">"
 }
 
+newsitem {2007-Apr-25} {Version 3.3.17} {
+  This version fixes a bug in the forwards-compatibility logic of SQLite
+  that was causing a database to become unreadable when it should have
+  been read-only.  Upgrade from 3.3.16 only if you plan to deploy into
+  a product that might need to be upgraded in the future.  For day to day
+  use, it probably does not matter.
+}
+
+newsitem {2007-Apr-18} {Version 3.3.16} {
+  Performance improvements added in 3.3.14 but mistakenly turned off
+  in 3.3.15 have been reinstated.  A bug has been fixed that prevented 
+  VACUUM from running if a NULL value was in a UNIQUE column.
+}
+
+newsitem {2007-Apr-09} {Version 3.3.15} {
+  An annoying bug introduced in 3.3.14 has been fixed.  There are
+  also many enhancements to the test suite.  
+}
+
+newsitem {2007-Apr-02} {Version 3.3.14} {
+  This version focuses on performance improvements.  If you recompile
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=TheAmalgamation">
+  the amalgamation</a> using GCC option -O3 (the precompiled binaries
+  use -O2) you may see performance
+  improvements of 35% or more over version 3.3.13 depending on your
+  workload.  This version also
+  adds support for <a href="pragma.html#pragma_locking_mode">
+  exclusive access mode</a>.
+}
+
 newsitem {2007-Feb-13} {Version 3.3.13} {
   This version fixes a subtle bug in the ORDER BY optimizer that can 
   occur when using joins.  There are also a few minor enhancements.
@@ -82,18 +118,8 @@ newsitem {2007-Jan-27} {Version 3.3.12} {
   PRAGMA integrity_check</a> has been enhanced.
 }
 
-newsitem {2007-Jan-22} {Version 3.3.11} {
-  Version 3.3.11 fixes for a few more problems in version 3.3.9 that
-  version 3.3.10 failed to catch.  Upgrading is recommended.
-}
-
-newsitem {2007-Jan-9} {Version 3.3.10} {
-  Version 3.3.10 fixes several bugs that were introduced by the previous
-  release.  Upgrading is recommended.
-}
-
 puts {
 <p align="right"><a href="oldnews.html">Old news...</a></p>
 </td></tr></table>
 }
-footer {$Id: index.tcl,v 1.150 2007/02/13 02:03:24 drh Exp $}
+footer {$Id: index.tcl,v 1.154 2007/04/25 11:42:33 drh Exp $}
