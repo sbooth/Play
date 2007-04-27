@@ -1228,7 +1228,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] + 1];
 	}
 
-	if(NSNotFound != [self playbackIndex] && index >= [self playbackIndex]) {
+	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] + 1];
 	}
 	
@@ -1243,11 +1243,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] - 1];
 	}
 
-/*	if(index == [self playbackIndex]) {
-		[self stop:self];
+	if(index == [self playbackIndex]) {
+//		[self stop:self];
 		[self setPlaybackIndex:NSNotFound];
 	}
-	else*/ if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
+	else if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
 		[self setPlaybackIndex:[self playbackIndex] - 1];
 	}
 
