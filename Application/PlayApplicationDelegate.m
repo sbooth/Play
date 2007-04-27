@@ -182,6 +182,11 @@
 	}
 }
 
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
+{
+	return YES;
+}
+
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
 	BOOL success = [[AudioLibrary library] addFiles:filenames];
