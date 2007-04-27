@@ -61,17 +61,14 @@
 
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	if(nil != album) {
-		f.tag()->setAlbum(TagLib::String([album UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setAlbum(nil == album ? TagLib::String::null : TagLib::String([album UTF8String], TagLib::String::UTF8));
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	if(nil != artist) {
-		f.tag()->setArtist(TagLib::String([artist UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setArtist(nil == artist ? TagLib::String::null : TagLib::String([artist UTF8String], TagLib::String::UTF8));
 	
 	// Composer
+	f.ID3v2Tag()->removeFrames("TCOM");
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	if(nil != composer) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TCOM", TagLib::String::Latin1);
@@ -82,6 +79,7 @@
 	}
 	
 	// Genre
+	f.ID3v2Tag()->removeFrames("TCON");
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	if(nil != genre) {
 		//f.tag()->setGenre(TagLib::String([genre UTF8String], TagLib::String::UTF8));
@@ -105,18 +103,15 @@
 	
 	// Date
 	NSString *date = [metadata valueForKey:MetadataDateKey];
-	if(nil != date) {
-		f.tag()->setYear([date intValue]);
-	}
+	f.tag()->setYear(nil == date ? 0 : [date intValue]);
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
-	if(nil != comment) {
-		f.tag()->setComment(TagLib::String([comment UTF8String], TagLib::String::UTF8));
-	}
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
+	f.tag()->setComment(nil == comment ? TagLib::String::null : TagLib::String([comment UTF8String], TagLib::String::UTF8));
 
 	// Album artist
-	NSString *albumArtist	= [metadata valueForKey:MetadataAlbumArtistKey];
+	f.ID3v2Tag()->removeFrames("TPE2");
+	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
 	if(nil != albumArtist) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TPE2", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
@@ -127,11 +122,10 @@
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	if(nil != title) {
-		f.tag()->setTitle(TagLib::String([title UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setTitle(nil == title ? TagLib::String::null : TagLib::String([title UTF8String], TagLib::String::UTF8));
 	
 	// Track number and total tracks
+	f.ID3v2Tag()->removeFrames("TRCK");
 	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
 	NSNumber *trackTotal	= [metadata valueForKey:MetadataTrackTotalKey];
 	if(nil != trackNumber && nil != trackTotal) {
@@ -154,6 +148,7 @@
 		
 	// Compilation
 	// iTunes uses the TCMP frame for this, which isn't in the standard, but we'll use it for compatibility
+	f.ID3v2Tag()->removeFrames("TCMP");
 	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	if(nil != compilation) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TCMP", TagLib::String::Latin1);
@@ -164,6 +159,7 @@
 	}
 	
 	// Disc number and total discs
+	f.ID3v2Tag()->removeFrames("TPOS");
 	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
 	if(nil != discNumber && nil != discTotal) {
