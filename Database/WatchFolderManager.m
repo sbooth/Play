@@ -434,21 +434,20 @@
 - (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key
 {
 	unsigned index = [_cachedFolders indexOfObject:folder];
-	
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown folder passed to watchFolder:willChangeValueForKey:", @"Errors", @""));
-	
-	[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+		
+	if(NSNotFound != index) {
+		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 - (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key
 {
 	unsigned index = [_cachedFolders indexOfObject:folder];
 	
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown folder passed to watchFolder:didChangeValueForKey:", @"Errors", @""));
-	
-	[self saveWatchFolder:folder];
-	
-	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	if(NSNotFound != index) {
+		[self saveWatchFolder:folder];	
+		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 @end

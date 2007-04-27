@@ -422,20 +422,19 @@
 {
 	unsigned index = [_cachedPlaylists indexOfObject:playlist];
 	
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown playlist passed to playlist:willChangeValueForKey:", @"Errors", @""));
-	
-	[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	if(NSNotFound != index) {	
+		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 - (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key
 {
 	unsigned index = [_cachedPlaylists indexOfObject:playlist];
 	
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown playlist passed to playlist:didChangeValueForKey:", @"Errors", @""));
-
-	[self savePlaylist:playlist];
-	
-	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	if(NSNotFound != index) {
+		[self savePlaylist:playlist];
+		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 @end

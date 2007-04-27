@@ -514,20 +514,19 @@
 {
 	unsigned index = [_cachedStreams indexOfObject:stream];
 	
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown stream passed to stream:willChangeValueForKey:", @"Errors", @""));
-	
-	[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	if(NSNotFound != index) {	
+		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key
 {
 	unsigned	index	= [_cachedStreams indexOfObject:stream];
 
-	NSAssert(NSNotFound != index, NSLocalizedStringFromTable(@"Unknown stream passed to stream:didChangeValueForKey:", @"Errors", @""));
-
-	[self saveStream:stream];
-	
-	[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	if(NSNotFound != index) {
+		[self saveStream:stream];
+		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
+	}
 }
 
 @end
