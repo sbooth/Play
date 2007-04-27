@@ -37,15 +37,15 @@
 		
 	if(NO == f.isValid()) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Musepack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a Musepack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Musepack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Musepack file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-														  code:AudioMetadataReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+										 code:AudioMetadataReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -56,41 +56,41 @@
 	// Album title
 	s = f.tag()->album();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"albumTitle"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataAlbumTitleKey];
 	}
 	
 	// Artist
 	s = f.tag()->artist();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"artist"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataArtistKey];
 	}
 	
 	// Genre
 	s = f.tag()->genre();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"genre"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataGenreKey];
 	}
 	
 	// Year
 	if(0 != f.tag()->year()) {
-		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:@"date"];
+		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:MetadataDateKey];
 	}
 	
 	// Comment
 	s = f.tag()->comment();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"comment"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataCommentKey];
 	}
 	
 	// Track title
 	s = f.tag()->title();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"title"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataTitleKey];
 	}
 	
 	// Track number
 	if(0 != f.tag()->track()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:@"trackNumber"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:MetadataTrackNumberKey];
 	}
 			
 	id3v1Tag = f.ID3v1Tag();

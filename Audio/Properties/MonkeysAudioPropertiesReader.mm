@@ -43,30 +43,30 @@
 	decompressor	= CreateIAPEDecompress(chars, &result);	
 	if(NULL == decompressor || ERROR_SUCCESS != result) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Monkey's Audio file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a Monkey's Audio file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Monkey's Audio file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Monkey's Audio file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 				
 		return NO;
 	}
 
-	propertiesDictionary			= [NSMutableDictionary dictionary];
+	propertiesDictionary = [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:@"fileType"];
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:@"formatType"];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)] forKey:@"totalFrames"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:PropertiesFileTypeKey];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:[NSNumber numberWithLongLong:decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)] forKey:PropertiesTotalFramesKey];
 	//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_BITS_PER_SAMPLE)] forKey:@"bitsPerChannel"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_CHANNELS)] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:@"sampleRate"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS) / decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:@"duration"];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_BITS_PER_SAMPLE)] forKey:PropertiesBitsPerChannelKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_CHANNELS)] forKey:PropertiesChannelsPerFrameKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:PropertiesSampleRateKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS) / decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:PropertiesDurationKey];
 		
 	[self setValue:propertiesDictionary forKey:@"properties"];
 		

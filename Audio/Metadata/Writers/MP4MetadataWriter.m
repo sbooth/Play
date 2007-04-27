@@ -33,65 +33,65 @@
 
 	if(MP4_INVALID_FILE_HANDLE == mp4FileHandle) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MP4 file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MP4 file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an MPEG file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	if(nil != album) {
 		MP4SetMetadataAlbum(mp4FileHandle, [album UTF8String]);
 	}
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	if(nil != artist) {
 		MP4SetMetadataArtist(mp4FileHandle, [artist UTF8String]);
 	}
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	if(nil != composer) {
 		MP4SetMetadataWriter(mp4FileHandle, [composer UTF8String]);
 	}
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	if(nil != genre) {
 		MP4SetMetadataGenre(mp4FileHandle, [genre UTF8String]);
 	}
 	
 	// Year
-	NSString *date = [metadata valueForKey:@"date"];
+	NSString *date = [metadata valueForKey:MetadataDateKey];
 	if(nil != date) {
 		MP4SetMetadataYear(mp4FileHandle, [date UTF8String]);
 	}
 	
 	// Comment
-	NSString *comment = [metadata valueForKey:@"comment"];
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
 	if(nil != comment) {
 		MP4SetMetadataComment(mp4FileHandle, [comment UTF8String]);
 	}
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	if(nil != title) {
 		MP4SetMetadataName(mp4FileHandle, [title UTF8String]);
 	}
 	
 	// Track number
-	NSNumber *trackNumber	= [metadata valueForKey:@"trackNumber"];
-	NSNumber *trackTotal	= [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
+	NSNumber *trackTotal	= [metadata valueForKey:MetadataTrackTotalKey];
 	if(nil != trackNumber && nil != trackTotal) {
 		MP4SetMetadataTrack(mp4FileHandle, [trackNumber unsignedIntValue], [trackTotal unsignedIntValue]);
 	}
@@ -103,8 +103,8 @@
 	}
 	
 	// Disc number
-	NSNumber *discNumber	= [metadata valueForKey:@"discNumber"];
-	NSNumber *discTotal		= [metadata valueForKey:@"discTotal"];
+	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
+	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
 	if(nil != discNumber && nil != discTotal) {
 		MP4SetMetadataDisk(mp4FileHandle, [discNumber unsignedIntValue], [discTotal unsignedIntValue]);
 	}
@@ -116,7 +116,7 @@
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"compilation"];
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	if(nil != compilation) {
 		MP4SetMetadataCompilation(mp4FileHandle, [compilation boolValue]);
 	}
@@ -131,15 +131,15 @@
 	result = MP4Close(mp4FileHandle);
 	if(NO == result) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MP4 file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MP4 file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;

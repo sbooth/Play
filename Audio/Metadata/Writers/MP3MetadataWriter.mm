@@ -42,15 +42,15 @@
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MPEG file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MPEG file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an MPEG file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -60,19 +60,19 @@
 	(TagLib::ID3v2::FrameFactory::instance())->setDefaultTextEncoding(TagLib::String::UTF8);
 
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	if(nil != album) {
 		f.tag()->setAlbum(TagLib::String([album UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	if(nil != artist) {
 		f.tag()->setArtist(TagLib::String([artist UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	if(nil != composer) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TCOM", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
@@ -82,7 +82,7 @@
 	}
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	if(nil != genre) {
 		//f.tag()->setGenre(TagLib::String([genre UTF8String], TagLib::String::UTF8));
 		
@@ -104,26 +104,36 @@
 	}
 	
 	// Date
-	NSString *date = [metadata valueForKey:@"date"];
+	NSString *date = [metadata valueForKey:MetadataDateKey];
 	if(nil != date) {
 		f.tag()->setYear([date intValue]);
 	}
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:@"comment"];
+	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
 	if(nil != comment) {
 		f.tag()->setComment(TagLib::String([comment UTF8String], TagLib::String::UTF8));
 	}
+
+	// Album artist
+	NSString *albumArtist	= [metadata valueForKey:MetadataAlbumArtistKey];
+	if(nil != albumArtist) {
+		frame = new TagLib::ID3v2::TextIdentificationFrame("TPE2", TagLib::String::Latin1);
+		NSAssert(NULL != frame, @"Unable to allocate memory.");
+		
+		frame->setText(TagLib::String([albumArtist UTF8String], TagLib::String::UTF8));
+		f.ID3v2Tag()->addFrame(frame);
+	}
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	if(nil != title) {
 		f.tag()->setTitle(TagLib::String([title UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Track number and total tracks
-	NSNumber *trackNumber	= [metadata valueForKey:@"trackNumber"];
-	NSNumber *trackTotal		= [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
+	NSNumber *trackTotal	= [metadata valueForKey:MetadataTrackTotalKey];
 	if(nil != trackNumber && nil != trackTotal) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TRCK", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
@@ -144,7 +154,7 @@
 		
 	// Compilation
 	// iTunes uses the TCMP frame for this, which isn't in the standard, but we'll use it for compatibility
-	NSNumber *compilation = [metadata valueForKey:@"compilation"];
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	if(nil != compilation) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TCMP", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
@@ -154,8 +164,8 @@
 	}
 	
 	// Disc number and total discs
-	NSNumber *discNumber	= [metadata valueForKey:@"discNumber"];
-	NSNumber *discTotal		= [metadata valueForKey:@"discTotal"];
+	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
+	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
 	if(nil != discNumber && nil != discTotal) {
 		frame = new TagLib::ID3v2::TextIdentificationFrame("TPOS", TagLib::String::Latin1);
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
@@ -198,14 +208,14 @@
 		if(nil != error) {
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			NSString				*path				= [_url path];
+						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 				
 		return NO;

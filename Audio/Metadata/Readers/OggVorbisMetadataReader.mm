@@ -35,15 +35,15 @@
 
 	if(NO == f.isValid()) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Ogg Vorbis file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an Ogg Vorbis file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-														  code:AudioMetadataReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+										 code:AudioMetadataReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -61,85 +61,85 @@
 		tag = "ALBUM";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"albumTitle"];
+			[metadataDictionary setValue:value forKey:MetadataAlbumTitleKey];
 		}
 		
 		tag = "ARTIST";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"artist"];
+			[metadataDictionary setValue:value forKey:MetadataArtistKey];
 		}
 		
 		tag = "GENRE";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"genre"];
+			[metadataDictionary setValue:value forKey:MetadataGenreKey];
 		}
 		
 		tag = "DATE";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"date"];
+			[metadataDictionary setValue:value forKey:MetadataDateKey];
 		}
 		
 		tag = "DESCRIPTION";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"comment"];
+			[metadataDictionary setValue:value forKey:MetadataCommentKey];
 		}
 		
 		tag = "TITLE";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"title"];
+			[metadataDictionary setValue:value forKey:MetadataTitleKey];
 		}
 		
 		tag = "TRACKNUMBER";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"trackNumber"];
+			[metadataDictionary setValue:numberValue forKey:MetadataTrackNumberKey];
 		}
 		
 		tag = "COMPOSER";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"composer"];
+			[metadataDictionary setValue:value forKey:MetadataComposerKey];
 		}
 		
 		tag = "TRACKTOTAL";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"trackTotal"];
+			[metadataDictionary setValue:numberValue forKey:MetadataTrackTotalKey];
 		}
 		
 		tag = "DISCNUMBER";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"discNumber"];
+			[metadataDictionary setValue:numberValue forKey:MetadataDiscNumberKey];
 		}
 		
 		tag = "DISCTOTAL";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"discTotal"];
+			[metadataDictionary setValue:numberValue forKey:MetadataDiscTotalKey];
 		}
 		
 		tag = "COMPILATION";
 		if(fieldList.contains(tag)) {
 			numberValue = [NSNumber numberWithBool:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
-			[metadataDictionary setValue:numberValue forKey:@"compilation"];
+			[metadataDictionary setValue:numberValue forKey:MetadataCompilationKey];
 		}
 		
 		tag = "ISRC";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"isrc"];
+			[metadataDictionary setValue:value forKey:MetadataISRCKey];
 		}					
 		
 		tag = "MCN";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:value forKey:@"mcn"];
+			[metadataDictionary setValue:value forKey:MetadataMCNKey];
 		}					
 	}		
 	

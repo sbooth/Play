@@ -41,15 +41,15 @@
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MP3 file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MP3 file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an MPEG file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-														  code:AudioMetadataReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+										 code:AudioMetadataReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 	
 		return NO;
@@ -60,41 +60,41 @@
 	// Album title
 	s = f.tag()->album();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"albumTitle"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataAlbumTitleKey];
 	}
 	
 	// Artist
 	s = f.tag()->artist();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"artist"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataArtistKey];
 	}
 	
 	// Genre
 	s = f.tag()->genre();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"genre"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataGenreKey];
 	}
 	
 	// Year
 	if(0 != f.tag()->year()) {
-		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:@"date"];
+		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:MetadataDateKey];
 	}
 	
 	// Comment
 	s = f.tag()->comment();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"comment"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataCommentKey];
 	}
 	
 	// Track title
 	s = f.tag()->title();
 	if(false == s.isNull()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:@"title"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataTitleKey];
 	}
 	
 	// Track number
 	if(0 != f.tag()->track()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:@"trackNumber"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:MetadataTrackNumberKey];
 	}
 			
 	id3v2tag = f.ID3v2Tag();
@@ -104,7 +104,13 @@
 		// Extract composer if present
 		TagLib::ID3v2::FrameList frameList = id3v2tag->frameListMap()["TCOM"];
 		if(NO == frameList.isEmpty()) {
-			[metadataDictionary setValue:[NSString stringWithUTF8String:frameList.front()->toString().toCString(true)] forKey:@"composer"];
+			[metadataDictionary setValue:[NSString stringWithUTF8String:frameList.front()->toString().toCString(true)] forKey:MetadataComposerKey];
+		}
+
+		// Extract album artist
+		frameList = id3v2tag->frameListMap()["TPE2"];
+		if(NO == frameList.isEmpty()) {
+			[metadataDictionary setValue:[NSString stringWithUTF8String:frameList.front()->toString().toCString(true)] forKey:MetadataAlbumArtistKey];
 		}
 		
 		// Extract total tracks if present
@@ -118,11 +124,11 @@
 				trackNum		= [trackString substringToIndex:range.location];
 				totalTracks		= [trackString substringFromIndex:range.location + 1];
 				
-				[metadataDictionary setValue:[NSNumber numberWithInt:[trackNum intValue]] forKey:@"trackNumber"];
-				[metadataDictionary setValue:[NSNumber numberWithInt:[totalTracks intValue]] forKey:@"trackTotal"];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[trackNum intValue]] forKey:MetadataTrackNumberKey];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[totalTracks intValue]] forKey:MetadataTrackTotalKey];
 			}
 			else if(0 != [trackString length]) {
-				[metadataDictionary setValue:[NSNumber numberWithInt:[trackString intValue]] forKey:@"trackNumber"];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[trackString intValue]] forKey:MetadataTrackNumberKey];
 			}
 		}
 		
@@ -137,11 +143,11 @@
 				discNum			= [discString substringToIndex:range.location];
 				totalDiscs		= [discString substringFromIndex:range.location + 1];
 				
-				[metadataDictionary setValue:[NSNumber numberWithInt:[discNum intValue]] forKey:@"discNumber"];
-				[metadataDictionary setValue:[NSNumber numberWithInt:[totalDiscs intValue]] forKey:@"discTotal"];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[discNum intValue]] forKey:MetadataDiscNumberKey];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[totalDiscs intValue]] forKey:MetadataDiscTotalKey];
 			}
 			else if(0 != [discString length]) {
-				[metadataDictionary setValue:[NSNumber numberWithInt:[discString intValue]] forKey:@"discNumber"];
+				[metadataDictionary setValue:[NSNumber numberWithInt:[discString intValue]] forKey:MetadataDiscNumberKey];
 			}
 		}
 		
@@ -160,7 +166,7 @@
 		frameList = id3v2tag->frameListMap()["TCMP"];
 		if(NO == frameList.isEmpty()) {
 			// It seems that the presence of this frame indicates a compilation
-			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"compilation"];
+			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:MetadataCompilationKey];
 		}			
 	}
 	

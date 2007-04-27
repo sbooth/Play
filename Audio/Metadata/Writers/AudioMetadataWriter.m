@@ -55,25 +55,25 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
 
 			if(nil != error) {
-				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 				
 				switch(type) {
 					case kOggStreamTypeInvalid:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
-						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Ogg file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an Ogg file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					case kOggStreamTypeUnknown:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The type of Ogg stream in the file \"%@\" could not be determined.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-						[errorDictionary setObject:@"Unknown Ogg stream type" forKey:NSLocalizedFailureReasonErrorKey];
-						[errorDictionary setObject:@"This data format is not supported for the Ogg container." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The type of Ogg data in the file \"%@\" could not be determined.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"Unknown Ogg file type", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"This data format is not supported for the Ogg container.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 						
 					default:
-						[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg stream.", [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-						[errorDictionary setObject:@"Not an Ogg stream" forKey:NSLocalizedFailureReasonErrorKey];
-						[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+						[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Ogg file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an Ogg file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+						[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 						break;
 				}
 				

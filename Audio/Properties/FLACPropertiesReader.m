@@ -32,38 +32,37 @@
 	FLAC__StreamMetadata			*block				= NULL;
 	NSMutableDictionary				*propertiesDictionary;
 				
-	chain							= FLAC__metadata_chain_new();
-	
+	chain = FLAC__metadata_chain_new();
 	NSAssert(NULL != chain, @"Unable to allocate memory.");
 	
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
 			switch(FLAC__metadata_chain_status(chain)) {
 				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 					
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains bad metadata.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 					
 				default:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 			}
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		FLAC__metadata_chain_delete(chain);
@@ -71,14 +70,13 @@
 		return NO;
 	}
 	
-	iterator					= FLAC__metadata_iterator_new();
-	
+	iterator = FLAC__metadata_iterator_new();
 	NSAssert(NULL != iterator, @"Unable to allocate memory.");
 	
 	FLAC__metadata_iterator_init(iterator, chain);
 	
 	do {
-		block					= FLAC__metadata_iterator_get_block(iterator);
+		block = FLAC__metadata_iterator_get_block(iterator);
 		
 		if(NULL == block) {
 			break;
@@ -86,15 +84,15 @@
 		
 		switch(block->type) {					
 			case FLAC__METADATA_TYPE_STREAMINFO:
-				propertiesDictionary			= [NSMutableDictionary dictionary];
+				propertiesDictionary = [NSMutableDictionary dictionary];
 				
-				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:@"fileType"];
-				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:@"formatType"];
-				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:@"totalFrames"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:@"bitsPerChannel"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:@"channelsPerFrame"];
-				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:@"sampleRate"];				
-				[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)block->data.stream_info.total_samples / block->data.stream_info.sample_rate] forKey:@"duration"];
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:PropertiesFileTypeKey];
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:PropertiesFormatTypeKey];
+				[propertiesDictionary setValue:[NSNumber numberWithLongLong:block->data.stream_info.total_samples] forKey:PropertiesTotalFramesKey];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:PropertiesBitsPerChannelKey];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:PropertiesChannelsPerFrameKey];
+				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:PropertiesSampleRateKey];				
+				[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)block->data.stream_info.total_samples / block->data.stream_info.sample_rate] forKey:PropertiesDurationKey];
 				
 				[self setValue:propertiesDictionary forKey:@"properties"];
 				break;

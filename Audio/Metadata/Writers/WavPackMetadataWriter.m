@@ -35,113 +35,113 @@
 
 	if(NULL == wpc) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid WavPack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a WavPack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid WavPack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a WavPack file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	WavpackDeleteTagItem(wpc, "ALBUM");
 	if(nil != album) {
 		WavpackAppendTagItem(wpc, "ALBUM", [album UTF8String], strlen([album UTF8String]));
 	}
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	WavpackDeleteTagItem(wpc, "ARTIST");
 	if(nil != artist) {
 		WavpackAppendTagItem(wpc, "ARTIST", [artist UTF8String], strlen([artist UTF8String]));
 	}
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	WavpackDeleteTagItem(wpc, "COMPOSER");
 	if(nil != composer) {
 		WavpackAppendTagItem(wpc, "COMPOSER", [composer UTF8String], strlen([composer UTF8String]));
 	}
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	WavpackDeleteTagItem(wpc, "GENRE");
 	if(nil != genre) {
 		WavpackAppendTagItem(wpc, "GENRE", [genre UTF8String], strlen([genre UTF8String]));
 	}
 	
 	// Date
-	NSString *year = [metadata valueForKey:@"date"];
+	NSString *year = [metadata valueForKey:MetadataDateKey];
 	WavpackDeleteTagItem(wpc, "YEAR");
 	if(nil != year) {
 		WavpackAppendTagItem(wpc, "YEAR", [year UTF8String], strlen([year UTF8String]));
 	}
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:@"comment"];
+	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
 	WavpackDeleteTagItem(wpc, "COMMENT");
 	if(nil != comment) {
 		WavpackAppendTagItem(wpc, "COMMENT", [comment UTF8String], strlen([comment UTF8String]));
 	}
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	WavpackDeleteTagItem(wpc, "TITLE");
 	if(nil != title) {
 		WavpackAppendTagItem(wpc, "TITLE", [title UTF8String], strlen([title UTF8String]));
 	}
 	
 	// Track number
-	NSNumber *trackNumber	= [metadata valueForKey:@"trackNumber"];
+	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
 	WavpackDeleteTagItem(wpc, "TRACK");
 	if(nil != trackNumber) {
 		WavpackAppendTagItem(wpc, "TRACK", [[trackNumber stringValue] UTF8String], strlen([[trackNumber stringValue] UTF8String]));
 	}
 	
 	// Track total
-	NSNumber *trackTotal		= [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackTotal		= [metadata valueForKey:MetadataTrackTotalKey];
 	WavpackDeleteTagItem(wpc, "TRACKTOTAL");
 	if(nil != trackTotal) {
 		WavpackAppendTagItem(wpc, "TRACKTOTAL", [[trackTotal stringValue] UTF8String], strlen([[trackTotal stringValue] UTF8String]));
 	}
 	
 	// Disc number
-	NSNumber *discNumber	= [metadata valueForKey:@"discNumber"];
+	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	WavpackDeleteTagItem(wpc, "DISCNUMBER");
 	if(nil != discNumber) {
 		WavpackAppendTagItem(wpc, "DISCNUMBER", [[discNumber stringValue] UTF8String], strlen([[discNumber stringValue] UTF8String]));
 	}
 	
 	// Discs in set
-	NSNumber *discTotal	= [metadata valueForKey:@"discTotal"];
+	NSNumber *discTotal	= [metadata valueForKey:MetadataDiscTotalKey];
 	WavpackDeleteTagItem(wpc, "DISCTOTAL");
 	if(nil != discTotal) {
 		WavpackAppendTagItem(wpc, "DISCTOTAL", [[discTotal stringValue] UTF8String], strlen([[discTotal stringValue] UTF8String]));
 	}
 	
 	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:@"compilation"];
+	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
 	WavpackDeleteTagItem(wpc, "COMPILATION");
 	if(nil != compilation) {
 		WavpackAppendTagItem(wpc, "COMPILATION", [[compilation stringValue] UTF8String], strlen([[compilation stringValue] UTF8String]));
 	}
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:@"isrc"];
+	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
 	WavpackDeleteTagItem(wpc, "ISRC");
 	if(nil != isrc) {
 		WavpackAppendTagItem(wpc, "ISRC", [isrc UTF8String], strlen([isrc UTF8String]));
 	}
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:@"mcn"];
+	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
 	WavpackDeleteTagItem(wpc, "MCN");
 	if(nil != mcn) {
 		WavpackAppendTagItem(wpc, "MCN", [mcn UTF8String], strlen([mcn UTF8String]));
@@ -153,14 +153,14 @@
 		if(nil != error) {
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			NSString				*path				= [_url path];
+						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid WavPack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid WavPack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a WavPack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -172,13 +172,13 @@
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			NSString				*path				= [_url path];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid WavPack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a WavPack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid WavPack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;

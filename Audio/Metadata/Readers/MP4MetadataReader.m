@@ -32,15 +32,15 @@
 	
 	if(MP4_INVALID_FILE_HANDLE == mp4FileHandle) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid MP4 file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an MP4 file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an MPEG file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-														  code:AudioMetadataReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+										 code:AudioMetadataReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -59,67 +59,67 @@
 	// Album title
 	MP4GetMetadataAlbum(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"albumTitle"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataAlbumTitleKey];
 	}
 	
 	// Artist
 	MP4GetMetadataArtist(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"artist"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataArtistKey];
 	}
 	
 	// Genre
 	MP4GetMetadataGenre(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"genre"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataGenreKey];
 	}
 	
 	// Year
 	MP4GetMetadataYear(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"date"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataDateKey];
 	}
 	
 	// Composer
 	MP4GetMetadataWriter(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"composer"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataComposerKey];
 	}
 	
 	// Comment
 	MP4GetMetadataComment(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"comment"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataCommentKey];
 	}
 	
 	// Track title
 	MP4GetMetadataName(mp4FileHandle, &s);
 	if(NULL != s) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:@"title"];
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataTitleKey];
 	}
 	
 	// Track number
 	MP4GetMetadataTrack(mp4FileHandle, &trackNumber, &totalTracks);
 	if(0 != trackNumber) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:trackNumber] forKey:@"trackNumber"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:trackNumber] forKey:MetadataTrackNumberKey];
 	}
 	if(0 != totalTracks) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:totalTracks] forKey:@"trackTotal"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:totalTracks] forKey:MetadataTrackTotalKey];
 	}
 	
 	// Disc number
 	MP4GetMetadataDisk(mp4FileHandle, &discNumber, &discTotal);
 	if(0 != discNumber) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:discNumber] forKey:@"discNumber"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:discNumber] forKey:MetadataDiscNumberKey];
 	}
 	if(0 != discTotal) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:discTotal] forKey:@"discTotal"];
+		[metadataDictionary setValue:[NSNumber numberWithInt:discTotal] forKey:MetadataDiscTotalKey];
 	}
 	
 	// Compilation
 	MP4GetMetadataCompilation(mp4FileHandle, &compilation);
 	if(compilation) {
-		[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:@"compilation"];
+		[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:MetadataCompilationKey];
 	}
 	
 	// Album art

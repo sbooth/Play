@@ -36,15 +36,15 @@
 	wpc = WavpackOpenFileInput([path fileSystemRepresentation], errorMsg, 0, 0);
 	if(NULL == wpc) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid WavPack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a WavPack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid WavPack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a WavPack file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -52,13 +52,13 @@
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:@"fileType"];
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:@"formatType"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetNumSamples(wpc)] forKey:@"totalFrames"];
-	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetBitsPerSample(wpc)] forKey:@"bitsPerChannel"];
-	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetNumChannels(wpc)] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetSampleRate(wpc)] forKey:@"sampleRate"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)WavpackGetNumSamples(wpc) / WavpackGetSampleRate(wpc)] forKey:@"duration"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:PropertiesFileTypeKey];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetNumSamples(wpc)] forKey:PropertiesTotalFramesKey];
+	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetBitsPerSample(wpc)] forKey:PropertiesBitsPerChannelKey];
+	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetNumChannels(wpc)] forKey:PropertiesChannelsPerFrameKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetSampleRate(wpc)] forKey:PropertiesSampleRateKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)WavpackGetNumSamples(wpc) / WavpackGetSampleRate(wpc)] forKey:PropertiesDurationKey];
 	
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];

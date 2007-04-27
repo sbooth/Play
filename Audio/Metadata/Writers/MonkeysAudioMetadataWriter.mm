@@ -60,15 +60,15 @@ static void setField(CAPETag		*f,
 	
 	if(NULL == f) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Monkey's Audio file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a Monkey's Audio file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Monkey's Audio file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Monkey's Audio file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		free(chars);
@@ -77,59 +77,59 @@ static void setField(CAPETag		*f,
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	setField(f, "ALBUM", album);
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	setField(f, "ARTIST", artist);
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	setField(f, "COMPOSER", composer);
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	setField(f, "GENRE", genre);
 	
 	// Date
-	NSString *year = [metadata valueForKey:@"date"];
+	NSString *year = [metadata valueForKey:MetadataDateKey];
 	setField(f, "YEAR", year);
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:@"comment"];
+	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
 	setField(f, "COMMENT", comment);
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	setField(f, "TITLE", title);
 	
 	// Track number
-	NSNumber *trackNumber	= [metadata valueForKey:@"trackNumber"];
+	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
 	setField(f, "TRACK", [trackNumber stringValue]);
 	
 	// Track total
-	NSNumber *trackTotal		= [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackTotal		= [metadata valueForKey:MetadataTrackTotalKey];
 	setField(f, "TRACKTOTAL", [trackTotal stringValue]);
 	
 	// Disc number
-	NSNumber *discNumber	= [metadata valueForKey:@"discNumber"];
+	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	setField(f, "DISCNUMBER", [discNumber stringValue]);
 	
 	// Discs in set
-	NSNumber *discTotal	= [metadata valueForKey:@"discTotal"];
+	NSNumber *discTotal	= [metadata valueForKey:MetadataDiscTotalKey];
 	setField(f, "DISCTOTAL", [discTotal stringValue]);
 	
 	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:@"compilation"];
+	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
 	setField(f, "COMPILATION", [compilation stringValue]);
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:@"isrc"];
+	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
 	setField(f, "ISRC", isrc);
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:@"mcn"];
+	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
 	setField(f, "MCN", mcn);
 	
 	result = f->Save();
@@ -137,14 +137,14 @@ static void setField(CAPETag		*f,
 		if(nil != error) {
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			NSString				*path				= [_url path];
+						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Monkey's Audio file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Monkey's Audio file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Monkey's Audio file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a Monkey's Audio file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 
 		delete f;

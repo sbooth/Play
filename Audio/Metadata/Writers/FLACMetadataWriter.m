@@ -53,31 +53,31 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
 			switch(FLAC__metadata_chain_status(chain)) {
 				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
-									
+					
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains invalid metadata.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
-										
+					
 				default:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 			}
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		FLAC__metadata_chain_delete(chain);
@@ -117,13 +117,13 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 				NSString				*path				= [_url path];
 				
-				[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-				[errorDictionary setObject:@"Unable to write metadata" forKey:NSLocalizedFailureReasonErrorKey];
-				[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 				
-				*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-															  code:AudioMetadataWriterInputOutputError 
-														  userInfo:errorDictionary];
+				*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+											 code:AudioMetadataWriterInputOutputError 
+										 userInfo:errorDictionary];
 			}
 			
 			FLAC__metadata_chain_delete(chain);
@@ -137,85 +137,85 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	if(nil != album) {
 		setVorbisComment(block, @"ALBUM", album);
 	}
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	if(nil != artist) {
 		setVorbisComment(block, @"ARTIST", artist);
 	}
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	if(nil != composer) {
 		setVorbisComment(block, @"COMPOSER", composer);
 	}
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	if(nil != genre) {
 		setVorbisComment(block, @"GENRE", genre);
 	}
 	
 	// Date
-	NSString *date = [metadata valueForKey:@"date"];
+	NSString *date = [metadata valueForKey:MetadataDateKey];
 	if(nil != date) {
 		setVorbisComment(block, @"DATE", date);
 	}
 	
 	// Comment
-	NSString *comment = [metadata valueForKey:@"comment"];
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
 	if(nil != comment) {
 		setVorbisComment(block, @"DESCRIPTION", comment);
 	}
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	if(nil != title) {
 		setVorbisComment(block, @"TITLE", title);
 	}
 	
 	// Track number
-	NSNumber *trackNumber = [metadata valueForKey:@"trackNumber"];
+	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
 	if(nil != trackNumber) {
 		setVorbisComment(block, @"TRACKNUMBER", [trackNumber stringValue]);
 	}
 	
 	// Total tracks
-	NSNumber *trackTotal = [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
 	if(nil != trackTotal) {
 		setVorbisComment(block, @"TRACKTOTAL", [trackTotal stringValue]);
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"compilation"];
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	if(nil != compilation) {
 		setVorbisComment(block, @"COMPILATION", [compilation stringValue]);
 	}
 	
 	// Disc number
-	NSNumber *discNumber = [metadata valueForKey:@"discNumber"];
+	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
 	if(nil != discNumber) {
 		setVorbisComment(block, @"DISCNUMBER", [discNumber stringValue]);
 	}
 	
 	// Discs in set
-	NSNumber *discTotal = [metadata valueForKey:@"discTotal"];
+	NSNumber *discTotal = [metadata valueForKey:MetadataDiscTotalKey];
 	if(nil != discTotal) {
 		setVorbisComment(block, @"DISCTOTAL", [discTotal stringValue]);
 	}
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:@"isrc"];
+	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
 	if(nil != isrc) {
 		setVorbisComment(block, @"ISRC", isrc);
 	}
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:@"mcn"];
+	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
 	if(nil != mcn) {
 		setVorbisComment(block, @"MCN", mcn);
 	}
@@ -227,13 +227,13 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 			NSString				*path				= [_url path];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unable to write metadata" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterInputOutputError 										
+									 userInfo:errorDictionary];
 		}
 
 		FLAC__metadata_chain_delete(chain);

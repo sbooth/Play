@@ -39,46 +39,46 @@
 	NSMutableDictionary				*propertiesDictionary;
 	
 	// Open the input file
-	path							= [[self valueForKey:StreamURLKey] path];
-	result							= FSPathMakeRef((const UInt8 *)[[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], &ref, NULL);
+	path		= [[self valueForKey:StreamURLKey] path];
+	result		= FSPathMakeRef((const UInt8 *)[[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], &ref, NULL);
 	
 	if(noErr != result) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be found.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Not Found", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file may have been renamed or deleted, or exist on removable media.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderInputOutputError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
 	}
 	
-	result							= ExtAudioFileOpen(&ref, &extAudioFile);
+	result = ExtAudioFileOpen(&ref, &extAudioFile);
 	
 	if(noErr != result) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The format of the file \"%@\" was not recognized.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unknown File Format" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" was not recognized.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Recognized", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderInputOutputError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
 	}
 	
 	// Query file type
-	specifierSize					= sizeof(AudioStreamBasicDescription);
-	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
+	specifierSize		= sizeof(AudioStreamBasicDescription);
+	result				= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
 	// This doesn't work how I would expect it to
@@ -95,42 +95,42 @@
 	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbdCopy, &specifierSize, &fileFormat);
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
 	
-	specifierSize					= sizeof(totalFrames);
-	result							= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
+	specifierSize		= sizeof(totalFrames);
+	result				= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
 	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
 		
-	propertiesDictionary			= [NSMutableDictionary dictionary];
+	propertiesDictionary = [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:[fileFormat autorelease] forKey:@"formatType"];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:@"totalFrames"];
+	[propertiesDictionary setValue:[fileFormat autorelease] forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
 	if(0 != asbd.mBitsPerChannel) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:@"bitsPerChannel"];
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:PropertiesBitsPerChannelKey];
 	}
 	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData & asbd.mFormatFlags) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
 		
 	}
 	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData & asbd.mFormatFlags) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:20] forKey:@"bitsPerChannel"];
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:20] forKey:PropertiesBitsPerChannelKey];
 		
 	}
 	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData & asbd.mFormatFlags) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:24] forKey:@"bitsPerChannel"];
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:24] forKey:PropertiesBitsPerChannelKey];
 		
 	}
 	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData & asbd.mFormatFlags) {
-		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:32] forKey:@"bitsPerChannel"];
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:32] forKey:PropertiesBitsPerChannelKey];
 		
 	}
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:@"sampleRate"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / asbd.mSampleRate] forKey:@"duration"];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:PropertiesChannelsPerFrameKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:PropertiesSampleRateKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / asbd.mSampleRate] forKey:PropertiesDurationKey];
 //	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:isVBR] forKey:@"isVBR"];
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
 	// Close the output file
-	result		= ExtAudioFileDispose(extAudioFile);
+	result = ExtAudioFileDispose(extAudioFile);
 	NSAssert1(noErr == result, @"ExtAudioFileDispose failed: %@", UTCreateStringForOSType(result));
 	
 	return YES;

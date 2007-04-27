@@ -34,100 +34,100 @@
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Ogg Vorbis file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not an Ogg Vorbis file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
 	}
 		
 	// Album title
-	NSString *album = [metadata valueForKey:@"albumTitle"];
+	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	if(nil != album) {
 		f.tag()->addField("ALBUM", TagLib::String([album UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:@"artist"];
+	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	if(nil != artist) {
 		f.tag()->addField("ARTIST", TagLib::String([artist UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:@"composer"];
+	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	if(nil != composer) {
 		f.tag()->addField("COMPOSER", TagLib::String([composer UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:@"genre"];
+	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	if(nil != genre) {
 		f.tag()->addField("GENRE", TagLib::String([genre UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Date
-	NSString *date = [metadata valueForKey:@"date"];
+	NSString *date = [metadata valueForKey:MetadataDateKey];
 	if(nil != date) {
 		f.tag()->addField("DATE", TagLib::String([date UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:@"comment"];
+	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
 	if(nil != comment) {
 		f.tag()->addField("DESCRIPTION", TagLib::String([comment UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Track title
-	NSString *title = [metadata valueForKey:@"title"];
+	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	if(nil != title) {
 		f.tag()->addField("TITLE", TagLib::String([title UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Track number
-	NSNumber *trackNumber = [metadata valueForKey:@"trackNumber"];
+	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
 	if(nil != trackNumber) {
 		f.tag()->addField("TRACKNUMBER", TagLib::String([[trackNumber stringValue] UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Total tracks
-	NSNumber *trackTotal = [metadata valueForKey:@"trackTotal"];
+	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
 	if(nil != trackTotal) {
 		f.tag()->addField("TRACKTOTAL", TagLib::String([[trackTotal stringValue] UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:@"compilation"];
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	if(nil != compilation) {
 		f.tag()->addField("COMPILATION", TagLib::String([[compilation stringValue] UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Disc number
-	NSNumber *discNumber = [metadata valueForKey:@"discNumber"];
+	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
 	if(nil != discNumber) {
 		f.tag()->addField("DISCNUMBER", TagLib::String([[discNumber stringValue] UTF8String], TagLib::String::UTF8));
 	}
 	
 	// Discs in set
-	NSNumber *discTotal = [metadata valueForKey:@"discTotal"];
+	NSNumber *discTotal = [metadata valueForKey:MetadataDiscTotalKey];
 	if(nil != discTotal) {
 		f.tag()->addField("DISCTOTAL", TagLib::String([[discTotal stringValue] UTF8String], TagLib::String::UTF8));
 	}
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:@"isrc"];
+	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
 	if(nil != isrc) {
 		f.tag()->addField("ISRC", TagLib::String([isrc UTF8String], TagLib::String::UTF8));
 	}
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:@"mcn"];
+	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
 	if(nil != mcn) {
 		f.tag()->addField("MCN", TagLib::String([mcn UTF8String], TagLib::String::UTF8));
 	}
@@ -135,15 +135,15 @@
 	result = f.save();
 	if(NO == result) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Ogg (Vorbis) file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not an Ogg (Vorbis) file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Ogg Vorbis file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-														  code:AudioMetadataWriterInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
+										 code:AudioMetadataWriterFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 				
 		return NO;

@@ -44,31 +44,31 @@
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
 			switch(FLAC__metadata_chain_status(chain)) {
 				case FLAC__METADATA_CHAIN_STATUS_NOT_A_FLAC_FILE:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 									
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file contains bad metadata." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains invalid metadata.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 										
 				default:
-					[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid FLAC file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-					[errorDictionary setObject:@"Not a FLAC file" forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 			}
 			
-			*error					= [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
-														  code:AudioMetadataReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioMetadataReaderErrorDomain 
+										 code:AudioMetadataReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		FLAC__metadata_chain_delete(chain);
@@ -76,15 +76,15 @@
 		return NO;
 	}
 	
-	metadataDictionary			= [NSMutableDictionary dictionary];				
-	iterator					= FLAC__metadata_iterator_new();
+	metadataDictionary	= [NSMutableDictionary dictionary];				
+	iterator			= FLAC__metadata_iterator_new();
 	
 	NSAssert(NULL != iterator, @"Unable to allocate memory.");
 	
 	FLAC__metadata_iterator_init(iterator, chain);
 	
 	do {
-		block					= FLAC__metadata_iterator_get_block(iterator);
+		block = FLAC__metadata_iterator_get_block(iterator);
 		
 		if(NULL == block) {
 			break;
@@ -104,46 +104,46 @@
 					value	= [[NSString alloc] initWithBytesNoCopy:fieldValue length:strlen(fieldValue) encoding:NSUTF8StringEncoding freeWhenDone:YES];
 				
 					if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUM"]) {
-						[metadataDictionary setValue:value forKey:@"albumTitle"];
+						[metadataDictionary setValue:value forKey:MetadataAlbumTitleKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"]) {
-						[metadataDictionary setValue:value forKey:@"artist"];
+						[metadataDictionary setValue:value forKey:MetadataArtistKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"]) {
-						[metadataDictionary setValue:value forKey:@"composer"];
+						[metadataDictionary setValue:value forKey:MetadataComposerKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"GENRE"]) {
-						[metadataDictionary setValue:value forKey:@"genre"];
+						[metadataDictionary setValue:value forKey:MetadataGenreKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"]) {
-						[metadataDictionary setValue:value forKey:@"date"];
+						[metadataDictionary setValue:value forKey:MetadataDateKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"]) {
-						[metadataDictionary setValue:value forKey:@"comment"];
+						[metadataDictionary setValue:value forKey:MetadataCommentKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TITLE"]) {
-						[metadataDictionary setValue:value forKey:@"title"];
+						[metadataDictionary setValue:value forKey:MetadataTitleKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKNUMBER"]) {
-						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackNumber"];
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataTrackNumberKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKTOTAL"]) {
-						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"trackTotal"];
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataTrackTotalKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"]) {
-						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:@"compilation"];
+						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:MetadataCompilationKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"]) {
-						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discNumber"];
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataDiscNumberKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCTOTAL"]) {
-						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:@"discTotal"];
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataDiscTotalKey];
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ISRC"]) {
-						[metadataDictionary setValue:value forKey:@"isrc"];;
+						[metadataDictionary setValue:value forKey:MetadataISRCKey];;
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
-						[metadataDictionary setValue:value forKey:@"mcn"];
+						[metadataDictionary setValue:value forKey:MetadataMCNKey];
 					}
 
 					[key release];

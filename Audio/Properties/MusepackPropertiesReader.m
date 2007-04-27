@@ -41,15 +41,15 @@
 	
 	if(NULL == file) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"Unable to open the file \"%@\".", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Unable to open" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file may have been moved or you may not have read permission." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be found.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Not Found", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file may have been renamed or deleted, or exist on removable media.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderInputOutputError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
@@ -63,15 +63,15 @@
 	
 	if(ERROR_CODE_OK != intResult) {
 		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
-			[errorDictionary setObject:[NSString stringWithFormat:@"The file \"%@\" is not a valid Musepack file.", [path lastPathComponent]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:@"Not a Musepack file" forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:@"The file's extension may not match the file's type." forKey:NSLocalizedRecoverySuggestionErrorKey];						
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid Musepack file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a Musepack file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 			
-			*error					= [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
-														  code:AudioPropertiesReaderFileFormatNotRecognizedError 
-													  userInfo:errorDictionary];
+			*error = [NSError errorWithDomain:AudioPropertiesReaderErrorDomain 
+										 code:AudioPropertiesReaderFileFormatNotRecognizedError 
+									 userInfo:errorDictionary];
 		}
 		
 		result			= fclose(file);
@@ -87,14 +87,14 @@
 	
 	propertiesDictionary			= [NSMutableDictionary dictionary];
 	
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:@"fileType"];
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:@"formatType"];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:mpc_streaminfo_get_length_samples(&streaminfo)] forKey:@"totalFrames"];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:PropertiesFileTypeKey];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:[NSNumber numberWithLongLong:mpc_streaminfo_get_length_samples(&streaminfo)] forKey:PropertiesTotalFramesKey];
 	//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
-	//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:@"bitsPerChannel"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.channels] forKey:@"channelsPerFrame"];
-	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.sample_freq] forKey:@"sampleRate"];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)mpc_streaminfo_get_length_samples(&streaminfo) / streaminfo.sample_freq] forKey:@"duration"];
+	//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.channels] forKey:PropertiesChannelsPerFrameKey];
+	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.sample_freq] forKey:PropertiesSampleRateKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)mpc_streaminfo_get_length_samples(&streaminfo) / streaminfo.sample_freq] forKey:PropertiesDurationKey];
 			
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
