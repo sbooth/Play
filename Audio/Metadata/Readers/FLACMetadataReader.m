@@ -56,7 +56,7 @@
 				case FLAC__METADATA_CHAIN_STATUS_BAD_METADATA:
 					[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid FLAC file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 					[errorDictionary setObject:NSLocalizedStringFromTable(@"Not a FLAC file", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains invalid metadata.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
+					[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains bad metadata.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
 					break;
 										
 				default:
