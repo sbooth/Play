@@ -29,6 +29,7 @@ extern NSString * const		StreamURLKey;
 extern NSString * const		StatisticsDateAddedKey;
 extern NSString * const		StatisticsFirstPlayedDateKey;
 extern NSString * const		StatisticsLastPlayedDateKey;
+extern NSString * const		StatisticsLastSkippedDateKey;
 extern NSString * const		StatisticsPlayCountKey;
 extern NSString * const		StatisticsSkipCountKey;
 extern NSString * const		StatisticsRatingKey;

@@ -28,6 +28,7 @@ NSString * const	StreamURLKey							= @"url";
 NSString * const	StatisticsDateAddedKey					= @"dateAdded";
 NSString * const	StatisticsFirstPlayedDateKey			= @"firstPlayed";
 NSString * const	StatisticsLastPlayedDateKey				= @"lastPlayed";
+NSString * const	StatisticsLastSkippedDateKey			= @"lastSkipped";
 NSString * const	StatisticsPlayCountKey					= @"playCount";
 NSString * const	StatisticsSkipCountKey					= @"skipCount";
 NSString * const	StatisticsRatingKey						= @"rating";
@@ -173,6 +174,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			StatisticsDateAddedKey,
 			StatisticsFirstPlayedDateKey,
 			StatisticsLastPlayedDateKey,
+			StatisticsLastSkippedDateKey,
 			StatisticsPlayCountKey,
 			StatisticsSkipCountKey,
 			StatisticsRatingKey,

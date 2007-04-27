@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "RecentlyPlayedNode.h"
+#import "RecentlySkippedNode.h"
 #import "AudioLibrary.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
@@ -28,19 +28,19 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@interface RecentlyPlayedNode (Private)
+@interface RecentlySkippedNode (Private)
 - (void) streamRemoved:(NSNotification *)aNotification;
 @end
 
-@implementation RecentlyPlayedNode
+@implementation RecentlySkippedNode
 
 - (id) init
 {
-	if((self = [super initWithName:NSLocalizedStringFromTable(@"Recently Played", @"Library", @"")])) {
+	if((self = [super initWithName:NSLocalizedStringFromTable(@"Recently Skipped", @"Library", @"")])) {
 		_count = 25;
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
-													  forKeyPath:StatisticsLastPlayedDateKey
+													  forKeyPath:StatisticsLastSkippedDateKey
 														 options:nil
 														 context:nil];
 
@@ -60,7 +60,7 @@
 
 - (void) dealloc
 {
-	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:StatisticsLastPlayedDateKey];
+	[[[CollectionManager manager] streamManager] removeObserver:self forKeyPath:StatisticsLastSkippedDateKey];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
 	[super dealloc];
@@ -76,8 +76,8 @@
 
 - (void) loadStreams
 {
-	NSPredicate			*predicate			= [NSPredicate predicateWithFormat:@"%K != nil", StatisticsLastPlayedDateKey];
-	NSSortDescriptor	*descriptor			= [[NSSortDescriptor alloc] initWithKey:StatisticsLastPlayedDateKey ascending:NO];
+	NSPredicate			*predicate			= [NSPredicate predicateWithFormat:@"%K != nil", StatisticsLastSkippedDateKey];
+	NSSortDescriptor	*descriptor			= [[NSSortDescriptor alloc] initWithKey:StatisticsLastSkippedDateKey ascending:NO];
 	NSArray				*allStreams			= [[[CollectionManager manager] streamManager] streams];
 	NSArray				*sortedStreams		= [allStreams sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptor]];
 	NSArray				*filteredStreams	= [sortedStreams filteredArrayUsingPredicate:predicate];	
@@ -92,8 +92,8 @@
 
 - (void) refreshStreams
 {
-	NSPredicate			*predicate			= [NSPredicate predicateWithFormat:@"%K != nil", StatisticsLastPlayedDateKey];
-	NSSortDescriptor	*descriptor			= [[NSSortDescriptor alloc] initWithKey:StatisticsLastPlayedDateKey ascending:NO];
+	NSPredicate			*predicate			= [NSPredicate predicateWithFormat:@"%K != nil", StatisticsLastSkippedDateKey];
+	NSSortDescriptor	*descriptor			= [[NSSortDescriptor alloc] initWithKey:StatisticsLastSkippedDateKey ascending:NO];
 	NSArray				*allStreams			= [[[CollectionManager manager] streamManager] streams];
 	NSArray				*sortedStreams		= [allStreams sortedArrayUsingDescriptors:[NSArray arrayWithObject:descriptor]];
 	NSArray				*filteredStreams	= [sortedStreams filteredArrayUsingPredicate:predicate];
@@ -113,7 +113,7 @@
 
 - (void) removeObjectFromStreamsAtIndex:(unsigned)index
 {
-	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable RecentlyPlayedNode");	
+	NSAssert([self canRemoveStream], @"Attempt to remove a stream from an immutable RecentlySkippedNode");	
 	AudioStream *stream = [[self streamsArray] objectAtIndex:index];
 	
 	if([stream isPlaying]) {
@@ -126,7 +126,7 @@
 
 @end
 
-@implementation RecentlyPlayedNode (Private)
+@implementation RecentlySkippedNode (Private)
 
 - (void) streamRemoved:(NSNotification *)aNotification
 {

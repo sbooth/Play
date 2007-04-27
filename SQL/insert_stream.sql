@@ -5,6 +5,7 @@ INSERT INTO 'streams' (
 		date_added,
 		first_played_date,
 		last_played_date,
+		last_skipped_date,
 		play_count,
 		skip_count,
 		rating,
@@ -44,6 +45,7 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
+		?,
 		?,
 		?,
 		

@@ -79,6 +79,7 @@
 #import "MostPopularNode.h"
 #import "RecentlyAddedNode.h"
 #import "RecentlyPlayedNode.h"
+#import "RecentlySkippedNode.h"
 
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
@@ -111,6 +112,7 @@ NSString * const	AudioStreamPlaybackDidStopNotification		= @"org.sbooth.Play.Aud
 NSString * const	AudioStreamPlaybackDidPauseNotification		= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidPauseNotification";
 NSString * const	AudioStreamPlaybackDidResumeNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidResumeNotification";
 NSString * const	AudioStreamPlaybackDidCompleteNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackDidCompleteNotification";
+NSString * const	AudioStreamPlaybackWasSkippedNotification	= @"org.sbooth.Play.AudioLibrary.AudioStreamPlaybackWasSkippedNotification";
 
 NSString * const	PlaylistAddedToLibraryNotification			= @"org.sbooth.Play.AudioLibrary.PlaylistAddedToLibraryNotification";
 NSString * const	PlaylistRemovedFromLibraryNotification		= @"org.sbooth.Play.AudioLibrary.PlaylistRemovedFromLibraryNotification";
@@ -239,6 +241,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"duration",
 		[NSNumber numberWithBool:NO], @"playCount",
 		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"lastSkipped",
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
@@ -261,6 +264,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:55], @"filename",
@@ -288,6 +292,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"duration",
 		[NSNumber numberWithBool:NO], @"playCount",
 		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"lastSkipped",
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
@@ -311,6 +316,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:55], @"filename",
@@ -1157,8 +1163,18 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		NSNumber		*skipCount		= [currentStream valueForKey:StatisticsSkipCountKey];
 		NSNumber		*newSkipCount	= [NSNumber numberWithUnsignedInt:[skipCount unsignedIntValue] + 1];
 
-		[currentStream setValue:newSkipCount forKey:StatisticsSkipCountKey];
 		[currentStream setPlaying:NO];
+
+		[[CollectionManager manager] beginUpdate];
+
+		[currentStream setValue:[NSDate date] forKey:StatisticsLastSkippedDateKey];
+		[currentStream setValue:newSkipCount forKey:StatisticsSkipCountKey];
+		
+		[[CollectionManager manager] finishUpdate];
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackWasSkippedNotification 
+															object:self 
+														  userInfo:[NSDictionary dictionaryWithObject:currentStream forKey:AudioStreamObjectKey]];
 	}
 	
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
@@ -1933,11 +1949,13 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	MostPopularNode *mostPopularNode = [[MostPopularNode alloc] init];
 	RecentlyAddedNode *recentlyAddedNode = [[RecentlyAddedNode alloc] init];
 	RecentlyPlayedNode *recentlyPlayedNode = [[RecentlyPlayedNode alloc] init];
+	RecentlySkippedNode *recentlySkippedNode = [[RecentlySkippedNode alloc] init];
 	
 	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[mostPopularNode autorelease]];
 	[browserRoot addChild:[recentlyAddedNode autorelease]];
 	[browserRoot addChild:[recentlyPlayedNode autorelease]];
+	[browserRoot addChild:[recentlySkippedNode autorelease]];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[composersNode autorelease]];

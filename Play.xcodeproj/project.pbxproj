@@ -86,6 +86,7 @@
 		8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */; };
 		8C5838750BDFD44000E43C9E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C58386B0BDFD44000E43C9E /* CoreAudio.framework */; };
 		8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */; };
+		8C5849CE0BE1A59800E43C9E /* RecentlySkippedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -458,6 +459,10 @@
 		8C58386B0BDFD44000E43C9E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		8C58468B0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IntegerToDoubleRoundingValueTransformer.h; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.h; sourceTree = "<group>"; };
 		8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IntegerToDoubleRoundingValueTransformer.m; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.m; sourceTree = "<group>"; };
+		8C5849C10BE1A47200E43C9E /* shell.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = shell.c; path = src/shell.c; sourceTree = "<group>"; };
+		8C5849C20BE1A47200E43C9E /* test_hexio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = test_hexio.c; path = src/test_hexio.c; sourceTree = "<group>"; };
+		8C5849CB0BE1A59800E43C9E /* RecentlySkippedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlySkippedNode.h; path = Browser/RecentlySkippedNode.h; sourceTree = "<group>"; };
+		8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlySkippedNode.m; path = Browser/RecentlySkippedNode.m; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -993,6 +998,8 @@
 		8C1A5BFD0B7E44DA008A04AB /* Browser */ = {
 			isa = PBXGroup;
 			children = (
+				8C5849CB0BE1A59800E43C9E /* RecentlySkippedNode.h */,
+				8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */,
 				8C8E3BC00BDF215500605141 /* ComposerNode.h */,
 				8C8E3BC10BDF215500605141 /* ComposerNode.m */,
 				8C8E3BC20BDF215500605141 /* ComposersNode.h */,
@@ -1182,6 +1189,8 @@
 		8C9C24FD0B724B0E00CE799A /* sqlite3 */ = {
 			isa = PBXGroup;
 			children = (
+				8C5849C10BE1A47200E43C9E /* shell.c */,
+				8C5849C20BE1A47200E43C9E /* test_hexio.c */,
 				8C9C25230B724B0E00CE799A /* keywordhash.h */,
 				8C9C25340B724B0E00CE799A /* opcodes.c */,
 				8C9C25350B724B0E00CE799A /* opcodes.h */,
@@ -1939,6 +1948,7 @@
 				8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */,
 				8C58382C0BDFD04400E43C9E /* OutputPreferencesController.m in Sources */,
 				8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */,
+				8C5849CE0BE1A59800E43C9E /* RecentlySkippedNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'date_added' 			REAL,
 	'first_played_date' 	REAL,
 	'last_played_date' 		REAL,
+	'last_skipped_date' 	REAL,
 	'play_count' 			INTEGER DEFAULT 0,
 	'skip_count' 			INTEGER DEFAULT 0,
 	'rating'				INTEGER,

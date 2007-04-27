@@ -4,6 +4,7 @@ UPDATE 'streams' SET
 		date_added = :date_added,
 		first_played_date = :first_played_date,
 		last_played_date = :last_played_date,
+		last_skipped_date = :last_skipped_date,
 		play_count = :play_count,
 		skip_count = :skip_count,
 		rating = :rating,		

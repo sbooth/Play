@@ -46,6 +46,7 @@ extern NSString * const		AudioStreamPlaybackDidStopNotification;
 extern NSString * const		AudioStreamPlaybackDidPauseNotification;
 extern NSString * const		AudioStreamPlaybackDidResumeNotification;
 extern NSString * const		AudioStreamPlaybackDidCompleteNotification;
+extern NSString * const		AudioStreamPlaybackWasSkippedNotification;
 
 extern NSString * const		PlaylistAddedToLibraryNotification;
 extern NSString * const		PlaylistRemovedFromLibraryNotification;
