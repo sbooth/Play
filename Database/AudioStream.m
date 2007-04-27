@@ -29,6 +29,8 @@ NSString * const	StatisticsDateAddedKey					= @"dateAdded";
 NSString * const	StatisticsFirstPlayedDateKey			= @"firstPlayed";
 NSString * const	StatisticsLastPlayedDateKey				= @"lastPlayed";
 NSString * const	StatisticsPlayCountKey					= @"playCount";
+NSString * const	StatisticsSkipCountKey					= @"skipCount";
+NSString * const	StatisticsRatingKey						= @"rating";
 
 NSString * const	MetadataTitleKey						= @"title";
 NSString * const	MetadataAlbumTitleKey					= @"albumTitle";
@@ -78,6 +80,11 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 - (IBAction) resetPlayCount:(id)sender
 {
 	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsPlayCountKey];
+}
+
+- (IBAction) resetSkipCount:(id)sender
+{
+	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsSkipCountKey];
 }
 
 - (IBAction) rescanMetadata:(id)sender
@@ -167,6 +174,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			StatisticsFirstPlayedDateKey,
 			StatisticsLastPlayedDateKey,
 			StatisticsPlayCountKey,
+			StatisticsSkipCountKey,
+			StatisticsRatingKey,
 			
 			MetadataTitleKey,
 			MetadataAlbumTitleKey,

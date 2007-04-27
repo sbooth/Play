@@ -85,6 +85,7 @@
 		8C58382C0BDFD04400E43C9E /* OutputPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58382A0BDFD04400E43C9E /* OutputPreferencesController.m */; };
 		8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */; };
 		8C5838750BDFD44000E43C9E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C58386B0BDFD44000E43C9E /* CoreAudio.framework */; };
+		8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -455,6 +456,8 @@
 		8C58382A0BDFD04400E43C9E /* OutputPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OutputPreferencesController.m; path = Preferences/OutputPreferencesController.m; sourceTree = "<group>"; };
 		8C5838360BDFD0B400E43C9E /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/OutputPreferences.nib; sourceTree = "<group>"; };
 		8C58386B0BDFD44000E43C9E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
+		8C58468B0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IntegerToDoubleRoundingValueTransformer.h; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.h; sourceTree = "<group>"; };
+		8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IntegerToDoubleRoundingValueTransformer.m; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.m; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -853,6 +856,7 @@
 				8C9C288A0B724D3200CE799A /* AudioScrobbler */,
 				29B97315FDCFA39411CA2CEA /* Application */,
 				8CB3F2940BDDA72500B5E828 /* Preferences */,
+				8C5846460BE159B100E43C9E /* Value Transformers */,
 				8C9C32240B73340700CE799A /* Formatters */,
 				8C9C31D80B732F0000CE799A /* Utilities */,
 				8C9C28870B724D1600CE799A /* AppleScript */,
@@ -1067,6 +1071,15 @@
 				8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */,
 			);
 			name = NSBezierPath_RoundRectMethods;
+			sourceTree = "<group>";
+		};
+		8C5846460BE159B100E43C9E /* Value Transformers */ = {
+			isa = PBXGroup;
+			children = (
+				8C58468B0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.h */,
+				8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */,
+			);
+			name = "Value Transformers";
 			sourceTree = "<group>";
 		};
 		8C5BD5F50B7EFBCB000DE945 /* IconFamily */ = {
@@ -1925,6 +1938,7 @@
 				8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */,
 				8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */,
 				8C58382C0BDFD04400E43C9E /* OutputPreferencesController.m in Sources */,
+				8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -63,6 +63,9 @@
 	else if([menuItem action] == @selector(resetPlayCount:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
+	else if([menuItem action] == @selector(resetSkipCount:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
 	else if([menuItem action] == @selector(editMetadata:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
@@ -201,6 +204,20 @@
 
 	[[CollectionManager manager] beginUpdate];
 	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(resetPlayCount:) withObject:sender];
+	[[CollectionManager manager] finishUpdate];
+}
+
+- (IBAction) resetSkipCount:(id)sender
+{
+	NSArray *streams = [_streamController selectedObjects];
+	
+	if(0 == [streams count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[CollectionManager manager] beginUpdate];
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(resetSkipCount:) withObject:sender];
 	[[CollectionManager manager] finishUpdate];
 }
 

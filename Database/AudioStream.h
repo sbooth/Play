@@ -30,6 +30,8 @@ extern NSString * const		StatisticsDateAddedKey;
 extern NSString * const		StatisticsFirstPlayedDateKey;
 extern NSString * const		StatisticsLastPlayedDateKey;
 extern NSString * const		StatisticsPlayCountKey;
+extern NSString * const		StatisticsSkipCountKey;
+extern NSString * const		StatisticsRatingKey;
 
 extern NSString * const		MetadataTitleKey;
 extern NSString * const		MetadataAlbumTitleKey;
@@ -65,6 +67,8 @@ extern NSString * const		PropertiesBitrateKey;
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
 
 - (IBAction) resetPlayCount:(id)sender;
+- (IBAction) resetSkipCount:(id)sender;
+
 - (IBAction) rescanMetadata:(id)sender;
 
 - (NSString *) filename;

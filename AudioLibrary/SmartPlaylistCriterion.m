@@ -248,7 +248,8 @@ enum {
 		PropertiesFileTypeKey, PropertiesFormatTypeKey, PropertiesBitsPerChannelKey, PropertiesChannelsPerFrameKey, PropertiesSampleRateKey, 
 		PropertiesTotalFramesKey, PropertiesDurationKey, PropertiesBitrateKey,
 		@"-",
-		StatisticsDateAddedKey, StatisticsFirstPlayedDateKey, StatisticsLastPlayedDateKey, StatisticsPlayCountKey,
+		StatisticsDateAddedKey, StatisticsFirstPlayedDateKey, StatisticsLastPlayedDateKey, StatisticsPlayCountKey, StatisticsSkipCountKey,
+		StatisticsRatingKey,
 		nil];
 	NSEnumerator *enumerator = [keyPaths objectEnumerator];
 	
@@ -513,6 +514,14 @@ enum {
 	}
 	else if([keyPath isEqualToString:StatisticsPlayCountKey]) {
 		displayName		= NSLocalizedStringFromTable(@"Play Count", @"AudioStream", @"");
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:StatisticsSkipCountKey]) {
+		displayName		= NSLocalizedStringFromTable(@"Skip Count", @"AudioStream", @"");
+		attributeType	= NSInteger32AttributeType;
+	}
+	else if([keyPath isEqualToString:StatisticsRatingKey]) {
+		displayName		= NSLocalizedStringFromTable(@"Rating", @"AudioStream", @"");
 		attributeType	= NSInteger32AttributeType;
 	}
 	

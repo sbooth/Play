@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'first_played_date' 	REAL,
 	'last_played_date' 		REAL,
 	'play_count' 			INTEGER DEFAULT 0,
+	'skip_count' 			INTEGER DEFAULT 0,
+	'rating'				INTEGER,
 
 	'title' 				TEXT,
 	'album_title' 			TEXT,
@@ -23,7 +25,7 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'comment' 				TEXT,
 	'isrc' 					TEXT,
 	'mcn' 					TEXT,
-
+	
 	'file_type'				TEXT,
 	'format_type'			TEXT,
 	'bits_per_channel'		INTEGER,

@@ -6,6 +6,8 @@ INSERT INTO 'streams' (
 		first_played_date,
 		last_played_date,
 		play_count,
+		skip_count,
+		rating,
 		
 		title, 
 		album_title,
@@ -22,7 +24,7 @@ INSERT INTO 'streams' (
 		comment,
 		isrc,
 		mcn,
-		
+				
 		file_type,
 		format_type,
 		bits_per_channel,
@@ -42,6 +44,8 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
+		?,
+		?,
 		
 		?, 
 		?, 
@@ -58,7 +62,7 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
-		
+				
 		?,
 		?,
 		?, 

@@ -5,7 +5,9 @@ UPDATE 'streams' SET
 		first_played_date = :first_played_date,
 		last_played_date = :last_played_date,
 		play_count = :play_count,
-		
+		skip_count = :skip_count,
+		rating = :rating,		
+
 		title = :title,
 		album_title = :album_title,
 		artist = :artist,

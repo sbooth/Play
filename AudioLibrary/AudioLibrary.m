@@ -242,6 +242,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
+		[NSNumber numberWithBool:NO], @"skipCount",
+		[NSNumber numberWithBool:NO], @"rating",
 		nil];
 	
 	NSDictionary *streamTableColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -262,6 +264,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:55], @"filename",
+		[NSNumber numberWithFloat:72], @"skipCount",
+		[NSNumber numberWithFloat:68], @"rating",
 		nil];
 	
 	NSDictionary *streamTableColumnOrderArray = [NSArray arrayWithObjects:
@@ -287,6 +291,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
+		[NSNumber numberWithBool:NO], @"skipCount",
+		[NSNumber numberWithBool:NO], @"rating",
 		nil];
 	
 	NSDictionary *playQueueColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -308,6 +314,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:55], @"filename",
+		[NSNumber numberWithFloat:72], @"skipCount",
+		[NSNumber numberWithFloat:68], @"rating",
 		nil];
 	
 	NSDictionary *playQueueColumnOrderArray = [NSArray arrayWithObjects:
@@ -1146,6 +1154,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[[self player] stop];
 	
 	if(nil != currentStream) {
+		NSNumber		*skipCount		= [currentStream valueForKey:StatisticsSkipCountKey];
+		NSNumber		*newSkipCount	= [NSNumber numberWithUnsignedInt:[skipCount unsignedIntValue] + 1];
+
+		[currentStream setValue:newSkipCount forKey:StatisticsSkipCountKey];
 		[currentStream setPlaying:NO];
 	}
 	
@@ -1653,12 +1665,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) streamPlaybackDidComplete
 {
-	AudioStream		*stream			= [self nowPlaying];
-	NSNumber		*playCount;
-	NSNumber		*newPlayCount;
-	
-	playCount		= [stream valueForKey:StatisticsPlayCountKey];
-	newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	AudioStream		*stream			= [self nowPlaying];	
+	NSNumber		*playCount		= [stream valueForKey:StatisticsPlayCountKey];
+	NSNumber		*newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setPlaying:NO];
 	

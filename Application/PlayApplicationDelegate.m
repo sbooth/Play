@@ -30,6 +30,7 @@
 #import "PTHotKey.h"
 #import "PTHotKeyCenter.h"
 #import "PTKeyCombo.h"
+#import "IntegerToDoubleRoundingValueTransformer.h"
 
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
@@ -56,6 +57,10 @@
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:initialValuesDictionary];
 	[[NSUserDefaultsController sharedUserDefaultsController] setInitialValues:initialValuesDictionary];
+	
+	IntegerToDoubleRoundingValueTransformer *rounder = [[IntegerToDoubleRoundingValueTransformer alloc] init];
+	[NSValueTransformer setValueTransformer:rounder forName:@"IntegerToDoubleRoundingValueTransformer"];
+	[rounder release];
 }
 
 - (AudioLibrary *) library

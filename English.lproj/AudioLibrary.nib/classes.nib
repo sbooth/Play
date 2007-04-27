@@ -86,7 +86,9 @@
                 remove = id; 
                 rescanMetadata = id; 
                 resetPlayCount = id; 
+                resetSkipCount = id; 
                 revealInFinder = id; 
+                skipCount = id; 
                 streamInformation = id; 
             }; 
             CLASS = FirstResponder; 

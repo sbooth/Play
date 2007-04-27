@@ -730,33 +730,35 @@
 	getColumnValue(statement, 3, stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 	getColumnValue(statement, 4, stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
 	getColumnValue(statement, 5, stream, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 6, stream, StatisticsSkipCountKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 7, stream, StatisticsRatingKey, eObjectTypeUnsignedInteger);
 
 	// Metadata
-	getColumnValue(statement, 6, stream, MetadataTitleKey, eObjectTypeString);
-	getColumnValue(statement, 7, stream, MetadataAlbumTitleKey, eObjectTypeString);
-	getColumnValue(statement, 8, stream, MetadataArtistKey, eObjectTypeString);
-	getColumnValue(statement, 9, stream, MetadataAlbumArtistKey, eObjectTypeString);
-	getColumnValue(statement, 10, stream, MetadataGenreKey, eObjectTypeString);
-	getColumnValue(statement, 11, stream, MetadataComposerKey, eObjectTypeString);
-	getColumnValue(statement, 12, stream, MetadataDateKey, eObjectTypeString);	
-	getColumnValue(statement, 13, stream, MetadataCompilationKey, eObjectTypeInteger);
-	getColumnValue(statement, 14, stream, MetadataTrackNumberKey, eObjectTypeInteger);
-	getColumnValue(statement, 15, stream, MetadataTrackTotalKey, eObjectTypeInteger);
-	getColumnValue(statement, 16, stream, MetadataDiscNumberKey, eObjectTypeInteger);
-	getColumnValue(statement, 17, stream, MetadataDiscTotalKey, eObjectTypeInteger);
-	getColumnValue(statement, 18, stream, MetadataCommentKey, eObjectTypeString);
-	getColumnValue(statement, 19, stream, MetadataISRCKey, eObjectTypeString);
-	getColumnValue(statement, 20, stream, MetadataMCNKey, eObjectTypeString);
+	getColumnValue(statement, 8, stream, MetadataTitleKey, eObjectTypeString);
+	getColumnValue(statement, 9, stream, MetadataAlbumTitleKey, eObjectTypeString);
+	getColumnValue(statement, 10, stream, MetadataArtistKey, eObjectTypeString);
+	getColumnValue(statement, 11, stream, MetadataAlbumArtistKey, eObjectTypeString);
+	getColumnValue(statement, 12, stream, MetadataGenreKey, eObjectTypeString);
+	getColumnValue(statement, 13, stream, MetadataComposerKey, eObjectTypeString);
+	getColumnValue(statement, 14, stream, MetadataDateKey, eObjectTypeString);	
+	getColumnValue(statement, 15, stream, MetadataCompilationKey, eObjectTypeInteger);
+	getColumnValue(statement, 16, stream, MetadataTrackNumberKey, eObjectTypeInteger);
+	getColumnValue(statement, 17, stream, MetadataTrackTotalKey, eObjectTypeInteger);
+	getColumnValue(statement, 18, stream, MetadataDiscNumberKey, eObjectTypeInteger);
+	getColumnValue(statement, 19, stream, MetadataDiscTotalKey, eObjectTypeInteger);
+	getColumnValue(statement, 20, stream, MetadataCommentKey, eObjectTypeString);
+	getColumnValue(statement, 21, stream, MetadataISRCKey, eObjectTypeString);
+	getColumnValue(statement, 22, stream, MetadataMCNKey, eObjectTypeString);
 	
 	// Properties
-	getColumnValue(statement, 21, stream, PropertiesFileTypeKey, eObjectTypeString);
-	getColumnValue(statement, 22, stream, PropertiesFormatTypeKey, eObjectTypeString);
-	getColumnValue(statement, 23, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 24, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 25, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-	getColumnValue(statement, 26, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-	getColumnValue(statement, 27, stream, PropertiesDurationKey, eObjectTypeDouble);
-	getColumnValue(statement, 28, stream, PropertiesBitrateKey, eObjectTypeDouble);
+	getColumnValue(statement, 23, stream, PropertiesFileTypeKey, eObjectTypeString);
+	getColumnValue(statement, 24, stream, PropertiesFormatTypeKey, eObjectTypeString);
+	getColumnValue(statement, 25, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 26, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 27, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+	getColumnValue(statement, 28, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+	getColumnValue(statement, 29, stream, PropertiesDurationKey, eObjectTypeDouble);
+	getColumnValue(statement, 30, stream, PropertiesBitrateKey, eObjectTypeDouble);
 	
 	// Register the object	
 	NSMapInsert(_registeredStreams, (void *)objectID, (void *)stream);
@@ -788,33 +790,35 @@
 		bindParameter(statement, 3, stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 		bindParameter(statement, 4, stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
 		bindParameter(statement, 5, stream, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 6, stream, StatisticsSkipCountKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 7, stream, StatisticsRatingKey, eObjectTypeUnsignedInteger);
 		
 		// Metadata
-		bindParameter(statement, 6, stream, MetadataTitleKey, eObjectTypeString);
-		bindParameter(statement, 7, stream, MetadataAlbumTitleKey, eObjectTypeString);
-		bindParameter(statement, 8, stream, MetadataArtistKey, eObjectTypeString);
-		bindParameter(statement, 9, stream, MetadataAlbumArtistKey, eObjectTypeString);
-		bindParameter(statement, 10, stream, MetadataGenreKey, eObjectTypeString);
-		bindParameter(statement, 11, stream, MetadataComposerKey, eObjectTypeString);
-		bindParameter(statement, 12, stream, MetadataDateKey, eObjectTypeString);	
-		bindParameter(statement, 13, stream, MetadataCompilationKey, eObjectTypeInteger);
-		bindParameter(statement, 14, stream, MetadataTrackNumberKey, eObjectTypeInteger);
-		bindParameter(statement, 15, stream, MetadataTrackTotalKey, eObjectTypeInteger);
-		bindParameter(statement, 16, stream, MetadataDiscNumberKey, eObjectTypeInteger);
-		bindParameter(statement, 17, stream, MetadataDiscTotalKey, eObjectTypeInteger);
-		bindParameter(statement, 18, stream, MetadataCommentKey, eObjectTypeString);
-		bindParameter(statement, 19, stream, MetadataISRCKey, eObjectTypeString);
-		bindParameter(statement, 20, stream, MetadataMCNKey, eObjectTypeString);
+		bindParameter(statement, 8, stream, MetadataTitleKey, eObjectTypeString);
+		bindParameter(statement, 9, stream, MetadataAlbumTitleKey, eObjectTypeString);
+		bindParameter(statement, 10, stream, MetadataArtistKey, eObjectTypeString);
+		bindParameter(statement, 11, stream, MetadataAlbumArtistKey, eObjectTypeString);
+		bindParameter(statement, 12, stream, MetadataGenreKey, eObjectTypeString);
+		bindParameter(statement, 13, stream, MetadataComposerKey, eObjectTypeString);
+		bindParameter(statement, 14, stream, MetadataDateKey, eObjectTypeString);	
+		bindParameter(statement, 15, stream, MetadataCompilationKey, eObjectTypeInteger);
+		bindParameter(statement, 16, stream, MetadataTrackNumberKey, eObjectTypeInteger);
+		bindParameter(statement, 17, stream, MetadataTrackTotalKey, eObjectTypeInteger);
+		bindParameter(statement, 18, stream, MetadataDiscNumberKey, eObjectTypeInteger);
+		bindParameter(statement, 19, stream, MetadataDiscTotalKey, eObjectTypeInteger);
+		bindParameter(statement, 20, stream, MetadataCommentKey, eObjectTypeString);
+		bindParameter(statement, 21, stream, MetadataISRCKey, eObjectTypeString);
+		bindParameter(statement, 22, stream, MetadataMCNKey, eObjectTypeString);
 		
 		// Properties
-		bindParameter(statement, 21, stream, PropertiesFileTypeKey, eObjectTypeString);
-		bindParameter(statement, 22, stream, PropertiesFormatTypeKey, eObjectTypeString);
-		bindParameter(statement, 23, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 24, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 25, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-		bindParameter(statement, 26, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-		bindParameter(statement, 27, stream, PropertiesDurationKey, eObjectTypeDouble);
-		bindParameter(statement, 28, stream, PropertiesBitrateKey, eObjectTypeDouble);
+		bindParameter(statement, 23, stream, PropertiesFileTypeKey, eObjectTypeString);
+		bindParameter(statement, 24, stream, PropertiesFormatTypeKey, eObjectTypeString);
+		bindParameter(statement, 25, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 26, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 27, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+		bindParameter(statement, 28, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+		bindParameter(statement, 29, stream, PropertiesDurationKey, eObjectTypeDouble);
+		bindParameter(statement, 30, stream, PropertiesBitrateKey, eObjectTypeDouble);
 				
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -875,6 +879,8 @@
 	bindNamedParameter(statement, ":first_played_date", stream, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 	bindNamedParameter(statement, ":last_played_date", stream, StatisticsLastPlayedDateKey, eObjectTypeDate);
 	bindNamedParameter(statement, ":play_count", stream, StatisticsPlayCountKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":skip_count", stream, StatisticsSkipCountKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":rating", stream, StatisticsRatingKey, eObjectTypeInteger);
 	
 	// Metadata
 	bindNamedParameter(statement, ":title", stream, MetadataTitleKey, eObjectTypeString);
@@ -972,6 +978,8 @@
 				StatisticsFirstPlayedDateKey,
 				StatisticsLastPlayedDateKey,
 				StatisticsPlayCountKey,
+				StatisticsSkipCountKey,
+				StatisticsRatingKey,
 				
 				MetadataTitleKey,
 				MetadataAlbumTitleKey,
