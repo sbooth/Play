@@ -1272,7 +1272,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) clearPlayQueue:(id)sender
 {
-	[self stop:sender];
+	if([[self player] hasValidStream]) {
+		[self stop:sender];
+	}
 	
 	[self willChangeValueForKey:PlayQueueKey];
 	[_playQueue removeAllObjects];
