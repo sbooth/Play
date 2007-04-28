@@ -302,6 +302,7 @@
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
 		[[self scrobbler] stop];
 	}
+	[self setWindowTitleForStream:nil];
 }
 
 - (void) playbackDidPause:(NSNotification *)aNotification
@@ -345,21 +346,13 @@
 	NSArray					*streams		= [[aNotification userInfo] objectForKey:AudioStreamsObjectKey];
 	NSEnumerator			*enumerator		= [streams objectEnumerator];
 	AudioStream				*stream			= nil;
-	NSError					*error			= nil;
-	AudioMetadataWriter		*metadataWriter = nil;
 	
 	while((stream = [enumerator nextObject])) {
-		error			= nil;
-		metadataWriter	= [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
-
 		if([stream isPlaying]) {
 			[self setWindowTitleForStream:stream];
 		}
 		
-		if(nil != metadataWriter) {
-			BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
-			NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
-		}
+		[stream saveMetadata:self];
 	}
 }
 

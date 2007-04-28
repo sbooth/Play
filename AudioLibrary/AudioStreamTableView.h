@@ -43,6 +43,7 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	editMetadata:(id)sender;
 - (IBAction)	rescanMetadata:(id)sender;
+- (IBAction)	saveMetadata:(id)sender;
 
 - (IBAction)	remove:(id)sender;
 

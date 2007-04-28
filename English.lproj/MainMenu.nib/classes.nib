@@ -20,6 +20,7 @@
                 playlistInformation = id; 
                 remove = id; 
                 rescanMetadata = id; 
+                saveMetadata = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 

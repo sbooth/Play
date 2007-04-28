@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
 #import "AudioMetadataReader.h"
+#import "AudioMetadataWriter.h"
 
 NSString * const	StreamURLKey							= @"url";
 
@@ -117,6 +118,27 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 		value = [metadata valueForKey:key];
 		[self setValue:value forKey:key];
 	}
+}
+
+- (IBAction) saveMetadata:(id)sender
+{
+	NSError					*error				= nil;
+	AudioMetadataWriter		*metadataWriter		= [AudioMetadataWriter metadataWriterForURL:[self valueForKey:StreamURLKey] error:&error];
+	
+	if(nil == metadataWriter) {
+		/*		if(nil != error) {
+		[[AudioLibrary library] presentError:error];
+		}*/
+		return;
+	}
+	
+	BOOL result = [metadataWriter writeMetadata:self error:&error];
+	if(NO == result) {
+		/*		if(nil != error) {
+		[[AudioLibrary library] presentError:error];
+		}*/
+		return;
+	}	
 }
 
 - (NSString *) filename

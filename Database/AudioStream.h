@@ -71,6 +71,7 @@ extern NSString * const		PropertiesBitrateKey;
 - (IBAction) resetSkipCount:(id)sender;
 
 - (IBAction) rescanMetadata:(id)sender;
+- (IBAction) saveMetadata:(id)sender;
 
 - (NSString *) filename;
 - (NSString *) pathname;

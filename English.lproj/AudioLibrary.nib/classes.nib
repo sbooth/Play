@@ -88,6 +88,7 @@
                 resetPlayCount = id; 
                 resetSkipCount = id; 
                 revealInFinder = id; 
+                saveMetadata = id; 
                 skipCount = id; 
                 streamInformation = id; 
             }; 

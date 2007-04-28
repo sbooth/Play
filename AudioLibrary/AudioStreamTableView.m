@@ -72,6 +72,9 @@
 	else if([menuItem action] == @selector(rescanMetadata:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
+	else if([menuItem action] == @selector(saveMetadata:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
 	else if([menuItem action] == @selector(remove:)) {
 		return [_streamController canRemove];
 	}
@@ -257,6 +260,16 @@
 	[[CollectionManager manager] beginUpdate];
 	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(rescanMetadata:) withObject:sender];
 	[[CollectionManager manager] finishUpdate];
+}
+
+- (IBAction) saveMetadata:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(saveMetadata:) withObject:sender];
 }
 
 - (IBAction) remove:(id)sender
