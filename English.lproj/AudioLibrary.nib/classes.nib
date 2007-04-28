@@ -51,11 +51,15 @@
                 convertWithMax = id; 
                 doubleClickAction = id; 
                 editMetadata = id; 
+                insertPlaylistWithSelection = id; 
                 openWith = id; 
                 openWithFinder = id; 
                 remove = id; 
                 rescanMetadata = id; 
+                resetPlayCount = id; 
+                resetSkipCount = id; 
                 revealInFinder = id; 
+                saveMetadata = id; 
                 streamInformation = id; 
             }; 
             CLASS = AudioStreamTableView; 
@@ -89,7 +93,6 @@
                 resetSkipCount = id; 
                 revealInFinder = id; 
                 saveMetadata = id; 
-                skipCount = id; 
                 streamInformation = id; 
             }; 
             CLASS = FirstResponder; 
