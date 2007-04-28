@@ -78,7 +78,6 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 {
     NSToolbar *toolbar = [[NSToolbar alloc] initWithIdentifier:@"org.sbooth.Play.Preferences.Toolbar"];
     [toolbar setAllowsUserCustomization:NO];
-//    [toolbar setAutosavesConfiguration:YES];
     
     [toolbar setDelegate:self];
 	
@@ -89,9 +88,13 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 
 - (void) windowDidLoad
 {
-	NSToolbar *toolbar = [[self window] toolbar];
-	
-	if(nil != [toolbar visibleItems] && 0 != [[toolbar visibleItems] count]) {
+	NSToolbar	*toolbar			= [[self window] toolbar];	
+	NSString	*itemIdentifier		= [[NSUserDefaults standardUserDefaults] stringForKey:@"selectedPreferencePane"];
+
+	if(nil != itemIdentifier) {
+		[toolbar setSelectedItemIdentifier:itemIdentifier];
+	}
+	else if(nil != [toolbar visibleItems] && 0 != [[toolbar visibleItems] count]) {
 		[toolbar setSelectedItemIdentifier:[[[toolbar visibleItems] objectAtIndex:0] itemIdentifier]];
 	}
 	else if(nil != [toolbar items] && 0 != [[toolbar items] count]) {
@@ -99,7 +102,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	}
 	else {
 		[toolbar setSelectedItemIdentifier:GeneralPreferencesToolbarItemIdentifier];
-	}
+	}	
 	[self selectPreferencePaneUsingToolbar:self];
 	
 	[self setShouldCascadeWindows:NO];
@@ -148,9 +151,11 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	[myWindow setFrame:newWindowFrame display:YES animate:[myWindow isVisible]];
 	[myWindow setContentView:[prefView retain]];
 	
-	// Why does this cause a crash?
+	// Save the selected pane
+	[[NSUserDefaults standardUserDefaults] setObject:itemIdentifier forKey:@"selectedPreferencePane"];
+	
+	// FIXME: Leaking
 	//[prefPaneObject release];
-	//[oldContentView release];
 }
 
 @end
