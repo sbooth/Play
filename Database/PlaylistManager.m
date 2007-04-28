@@ -641,7 +641,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream insertion time = %f seconds", elapsed);
+	NSLog(@"Playlist insertion time = %f seconds", elapsed);
 #endif
 	
 	return success;
@@ -685,7 +685,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream update time = %f seconds", elapsed);
+	NSLog(@"Playlist update time = %f seconds", elapsed);
 #endif
 	
 	// Reset the object with the stored values
@@ -723,7 +723,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream delete time = %f seconds", elapsed);
+	NSLog(@"Playlist delete time = %f seconds", elapsed);
 #endif
 	
 	// Deregister the object

@@ -145,7 +145,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded playlist in %f seconds", elapsed);
+	NSLog(@"Loaded smart playlist in %f seconds", elapsed);
 #endif
 	
 	return playlist;
@@ -519,7 +519,7 @@
 		[playlists addObject:playlist];
 	}
 	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching playlists (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching smart playlists (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -527,7 +527,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i playlists in %f seconds (%f per second)", [playlists count], elapsed, (double)[playlists count] / elapsed);
+	NSLog(@"Loaded %i smart playlists in %f seconds (%f per second)", [playlists count], elapsed, (double)[playlists count] / elapsed);
 #endif
 	
 	return [playlists autorelease];
@@ -621,7 +621,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream insertion time = %f seconds", elapsed);
+	NSLog(@"Smart playlist insertion time = %f seconds", elapsed);
 #endif
 	
 	return success;
@@ -668,7 +668,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream update time = %f seconds", elapsed);
+	NSLog(@"Smart playlist update time = %f seconds", elapsed);
 #endif
 	
 	// Reset the object with the stored values
@@ -706,7 +706,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream delete time = %f seconds", elapsed);
+	NSLog(@"Smart playlist delete time = %f seconds", elapsed);
 #endif
 	
 	// Deregister the object

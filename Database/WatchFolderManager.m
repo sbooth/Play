@@ -149,7 +149,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded folder in %f seconds", elapsed);
+	NSLog(@"Loaded watch folder in %f seconds", elapsed);
 #endif
 	
 	return folder;
@@ -554,7 +554,7 @@
 		[folders addObject:folder];
 	}
 	
-	NSAssert1(SQLITE_DONE == result, @"Error while fetching folders (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	NSAssert1(SQLITE_DONE == result, @"Error while fetching watch folders (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
 	result = sqlite3_reset(statement);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to reset sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -562,7 +562,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Loaded %i folders in %f seconds (%f per second)", [folders count], elapsed, (double)[folders count] / elapsed);
+	NSLog(@"Loaded %i watch folders in %f seconds (%f per second)", [folders count], elapsed, (double)[folders count] / elapsed);
 #endif
 	
 	return [folders autorelease];
@@ -643,7 +643,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream insertion time = %f seconds", elapsed);
+	NSLog(@"Watch folder insertion time = %f seconds", elapsed);
 #endif
 	
 	return success;
@@ -682,7 +682,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream update time = %f seconds", elapsed);
+	NSLog(@"Watch folder update time = %f seconds", elapsed);
 #endif
 	
 	// Reset the object with the stored values
@@ -720,7 +720,7 @@
 #if SQL_DEBUG
 	clock_t end = clock();
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
-	NSLog(@"Stream delete time = %f seconds", elapsed);
+	NSLog(@"Watch folder delete time = %f seconds", elapsed);
 #endif
 	
 	// Deregister the object
