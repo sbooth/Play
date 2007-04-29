@@ -70,7 +70,7 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	return success;
 }
 
-- (NSDragOperation) tableView:(NSTableView*)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op
+- (NSDragOperation) tableView:(NSTableView *)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op
 {
 	NSDragOperation dragOperation = NSDragOperationNone;
 	
@@ -88,7 +88,7 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	return dragOperation;
 }
 
-- (BOOL) tableView:(NSTableView*)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
+- (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
 {
     if(0 > row) {
 		row = 0;

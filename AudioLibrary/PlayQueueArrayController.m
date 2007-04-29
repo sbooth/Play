@@ -69,7 +69,7 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	return success;
 }
 
-- (NSDragOperation) tableView:(NSTableView*)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op
+- (NSDragOperation) tableView:(NSTableView *)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)op
 {
 	NSDragOperation dragOperation = NSDragOperationNone;
 	
@@ -87,7 +87,7 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	return dragOperation;
 }
 
-- (BOOL) tableView:(NSTableView*)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
+- (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
 {
     if(0 > row) {
 		row = 0;
@@ -186,7 +186,7 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
 			}
 
-			[[AudioLibrary library] insertStreams:streams inPlayQueueAtIndex:row];
+			[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
 		}
 		
 		return result;
@@ -194,8 +194,18 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	else if([bestType isEqualToString:NSURLPboardType]) {
 		NSURL *url = [NSURL URLFromPasteboard:[info draggingPasteboard]];
 		if([url isFileURL]) {
-			return [[AudioLibrary library] addFile:[url path]];
+			BOOL success = [[AudioLibrary library] addFile:[url path]];
+			if(success) {
+				NSArray *streams = [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
+				if(nil != streams) {
+					[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
+				}
+			}
+			   
+			return success;
 		}
+		
+		return NO;
 	}
 	// Handle iTunes drops
 	else if([bestType isEqualToString:iTunesPboardType]) {
@@ -204,13 +214,25 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		NSEnumerator	*enumerator			= [tracks objectEnumerator];
 		NSDictionary	*track				= nil;
 		NSURL			*url				= nil;
-		BOOL			success				= YES;
+		BOOL			success				= NO;
 		
 		while((track = [enumerator nextObject])) {
 			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
 			if([url isFileURL]) {
-				success &= [[AudioLibrary library] addFile:[url path]];
+				success |= [[AudioLibrary library] addFile:[url path]];
 			}
+		}
+		
+		if(success) {
+			NSMutableArray *streams = [NSMutableArray array];
+
+			enumerator = [tracks objectEnumerator];
+			while((track = [enumerator nextObject])) {
+				url = [NSURL URLWithString:[track valueForKey:@"Location"]];
+				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
+			}
+			
+			[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
 		}
 		
 		return success;
