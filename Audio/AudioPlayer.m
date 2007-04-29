@@ -381,23 +381,31 @@ MyRenderNotification(void							*inRefCon,
 									  0,
 									  &channelLayout,
 									  sizeof(AudioChannelLayout));
-		
-		if(noErr != result) {
-			if(nil != error) {
-				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
-				
-				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-				
-				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
-											 code:AudioPlayerInternalError 
-										 userInfo:errorDictionary];
-			}
+	}
+	else {
+		result = AudioUnitSetProperty([self audioUnit],
+									  kAudioUnitProperty_AudioChannelLayout,
+									  kAudioUnitScope_Input,
+									  0,
+									  NULL,
+									  0);
+	}
+	
+	if(noErr != result) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[stream valueForKey:StreamURLKey] path];
 			
-			return NO;
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+										 code:AudioPlayerInternalError 
+									 userInfo:errorDictionary];
 		}
+		
+		return NO;
 	}
 	
 	return YES;
