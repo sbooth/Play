@@ -69,6 +69,7 @@
 	FSRef							ref;
 	SInt64							totalFrames;
 	AudioStreamBasicDescription		asbd;
+	AudioChannelLayout				channelLayout;
 	
 	[super setupDecoder:error];
 
@@ -110,22 +111,27 @@
 		return NO;
 	}
 	
-	// Query file type
+	// Query file type and channel layout
 	dataSize		= sizeof(AudioStreamBasicDescription);
 	result			= ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileDataFormat, &dataSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
+	dataSize		= sizeof(AudioChannelLayout);
+	result			= ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileChannelLayout, &dataSize, &channelLayout);
+	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
+		
 	dataSize		= sizeof(totalFrames);
 	result			= ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileLengthFrames, &dataSize, &totalFrames);
 	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
 	
 	[self setTotalFrames:totalFrames];
 	
-	// Setup input format descriptor
+	// Tell the ExtAudioFile the format in which we'd like our data
 	_pcmFormat						= asbd;
-	
+	_channelLayout					= channelLayout;
+
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
 	
 	// Preserve mSampleRate and mChannelsPerFrame
 	_pcmFormat.mBitsPerChannel		= (0 == _pcmFormat.mBitsPerChannel ? 16 : _pcmFormat.mBitsPerChannel);
@@ -134,8 +140,7 @@
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
-	// Tell the extAudioFile the format we'd like for data
-	result			= ExtAudioFileSetProperty(_extAudioFile, kExtAudioFileProperty_ClientDataFormat, sizeof(_pcmFormat), &_pcmFormat);
+	result = ExtAudioFileSetProperty(_extAudioFile, kExtAudioFileProperty_ClientDataFormat, sizeof(_pcmFormat), &_pcmFormat);
 	NSAssert1(noErr == result, @"ExtAudioFileSetProperty failed: %@", UTCreateStringForOSType(result));
 	
 	return YES;

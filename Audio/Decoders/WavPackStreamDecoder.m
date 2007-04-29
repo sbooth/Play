@@ -43,7 +43,7 @@
 
 - (BOOL) setupDecoder:(NSError **)error
 {
-	char					errorBuf [80];
+	char errorBuf [80];
 	
 	[super setupDecoder:error];
 	
@@ -77,7 +77,28 @@
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	[self setTotalFrames:WavpackGetNumSamples(_wpc)];
+
+	// WavPack doesn't have default channel mappings so for now only support mono and stereo
+/*	if(1 != _pcmFormat.mBitsPerChannel && 2 != _pcmFormat.mBitsPerChannel) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported WavPack format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for WavPack.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}
 	
+	// Setup the channel layout
+	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+*/
 	return YES;
 }
 

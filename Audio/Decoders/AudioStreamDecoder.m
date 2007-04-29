@@ -234,21 +234,42 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 
 - (AudioStream *)					stream				{ return _stream; }
 - (AudioStreamBasicDescription)		pcmFormat			{ return _pcmFormat; }
+- (AudioChannelLayout)				channelLayout		{ return _channelLayout; }
 - (VirtualRingBuffer *)				pcmBuffer			{ return [[_pcmBuffer retain] autorelease]; }
 
-- (NSString *)						pcmFormatDescription
+- (NSString *) pcmFormatDescription
 {
 	OSStatus						result;
 	UInt32							specifierSize;
 	AudioStreamBasicDescription		asbd;
-	NSString						*fileFormat;
+	NSString						*description;
 	
 	asbd			= _pcmFormat;
-	specifierSize	= sizeof(fileFormat);
-	result			= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &fileFormat);
+	specifierSize	= sizeof(description);
+	result			= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &description);
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
 	
-	return [fileFormat autorelease];
+	return [description autorelease];
+}
+
+- (BOOL) hasChannelLayout
+{
+	return (0 != _channelLayout.mChannelLayoutTag || 0 != _channelLayout.mChannelBitmap || 0 != _channelLayout.mNumberChannelDescriptions);
+}
+
+- (NSString *) channelLayoutDescription
+{
+	OSStatus				result;
+	UInt32					specifierSize;
+	AudioChannelLayout		layout;
+	NSString				*description;
+	
+	layout			= _channelLayout;
+	specifierSize	= sizeof(description);
+	result			= AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutName, sizeof(AudioChannelLayout), &layout, &specifierSize, &description);
+	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
+	
+	return [description autorelease];
 }
 
 - (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount

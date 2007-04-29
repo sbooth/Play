@@ -26,6 +26,8 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
+NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlayer";
+
 // ========================================
 // AudioPlayer callbacks
 // ========================================
@@ -210,7 +212,6 @@ MyRenderNotification(void							*inRefCon,
 - (id) init
 {
 	if((self = [super init])) {
-		ComponentResult				s;
 		ComponentDescription		desc;
 		AURenderCallbackStruct		input;
 		
@@ -221,19 +222,13 @@ MyRenderNotification(void							*inRefCon,
 		desc.componentFlagsMask		= 0;
 		
 		Component comp = FindNextComponent(NULL, &desc);
-		
 		if(NULL == comp) {
-			printf ("FindNextComponent\n");
-			
 			[self release];
 			return nil;
 		}
 				
 		OSStatus err = OpenAComponent(comp, &_audioUnit);
-		
 		if(noErr != err || NULL == comp) {
-			printf ("OpenAComponent=%ld\n", err);
-			
 			[self release];
 			return nil;
 		}
@@ -249,16 +244,14 @@ MyRenderNotification(void							*inRefCon,
 								   &input, 
 								   sizeof(input));
 		if(noErr != err) {
-			printf ("AudioUnitSetProperty-CB=%ld\n", err);
-			
+			CloseComponent(_audioUnit);
 			[self release];
 			return nil;
 		}
 			
-		s = AudioUnitInitialize(_audioUnit);
-		if(noErr != s) {
-			printf ("AudioUnitInitialize-CB=%ld\n", s);
-			
+		ComponentResult result = AudioUnitInitialize(_audioUnit);
+		if(noErr != result) {
+			CloseComponent(_audioUnit);
 			[self release];
 			return nil;
 		}
@@ -322,9 +315,6 @@ MyRenderNotification(void							*inRefCon,
 {
 	NSParameterAssert(nil != stream);
 	
-	BOOL							result;
-	AudioStreamBasicDescription		pcmFormat;
-
 	if(nil != [self nextStreamDecoder]) {
 		[[self nextStreamDecoder] stopDecoding:error];
 		[self setNextStreamDecoder:nil];
@@ -339,10 +329,6 @@ MyRenderNotification(void							*inRefCon,
 	
 	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
 	if(nil == streamDecoder) {
-		if(nil != error) {
-			
-		}
-
 		return NO;
 	}
 	
@@ -350,27 +336,68 @@ MyRenderNotification(void							*inRefCon,
 	[self willChangeValueForKey:@"currentFrame"];
 	
 	[self setStreamDecoder:streamDecoder];
-	[[self streamDecoder] startDecoding:error];
+	BOOL startedDecoding = [[self streamDecoder] startDecoding:error];
 	
 	[self didChangeValueForKey:@"totalFrames"];
 	[self didChangeValueForKey:@"currentFrame"];
 	
-	pcmFormat	= [[self streamDecoder] pcmFormat];
-	result		= AudioUnitSetProperty([self audioUnit],
-									   kAudioUnitProperty_StreamFormat,
-									   kAudioUnitScope_Input,
-									   0,
-									   &pcmFormat,
-									   sizeof(AudioStreamBasicDescription));
+	if(NO == startedDecoding) {
+		return NO;
+	}
+	
+	// Set the PCM format we will feed to the AudioUnit
+	AudioStreamBasicDescription		pcmFormat	= [[self streamDecoder] pcmFormat];
+	ComponentResult					result		= AudioUnitSetProperty([self audioUnit],
+																	   kAudioUnitProperty_StreamFormat,
+																	   kAudioUnitScope_Input,
+																	   0,
+																	   &pcmFormat,
+																	   sizeof(AudioStreamBasicDescription));
 	
 	if(noErr != result) {
-		printf ("AudioUnitSetProperty-SF=%4.4s, %ld\n", (char*)&result, result); 
-		
 		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[stream valueForKey:StreamURLKey] path];
 			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+										 code:AudioPlayerInternalError 
+									 userInfo:errorDictionary];
 		}
 		
 		return NO;
+	}
+
+	// And the channel layout as well
+	if([[self streamDecoder] hasChannelLayout]) {
+		AudioChannelLayout channelLayout = [[self streamDecoder] channelLayout];
+		
+		result = AudioUnitSetProperty([self audioUnit],
+									  kAudioUnitProperty_AudioChannelLayout,
+									  kAudioUnitScope_Input,
+									  0,
+									  &channelLayout,
+									  sizeof(AudioChannelLayout));
+		
+		if(noErr != result) {
+			if(nil != error) {
+				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+											 code:AudioPlayerInternalError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 	}
 	
 	return YES;
@@ -381,14 +408,10 @@ MyRenderNotification(void							*inRefCon,
 	NSParameterAssert(nil != stream);
 
 	AudioStreamBasicDescription		pcmFormat, nextPCMFormat;
+	AudioChannelLayout				channelLayout, nextChannelLayout;
 		
 	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];	
 	if(nil == streamDecoder) {
-		
-		if(nil != error) {
-			
-		}
-		
 		return NO;
 	}
 	
@@ -398,13 +421,20 @@ MyRenderNotification(void							*inRefCon,
 	pcmFormat		= [[self streamDecoder] pcmFormat];
 	nextPCMFormat	= [[self nextStreamDecoder] pcmFormat];
 
-	// We can only join the two files if they have the same formats (mSampleRate, etc)
-	if(0 != memcmp(&pcmFormat, &nextPCMFormat, sizeof(pcmFormat))) {
+	channelLayout		= [[self streamDecoder] channelLayout];
+	nextChannelLayout	= [[self nextStreamDecoder] channelLayout];
+
+	BOOL pcmFormatsMatch		= (0 == memcmp(&pcmFormat, &nextPCMFormat, sizeof(AudioStreamBasicDescription)));
+	BOOL channelLayoutsMatch	= ([[self streamDecoder] hasChannelLayout] == [[self nextStreamDecoder] hasChannelLayout]
+								   && ([[self streamDecoder] hasChannelLayout] && (0 == memcmp(&channelLayout, &nextChannelLayout, sizeof(AudioChannelLayout)))));
+	
+	// We can only join the two files if they have the same formats (mSampleRate, etc) and channel layouts
+	if(NO == pcmFormatsMatch || NO == channelLayoutsMatch) {
 
 #if DEBUG
-		NSLog(@"Unable to join buffers, PCM formats don't match:");
-		dumpASBD(&pcmFormat);
-		dumpASBD(&nextPCMFormat);
+		NSLog(@"Unable to join buffers for gapless playback, PCM formats and/or channel layouts don't match");
+//		dumpASBD(&pcmFormat);
+//		dumpASBD(&nextPCMFormat);
 #endif
 		
 		[[self nextStreamDecoder] stopDecoding:error];
@@ -445,7 +475,7 @@ MyRenderNotification(void							*inRefCon,
 {
 	ComponentResult result = AudioOutputUnitStart([self audioUnit]);	
 	if(noErr != result) {
-		printf ("AudioOutputUnitStart=%ld\n", result);
+		NSLog(@"Unable to start the AudioUnit");
 	}
 	
 	[self setPlaying:YES];
@@ -465,7 +495,7 @@ MyRenderNotification(void							*inRefCon,
 {
 	ComponentResult result = AudioOutputUnitStop([self audioUnit]);	
 	if(noErr != result) {
-		printf ("AudioOutputUnitStop=%ld\n", result);
+		NSLog(@"Unable to stop the AudioUnit");
 	}
 
 	[self setPlaying:NO];
@@ -549,7 +579,7 @@ MyRenderNotification(void							*inRefCon,
 															&volume);
 	
 	if(noErr != result) {
-		NSLog(@"Unable to determine volume: %i", result);
+		NSLog(@"Unable to determine volume");
 	}
 	
 	return volume;
@@ -565,7 +595,7 @@ MyRenderNotification(void							*inRefCon,
 												   0);
 
 	if(noErr != result) {
-		NSLog(@"Unable to set volume: %i", result);
+		NSLog(@"Unable to set volume");
 	}
 }
 
@@ -575,7 +605,7 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		result						= [streamDecoder totalFrames];
+		result = [streamDecoder totalFrames];
 	}
 	
 	return result;
@@ -587,7 +617,7 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		result						= [streamDecoder currentFrame];
+		result = [streamDecoder currentFrame];
 	}
 	
 	return result;
@@ -616,8 +646,7 @@ MyRenderNotification(void							*inRefCon,
 #endif
 		
 		if(nil != [self nextStreamDecoder]) {
-			NSError *error;
-			[[self nextStreamDecoder] stopDecoding:&error];
+			/*BOOL result = */ [[self nextStreamDecoder] stopDecoding:nil];
 			[self setNextStreamDecoder:nil];
 			_requestedNextStream = NO;
 		}
@@ -635,8 +664,8 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		timeInterval				= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);				
-		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+		timeInterval	= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);				
+		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -649,8 +678,8 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		timeInterval				= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);		
-		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+		timeInterval	= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);		
+		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -663,8 +692,8 @@ MyRenderNotification(void							*inRefCon,
 	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
 	if(nil != streamDecoder) {
-		timeInterval				= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
-		result						= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+		timeInterval	= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
+		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
 	}
 	
 	return result;
@@ -798,7 +827,8 @@ MyRenderNotification(void							*inRefCon,
 									  &deviceID,
 									  sizeof(deviceID));
 	}
-	else {
+	
+	if(noErr != status) {
 		NSLog(@"Error setting output device");
 	}
 	

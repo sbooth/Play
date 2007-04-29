@@ -58,7 +58,9 @@
 	
 	_decompressor	= (void *)CreateIAPEDecompress(chars, &result);
 	NSAssert(NULL != _decompressor && ERROR_SUCCESS == result, @"Unable to open the input file.");
-	
+
+	delete [] chars;
+
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked;
@@ -73,8 +75,27 @@
 	
 	[self setTotalFrames:SELF_DECOMPRESSOR->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)];
 
-	delete [] chars;
+	// FIXME: Grab the WAVEFORMATEX and figure out the channel mapping
+/*	if(1 != _pcmFormat.mChannelsPerFrame && 2 != _pcmFormat.mChannelsPerFrame) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported Monkey's Audio format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for Monkey's Audio.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}
 	
+	// Setup the channel layout
+	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+*/
 	return YES;
 }
 

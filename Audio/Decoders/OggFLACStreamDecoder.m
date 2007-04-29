@@ -225,6 +225,42 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	result = FLAC__stream_decoder_process_until_end_of_metadata(_flac);
 	NSAssert1(YES == result, @"FLAC__stream_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 	
+	// We only handle a subset of the legal bitsPerChannel for FLAC
+	if(8 != _pcmFormat.mBitsPerChannel && 16 != _pcmFormat.mBitsPerChannel && 24 != _pcmFormat.mBitsPerChannel && 32 != _pcmFormat.mBitsPerChannel) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported FLAC format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only 8, 16, 24 or 32 bits per sample are supported for FLAC.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}
+	
+	// FLAC doesn't have default channel mappings so for now only support mono and stereo
+/*	if(1 != _pcmFormat.mChannelsPerFrame && 2 != _pcmFormat.mChannelsPerFrame) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported FLAC format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for FLAC.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}*/
+
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
@@ -233,8 +269,8 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
-	// We only handle a subset of the legal bitsPerChannel for FLAC
-	NSAssert(8 == _pcmFormat.mBitsPerChannel || 16 == _pcmFormat.mBitsPerChannel || 24 == _pcmFormat.mBitsPerChannel || 32 == _pcmFormat.mBitsPerChannel, @"Sample size not supported");
+	// Setup the channel layout
+//	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
 	
 	return YES;
 }

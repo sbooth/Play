@@ -41,13 +41,9 @@
 
 - (BOOL) setupDecoder:(NSError **)error
 {
-	vorbis_info						*ovInfo;
-	FILE							*file;
-	int								result;
-	
 	[super setupDecoder:error];
 
-	file							= fopen([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
+	FILE *file = fopen([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
 	if(NULL == file) {		
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -63,7 +59,7 @@
 		return NO;
 	}
 	
-	result							= ov_test(file, &_vf, NULL, 0);
+	int result = ov_test(file, &_vf, NULL, 0);
 	if(0 != result) {		
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -80,13 +76,31 @@
 		return NO;
 	}
 	
-	result							= ov_test_open(&_vf);
+	result = ov_test_open(&_vf);
 	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Errors", @""));
 	
 	// Get input file information
-	ovInfo							= ov_info(&_vf, -1);
+	vorbis_info *ovInfo = ov_info(&_vf, -1);
 	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
 	
+	// Vorbis doesn't have default channel mappings so for now only support mono and stereo
+/*	if(1 != ovInfo->channels && 2 != ovInfo->channels) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported Ogg Vorbis format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for Ogg Vorbis.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}*/
+
 	[self setTotalFrames:ov_pcm_total(&_vf, -1)];
 
 	// Setup input format descriptor
@@ -101,6 +115,9 @@
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
+	// Setup the channel layout
+//	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+
 	return YES;
 }
 

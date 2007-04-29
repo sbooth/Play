@@ -46,6 +46,7 @@ enum {
 	AudioStream						*_stream;			// The stream to be decoded
 	
 	AudioStreamBasicDescription		_pcmFormat;			// The type of PCM data provided by the stream
+	AudioChannelLayout				_channelLayout;		// The channel layout of this stream
     VirtualRingBuffer				*_pcmBuffer;		// The buffer which holds the PCM audio data
 	
 	SInt64							_currentFrame;
@@ -64,9 +65,11 @@ enum {
 
 // The type of PCM data provided by this AudioStreamDecoder
 - (AudioStreamBasicDescription)		pcmFormat;
-
-// A descriptive string of the PCM data format
 - (NSString *)						pcmFormatDescription;
+
+- (BOOL)							hasChannelLayout;
+- (AudioChannelLayout)				channelLayout;
+- (NSString *)						channelLayoutDescription;
 
 // The buffer which holds the PCM data
 - (VirtualRingBuffer *)				pcmBuffer;

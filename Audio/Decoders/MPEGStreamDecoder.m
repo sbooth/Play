@@ -499,6 +499,9 @@ audio_linear_round(unsigned int bits,
 			_pcmFormat.mSampleRate			= frame.header.samplerate;
 			_pcmFormat.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
 
+			// MAD_NCHANNELS always returns 1 or 2
+			_channelLayout.mChannelLayoutTag  = (1 == MAD_NCHANNELS(&frame.header) ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+			
 			if(MAD_FLAG_LSF_EXT & frame.header.flags || MAD_FLAG_MPEG_2_5_EXT & frame.header.flags) {
 				switch(frame.header.layer) {
 					case MAD_LAYER_I:		_samplesPerMPEGFrame = 384;			break;

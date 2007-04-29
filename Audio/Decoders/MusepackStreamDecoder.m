@@ -81,8 +81,26 @@
 	
 	// Set up the decoder
 	mpc_decoder_setup(&_decoder, &_reader_file.reader);
-	boolResult						= mpc_decoder_initialize(&_decoder, &streaminfo);
+	boolResult = mpc_decoder_initialize(&_decoder, &streaminfo);
 	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Errors", @""));
+	
+	// MPC doesn't have default channel mappings so for now only support mono and stereo
+/*	if(1 != streaminfo.channels && 2 != streaminfo.channels) {
+		if(nil != error) {
+			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported Musepack format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for Musepack.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
+										 code:AudioStreamDecoderFileFormatNotSupportedError 
+									 userInfo:errorDictionary];
+		}		
+		
+		return NO;
+	}*/
 	
 	[self setTotalFrames:mpc_streaminfo_get_length_samples(&streaminfo)];
 
@@ -98,6 +116,9 @@
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
+	// Setup the channel layout
+//	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+
 	return YES;
 }
 

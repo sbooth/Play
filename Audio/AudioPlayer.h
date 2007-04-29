@@ -26,6 +26,17 @@
 @class AudioStreamDecoder;
 @class SecondsFormatter;
 
+// ========================================
+// Error Codes
+// ========================================
+extern NSString * const			AudioPlayerErrorDomain;
+
+enum {
+	AudioPlayerInternalError							= 0,
+	AudioPlayerFileFormatNotSupportedError				= 1,
+	AudioPlayerInputOutputError							= 2
+};
+
 @interface AudioPlayer : NSObject
 {
 	AudioUnit				_audioUnit;
