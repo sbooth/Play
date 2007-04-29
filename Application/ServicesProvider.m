@@ -39,25 +39,12 @@
 		return;
 	}
 	
-	BOOL successfullyAdded = [[AudioLibrary library] addFiles:filenames];
-
-	if(successfullyAdded) {
-		BOOL			successfullyPlayed	= NO;
-		NSEnumerator	*enumerator			= [filenames objectEnumerator];
-		NSString		*filename			= nil;
-
-		while(NO == successfullyPlayed && (filename = [enumerator nextObject])) {
-			successfullyPlayed = [[AudioLibrary library] playFile:filename];
-		}
-
-		if(successfullyPlayed) {
-			[[AudioLibrary library] jumpToNowPlaying:self];
-		}
-		else {
-			*error = NSLocalizedStringFromTable(@"The document is not in a format that Play understands.", @"Errors", @"");
-		}
+	BOOL success = [[AudioLibrary library] addFiles:filenames];
+	if(success) {
+		success	= [[AudioLibrary library] playFiles:filenames];
 	}
-	else {
+	
+	if(NO == success) {
 		*error = NSLocalizedStringFromTable(@"The document is not in a format that Play understands.", @"Errors", @"");
 	}
 }

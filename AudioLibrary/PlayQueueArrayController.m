@@ -176,7 +176,17 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		[progressSheet release];
 		
 		if(result) {
-			result = [[AudioLibrary library] playFiles:filenames];
+			NSMutableArray	*streams		= [NSMutableArray array];
+			NSEnumerator	*enumerator		= [filenames objectEnumerator];
+			NSString		*filename		= nil;
+			NSURL			*url			= nil;
+			
+			while((filename = [enumerator nextObject])) {
+				url = [NSURL fileURLWithPath:filename];
+				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
+			}
+
+			[[AudioLibrary library] insertStreams:streams inPlayQueueAtIndex:row];
 		}
 		
 		return result;

@@ -939,6 +939,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return;
 	}
 	
+	if([[self player] isPlaying]) {
+		return;
+	}
+	
 	if(NO == [[self player] hasValidStream]) {
 		if(0 != [self countOfPlayQueue]) {
 			unsigned playIndex = ([self randomPlayback] ? (unsigned)(genrand_real2() * [self countOfPlayQueue]) : 0);			
@@ -1270,17 +1274,37 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self updatePlayButtonState];
 }
 
+- (void) addStreamToPlayQueue:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	
+	[self addStreamsToPlayQueue:[NSArray arrayWithObject:stream]];
+}
+
 - (void) addStreamsToPlayQueue:(NSArray *)streams
 {
 	NSParameterAssert(nil != streams);
 	
-	NSEnumerator	*enumerator		= [streams objectEnumerator];
-	AudioStream		*stream			= nil;
-	
 	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject])) {
-		[_playQueue addObject:stream];
-	}
+	[_playQueue addObjectsFromArray:streams];
+	[self didChangeValueForKey:PlayQueueKey];
+	
+	[self updatePlayButtonState];
+}
+
+- (void) insertStreams:(NSArray *)streams inPlayQueueAtIndex:(unsigned)index
+{
+	[self insertStreams:streams inPlayQueueAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(index, [streams count])]];
+}
+
+- (void) insertStreams:(NSArray *)streams inPlayQueueAtIndexes:(NSIndexSet *)indexes
+{
+	NSParameterAssert(nil != streams);
+	NSParameterAssert(nil != indexes);
+	NSParameterAssert([streams count] == [indexes count]);
+		
+	[self willChangeValueForKey:PlayQueueKey];
+	[_playQueue insertObjects:streams atIndexes:indexes];
 	[self didChangeValueForKey:PlayQueueKey];
 	
 	[self updatePlayButtonState];

@@ -182,7 +182,11 @@ extern NSString * const		PlayQueueKey;
 - (void)			insertObject:(AudioStream *)stream inPlayQueueAtIndex:(unsigned)index;
 - (void)			removeObjectFromPlayQueueAtIndex:(unsigned)index;
 
+- (void)			addStreamToPlayQueue:(AudioStream *)stream;
 - (void)			addStreamsToPlayQueue:(NSArray *)streams;
+
+- (void)			insertStreams:(NSArray *)streams inPlayQueueAtIndex:(unsigned)index;
+- (void)			insertStreams:(NSArray *)streams inPlayQueueAtIndexes:(NSIndexSet *)indexes;
 
 - (IBAction)		clearPlayQueue:(id)sender;
 
