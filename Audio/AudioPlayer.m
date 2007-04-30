@@ -94,11 +94,11 @@ MyRenderer(void							*inRefCon,
 {
 	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
 	AudioPlayer			*player				= (AudioPlayer *)inRefCon;
-	AudioStreamDecoder	*streamDecoder		= [player streamDecoder];;
+	AudioStreamDecoder	*streamDecoder		= [player streamDecoder];
 	UInt32				currentBuffer;
 	
 	if(nil == streamDecoder) {
-		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
+		*ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
 		
 		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
 			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
@@ -140,7 +140,7 @@ MyRenderer(void							*inRefCon,
 	}
 	
 	if(0 == framesRead) {
-		*ioActionFlags		= kAudioUnitRenderAction_OutputIsSilence;
+		*ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
 		
 		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
 			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
