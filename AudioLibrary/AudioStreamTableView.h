@@ -58,4 +58,6 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	doubleClickAction:(id)sender;
 
+- (NSString *)	emptyMessage;
+
 @end

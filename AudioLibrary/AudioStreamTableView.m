@@ -164,6 +164,46 @@
 	return nil;
 }
 
+- (void) drawRect:(NSRect)drawRect
+{
+	[super drawRect:drawRect];
+	
+	// Draw the empty message
+	if(nil != [self emptyMessage] && 0 == [self numberOfRows]) {
+		NSRect	rect	= [self frame];
+		float	deltaY	= rect.size.height / 2;
+		float	deltaX	= rect.size.width / 2;
+		
+		rect.origin.y		+= deltaY / 2;
+		rect.origin.x		+= deltaX / 2;
+		rect.size.height	-= deltaY;
+		rect.size.width		-= deltaX;
+		
+		if(NO == NSIsEmptyRect(rect)) {
+			NSDictionary	*attributes		= nil;
+			NSString		*empty			= [self emptyMessage];
+			NSRect			bounds			= NSZeroRect;
+			float			fontSize		= 36;
+			
+			do {
+				attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+					[NSFont systemFontOfSize:fontSize], NSFontAttributeName,
+					[[NSColor blackColor] colorWithAlphaComponent:0.4], NSForegroundColorAttributeName,
+					nil];
+				
+				bounds = [empty boundingRectWithSize:rect.size options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes];
+				
+				fontSize -= 2;
+				
+			} while(bounds.size.width > rect.size.width || bounds.size.height > rect.size.height);
+			
+			NSRect drawRect = NSInsetRect(rect, (rect.size.width - bounds.size.width) / 2, (rect.size.height - bounds.size.height) / 2);
+			
+			[empty drawWithRect:drawRect options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes];
+		}
+	}
+}
+
 - (IBAction) addToPlayQueue:(id)sender
 {
 	NSArray *streams = [_streamController selectedObjects];
@@ -385,6 +425,11 @@
 			[[AudioLibrary library] playStreamAtIndex:[[AudioLibrary library] countOfPlayQueue] - 1];
 		}
 	}
+}
+
+- (NSString *) emptyMessage
+{
+	return NSLocalizedStringFromTable(@"Library Empty", @"Library", @"");	
 }
 
 @end

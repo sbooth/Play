@@ -79,6 +79,11 @@
 	[[AudioLibrary library] playStreamAtIndex:[_streamController selectionIndex]];
 }
 
+- (NSString *) emptyMessage
+{
+	return NSLocalizedStringFromTable(@"Play Queue Empty", @"Library", @"");	
+}
+
 - (void) setHighlightedRow:(int)row
 {
 	_highlightedRow = row;
@@ -88,41 +93,6 @@
 {
 	[self drawRowHighlight];
 	[super drawRect:drawRect];
-	
-	// Draw the empty message
-	if(0 == [self numberOfRows]) {
-		NSRect	rect	= [self frame];
-		float	deltaY	= rect.size.height / 2;
-		float	deltaX	= rect.size.width / 2;
-
-		rect.origin.y		+= deltaY / 2;
-		rect.origin.x		+= deltaX / 2;
-		rect.size.height	-= deltaY;
-		rect.size.width		-= deltaX;
-		
-		if(NO == NSIsEmptyRect(rect)) {
-			NSDictionary	*attributes		= nil;
-			NSString		*empty			= NSLocalizedStringFromTable(@"Play Queue Empty", @"Library", @"");
-			NSRect			bounds			= NSZeroRect;
-			float			fontSize		= 36;
-			
-			do {
-				attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-					[NSFont systemFontOfSize:fontSize], NSFontAttributeName,
-					[[NSColor blackColor] colorWithAlphaComponent:0.4], NSForegroundColorAttributeName,
-					nil];
-				
-				bounds = [empty boundingRectWithSize:rect.size options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes];
-				
-				fontSize -= 2;
-				
-			} while(bounds.size.width > rect.size.width || bounds.size.height > rect.size.height);
-			
-			NSRect drawRect = NSInsetRect(rect, (rect.size.width - bounds.size.width) / 2, (rect.size.height - bounds.size.height) / 2);
-
-			[empty drawWithRect:drawRect options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes];
-		}
-	}
 }
 
 - (void) drawBackgroundInClipRect:(NSRect)clipRect
