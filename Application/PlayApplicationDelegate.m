@@ -202,19 +202,45 @@
 	[[PreferencesController sharedPreferences] showWindow:sender];
 }
 
-#pragma mark Hot Keys
+#pragma mark Growl
+
+- (NSDictionary *) registrationDictionaryForGrowl
+{
+	NSDictionary	*registrationDictionary		= nil;
+	NSArray			*defaultNotifications		= nil;
+	NSArray			*allNotifications			= nil;
+	
+	defaultNotifications		= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
+	allNotifications			= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
+	registrationDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
+		@"Play", GROWL_APP_NAME,  
+		allNotifications, GROWL_NOTIFICATIONS_ALL, 
+		defaultNotifications, GROWL_NOTIFICATIONS_DEFAULT,
+		nil];
+	
+	return registrationDictionary;
+}
+
+- (void) growlNotificationWasClicked:(id)clickContext
+{
+	[[AudioLibrary library] jumpToNowPlaying:self];
+}
+
+@end
+
+@implementation PlayApplicationDelegate (HotKeyMethods)
 
 - (void) registerPlayPauseHotKey:(PTKeyCombo *)keyCombo
 {
-	 [[PTHotKeyCenter sharedCenter] unregisterHotKey:[[PTHotKeyCenter sharedCenter] hotKeyWithIdentifier:@"playPause"]];
-	 
-	 PTHotKey *playPauseHotKey = [[PTHotKey alloc] initWithIdentifier:@"playPause" keyCombo:keyCombo];
-	 
-	 [playPauseHotKey setTarget:[AudioLibrary library]];
-	 [playPauseHotKey setAction:@selector(playPause:)];
-	 
-	 [[PTHotKeyCenter sharedCenter] registerHotKey:playPauseHotKey];
-	 [playPauseHotKey release];
+	[[PTHotKeyCenter sharedCenter] unregisterHotKey:[[PTHotKeyCenter sharedCenter] hotKeyWithIdentifier:@"playPause"]];
+	
+	PTHotKey *playPauseHotKey = [[PTHotKey alloc] initWithIdentifier:@"playPause" keyCombo:keyCombo];
+	
+	[playPauseHotKey setTarget:[AudioLibrary library]];
+	[playPauseHotKey setAction:@selector(playPause:)];
+	
+	[[PTHotKeyCenter sharedCenter] registerHotKey:playPauseHotKey];
+	[playPauseHotKey release];
 }
 
 - (void) registerPlayNextStreamHotKey:(PTKeyCombo *)keyCombo
@@ -243,31 +269,45 @@
 	[previousStreamHotKey release];
 }
 
-#pragma mark Growl
+@end
 
-- (NSDictionary *) registrationDictionaryForGrowl
+// These exist solely for the dock menu
+@implementation PlayApplicationDelegate (LibraryWrapperMethods)
+
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
-	NSDictionary	*registrationDictionary		= nil;
-	NSArray			*defaultNotifications		= nil;
-	NSArray			*allNotifications			= nil;
+	if([menuItem action] == @selector(playPause:)) {
+		[menuItem setTitle:([[AudioLibrary library] isPlaying] ? NSLocalizedStringFromTable(@"Pause", @"Menus", @"") : NSLocalizedStringFromTable(@"Play", @"Menus", @""))];
+		return [[AudioLibrary library] playButtonEnabled];
+	}
+	else if([menuItem action] == @selector(playNextStream:)) {
+		return [[AudioLibrary library] canPlayNextStream];
+	}
+	else if([menuItem action] == @selector(playPreviousStream:)) {
+		return [[AudioLibrary library] canPlayPreviousStream];
+	}
 	
-	defaultNotifications		= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
-	allNotifications			= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
-	registrationDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
-		@"Play", GROWL_APP_NAME,  
-		allNotifications, GROWL_NOTIFICATIONS_ALL, 
-		defaultNotifications, GROWL_NOTIFICATIONS_DEFAULT,
-		nil];
-	
-	return registrationDictionary;
+	return YES;
 }
 
-- (void) growlNotificationWasClicked:(id)clickContext
+- (IBAction) playPause:(id)sender
 {
-	[[AudioLibrary library] jumpToNowPlaying:self];
+	[[AudioLibrary library] playPause:sender];
 }
 
-#pragma mark Audio Notification Handling
+- (IBAction) playNextStream:(id)sender
+{
+	[[AudioLibrary library] playNextStream:sender];
+}
+
+- (IBAction) playPreviousStream:(id)sender
+{
+	[[AudioLibrary library] playPreviousStream:sender];
+}
+
+@end
+
+@implementation PlayApplicationDelegate (Private)
 
 - (void) playbackDidStart:(NSNotification *)aNotification
 {

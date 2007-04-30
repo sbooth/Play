@@ -480,7 +480,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[self setShouldCascadeWindows:NO];
 	[self setWindowFrameAutosaveName:@"Library"];
-	[[self window] setExcludedFromWindowsMenu:YES];
+//	[[self window] setExcludedFromWindowsMenu:YES];
 }
 
 - (void) windowWillClose:(NSNotification *)aNotification
@@ -1219,6 +1219,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 	
 	[self updatePlayButtonState];
+}
+
+- (BOOL) isPlaying
+{
+	return [[self player] isPlaying];
 }
 
 #pragma mark Play Queue management

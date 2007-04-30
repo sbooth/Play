@@ -144,6 +144,8 @@ extern NSString * const		PlayQueueKey;
 
 - (void)		playStreamAtIndex:(unsigned)index;
 
+- (BOOL)		isPlaying;
+
 // ========================================
 // File addition and removal
 - (IBAction)	openDocument:(id)sender;

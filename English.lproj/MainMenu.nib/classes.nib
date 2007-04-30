@@ -36,7 +36,12 @@
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {showPreferences = id; }; 
+            ACTIONS = {
+                playNextStream = id; 
+                playPause = id; 
+                playPreviousStream = id; 
+                showPreferences = id; 
+            }; 
             CLASS = PlayApplicationDelegate; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
