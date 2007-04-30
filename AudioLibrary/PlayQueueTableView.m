@@ -109,7 +109,7 @@
 			do {
 				attributes = [NSDictionary dictionaryWithObjectsAndKeys:
 					[NSFont systemFontOfSize:fontSize], NSFontAttributeName,
-					[[NSColor blackColor] colorWithAlphaComponent:0.75], NSForegroundColorAttributeName,
+					[[NSColor blackColor] colorWithAlphaComponent:0.4], NSForegroundColorAttributeName,
 					nil];
 				
 				bounds = [empty boundingRectWithSize:rect.size options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes];
