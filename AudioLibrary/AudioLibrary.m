@@ -84,8 +84,6 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
-#import "CTGradient.h"
-
 #import "NSTreeController_Extensions.h"
 
 #include "sfmt19937.h"
