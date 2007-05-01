@@ -25,6 +25,7 @@ INSERT INTO 'streams' (
 		comment,
 		isrc,
 		mcn,
+		bpm,
 				
 		file_type,
 		format_type,
@@ -64,6 +65,7 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
+		?,
 				
 		?,
 		?,

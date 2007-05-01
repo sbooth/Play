@@ -50,9 +50,6 @@
 	u_int16_t		trackNumber, totalTracks;
 	u_int16_t		bpm, discNumber, discTotal;
 	u_int8_t		compilation;
-	u_int32_t		artCount;
-	u_int8_t		*bytes								= NULL;
-	u_int32_t		length								= 0;
 	
 	metadataDictionary = [NSMutableDictionary dictionary];
 

@@ -49,6 +49,7 @@ extern NSString * const		MetadataDiscTotalKey;
 extern NSString * const		MetadataCommentKey;
 extern NSString * const		MetadataISRCKey;
 extern NSString * const		MetadataMCNKey;
+extern NSString * const		MetadataBPMKey;
 
 extern NSString * const		PropertiesFileTypeKey;
 extern NSString * const		PropertiesFormatTypeKey;

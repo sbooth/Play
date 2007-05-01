@@ -24,6 +24,7 @@ UPDATE 'streams' SET
 		comment = :comment,
 		isrc = :isrc,
 		mcn = :mcn,
+		bpm = :bpm,
 		
 		file_type = :file_type,
 		format_type = :format_type,

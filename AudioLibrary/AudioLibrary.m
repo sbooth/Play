@@ -245,6 +245,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"filename",
 		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"rating",
+		[NSNumber numberWithBool:NO], @"bpm",
 		nil];
 	
 	NSDictionary *streamTableColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -268,6 +269,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:55], @"filename",
 		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
+		[NSNumber numberWithFloat:72], @"bpm",
 		nil];
 	
 	NSDictionary *streamTableColumnOrderArray = [NSArray arrayWithObjects:
@@ -296,6 +298,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"filename",
 		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"rating",
+		[NSNumber numberWithBool:NO], @"bpm",
 		nil];
 	
 	NSDictionary *playQueueColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -320,6 +323,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:55], @"filename",
 		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
+		[NSNumber numberWithFloat:72], @"bpm",
 		nil];
 	
 	NSDictionary *playQueueColumnOrderArray = [NSArray arrayWithObjects:

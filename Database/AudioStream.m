@@ -49,6 +49,7 @@ NSString * const	MetadataDiscTotalKey					= @"discTotal";
 NSString * const	MetadataCommentKey						= @"comment";
 NSString * const	MetadataISRCKey							= @"isrc";
 NSString * const	MetadataMCNKey							= @"mcn";
+NSString * const	MetadataBPMKey							= @"bpm";
 
 NSString * const	PropertiesFileTypeKey					= @"fileType";
 NSString * const	PropertiesFormatTypeKey					= @"formatType";
@@ -216,6 +217,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			MetadataCommentKey,
 			MetadataISRCKey,
 			MetadataMCNKey,
+			MetadataBPMKey,
 			
 			PropertiesFileTypeKey,
 			PropertiesFormatTypeKey,

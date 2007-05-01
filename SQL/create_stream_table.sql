@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'comment' 				TEXT,
 	'isrc' 					TEXT,
 	'mcn' 					TEXT,
+	'bpm' 					INTEGER,
 	
 	'file_type'				TEXT,
 	'format_type'			TEXT,
