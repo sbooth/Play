@@ -20,29 +20,25 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class BrowserTreeController;
+@class WatchFolder;
 
-// ========================================
-// Pboard Types
-// ========================================
-extern NSString * const		AudioStreamPboardType;
-
-@interface BrowserOutlineView : NSOutlineView 
+@interface WatchFolderInformationSheet : NSObject
 {
-	IBOutlet BrowserTreeController	*_browserController;
-	IBOutlet NSMenu					*_playlistMenu;
-	IBOutlet NSMenu					*_watchFolderMenu;
+	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSImageView		*_folderImageView;
+	
+@private
+	WatchFolder					*_watchFolder;
 }
 
-// ========================================
-// Action Methods
-- (IBAction)	addToPlayQueue:(id)sender;
+- (NSWindow *)		sheet;
 
-- (IBAction)	playlistInformation:(id)sender;
-- (IBAction)	watchFolderInformation:(id)sender;
+- (IBAction)		ok:(id)sender;
+- (IBAction)		cancel:(id)sender;
 
-- (IBAction)	remove:(id)sender;
+- (IBAction)		chooseFolder:(id)sender;
 
-- (IBAction)	doubleClickAction:(id)sender;
+- (WatchFolder *)	watchFolder;
+- (void)			setWatchFolder:(WatchFolder *)watchFolder;
 
 @end

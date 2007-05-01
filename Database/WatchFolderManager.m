@@ -757,6 +757,7 @@
 - (void) synchronizeLibraryStreamsWithURL:(NSURL *)url
 {
 	NSParameterAssert(nil != url);
+	NSLog(@"-synchronizeLibraryStreamsWithURL:%@",url);
 
 	// First grab the paths for the streams in the library under this url
 	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];

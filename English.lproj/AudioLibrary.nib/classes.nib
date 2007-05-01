@@ -68,9 +68,20 @@
             SUPERCLASS = NSTableView; 
         }, 
         {
+            ACTIONS = {
+                addToPlayQueue = id; 
+                doubleClickAction = id; 
+                playlistInformation = id; 
+                remove = id; 
+                watchFolderInformation = id; 
+            }; 
             CLASS = BrowserOutlineView; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_browserController" = BrowserTreeController; "_playlistMenu" = NSMenu; }; 
+            OUTLETS = {
+                "_browserController" = BrowserTreeController; 
+                "_playlistMenu" = NSMenu; 
+                "_watchFolderMenu" = NSMenu; 
+            }; 
             SUPERCLASS = NSOutlineView; 
         }, 
         {
@@ -94,6 +105,7 @@
                 revealInFinder = id; 
                 saveMetadata = id; 
                 streamInformation = id; 
+                watchFolderInformation = id; 
             }; 
             CLASS = FirstResponder; 
             LANGUAGE = ObjC; 

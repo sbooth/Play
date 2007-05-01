@@ -63,6 +63,7 @@
 		8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220CC70BB978C100808450 /* MostPopularNode.m */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
+		8C3033A20BE6F40E00E37350 /* WatchFolderInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3033A00BE6F40D00E37350 /* WatchFolderInformationSheet.m */; };
 		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
 		8C30A0770B74F8630007204B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0740B74F8630007204B /* main.m */; };
 		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
@@ -432,6 +433,8 @@
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamCollectionNode.h; path = Browser/AudioStreamCollectionNode.h; sourceTree = "<group>"; };
 		8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamCollectionNode.m; path = Browser/AudioStreamCollectionNode.m; sourceTree = "<group>"; };
+		8C30339F0BE6F40D00E37350 /* WatchFolderInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WatchFolderInformationSheet.h; path = AudioLibrary/WatchFolderInformationSheet.h; sourceTree = "<group>"; };
+		8C3033A00BE6F40D00E37350 /* WatchFolderInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WatchFolderInformationSheet.m; path = AudioLibrary/WatchFolderInformationSheet.m; sourceTree = "<group>"; };
 		8C30A0510B74F6220007204B /* ServicesProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServicesProvider.h; path = Application/ServicesProvider.h; sourceTree = "<group>"; };
 		8C30A0520B74F6220007204B /* ServicesProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServicesProvider.m; path = Application/ServicesProvider.m; sourceTree = "<group>"; };
 		8C30A0740B74F8630007204B /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Application/main.m; sourceTree = "<group>"; };
@@ -1307,6 +1310,8 @@
 		8C9C2DC20B72AEEF00CE799A /* AudioLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				8C30339F0BE6F40D00E37350 /* WatchFolderInformationSheet.h */,
+				8C3033A00BE6F40D00E37350 /* WatchFolderInformationSheet.m */,
 				8C220A6B0BB8A35700808450 /* SmartPlaylistCriterion.h */,
 				8C220A6C0BB8A35700808450 /* SmartPlaylistCriterion.m */,
 				8C220A6D0BB8A35700808450 /* SmartPlaylistInformationSheet.h */,
@@ -1949,6 +1954,7 @@
 				8C58382C0BDFD04400E43C9E /* OutputPreferencesController.m in Sources */,
 				8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */,
 				8C5849CE0BE1A59800E43C9E /* RecentlySkippedNode.m in Sources */,
+				8C3033A20BE6F40E00E37350 /* WatchFolderInformationSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

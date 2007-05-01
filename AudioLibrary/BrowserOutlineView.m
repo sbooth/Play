@@ -21,11 +21,13 @@
 #import "BrowserOutlineView.h"
 #import "BrowserTreeController.h"
 #import "AudioStreamCollectionNode.h"
+#import "WatchFolderNode.h"
 #import "CollectionManager.h"
 #import "AudioStream.h"
 #import "AudioLibrary.h"
 #import "PlaylistInformationSheet.h"
 #import "SmartPlaylistInformationSheet.h"
+#import "WatchFolderInformationSheet.h"
 #import "NSBezierPath_RoundRectMethods.h"
 #import "CTGradient.h"
 #import "CTBadge.h"
@@ -43,6 +45,7 @@ static float heightOffset	= 3.0;
 @interface BrowserOutlineView (Private)
 - (void) showPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showSmartPlaylistInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showWatchFolderInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 @end
 
 @implementation BrowserOutlineView
@@ -60,6 +63,9 @@ static float heightOffset	= 3.0;
 	}
 	else if([menuItem action] == @selector(playlistInformation:)) {
 		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
+	}
+	else if([menuItem action] == @selector(watchFolderInformation:)) {
+		return [_browserController selectedNodeIsWatchFolder];
 	}
 	else if([menuItem action] == @selector(remove:)) {
 		return [_browserController canRemove];
@@ -127,6 +133,9 @@ static float heightOffset	= 3.0;
 		
 		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
 			return _playlistMenu;
+		}
+		if([_browserController selectedNodeIsWatchFolder]) {
+			return _watchFolderMenu;
 		}
 		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]]) {
 			return [self menu];
@@ -245,6 +254,26 @@ static float heightOffset	= 3.0;
 	}
 }
 
+- (IBAction) watchFolderInformation:(id)sender
+{
+	if(NO == [_browserController selectedNodeIsWatchFolder]) {
+		NSBeep();
+		return;
+	}
+	
+	WatchFolderInformationSheet *watchFolderInformationSheet = [[WatchFolderInformationSheet alloc] init];
+	
+	[watchFolderInformationSheet setWatchFolder:[(WatchFolderNode *)[_browserController selectedNode] watchFolder]];
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	[[NSApplication sharedApplication] beginSheet:[watchFolderInformationSheet sheet] 
+								   modalForWindow:[[AudioLibrary library] window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showWatchFolderInformationSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:watchFolderInformationSheet];
+}
+
 - (IBAction) remove:(id)sender
 {
 	if(NO == [_browserController canRemove]) {
@@ -318,6 +347,23 @@ static float heightOffset	= 3.0;
 	}
 	
 	[playlistInformationSheet release];
+}
+
+- (void) showWatchFolderInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	WatchFolderInformationSheet *watchFolderInformationSheet = (WatchFolderInformationSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] finishUpdate];
+	}
+	else if(NSCancelButton == returnCode) {
+		[[CollectionManager manager] cancelUpdate];
+		// TODO: refresh affected objects
+	}
+	
+	[watchFolderInformationSheet release];
 }
 
 @end
