@@ -151,6 +151,36 @@
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"BPM"]) {
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataBPMKey];
 					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_REFERENCE_LOUDNESS"]) {
+						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+						double		doubleValue		= 0.0;
+						
+						if([scanner scanDouble:&doubleValue]) {
+							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainReferenceLoudnessKey];
+						}						
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_TRACK_GAIN"]) {
+						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+						double		doubleValue		= 0.0;
+						
+						if([scanner scanDouble:&doubleValue]) {
+							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
+						}
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_TRACK_PEAK"]) {
+						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_GAIN"]) {
+						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+						double		doubleValue		= 0.0;
+						
+						if([scanner scanDouble:&doubleValue]) {
+							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
+						}
+					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_PEAK"]) {
+						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+					}
 					
 					[key release];
 					[value release];

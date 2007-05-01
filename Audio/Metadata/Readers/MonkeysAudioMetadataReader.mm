@@ -117,6 +117,16 @@ getAPETag(CAPETag		*f,
 	NSString *bpm = getAPETag(f, "BPM");
 	[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];		
 
+	// Replay Gain
+	NSString *peak = getAPETag(f, "Peak Level");
+	[metadataDictionary setValue:[NSNumber numberWithDouble:[peak doubleValue]] forKey:ReplayGainTrackPeakKey];		
+	
+	NSString *trackGain = getAPETag(f, "Replay Gain (radio)");
+	[metadataDictionary setValue:[NSNumber numberWithDouble:[trackGain doubleValue]] forKey:ReplayGainTrackGainKey];		
+
+	NSString *albumGain = getAPETag(f, "Replay Gain (album)");
+	[metadataDictionary setValue:[NSNumber numberWithDouble:[albumGain doubleValue]] forKey:ReplayGainAlbumGainKey];		
+
 	delete f;
 	free(chars);
 	

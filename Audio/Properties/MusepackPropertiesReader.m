@@ -27,8 +27,6 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path;
-	FILE							*file;
 	mpc_reader_file					reader_file;
 	mpc_decoder						decoder;
 	mpc_streaminfo					streaminfo;
@@ -36,8 +34,8 @@
 	mpc_int32_t						intResult;
 	mpc_bool_t						boolResult;
 	
-	path			= [[self valueForKey:StreamURLKey] path];
-	file			= fopen([path fileSystemRepresentation], "r");
+	NSString	*path	= [[self valueForKey:StreamURLKey] path];
+	FILE		*file	= fopen([path fileSystemRepresentation], "r");
 	
 	if(NULL == file) {
 		if(nil != error) {
@@ -59,7 +57,7 @@
 	
 	// Get input file information
 	mpc_streaminfo_init(&streaminfo);
-	intResult		= mpc_streaminfo_read(&streaminfo, &reader_file.reader);
+	intResult = mpc_streaminfo_read(&streaminfo, &reader_file.reader);
 	
 	if(ERROR_CODE_OK != intResult) {
 		if(nil != error) {
@@ -74,7 +72,7 @@
 									 userInfo:errorDictionary];
 		}
 		
-		result			= fclose(file);
+		result = fclose(file);
 		NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
 		
 		return NO;
@@ -82,10 +80,10 @@
 	
 	// Set up the decoder
 	mpc_decoder_setup(&decoder, &reader_file.reader);
-	boolResult		= mpc_decoder_initialize(&decoder, &streaminfo);
+	boolResult = mpc_decoder_initialize(&decoder, &streaminfo);
 	NSAssert(YES == boolResult, NSLocalizedStringFromTable(@"Unable to intialize the Musepack decoder.", @"Errors", @""));
 	
-	propertiesDictionary			= [NSMutableDictionary dictionary];
+	propertiesDictionary = [NSMutableDictionary dictionary];
 	
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:PropertiesFileTypeKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Musepack", @"Formats", @"") forKey:PropertiesFormatTypeKey];
@@ -95,11 +93,26 @@
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.channels] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.sample_freq] forKey:PropertiesSampleRateKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)mpc_streaminfo_get_length_samples(&streaminfo) / streaminfo.sample_freq] forKey:PropertiesDurationKey];
-			
+
+	if(0 != streaminfo.gain_title) {
+		[propertiesDictionary setValue:[NSNumber numberWithShort:streaminfo.gain_title] forKey:ReplayGainTrackGainKey];
+	}
+
+	if(0 != streaminfo.gain_album) {
+		[propertiesDictionary setValue:[NSNumber numberWithShort:streaminfo.gain_album] forKey:ReplayGainAlbumGainKey];
+	}
+
+	if(0 != streaminfo.peak_title) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedShort:streaminfo.peak_title] forKey:ReplayGainTrackPeakKey];
+	}
+
+	if(0 != streaminfo.peak_album) {
+		[propertiesDictionary setValue:[NSNumber numberWithUnsignedShort:streaminfo.peak_album] forKey:ReplayGainAlbumPeakKey];
+	}
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
-	result							= fclose(file);	
+	result = fclose(file);	
 	NSAssert1(EOF != result, @"Unable to close the input file (%s).", strerror(errno));	
 	
 	return YES;

@@ -153,7 +153,56 @@
 			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
 			[metadataDictionary setValue:numberValue forKey:MetadataBPMKey];
 		}
-	}		
+		
+		// Replay Gain
+		tag = "REPLAYGAIN_REFERENCE_LOUDNESS";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			
+			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+			double		doubleValue		= 0.0;
+			
+			if([scanner scanDouble:&doubleValue]) {
+				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainReferenceLoudnessKey];
+			}						
+		}					
+		
+		tag = "REPLAYGAIN_TRACK_GAIN";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			
+			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+			double		doubleValue		= 0.0;
+			
+			if([scanner scanDouble:&doubleValue]) {
+				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
+			}						
+		}					
+		
+		tag = "REPLAYGAIN_TRACK_PEAK";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+		}					
+		
+		tag = "REPLAYGAIN_ALBUM_GAIN";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			
+			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
+			double		doubleValue		= 0.0;
+			
+			if([scanner scanDouble:&doubleValue]) {
+				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
+			}						
+		}					
+		
+		tag = "REPLAYGAIN_ALBUM_PEAK";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+		}
+	}
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];
 
