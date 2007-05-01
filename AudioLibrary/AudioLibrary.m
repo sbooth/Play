@@ -1664,6 +1664,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		WatchFolder *watchFolder = [WatchFolder insertWatchFolderWithInitialValues:initialValues];
 
 		if(nil != watchFolder) {
+			[_browserDrawer open:self];
 		}
 		else {
 			NSBeep();
