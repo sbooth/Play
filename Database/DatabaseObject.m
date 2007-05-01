@@ -61,6 +61,7 @@ NSString * const	ObjectIDKey								= @"id";
 	if([[self supportedKeys] containsObject:key]) {
 
 		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
+		[self willChangeValueForKey:key];
 		
 		// Internally NSNull is used to indicate a value that was specifically set to nil
 		if(nil == value) {
@@ -74,6 +75,7 @@ NSString * const	ObjectIDKey								= @"id";
 			[_changedValues setValue:value forKey:key];			
 		}
 		
+		[self didChangeValueForKey:key];
 		[[CollectionManager manager] databaseObject:self didChangeValueForKey:key];
 	}
 	else {
