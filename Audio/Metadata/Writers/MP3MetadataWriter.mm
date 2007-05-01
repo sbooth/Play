@@ -123,6 +123,17 @@
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	f.tag()->setTitle(nil == title ? TagLib::String::null : TagLib::String([title UTF8String], TagLib::String::UTF8));
+
+	// BPM
+	f.ID3v2Tag()->removeFrames("TBPM");
+	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
+	if(nil != bpm) {
+		frame = new TagLib::ID3v2::TextIdentificationFrame("TBPM", TagLib::String::Latin1);
+		NSAssert(NULL != frame, @"Unable to allocate memory.");
+		
+		frame->setText(TagLib::String([[bpm stringValue] UTF8String], TagLib::String::UTF8));
+		f.ID3v2Tag()->addFrame(frame);
+	}
 	
 	// Track number and total tracks
 	f.ID3v2Tag()->removeFrames("TRCK");

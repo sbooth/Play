@@ -29,9 +29,7 @@ static void setField(CAPETag		*f,
 					 const char		*name, 
 					 NSString		*value)
 {
-	str_utf16		*fieldName		= NULL;
-
-	fieldName		= GetUTF16FromANSI(name);
+	str_utf16 *fieldName = GetUTF16FromANSI(name);
 	NSCAssert(NULL != fieldName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	f->RemoveField(fieldName);
@@ -91,13 +89,17 @@ static void setField(CAPETag		*f,
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	setField(f, "GENRE", genre);
+
+	// Genre
+	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
+	setField(f, "BPM", [bpm stringValue]);
 	
 	// Date
 	NSString *year = [metadata valueForKey:MetadataDateKey];
 	setField(f, "YEAR", year);
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
 	setField(f, "COMMENT", comment);
 	
 	// Track title
@@ -105,15 +107,15 @@ static void setField(CAPETag		*f,
 	setField(f, "TITLE", title);
 	
 	// Track number
-	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
+	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
 	setField(f, "TRACK", [trackNumber stringValue]);
 	
 	// Track total
-	NSNumber *trackTotal		= [metadata valueForKey:MetadataTrackTotalKey];
+	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
 	setField(f, "TRACKTOTAL", [trackTotal stringValue]);
 	
 	// Disc number
-	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
+	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
 	setField(f, "DISCNUMBER", [discNumber stringValue]);
 	
 	// Discs in set
@@ -121,7 +123,7 @@ static void setField(CAPETag		*f,
 	setField(f, "DISCTOTAL", [discTotal stringValue]);
 	
 	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
 	setField(f, "COMPILATION", [compilation stringValue]);
 	
 	// ISRC

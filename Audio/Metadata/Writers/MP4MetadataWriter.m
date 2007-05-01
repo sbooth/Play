@@ -27,9 +27,9 @@
 
 - (BOOL) writeMetadata:(id)metadata error:(NSError **)error
 {
-	NSString						*path					= [_url path];
-	MP4FileHandle					mp4FileHandle			= MP4Modify([path fileSystemRepresentation], 0, 0);
-	BOOL							result;
+	NSString		*path			= [_url path];
+	MP4FileHandle	mp4FileHandle	= MP4Modify([path fileSystemRepresentation], 0, 0);
+	BOOL			result			= NO;
 
 	if(MP4_INVALID_FILE_HANDLE == mp4FileHandle) {
 		if(nil != error) {
@@ -49,84 +49,64 @@
 	
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	if(nil != album) {
-		MP4SetMetadataAlbum(mp4FileHandle, [album UTF8String]);
-	}
+	result = MP4SetMetadataAlbum(mp4FileHandle, (nil == album ? "" : [album UTF8String]));
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	if(nil != artist) {
-		MP4SetMetadataArtist(mp4FileHandle, [artist UTF8String]);
-	}
+	result = MP4SetMetadataArtist(mp4FileHandle, (nil == artist ? "" : [artist UTF8String]));
+
+	// Album Artist
+	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
+	result = MP4SetMetadataAlbumArtist(mp4FileHandle, (nil == albumArtist ? "" : [albumArtist UTF8String]));
+	
+	// BPM
+	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
+	result = MP4SetMetadataTempo(mp4FileHandle, (nil == bpm ? 0 : [bpm unsignedShortValue]));
 	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
-	if(nil != composer) {
-		MP4SetMetadataWriter(mp4FileHandle, [composer UTF8String]);
-	}
+	result = MP4SetMetadataWriter(mp4FileHandle, (nil == composer ? "" : [composer UTF8String]));
 	
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	if(nil != genre) {
-		MP4SetMetadataGenre(mp4FileHandle, [genre UTF8String]);
-	}
+	result = MP4SetMetadataGenre(mp4FileHandle, (nil == genre ? "" : [genre UTF8String]));
 	
 	// Year
 	NSString *date = [metadata valueForKey:MetadataDateKey];
-	if(nil != date) {
-		MP4SetMetadataYear(mp4FileHandle, [date UTF8String]);
-	}
+	result = MP4SetMetadataYear(mp4FileHandle, (nil == date ? "" : [date UTF8String]));
 	
 	// Comment
 	NSString *comment = [metadata valueForKey:MetadataCommentKey];
-	if(nil != comment) {
-		MP4SetMetadataComment(mp4FileHandle, [comment UTF8String]);
-	}
+	result = MP4SetMetadataComment(mp4FileHandle, (nil == comment ? "" : [comment UTF8String]));
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	if(nil != title) {
-		MP4SetMetadataName(mp4FileHandle, [title UTF8String]);
-	}
+	result = MP4SetMetadataName(mp4FileHandle, (nil == title ? "" : [title UTF8String]));
 	
 	// Track number
 	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
 	NSNumber *trackTotal	= [metadata valueForKey:MetadataTrackTotalKey];
-	if(nil != trackNumber && nil != trackTotal) {
-		MP4SetMetadataTrack(mp4FileHandle, [trackNumber unsignedIntValue], [trackTotal unsignedIntValue]);
-	}
-	else if(nil != trackNumber) {
-		MP4SetMetadataTrack(mp4FileHandle, [trackNumber unsignedIntValue], 0);
-	}
-	else if(nil != trackTotal) {
-		MP4SetMetadataTrack(mp4FileHandle, 0, [trackTotal unsignedIntValue]);
-	}
+	result = MP4SetMetadataTrack(mp4FileHandle,
+								 (nil == trackNumber ? 0 : [trackNumber unsignedIntValue]),
+								 (nil == trackTotal ? 0 : [trackTotal unsignedIntValue]));
 	
 	// Disc number
 	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
-	if(nil != discNumber && nil != discTotal) {
-		MP4SetMetadataDisk(mp4FileHandle, [discNumber unsignedIntValue], [discTotal unsignedIntValue]);
-	}
-	else if(nil != discNumber) {
-		MP4SetMetadataDisk(mp4FileHandle, [discNumber unsignedIntValue], 0);
-	}
-	else if(nil != discTotal) {
-		MP4SetMetadataDisk(mp4FileHandle, 0, [discTotal unsignedIntValue]);
-	}
+	result = MP4SetMetadataDisk(mp4FileHandle,
+								(nil == discNumber ? 0 : [discNumber unsignedIntValue]),
+								(nil == discTotal ? 0 : [discTotal unsignedIntValue]));
 	
 	// Compilation
 	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	if(nil != compilation) {
-		MP4SetMetadataCompilation(mp4FileHandle, [compilation boolValue]);
-	}
+	result = MP4SetMetadataCompilation(mp4FileHandle, (nil == compilation ? NO : [compilation boolValue]));
 	
 	// Album art
-	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
+/*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
 	if(nil != albumArt) {
 		NSData *data = getPNGDataForImage(albumArt); 
 		MP4SetMetadataCoverArt(mp4FileHandle, (u_int8_t *)[data bytes], [data length]);
-	}
+	}*/
 		
 	result = MP4Close(mp4FileHandle);
 	if(NO == result) {

@@ -50,46 +50,32 @@
 	
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	if(nil != album) {
-		f.tag()->setAlbum(TagLib::String([album UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setAlbum(nil == album ? TagLib::String::null : TagLib::String([album UTF8String], TagLib::String::UTF8));
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	if(nil != artist) {
-		f.tag()->setArtist(TagLib::String([artist UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setArtist(nil == artist ? TagLib::String::null : TagLib::String([artist UTF8String], TagLib::String::UTF8));
 		
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	if(nil != genre) {
-		f.tag()->setGenre(TagLib::String([genre UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setGenre(nil == genre ? TagLib::String::null : TagLib::String([genre UTF8String], TagLib::String::UTF8));
 	
 	// Date
 	NSString *date = [metadata valueForKey:MetadataDateKey];
-	if(nil != date) {
-		f.tag()->setYear([date intValue]);
-	}
+	f.tag()->setYear(nil == date ? 0 : [date intValue]);
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
-	if(nil != comment) {
-		f.tag()->setComment(TagLib::String([comment UTF8String], TagLib::String::UTF8));
-	}
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
+	f.tag()->setComment(nil == comment ? TagLib::String::null : TagLib::String([comment UTF8String], TagLib::String::UTF8));
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	if(nil != title) {
-		f.tag()->setTitle(TagLib::String([title UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->setTitle(nil == title ? TagLib::String::null : TagLib::String([title UTF8String], TagLib::String::UTF8));
 	
 	// Track number and total tracks
-	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
-//	NSNumber *trackTotal		= [metadata valueForKey:MetadataTrackTotalKey];
-	if(nil != trackNumber) {
-		f.tag()->setTrack([trackNumber unsignedIntValue]);
-	}
+	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
+//	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
+	f.tag()->setTrack(nil == trackNumber ? 0 : [trackNumber intValue]);
 		
 	result = f.save();
 	if(NO == result) {

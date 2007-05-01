@@ -48,82 +48,88 @@
 	
 	char			*s									= NULL;
 	u_int16_t		trackNumber, totalTracks;
-	u_int16_t		discNumber, discTotal;
+	u_int16_t		bpm, discNumber, discTotal;
 	u_int8_t		compilation;
 	u_int32_t		artCount;
 	u_int8_t		*bytes								= NULL;
 	u_int32_t		length								= 0;
 	
-	metadataDictionary			= [NSMutableDictionary dictionary];
+	metadataDictionary = [NSMutableDictionary dictionary];
 
 	// Album title
-	MP4GetMetadataAlbum(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataAlbum(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataAlbumTitleKey];
 	}
 	
 	// Artist
-	MP4GetMetadataArtist(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataArtist(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataArtistKey];
+	}
+
+	// Album Artist
+	if(MP4GetMetadataAlbumArtist(mp4FileHandle, &s)) {
+		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataAlbumArtistKey];
 	}
 	
 	// Genre
-	MP4GetMetadataGenre(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataGenre(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataGenreKey];
 	}
 	
 	// Year
-	MP4GetMetadataYear(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataYear(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataDateKey];
 	}
 	
 	// Composer
-	MP4GetMetadataWriter(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataWriter(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataComposerKey];
 	}
 	
 	// Comment
-	MP4GetMetadataComment(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataComment(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataCommentKey];
 	}
 	
 	// Track title
-	MP4GetMetadataName(mp4FileHandle, &s);
-	if(NULL != s) {
+	if(MP4GetMetadataName(mp4FileHandle, &s)) {
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s] forKey:MetadataTitleKey];
 	}
 	
 	// Track number
-	MP4GetMetadataTrack(mp4FileHandle, &trackNumber, &totalTracks);
-	if(0 != trackNumber) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:trackNumber] forKey:MetadataTrackNumberKey];
-	}
-	if(0 != totalTracks) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:totalTracks] forKey:MetadataTrackTotalKey];
+	if(MP4GetMetadataTrack(mp4FileHandle, &trackNumber, &totalTracks)) {
+		if(0 != trackNumber) {
+			[metadataDictionary setValue:[NSNumber numberWithInt:trackNumber] forKey:MetadataTrackNumberKey];
+		}
+		
+		if(0 != totalTracks) {
+			[metadataDictionary setValue:[NSNumber numberWithInt:totalTracks] forKey:MetadataTrackTotalKey];
+		}
 	}
 	
 	// Disc number
-	MP4GetMetadataDisk(mp4FileHandle, &discNumber, &discTotal);
-	if(0 != discNumber) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:discNumber] forKey:MetadataDiscNumberKey];
-	}
-	if(0 != discTotal) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:discTotal] forKey:MetadataDiscTotalKey];
+	if(MP4GetMetadataDisk(mp4FileHandle, &discNumber, &discTotal)) {
+		if(0 != discNumber) {
+			[metadataDictionary setValue:[NSNumber numberWithInt:discNumber] forKey:MetadataDiscNumberKey];
+		}
+
+		if(0 != discTotal) {
+			[metadataDictionary setValue:[NSNumber numberWithInt:discTotal] forKey:MetadataDiscTotalKey];
+		}
 	}
 	
 	// Compilation
-	MP4GetMetadataCompilation(mp4FileHandle, &compilation);
-	if(compilation) {
+	if(MP4GetMetadataCompilation(mp4FileHandle, &compilation)) {
 		[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:MetadataCompilationKey];
+	}
+
+	// BPM
+	if(MP4GetMetadataTempo(mp4FileHandle, &bpm)) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:bpm] forKey:MetadataBPMKey];
 	}
 	
 	// Album art
-	artCount = MP4GetMetadataCoverArtCount(mp4FileHandle);
+/*	artCount = MP4GetMetadataCoverArtCount(mp4FileHandle);
 	if(0 < artCount) {
 		MP4GetMetadataCoverArt(mp4FileHandle, &bytes, &length, 0);
 		NSImage				*image	= [[NSImage alloc] initWithData:[NSData dataWithBytes:bytes length:length]];
@@ -131,7 +137,7 @@
 			[metadataDictionary setValue:[image TIFFRepresentation] forKey:@"albumArt"];
 			[image release];
 		}
-	}
+	}*/
 	
 	MP4Close(mp4FileHandle);	
 	

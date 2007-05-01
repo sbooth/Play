@@ -62,6 +62,13 @@
 	if(nil != artist) {
 		WavpackAppendTagItem(wpc, "ARTIST", [artist UTF8String], strlen([artist UTF8String]));
 	}
+
+	// Artist
+	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
+	WavpackDeleteTagItem(wpc, "ALBUMARTIST");
+	if(nil != albumArtist) {
+		WavpackAppendTagItem(wpc, "ALBUMARTIST", [albumArtist UTF8String], strlen([albumArtist UTF8String]));
+	}
 	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
@@ -85,7 +92,7 @@
 	}
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
 	WavpackDeleteTagItem(wpc, "COMMENT");
 	if(nil != comment) {
 		WavpackAppendTagItem(wpc, "COMMENT", [comment UTF8String], strlen([comment UTF8String]));
@@ -146,7 +153,14 @@
 	if(nil != mcn) {
 		WavpackAppendTagItem(wpc, "MCN", [mcn UTF8String], strlen([mcn UTF8String]));
 	}
-		
+
+	// BPM
+	NSNumber *bpm	= [metadata valueForKey:MetadataBPMKey];
+	WavpackDeleteTagItem(wpc, "BPM");
+	if(nil != bpm) {
+		WavpackAppendTagItem(wpc, "BPM", [[bpm stringValue] UTF8String], strlen([[bpm stringValue] UTF8String]));
+	}
+	
 	result	= WavpackWriteTag(wpc);
 
 	if(NO == result) {

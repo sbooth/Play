@@ -69,6 +69,12 @@
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
 			[metadataDictionary setValue:value forKey:MetadataArtistKey];
 		}
+
+		tag = "ALBUMARTIST";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:MetadataAlbumArtistKey];
+		}
 		
 		tag = "GENRE";
 		if(fieldList.contains(tag)) {
@@ -140,7 +146,13 @@
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
 			[metadataDictionary setValue:value forKey:MetadataMCNKey];
-		}					
+		}
+
+		tag = "BPM";
+		if(fieldList.contains(tag)) {
+			numberValue = [NSNumber numberWithInt:[[NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)] intValue]];
+			[metadataDictionary setValue:numberValue forKey:MetadataBPMKey];
+		}
 	}		
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];

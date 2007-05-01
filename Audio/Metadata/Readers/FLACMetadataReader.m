@@ -109,6 +109,9 @@
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"]) {
 						[metadataDictionary setValue:value forKey:MetadataArtistKey];
 					}
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUMARTIST"]) {
+						[metadataDictionary setValue:value forKey:MetadataAlbumArtistKey];
+					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"]) {
 						[metadataDictionary setValue:value forKey:MetadataComposerKey];
 					}
@@ -145,7 +148,10 @@
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
 						[metadataDictionary setValue:value forKey:MetadataMCNKey];
 					}
-
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"BPM"]) {
+						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataBPMKey];
+					}
+					
 					[key release];
 					[value release];
 					

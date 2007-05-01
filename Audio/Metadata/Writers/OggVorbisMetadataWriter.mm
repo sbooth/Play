@@ -50,87 +50,67 @@
 		
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	if(nil != album) {
-		f.tag()->addField("ALBUM", TagLib::String([album UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("ALBUM", (nil == album ? TagLib::String::null : TagLib::String([album UTF8String], TagLib::String::UTF8)));
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	if(nil != artist) {
-		f.tag()->addField("ARTIST", TagLib::String([artist UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("ARTIST", (nil == artist ? TagLib::String::null : TagLib::String([artist UTF8String], TagLib::String::UTF8)));
+	
+	// Album Artist
+	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
+	f.tag()->addField("ALBUMARTIST", (nil == albumArtist ? TagLib::String::null : TagLib::String([albumArtist UTF8String], TagLib::String::UTF8)));
 	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
-	if(nil != composer) {
-		f.tag()->addField("COMPOSER", TagLib::String([composer UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("COMPOSER", (nil == composer ? TagLib::String::null : TagLib::String([composer UTF8String], TagLib::String::UTF8)));
 	
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	if(nil != genre) {
-		f.tag()->addField("GENRE", TagLib::String([genre UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("GENRE", (nil == genre ? TagLib::String::null : TagLib::String([genre UTF8String], TagLib::String::UTF8)));
 	
 	// Date
 	NSString *date = [metadata valueForKey:MetadataDateKey];
-	if(nil != date) {
-		f.tag()->addField("DATE", TagLib::String([date UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("DATE", (nil == date ? TagLib::String::null : TagLib::String([date UTF8String], TagLib::String::UTF8)));
 	
 	// Comment
-	NSString *comment			= [metadata valueForKey:MetadataCommentKey];
-	if(nil != comment) {
-		f.tag()->addField("DESCRIPTION", TagLib::String([comment UTF8String], TagLib::String::UTF8));
-	}
+	NSString *comment = [metadata valueForKey:MetadataCommentKey];
+	f.tag()->addField("DESCRIPTION", (nil == comment ? TagLib::String::null : TagLib::String([comment UTF8String], TagLib::String::UTF8)));
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	if(nil != title) {
-		f.tag()->addField("TITLE", TagLib::String([title UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("TITLE", (nil == title ? TagLib::String::null : TagLib::String([title UTF8String], TagLib::String::UTF8)));
 	
 	// Track number
 	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
-	if(nil != trackNumber) {
-		f.tag()->addField("TRACKNUMBER", TagLib::String([[trackNumber stringValue] UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("TRACKNUMBER", (nil == trackNumber ? TagLib::String::null : TagLib::String([[trackNumber stringValue] UTF8String], TagLib::String::UTF8)));
 	
 	// Total tracks
 	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
-	if(nil != trackTotal) {
-		f.tag()->addField("TRACKTOTAL", TagLib::String([[trackTotal stringValue] UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("TRACKTOTAL", (nil == trackTotal ? TagLib::String::null : TagLib::String([[trackTotal stringValue] UTF8String], TagLib::String::UTF8)));
 	
 	// Compilation
 	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	if(nil != compilation) {
-		f.tag()->addField("COMPILATION", TagLib::String([[compilation stringValue] UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("COMPILATION", (nil == compilation ? TagLib::String::null : TagLib::String([[compilation stringValue] UTF8String], TagLib::String::UTF8)));
 	
 	// Disc number
 	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
-	if(nil != discNumber) {
-		f.tag()->addField("DISCNUMBER", TagLib::String([[discNumber stringValue] UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("DISCNUMBER", (nil == discNumber ? TagLib::String::null : TagLib::String([[discNumber stringValue] UTF8String], TagLib::String::UTF8)));
 	
 	// Discs in set
 	NSNumber *discTotal = [metadata valueForKey:MetadataDiscTotalKey];
-	if(nil != discTotal) {
-		f.tag()->addField("DISCTOTAL", TagLib::String([[discTotal stringValue] UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("DISCTOTAL", (nil == discTotal ? TagLib::String::null : TagLib::String([[discTotal stringValue] UTF8String], TagLib::String::UTF8)));
 	
 	// ISRC
 	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
-	if(nil != isrc) {
-		f.tag()->addField("ISRC", TagLib::String([isrc UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("ISRC", (nil == isrc ? TagLib::String::null : TagLib::String([isrc UTF8String], TagLib::String::UTF8)));
 	
 	// MCN
 	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
-	if(nil != mcn) {
-		f.tag()->addField("MCN", TagLib::String([mcn UTF8String], TagLib::String::UTF8));
-	}
+	f.tag()->addField("MCN", (nil == mcn ? TagLib::String::null : TagLib::String([mcn UTF8String], TagLib::String::UTF8)));
+	
+	// BPM
+	NSString *bpm = [metadata valueForKey:MetadataBPMKey];
+	f.tag()->addField("BPM", (nil == bpm ? TagLib::String::null : TagLib::String([bpm UTF8String], TagLib::String::UTF8)));
 	
 	result = f.save();
 	if(NO == result) {

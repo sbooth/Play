@@ -112,6 +112,13 @@
 		if(NO == frameList.isEmpty()) {
 			[metadataDictionary setValue:[NSString stringWithUTF8String:frameList.front()->toString().toCString(true)] forKey:MetadataAlbumArtistKey];
 		}
+
+		// BPM
+		frameList = id3v2tag->frameListMap()["TBPM"];
+		if(NO == frameList.isEmpty()) {
+			NSString *bpmString = [NSString stringWithUTF8String:frameList.front()->toString().toCString(true)];
+			[metadataDictionary setValue:[NSNumber numberWithInt:[bpmString intValue]] forKey:MetadataBPMKey];
+		}
 		
 		// Extract total tracks if present
 		frameList = id3v2tag->frameListMap()["TRCK"];

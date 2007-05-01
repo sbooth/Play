@@ -25,153 +25,98 @@
 #include <mac/APETag.h>
 #include <mac/CharacterHelper.h>
 
+static NSString *
+getAPETag(CAPETag		*f, 
+		  const char	*name)
+{
+	NSCParameterAssert(NULL != f);
+	NSCParameterAssert(NULL != name);
+
+	NSString *result = nil;
+
+	str_utf16 *tagName = GetUTF16FromANSI(name);
+	NSCAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+	
+	CAPETagField *tag = f->GetTagField(tagName);
+	if(NULL != tag && tag->GetIsUTF8Text()) {
+		result = [[NSString alloc] initWithUTF8String:tag->GetFieldValue()];
+	}
+	
+	free(tagName);
+	
+	return [result autorelease];
+}
+
 @implementation MonkeysAudioMetadataReader
 
 - (BOOL) readMetadata:(NSError **)error
 {
-	NSMutableDictionary				*metadataDictionary;
-	NSString						*path;
-	str_utf16						*chars					= NULL;
-	str_utf16						*tagName				= NULL;
+	NSMutableDictionary				*metadataDictionary		= nil;
+	NSString						*path					= [[self valueForKey:StreamURLKey] path];
 	CAPETag							*f						= NULL;
-	CAPETagField					*tag					= NULL;		
 	
-	path							= [[self valueForKey:StreamURLKey] path];
-
-	chars = GetUTF16FromANSI([path fileSystemRepresentation]);
+	str_utf16 *chars = GetUTF16FromANSI([path fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	f = new CAPETag(chars);
 	NSAssert(NULL != f, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 
-	metadataDictionary			= [NSMutableDictionary dictionary];
+	metadataDictionary = [NSMutableDictionary dictionary];
 
 	// Album title
-	tagName		= GetUTF16FromANSI("ALBUM");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataAlbumTitleKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "ALBUM") forKey:MetadataAlbumTitleKey];
 	
 	// Artist
-	tagName		= GetUTF16FromANSI("ARTIST");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataArtistKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "ARTIST") forKey:MetadataArtistKey];
+	
+	// Album Artist
+	[metadataDictionary setValue:getAPETag(f, "ALBUMARTIST") forKey:MetadataAlbumArtistKey];
 	
 	// Composer
-	tagName		= GetUTF16FromANSI("COMPOSER");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataComposerKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "COMPOSER") forKey:MetadataComposerKey];
 	
 	// Genre
-	tagName		= GetUTF16FromANSI("GENRE");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataGenreKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "GENRE") forKey:MetadataGenreKey];
 	
 	// Year
-	tagName		= GetUTF16FromANSI("YEAR");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataDateKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "YEAR") forKey:MetadataDateKey];
 	
 	// Comment
-	tagName		= GetUTF16FromANSI("COMMENT");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataCommentKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "COMMENT") forKey:MetadataCommentKey];
 	
 	// Track title
-	tagName		= GetUTF16FromANSI("TITLE");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataTitleKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "TITLE") forKey:MetadataTitleKey];
 	
 	// Track number
-	tagName		= GetUTF16FromANSI("TRACK");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:MetadataTrackNumberKey];
-	}
-	free(tagName);
+	NSString *trackNumber = getAPETag(f, "TRACK");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[trackNumber intValue]] forKey:MetadataTrackNumberKey];	
 	
-	// Track total
-	tagName		= GetUTF16FromANSI("TRACKTOTAL");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:MetadataTrackTotalKey];
-	}
-	free(tagName);
+	// Total tracks
+	NSString *trackTotal = getAPETag(f, "TRACKTOTAL");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[trackTotal intValue]] forKey:MetadataTrackTotalKey];	
 	
 	// Disc number
-	tagName		= GetUTF16FromANSI("DISCNUMBER");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:MetadataDiscNumberKey];
-	}
-	free(tagName);
+	NSString *discNumber = getAPETag(f, "DISCNUMBER");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[discNumber intValue]] forKey:MetadataDiscNumberKey];	
 	
 	// Discs in set
-	tagName		= GetUTF16FromANSI("DISCTOTAL");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithInt:[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:MetadataDiscTotalKey];
-	}
-	free(tagName);
+	NSString *discTotal = getAPETag(f, "DISCTOTAL");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
 	
 	// Compilation
-	tagName		= GetUTF16FromANSI("COMPILATION");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[[NSString stringWithUTF8String:tag->GetFieldValue()] intValue]] forKey:MetadataCompilationKey];
-	}
-	free(tagName);
+	NSString *compilation = getAPETag(f, "COMPILATION");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[compilation intValue]] forKey:MetadataCompilationKey];	
 	
 	// ISRC
-	tagName		= GetUTF16FromANSI("ISRC");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataISRCKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "ISRC") forKey:MetadataISRCKey];
 	
 	// MCN
-	tagName		= GetUTF16FromANSI("MCN");
-	NSAssert(NULL != tagName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	tag			= f->GetTagField(tagName);
-	if(NULL != tag && tag->GetIsUTF8Text()) {
-		[metadataDictionary setValue:[NSString stringWithUTF8String:tag->GetFieldValue()] forKey:MetadataMCNKey];
-	}
-	free(tagName);
+	[metadataDictionary setValue:getAPETag(f, "MCN") forKey:MetadataMCNKey];
 	
+	// BPM
+	NSString *bpm = getAPETag(f, "BPM");
+	[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];		
+
 	delete f;
 	free(chars);
 	

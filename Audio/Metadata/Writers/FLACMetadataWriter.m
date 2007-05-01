@@ -27,14 +27,16 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 				 NSString					*key,
 				 NSString					*value)
 {
-	FLAC__StreamMetadata_VorbisComment_Entry	entry;
-	FLAC__bool									result;
+	NSCParameterAssert(NULL != block);
+	NSCParameterAssert(nil != key);
+
+	FLAC__StreamMetadata_VorbisComment_Entry entry;
 	
-	result			= FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, [key cStringUsingEncoding:NSASCIIStringEncoding], [value UTF8String]);
-	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Errors", @""), @"FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair");	
+	FLAC__bool result = FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, [key cStringUsingEncoding:NSASCIIStringEncoding], (nil == value ? "" : [value UTF8String]));
+	NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	result = FLAC__metadata_object_vorbiscomment_replace_comment(block, entry, NO, NO);
-	NSCAssert1(YES == result, NSLocalizedStringFromTable(@"The call to %@ failed.", @"Errors", @""), @"FLAC__metadata_object_vorbiscomment_replace_comment");	
+	NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 }
 
 @implementation FLACMetadataWriter
@@ -42,12 +44,11 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 - (BOOL) writeMetadata:(id)metadata error:(NSError **)error
 {
 	NSString						*path				= [_url path];
-	FLAC__Metadata_Chain			*chain				= NULL;
 	FLAC__Metadata_Iterator			*iterator			= NULL;
 	FLAC__StreamMetadata			*block				= NULL;
 	FLAC__bool						result;
 				
-	chain							= FLAC__metadata_chain_new();
+	FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 	NSAssert(NULL != chain, @"Unable to allocate memory.");
 	
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
@@ -107,11 +108,11 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 			FLAC__metadata_iterator_prev(iterator);
 		}
 		
-		block					= FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT);
+		block = FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT);
 		NSAssert(NULL != block, @"Unable to allocate memory.");
 		
 		// Add our metadata
-		result					= FLAC__metadata_iterator_insert_block_after(iterator, block);
+		result = FLAC__metadata_iterator_insert_block_after(iterator, block);
 		if(NO == result) {
 			if(nil != error) {
 				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
@@ -137,89 +138,53 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	if(nil != album) {
-		setVorbisComment(block, @"ALBUM", album);
-	}
+	setVorbisComment(block, @"ALBUM", [metadata valueForKey:MetadataAlbumTitleKey]);
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	if(nil != artist) {
-		setVorbisComment(block, @"ARTIST", artist);
-	}
-	
+	setVorbisComment(block, @"ARTIST", [metadata valueForKey:MetadataArtistKey]);
+
+	// Album Artist
+	setVorbisComment(block, @"ALBUMARTIST", [metadata valueForKey:MetadataAlbumArtistKey]);
+
 	// Composer
-	NSString *composer = [metadata valueForKey:MetadataComposerKey];
-	if(nil != composer) {
-		setVorbisComment(block, @"COMPOSER", composer);
-	}
+	setVorbisComment(block, @"COMPOSER", [metadata valueForKey:MetadataComposerKey]);
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	if(nil != genre) {
-		setVorbisComment(block, @"GENRE", genre);
-	}
+	setVorbisComment(block, @"GENRE", [metadata valueForKey:MetadataGenreKey]);
 	
 	// Date
-	NSString *date = [metadata valueForKey:MetadataDateKey];
-	if(nil != date) {
-		setVorbisComment(block, @"DATE", date);
-	}
+	setVorbisComment(block, @"DATE", [metadata valueForKey:MetadataDateKey]);
 	
 	// Comment
-	NSString *comment = [metadata valueForKey:MetadataCommentKey];
-	if(nil != comment) {
-		setVorbisComment(block, @"DESCRIPTION", comment);
-	}
+	setVorbisComment(block, @"DESCRIPTION", [metadata valueForKey:MetadataCommentKey]);
 	
 	// Track title
-	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	if(nil != title) {
-		setVorbisComment(block, @"TITLE", title);
-	}
+	setVorbisComment(block, @"TITLE", [metadata valueForKey:MetadataTitleKey]);
 	
 	// Track number
-	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
-	if(nil != trackNumber) {
-		setVorbisComment(block, @"TRACKNUMBER", [trackNumber stringValue]);
-	}
+	setVorbisComment(block, @"TRACKNUMBER", [[metadata valueForKey:MetadataTrackNumberKey] stringValue]);
 	
 	// Total tracks
-	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
-	if(nil != trackTotal) {
-		setVorbisComment(block, @"TRACKTOTAL", [trackTotal stringValue]);
-	}
+	setVorbisComment(block, @"TRACKTOTAL", [[metadata valueForKey:MetadataTrackTotalKey] stringValue]);
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	if(nil != compilation) {
-		setVorbisComment(block, @"COMPILATION", [compilation stringValue]);
-	}
+	setVorbisComment(block, @"COMPILATION", [[metadata valueForKey:MetadataCompilationKey] stringValue]);
 	
 	// Disc number
-	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
-	if(nil != discNumber) {
-		setVorbisComment(block, @"DISCNUMBER", [discNumber stringValue]);
-	}
+	setVorbisComment(block, @"DISCNUMBER", [[metadata valueForKey:MetadataDiscNumberKey] stringValue]);
 	
 	// Discs in set
-	NSNumber *discTotal = [metadata valueForKey:MetadataDiscTotalKey];
-	if(nil != discTotal) {
-		setVorbisComment(block, @"DISCTOTAL", [discTotal stringValue]);
-	}
+	setVorbisComment(block, @"DISCTOTAL", [[metadata valueForKey:MetadataDiscTotalKey] stringValue]);
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
-	if(nil != isrc) {
-		setVorbisComment(block, @"ISRC", isrc);
-	}
+	setVorbisComment(block, @"ISRC", [metadata valueForKey:MetadataISRCKey]);
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
-	if(nil != mcn) {
-		setVorbisComment(block, @"MCN", mcn);
-	}
-		
+	setVorbisComment(block, @"MCN", [metadata valueForKey:MetadataMCNKey]);
+
+	// BPM
+	setVorbisComment(block, @"BPM", [[metadata valueForKey:MetadataBPMKey] stringValue]);
+
 	// Write the new metadata to the file
 	result = FLAC__metadata_chain_write(chain, YES, NO);
 	if(NO == result) {
