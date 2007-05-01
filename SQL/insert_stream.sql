@@ -26,6 +26,12 @@ INSERT INTO 'streams' (
 		isrc,
 		mcn,
 		bpm,
+		
+		reference_loudness,
+		track_replay_gain,
+		track_peak,
+		album_replay_gain,
+		album_peak,
 				
 		file_type,
 		format_type,
@@ -65,6 +71,12 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
+		?,
+
+		?,
+		?,
+		?,
+		?,
 		?,
 				
 		?,

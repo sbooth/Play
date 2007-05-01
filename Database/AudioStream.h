@@ -51,6 +51,12 @@ extern NSString * const		MetadataISRCKey;
 extern NSString * const		MetadataMCNKey;
 extern NSString * const		MetadataBPMKey;
 
+extern NSString * const		ReplayGainReferenceLoudnessKey;
+extern NSString * const		ReplayGainTrackGainKey;
+extern NSString * const		ReplayGainTrackPeakKey;
+extern NSString * const		ReplayGainAlbumGainKey;
+extern NSString * const		ReplayGainAlbumPeakKey;
+
 extern NSString * const		PropertiesFileTypeKey;
 extern NSString * const		PropertiesFormatTypeKey;
 extern NSString * const		PropertiesBitsPerChannelKey;

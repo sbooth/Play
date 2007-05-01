@@ -26,6 +26,12 @@ UPDATE 'streams' SET
 		mcn = :mcn,
 		bpm = :bpm,
 		
+		reference_loudness = :reference_loudness,
+		track_replay_gain = :track_replay_gain,
+		track_peak = :track_peak,
+		album_replay_gain = :album_replay_gain,
+		album_peak = :album_peak,
+
 		file_type = :file_type,
 		format_type = :format_type,
 		bits_per_channel = :bits_per_channel,

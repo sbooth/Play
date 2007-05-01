@@ -51,6 +51,12 @@ NSString * const	MetadataISRCKey							= @"isrc";
 NSString * const	MetadataMCNKey							= @"mcn";
 NSString * const	MetadataBPMKey							= @"bpm";
 
+NSString * const	ReplayGainReferenceLoudnessKey			= @"referenceLoudness";
+NSString * const	ReplayGainTrackGainKey					= @"trackGain";
+NSString * const	ReplayGainTrackPeakKey					= @"trackPeak";
+NSString * const	ReplayGainAlbumGainKey					= @"albumGain";
+NSString * const	ReplayGainAlbumPeakKey					= @"albumPeak";
+
 NSString * const	PropertiesFileTypeKey					= @"fileType";
 NSString * const	PropertiesFormatTypeKey					= @"formatType";
 NSString * const	PropertiesBitsPerChannelKey				= @"bitsPerChannel";
@@ -218,6 +224,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			MetadataISRCKey,
 			MetadataMCNKey,
 			MetadataBPMKey,
+
+			ReplayGainReferenceLoudnessKey,
+			ReplayGainTrackGainKey,
+			ReplayGainTrackPeakKey,
+			ReplayGainAlbumGainKey,
+			ReplayGainAlbumPeakKey,
 			
 			PropertiesFileTypeKey,
 			PropertiesFormatTypeKey,

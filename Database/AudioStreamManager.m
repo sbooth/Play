@@ -751,16 +751,23 @@
 	getColumnValue(statement, 22, stream, MetadataISRCKey, eObjectTypeString);
 	getColumnValue(statement, 23, stream, MetadataMCNKey, eObjectTypeString);
 	getColumnValue(statement, 24, stream, MetadataBPMKey, eObjectTypeInteger);
-	
+
+	// Replay Gain
+	getColumnValue(statement, 25, stream, ReplayGainReferenceLoudnessKey, eObjectTypeDouble);
+	getColumnValue(statement, 26, stream, ReplayGainTrackGainKey, eObjectTypeDouble);
+	getColumnValue(statement, 27, stream, ReplayGainTrackPeakKey, eObjectTypeDouble);
+	getColumnValue(statement, 28, stream, ReplayGainAlbumGainKey, eObjectTypeDouble);
+	getColumnValue(statement, 29, stream, ReplayGainAlbumPeakKey, eObjectTypeDouble);
+
 	// Properties
-	getColumnValue(statement, 25, stream, PropertiesFileTypeKey, eObjectTypeString);
-	getColumnValue(statement, 26, stream, PropertiesFormatTypeKey, eObjectTypeString);
-	getColumnValue(statement, 27, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 28, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 29, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-	getColumnValue(statement, 30, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-	getColumnValue(statement, 31, stream, PropertiesDurationKey, eObjectTypeDouble);
-	getColumnValue(statement, 32, stream, PropertiesBitrateKey, eObjectTypeDouble);
+	getColumnValue(statement, 30, stream, PropertiesFileTypeKey, eObjectTypeString);
+	getColumnValue(statement, 31, stream, PropertiesFormatTypeKey, eObjectTypeString);
+	getColumnValue(statement, 32, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 33, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 34, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+	getColumnValue(statement, 35, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+	getColumnValue(statement, 36, stream, PropertiesDurationKey, eObjectTypeDouble);
+	getColumnValue(statement, 37, stream, PropertiesBitrateKey, eObjectTypeDouble);
 	
 	// Register the object	
 	NSMapInsert(_registeredStreams, (void *)objectID, (void *)stream);
@@ -813,16 +820,23 @@
 		bindParameter(statement, 22, stream, MetadataISRCKey, eObjectTypeString);
 		bindParameter(statement, 23, stream, MetadataMCNKey, eObjectTypeString);
 		bindParameter(statement, 24, stream, MetadataBPMKey, eObjectTypeInteger);
-		
+
+		// Replay Gain
+		bindParameter(statement, 25, stream, ReplayGainReferenceLoudnessKey, eObjectTypeDouble);
+		bindParameter(statement, 26, stream, ReplayGainTrackGainKey, eObjectTypeDouble);
+		bindParameter(statement, 27, stream, ReplayGainTrackPeakKey, eObjectTypeDouble);
+		bindParameter(statement, 28, stream, ReplayGainAlbumGainKey, eObjectTypeDouble);
+		bindParameter(statement, 29, stream, ReplayGainAlbumPeakKey, eObjectTypeDouble);
+
 		// Properties
-		bindParameter(statement, 25, stream, PropertiesFileTypeKey, eObjectTypeString);
-		bindParameter(statement, 26, stream, PropertiesFormatTypeKey, eObjectTypeString);
-		bindParameter(statement, 27, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 28, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 29, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-		bindParameter(statement, 30, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-		bindParameter(statement, 31, stream, PropertiesDurationKey, eObjectTypeDouble);
-		bindParameter(statement, 32, stream, PropertiesBitrateKey, eObjectTypeDouble);
+		bindParameter(statement, 30, stream, PropertiesFileTypeKey, eObjectTypeString);
+		bindParameter(statement, 31, stream, PropertiesFormatTypeKey, eObjectTypeString);
+		bindParameter(statement, 32, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 33, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 34, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+		bindParameter(statement, 35, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+		bindParameter(statement, 36, stream, PropertiesDurationKey, eObjectTypeDouble);
+		bindParameter(statement, 37, stream, PropertiesBitrateKey, eObjectTypeDouble);
 				
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -904,6 +918,13 @@
 	bindNamedParameter(statement, ":isrc", stream, MetadataISRCKey, eObjectTypeString);
 	bindNamedParameter(statement, ":mcn", stream, MetadataMCNKey, eObjectTypeString);
 	bindNamedParameter(statement, ":bpm", stream, MetadataBPMKey, eObjectTypeInteger);
+
+	// Replay gain
+	bindNamedParameter(statement, ":reference_loudness", stream, ReplayGainReferenceLoudnessKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":track_replay_gain", stream, ReplayGainTrackGainKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":track_peak", stream, ReplayGainTrackPeakKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":album_replay_gain", stream, ReplayGainAlbumGainKey, eObjectTypeDouble);
+	bindNamedParameter(statement, ":album_peak", stream, ReplayGainAlbumPeakKey, eObjectTypeDouble);
 	
 	// Properties
 	bindNamedParameter(statement, ":file_type", stream, PropertiesFileTypeKey, eObjectTypeString);
@@ -1004,7 +1025,13 @@
 				MetadataISRCKey,
 				MetadataMCNKey,
 				MetadataBPMKey,
-				
+
+				ReplayGainReferenceLoudnessKey,
+				ReplayGainTrackGainKey,
+				ReplayGainTrackPeakKey,
+				ReplayGainAlbumGainKey,
+				ReplayGainAlbumPeakKey,
+
 				PropertiesFileTypeKey,
 				PropertiesFormatTypeKey,
 				PropertiesBitsPerChannelKey,
