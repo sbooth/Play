@@ -114,9 +114,13 @@
 		NSEnumerator		*enumerator		= [objectIDs objectEnumerator];
 		NSNumber			*objectID		= nil;
 		NSMutableArray		*streams		= [NSMutableArray array];
+		AudioStream			*stream			= nil;
 		
 		while((objectID = [enumerator nextObject])) {
-			[streams addObject:[[[CollectionManager manager] streamManager] streamForID:objectID]];
+			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
+			if(nil != stream) {
+				[streams addObject:stream];
+			}
 		}
 		
 		[[AudioLibrary library] addStreamsToPlayQueue:streams];
