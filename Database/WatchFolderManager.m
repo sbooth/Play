@@ -765,6 +765,12 @@
 	AudioStream			*stream				= nil;
 	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
 	
+	// Attempt to set the thread's priority (should be low)
+	BOOL result = [NSThread setThreadPriority:0.2];
+	if(NO == result) {
+		NSLog(@"Unable to set thread priority");
+	}
+	
 	while((stream = [enumerator nextObject])) {
 		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
 	}
@@ -775,8 +781,8 @@
 	NSString		*path				= [url path];
 	NSString		*filename			= nil;
 	BOOL			isDir;
-	BOOL			result				= [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
 	
+	result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
 	if(NO == result || NO == isDir) {
 		NSLog(@"Unable to locate folder \"%@\".", path);
 		return;
