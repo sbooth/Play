@@ -465,7 +465,7 @@ audio_linear_round(unsigned int bits,
 					// Add 10 bytes for ID3 header
 					id3_length += 10;
 					
-					mad_stream_skip(&_mad_stream, id3_length);
+					mad_stream_skip(&stream, id3_length);
 				}
 				else {
 #if DEBUG
