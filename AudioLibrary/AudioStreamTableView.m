@@ -429,7 +429,12 @@
 
 - (NSString *) emptyMessage
 {
-	return NSLocalizedStringFromTable(@"Library Empty", @"Library", @"");	
+	if(0 == [[[[CollectionManager manager] streamManager] streams] count]) {
+		return NSLocalizedStringFromTable(@"Library Empty", @"Library", @"");	
+	}
+	else {
+		return NSLocalizedStringFromTable(@"Empty Selection", @"Library", @"");	
+	}
 }
 
 @end
