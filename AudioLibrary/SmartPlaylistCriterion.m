@@ -243,7 +243,7 @@ enum {
 		MetadataTitleKey, MetadataAlbumTitleKey, MetadataArtistKey, MetadataAlbumArtistKey,
 		MetadataGenreKey, MetadataComposerKey, MetadataDateKey, MetadataCompilationKey, 
 		MetadataTrackNumberKey, MetadataTrackTotalKey, MetadataDiscNumberKey, MetadataDiscTotalKey, 
-		MetadataISRCKey, MetadataMCNKey,
+		MetadataISRCKey, MetadataMCNKey, MetadataBPMKey,
 		@"-", 
 		PropertiesFileTypeKey, PropertiesFormatTypeKey, PropertiesBitsPerChannelKey, PropertiesChannelsPerFrameKey, PropertiesSampleRateKey, 
 		PropertiesTotalFramesKey, PropertiesDurationKey, PropertiesBitrateKey,
@@ -268,7 +268,7 @@ enum {
 
 - (void) setupPredicateTypePopUpButton
 {
-	NSMenuItem					*menuItem;
+	NSMenuItem *menuItem = nil;
 
 	NSPopUpButton *predicateTypePopUpButton = [[self view] viewWithTag:PredicateTypePopupButtonTag];
 	[predicateTypePopUpButton removeAllItems];
@@ -467,6 +467,10 @@ enum {
 	else if([keyPath isEqualToString:MetadataMCNKey]) {
 		displayName		= NSLocalizedStringFromTable(@"MCN", @"AudioStream", @"");
 		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:MetadataBPMKey]) {
+		displayName		= NSLocalizedStringFromTable(@"BPM", @"AudioStream", @"");
+		attributeType	= NSInteger32AttributeType;
 	}
 	else if([keyPath isEqualToString:PropertiesFileTypeKey]) {
 		displayName		= NSLocalizedStringFromTable(@"File Type", @"AudioStream", @"");
