@@ -428,6 +428,9 @@ MyRenderNotification(void							*inRefCon,
 		else if(nil != [stream valueForKey:ReplayGainAlbumGainKey]) {
 			[self setReplayGain:[[stream valueForKey:ReplayGainAlbumGainKey] doubleValue]];
 		}
+		else {
+			[self setReplayGain:0];
+		}
 	}
 	
 	return YES;
@@ -804,6 +807,20 @@ MyRenderNotification(void							*inRefCon,
 	[self setStreamDecoder:[self nextStreamDecoder]];
 	[self setNextStreamDecoder:nil];
 	_requestedNextStream = NO;
+	
+	// Replay Gain
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"applyReplayGain"]) {
+		AudioStream *stream = [[self streamDecoder] stream];
+		if(nil != [stream valueForKey:ReplayGainTrackGainKey]) {
+			[self setReplayGain:[[stream valueForKey:ReplayGainTrackGainKey] doubleValue]];
+		}
+		else if(nil != [stream valueForKey:ReplayGainAlbumGainKey]) {
+			[self setReplayGain:[[stream valueForKey:ReplayGainAlbumGainKey] doubleValue]];
+		}
+		else {
+			[self setReplayGain:0];
+		}
+	}
 	
 	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart) withObject:nil waitUntilDone:NO];
 }
