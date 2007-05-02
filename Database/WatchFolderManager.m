@@ -273,14 +273,15 @@
 	NSURL *url = nil;
 	while((watchFolder = [enumerator nextObject])) {
 		url = [watchFolder valueForKey:WatchFolderURLKey];
-		[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
-		[[self kq] addPath:[url path]];
+//		[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
+		[self synchronizeLibraryStreamsWithURL:url];
+//		[[self kq] addPath:[url path]];
 	}
 }
 
 - (void) disconnectedFromDatabase
 {
-	[[self kq] removeAllPathsFromQueue];
+//	[[self kq] removeAllPathsFromQueue];
 	[self finalizeSQL];
 	_db = NULL;
 }
@@ -468,7 +469,8 @@
 	NSLog(@"receivedNotification:%@ forPath:%@", nm, fpath);
 
 	NSURL *url = [NSURL fileURLWithPath:fpath];
-	[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
+//	[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
+	[self synchronizeLibraryStreamsWithURL:url];
 }
 
 @end
@@ -757,20 +759,19 @@
 - (void) synchronizeLibraryStreamsWithURL:(NSURL *)url
 {
 	NSParameterAssert(nil != url);
-	NSLog(@"-synchronizeLibraryStreamsWithURL:%@",url);
 
 	// First grab the paths for the streams in the library under this url
-	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+//	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
 	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
 	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
 	AudioStream			*stream				= nil;
 	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
 	
 	// Attempt to set the thread's priority (should be low)
-	BOOL result = [NSThread setThreadPriority:0.2];
+/*	BOOL result = [NSThread setThreadPriority:0.2];
 	if(NO == result) {
 		NSLog(@"Unable to set thread priority");
-	}
+	}*/
 	
 	while((stream = [enumerator nextObject])) {
 		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
@@ -783,7 +784,7 @@
 	NSString		*filename			= nil;
 	BOOL			isDir;
 	
-	result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
+	BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
 	if(NO == result || NO == isDir) {
 		NSLog(@"Unable to locate folder \"%@\".", path);
 		return;
@@ -813,7 +814,7 @@
 		[[AudioLibrary library] performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:YES];
 	}
 	
-	[pool release];
+//	[pool release];
 }
 
 @end
