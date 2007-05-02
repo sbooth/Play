@@ -43,7 +43,7 @@
 	</dict>
 	<key>outputAudioDeviceUID</key>
 	<string></string>
-	<key>applyReplayGain</key>
-	<false/>
+	<key>replayGain</key>
+	<integer>0</integer>
 </dict>
 </plist>

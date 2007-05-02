@@ -37,6 +37,15 @@ enum {
 	AudioPlayerInputOutputError							= 2
 };
 
+// ========================================
+// User Defaults tag values
+// ========================================
+enum {
+	ReplayGainNone			= 0,
+	ReplayGainTrackGain		= 1,
+	ReplayGainAlbumGain		= 2
+};
+
 @interface AudioPlayer : NSObject
 {
 	AudioUnit				_audioUnit;

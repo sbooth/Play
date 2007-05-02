@@ -70,6 +70,8 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 
 - (Float32) actualVolume;
 - (void) setActualVolume:(Float32)volume;
+
+- (void) setReplayGainForStream:(AudioStream *)stream;
 @end
 
 #if DEBUG
@@ -420,18 +422,7 @@ MyRenderNotification(void							*inRefCon,
 		return NO;
 	}
 	
-	// Replay Gain
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"applyReplayGain"]) {
-		if(nil != [stream valueForKey:ReplayGainTrackGainKey]) {
-			[self setReplayGain:[[stream valueForKey:ReplayGainTrackGainKey] doubleValue]];
-		}
-		else if(nil != [stream valueForKey:ReplayGainAlbumGainKey]) {
-			[self setReplayGain:[[stream valueForKey:ReplayGainAlbumGainKey] doubleValue]];
-		}
-		else {
-			[self setReplayGain:0];
-		}
-	}
+	[self setReplayGainForStream:stream];
 	
 	return YES;
 }
@@ -773,7 +764,7 @@ MyRenderNotification(void							*inRefCon,
 - (void) didReachEndOfStream
 {
 	[self stop];
-	//	[_owner streamPlaybackDidComplete];
+//	[_owner streamPlaybackDidComplete];
 	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
 }
 
@@ -796,7 +787,7 @@ MyRenderNotification(void							*inRefCon,
 	if(1.0 < seconds) {
 //		[self currentFrameNeedsUpdate];
 		[self performSelectorOnMainThread:@selector(currentFrameNeedsUpdate) withObject:nil waitUntilDone:NO];
-		_frameCounter		= 0;
+		_frameCounter = 0;
 	}
 }
 
@@ -808,19 +799,7 @@ MyRenderNotification(void							*inRefCon,
 	[self setNextStreamDecoder:nil];
 	_requestedNextStream = NO;
 	
-	// Replay Gain
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"applyReplayGain"]) {
-		AudioStream *stream = [[self streamDecoder] stream];
-		if(nil != [stream valueForKey:ReplayGainTrackGainKey]) {
-			[self setReplayGain:[[stream valueForKey:ReplayGainTrackGainKey] doubleValue]];
-		}
-		else if(nil != [stream valueForKey:ReplayGainAlbumGainKey]) {
-			[self setReplayGain:[[stream valueForKey:ReplayGainAlbumGainKey] doubleValue]];
-		}
-		else {
-			[self setReplayGain:0];
-		}
-	}
+	[self setReplayGainForStream:[[self streamDecoder] stream]];
 	
 	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart) withObject:nil waitUntilDone:NO];
 }
@@ -904,6 +883,34 @@ MyRenderNotification(void							*inRefCon,
 													0);
 	if(noErr != result) {
 		NSLog(@"Unable to set volume");
+	}
+}
+
+- (void) setReplayGainForStream:(AudioStream *)stream
+{
+	NSParameterAssert(nil != stream);
+	
+	int				replayGain		= [[NSUserDefaults standardUserDefaults] integerForKey:@"replayGain"];
+	NSNumber		*trackGain		= [stream valueForKey:ReplayGainTrackGainKey];
+	NSNumber		*albumGain		= [stream valueForKey:ReplayGainAlbumGainKey];
+	
+	// Try to use the RG the user wants
+	if(ReplayGainTrackGain == replayGain && nil != trackGain) {
+		[self setReplayGain:[trackGain doubleValue]];
+	}
+	else if(ReplayGainAlbumGain == replayGain && nil != albumGain) {
+		[self setReplayGain:[albumGain doubleValue]];
+	}
+	// Fall back to any gain if present
+	else if(ReplayGainNone != replayGain && nil != trackGain) {
+		[self setReplayGain:[trackGain doubleValue]];
+	}
+	else if(ReplayGainNone != replayGain && nil != albumGain) {
+		[self setReplayGain:[albumGain doubleValue]];
+	}
+	// No dice, or RG set to off
+	else {
+		[self setReplayGain:0];
 	}
 }
 

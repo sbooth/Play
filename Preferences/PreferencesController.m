@@ -193,7 +193,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		
 		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
 		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Output", @"Preferences", @"")];
-		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Set the output device used by Play", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Set the output device and replay gain used by Play", @"Preferences", @"")];
 		[toolbarItem setImage:[NSImage imageNamed:@"OutputPreferencesToolbarImage"]];
 		
 		[toolbarItem setTarget:self];
