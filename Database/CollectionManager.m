@@ -152,6 +152,9 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	[_sql release], _sql = nil;
 	[_streamManager release], _streamManager = nil;
+	[_playlistManager release], _playlistManager = nil;
+	[_smartPlaylistManager release], _smartPlaylistManager = nil;
+	[_watchFolderManager release], _watchFolderManager = nil;
 
 	[_undoManager release], _undoManager = nil;
 
