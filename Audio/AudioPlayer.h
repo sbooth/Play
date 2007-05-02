@@ -44,6 +44,9 @@ enum {
 	
 	AudioStreamDecoder		*_nextStreamDecoder;
 	BOOL					_requestedNextStream;
+
+	Float32					_baseVolume;
+	double					_replayGain;
 	
 	AudioLibrary			*_owner;
 	
@@ -80,8 +83,11 @@ enum {
 
 - (BOOL)			isPlaying;
 
-- (Float32)			volume;
-- (void)			setVolume:(Float32)volume;
+- (Float32)			baseVolume;
+- (void)			setBaseVolume:(Float32)baseVolume;
+
+- (double)			replayGain;
+- (void)			setReplayGain:(double)replayGain;
 
 // UI bindings (updated approximately once per second to avoid excessive CPU loads)
 - (SInt64)			totalFrames;

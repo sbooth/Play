@@ -26,6 +26,13 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
+/*struct ReplayGain {
+	unsigned nameCode:3;
+	unsigned originatorCode:3;
+	unsigned sign:1;
+	unsigned value:9;
+};*/
+
 NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlayer";
 
 // ========================================
@@ -60,6 +67,9 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 
 - (void) setPlaying:(BOOL)playing;
 - (void) setOutputDeviceUID:(NSString *)deviceUID;
+
+- (Float32) actualVolume;
+- (void) setActualVolume:(Float32)volume;
 @end
 
 #if DEBUG
@@ -263,7 +273,9 @@ MyRenderNotification(void							*inRefCon,
 		
 		// Set the output device
 		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
-		
+
+		_baseVolume = [self actualVolume];
+
 		// Listen for changes to the output device
 		[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self 
 																  forKeyPath:@"values.outputAudioDeviceUID"
@@ -406,6 +418,16 @@ MyRenderNotification(void							*inRefCon,
 		}
 		
 		return NO;
+	}
+	
+	// Replay Gain
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"applyReplayGain"]) {
+		if(nil != [stream valueForKey:ReplayGainTrackGainKey]) {
+			[self setReplayGain:[[stream valueForKey:ReplayGainTrackGainKey] doubleValue]];
+		}
+		else if(nil != [stream valueForKey:ReplayGainAlbumGainKey]) {
+			[self setReplayGain:[[stream valueForKey:ReplayGainAlbumGainKey] doubleValue]];
+		}
 	}
 	
 	return YES;
@@ -577,34 +599,30 @@ MyRenderNotification(void							*inRefCon,
 
 #pragma mark Bindings
 
-- (Float32) volume
+- (Float32) baseVolume
 {
-	Float32				volume		= 0;	
-	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
-															kHALOutputParam_Volume,
-															kAudioUnitScope_Global,
-															0,
-															&volume);
-	
-	if(noErr != result) {
-		NSLog(@"Unable to determine volume");
-	}
-	
-	return volume;
+	return _baseVolume;	
 }
 
-- (void) setVolume:(Float32)volume
+- (void) setBaseVolume:(Float32)baseVolume
 {
-	ComponentResult result = AudioUnitSetParameter([self audioUnit],
-												   kHALOutputParam_Volume,
-												   kAudioUnitScope_Global,
-												   0,
-												   volume,
-												   0);
+	NSParameterAssert(0 <= baseVolume <= 1);
+	
+	_baseVolume = baseVolume;
+	
+	[self setActualVolume:[self baseVolume] * pow(10, [self replayGain] / 20)];
+}
 
-	if(noErr != result) {
-		NSLog(@"Unable to set volume");
-	}
+- (double) replayGain
+{
+	return _replayGain;
+}
+
+- (void) setReplayGain:(double)replayGain
+{
+	_replayGain = replayGain;
+	
+	[self setActualVolume:[self baseVolume] * pow(10, [self replayGain] / 20)];
 }
 
 - (SInt64) totalFrames
@@ -840,6 +858,36 @@ MyRenderNotification(void							*inRefCon,
 		NSLog(@"Error setting output device");
 	}
 	
+}
+
+
+- (Float32) actualVolume
+{
+	Float32				volume		= 0;	
+	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
+															kHALOutputParam_Volume,
+															kAudioUnitScope_Global,
+															0,
+															&volume);
+	
+	if(noErr != result) {
+		NSLog(@"Unable to determine volume");
+	}
+	
+	return volume;
+}
+
+- (void) setActualVolume:(Float32)volume
+{
+	ComponentResult result =  AudioUnitSetParameter([self audioUnit],
+													kHALOutputParam_Volume,
+													kAudioUnitScope_Global,
+													0,
+													volume,
+													0);
+	if(noErr != result) {
+		NSLog(@"Unable to set volume");
+	}
 }
 
 @end
