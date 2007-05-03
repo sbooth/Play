@@ -24,6 +24,7 @@
 #include <taglib/id3v2tag.h>
 #include <taglib/id3v2frame.h>
 #include <taglib/attachedpictureframe.h>
+#include <taglib/relativevolumeframe.h>
 
 #include <mad/mad.h>
 
@@ -63,12 +64,11 @@
 	NSMutableDictionary						*metadataDictionary;
 	NSString								*path				= [_url path];
 	TagLib::MPEG::File						f					([path fileSystemRepresentation], false);
-	TagLib::ID3v2::AttachedPictureFrame		*picture			= NULL;
 	TagLib::String							s;
-	TagLib::ID3v2::Tag						*id3v2tag;
 	NSString								*trackString, *trackNum, *totalTracks;
 	NSString								*discString, *discNum, *totalDiscs;
 	NSRange									range;
+	BOOL									foundReplayGain		= NO;
 	
 	if(NO == f.isValid()) {
 		if(nil != error) {
@@ -128,7 +128,7 @@
 		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:MetadataTrackNumberKey];
 	}
 			
-	id3v2tag = f.ID3v2Tag();
+	TagLib::ID3v2::Tag *id3v2tag = f.ID3v2Tag();
 	
 	if(NULL != id3v2tag) {
 		
@@ -190,6 +190,7 @@
 		}
 		
 		// Extract album art if present
+		TagLib::ID3v2::AttachedPictureFrame *picture = NULL;
 		frameList = id3v2tag->frameListMap()["APIC"];
 		if(NO == frameList.isEmpty() && NULL != (picture = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(frameList.front()))) {
 			TagLib::ByteVector	bv		= picture->picture();
@@ -206,9 +207,33 @@
 			// It seems that the presence of this frame indicates a compilation
 			[metadataDictionary setValue:[NSNumber numberWithBool:YES] forKey:MetadataCompilationKey];
 		}			
+
+		// ReplayGain
+		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = NULL;
+		frameList = id3v2tag->frameListMap()["RVA2"];
+		if(NO == frameList.isEmpty() && NULL != (relativeVolume = dynamic_cast<TagLib::ID3v2::RelativeVolumeFrame *>(frameList.front()))) {
+			
+			// Attempt to use the master volume if present
+			TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
+			TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
+
+			// Fall back on whatever else exists in the frame
+			if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume)) {
+				channelType = channels.front();
+			}
+
+			float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
+			
+			if(0 != volumeAdjustment) {
+				[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
+				foundReplayGain = YES;
+			}
+		}			
 	}
-	
-	[self scanForXingAndLAMEHeaders:metadataDictionary];
+
+	if(NO == foundReplayGain) {
+		[self scanForXingAndLAMEHeaders:metadataDictionary];
+	}
 
 	[self setValue:metadataDictionary forKey:@"metadata"];
 
