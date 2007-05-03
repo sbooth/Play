@@ -89,23 +89,33 @@ getAPETag(CAPETag		*f,
 	
 	// Track number
 	NSString *trackNumber = getAPETag(f, "TRACK");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[trackNumber intValue]] forKey:MetadataTrackNumberKey];	
+	if(nil != trackNumber) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[trackNumber intValue]] forKey:MetadataTrackNumberKey];	
+	}
 	
 	// Total tracks
 	NSString *trackTotal = getAPETag(f, "TRACKTOTAL");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[trackTotal intValue]] forKey:MetadataTrackTotalKey];	
+	if(nil != trackTotal) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[trackTotal intValue]] forKey:MetadataTrackTotalKey];	
+	}
 	
 	// Disc number
 	NSString *discNumber = getAPETag(f, "DISCNUMBER");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[discNumber intValue]] forKey:MetadataDiscNumberKey];	
+	if(nil != discNumber) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discNumber intValue]] forKey:MetadataDiscNumberKey];	
+	}
 	
 	// Discs in set
 	NSString *discTotal = getAPETag(f, "DISCTOTAL");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+	if(nil != discTotal) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+	}
 	
 	// Compilation
 	NSString *compilation = getAPETag(f, "COMPILATION");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[compilation intValue]] forKey:MetadataCompilationKey];	
+	if(nil != compilation) {
+		[metadataDictionary setValue:[NSNumber numberWithBool:[compilation intValue]] forKey:MetadataCompilationKey];	
+	}
 	
 	// ISRC
 	[metadataDictionary setValue:getAPETag(f, "ISRC") forKey:MetadataISRCKey];
@@ -115,18 +125,26 @@ getAPETag(CAPETag		*f,
 	
 	// BPM
 	NSString *bpm = getAPETag(f, "BPM");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];		
-
+	if(nil != bpm) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];		
+	}
+	
 	// Replay Gain
 	NSString *peak = getAPETag(f, "Peak Level");
-	[metadataDictionary setValue:[NSNumber numberWithDouble:[peak doubleValue]] forKey:ReplayGainTrackPeakKey];		
+	if(nil != peak) {
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[peak doubleValue]] forKey:ReplayGainTrackPeakKey];		
+	}
 	
 	NSString *trackGain = getAPETag(f, "Replay Gain (radio)");
-	[metadataDictionary setValue:[NSNumber numberWithDouble:[trackGain doubleValue]] forKey:ReplayGainTrackGainKey];		
-
+	if(nil != trackGain) {
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[trackGain doubleValue]] forKey:ReplayGainTrackGainKey];		
+	}
+	
 	NSString *albumGain = getAPETag(f, "Replay Gain (album)");
-	[metadataDictionary setValue:[NSNumber numberWithDouble:[albumGain doubleValue]] forKey:ReplayGainAlbumGainKey];		
-
+	if(nil != albumGain) {
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[albumGain doubleValue]] forKey:ReplayGainAlbumGainKey];		
+	}
+	
 	delete f;
 	free(chars);
 	

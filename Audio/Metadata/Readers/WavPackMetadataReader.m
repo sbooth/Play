@@ -97,23 +97,33 @@ getWavPackTag(WavpackContext	*wpc,
 	
 	// Track number
 	NSString *trackNumber = getWavPackTag(wpc, "TRACK");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[trackNumber intValue]] forKey:MetadataTrackNumberKey];	
+	if(nil != trackNumber) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[trackNumber intValue]] forKey:MetadataTrackNumberKey];	
+	}
 	
 	// Total tracks
 	NSString *trackTotal = getWavPackTag(wpc, "TRACKTOTAL");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[trackTotal intValue]] forKey:MetadataTrackTotalKey];	
+	if(nil != trackTotal) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[trackTotal intValue]] forKey:MetadataTrackTotalKey];	
+	}
 	
 	// Disc number
 	NSString *discNumber = getWavPackTag(wpc, "DISCNUMBER");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[discNumber intValue]] forKey:MetadataDiscNumberKey];	
+	if(nil != discNumber) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discNumber intValue]] forKey:MetadataDiscNumberKey];	
+	}
 	
 	// Discs in set
 	NSString *discTotal = getWavPackTag(wpc, "DISCTOTAL");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+	if(nil != discTotal) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+	}
 	
 	// Compilation
 	NSString *compilation = getWavPackTag(wpc, "COMPILATION");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[compilation intValue]] forKey:MetadataCompilationKey];	
+	if(nil != compilation) {
+		[metadataDictionary setValue:[NSNumber numberWithBool:[compilation intValue]] forKey:MetadataCompilationKey];	
+	}
 	
 	// ISRC
 	[metadataDictionary setValue:getWavPackTag(wpc, "ISRC") forKey:MetadataISRCKey];
@@ -123,7 +133,9 @@ getWavPackTag(WavpackContext	*wpc,
 	
 	// BPM
 	NSString *bpm = getWavPackTag(wpc, "BPM");
-	[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];	
+	if(nil != bpm) {
+		[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];	
+	}
 	
 	WavpackCloseFile(wpc);
 	
