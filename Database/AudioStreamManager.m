@@ -742,7 +742,7 @@
 	getColumnValue(statement, 13, stream, MetadataGenreKey, eObjectTypeString);
 	getColumnValue(statement, 14, stream, MetadataComposerKey, eObjectTypeString);
 	getColumnValue(statement, 15, stream, MetadataDateKey, eObjectTypeString);	
-	getColumnValue(statement, 16, stream, MetadataCompilationKey, eObjectTypeInteger);
+	getColumnValue(statement, 16, stream, MetadataCompilationKey, eObjectTypeBoolean);
 	getColumnValue(statement, 17, stream, MetadataTrackNumberKey, eObjectTypeInteger);
 	getColumnValue(statement, 18, stream, MetadataTrackTotalKey, eObjectTypeInteger);
 	getColumnValue(statement, 19, stream, MetadataDiscNumberKey, eObjectTypeInteger);
@@ -811,7 +811,7 @@
 		bindParameter(statement, 13, stream, MetadataGenreKey, eObjectTypeString);
 		bindParameter(statement, 14, stream, MetadataComposerKey, eObjectTypeString);
 		bindParameter(statement, 15, stream, MetadataDateKey, eObjectTypeString);	
-		bindParameter(statement, 16, stream, MetadataCompilationKey, eObjectTypeInteger);
+		bindParameter(statement, 16, stream, MetadataCompilationKey, eObjectTypeBoolean);
 		bindParameter(statement, 17, stream, MetadataTrackNumberKey, eObjectTypeInteger);
 		bindParameter(statement, 18, stream, MetadataTrackTotalKey, eObjectTypeInteger);
 		bindParameter(statement, 19, stream, MetadataDiscNumberKey, eObjectTypeInteger);
@@ -909,7 +909,7 @@
 	bindNamedParameter(statement, ":genre", stream, MetadataGenreKey, eObjectTypeString);
 	bindNamedParameter(statement, ":composer", stream, MetadataComposerKey, eObjectTypeString);
 	bindNamedParameter(statement, ":date", stream, MetadataDateKey, eObjectTypeString);	
-	bindNamedParameter(statement, ":compilation", stream, MetadataCompilationKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":compilation", stream, MetadataCompilationKey, eObjectTypeBoolean);
 	bindNamedParameter(statement, ":track_number", stream, MetadataTrackNumberKey, eObjectTypeInteger);
 	bindNamedParameter(statement, ":track_total", stream, MetadataTrackTotalKey, eObjectTypeInteger);
 	bindNamedParameter(statement, ":disc_number", stream, MetadataDiscNumberKey, eObjectTypeInteger);

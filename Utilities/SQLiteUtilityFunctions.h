@@ -31,6 +31,7 @@ extern "C" {
 		eObjectTypeURL,
 		eObjectTypeString,
 		eObjectTypeDate,
+		eObjectTypeBoolean,
 		eObjectTypeUnsignedInteger,
 		eObjectTypeInteger,
 		eObjectTypeLongLong,

@@ -52,6 +52,9 @@ bindParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDate:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value timeIntervalSinceReferenceDate]);	
 				break;
+			case eObjectTypeBoolean:	
+				result = sqlite3_bind_int(statement, parameterIndex, [value boolValue]);	
+				break;
 			case eObjectTypeUnsignedInteger:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedIntValue]);	
 				break;
@@ -110,6 +113,9 @@ bindNamedParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDate:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value timeIntervalSinceReferenceDate]);	
 				break;
+			case eObjectTypeBoolean:	
+				result = sqlite3_bind_int(statement, parameterIndex, [value boolValue]);	
+				break;
 			case eObjectTypeUnsignedInteger:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedIntValue]);	
 				break;
@@ -163,6 +169,9 @@ getColumnValue(sqlite3_stmt		*statement,
 			break;
 		case eObjectTypeDate:
 			[object initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeBoolean:
+			[object initValue:[NSNumber numberWithBool:sqlite3_column_int(statement, columnIndex)] forKey:key];
 			break;
 		case eObjectTypeUnsignedInteger:	
 			[object initValue:[NSNumber numberWithUnsignedInt:sqlite3_column_int(statement, columnIndex)] forKey:key];
