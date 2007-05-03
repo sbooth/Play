@@ -140,6 +140,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 NSString * const	PlayQueueKey								= @"playQueue";
 
 // ========================================
+// Friend methods
+// ========================================
+@interface WatchFolder (WatchFolderNodeMethods)
+- (void) loadStreams;
+@end
+
+// ========================================
 // Completely bogus NSTreeController bindings hack
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
@@ -211,7 +218,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) streamsRemoved:(NSNotification *)aNotification;
 
 - (void) watchFolderAdded:(NSNotification *)aNotification;
-- (void) watchFolderRemoved:(NSNotification *)aNotification;
+- (void) watchFolderChanged:(NSNotification *)aNotification;
 
 @end
 
@@ -432,8 +439,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 												   object:nil];
 
 		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(watchFolderRemoved:) 
-													 name:WatchFolderRemovedFromLibraryNotification
+												 selector:@selector(watchFolderChanged:) 
+													 name:WatchFolderDidChangeNotification
 												   object:nil];
 	}
 	return self;
@@ -2156,14 +2163,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	while((watchFolder = [enumerator nextObject])) {
 //		[NSThread detachNewThreadSelector:@selector(synchronizeWithWatchFolder:) toTarget:self withObject:watchFolder];
 		[self synchronizeWithWatchFolder:watchFolder];
-	}
+	}	
 }
 
 - (void) synchronizeWithWatchFolder:(WatchFolder *)watchFolder
 {
 	NSParameterAssert(nil != watchFolder);
 	
-//	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
 	NSURL				*url				= [watchFolder valueForKey:WatchFolderURLKey];
 	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
 	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
@@ -2171,7 +2178,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
 	
 	// Attempt to set the thread's priority (should be low)
-	/*	BOOL result = [NSThread setThreadPriority:0.2];
+/*	BOOL result = [NSThread setThreadPriority:0.2];
 	if(NO == result) {
 		NSLog(@"Unable to set thread priority");
 	}*/
@@ -2202,22 +2209,27 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	// Determine if any files were deleted
-	NSMutableSet	*removedFilenames		= [NSMutableSet setWithSet:libraryFilenames];
+	NSMutableSet *removedFilenames = [NSMutableSet setWithSet:libraryFilenames];
 	[removedFilenames minusSet:physicalFilenames];
 	
 	// Determine if any files were added
-	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
+	NSMutableSet *addedFilenames = [NSMutableSet setWithSet:physicalFilenames];
 	[addedFilenames minusSet:libraryFilenames];
 	
 	if(0 != [addedFilenames count]) {
+//		[self performSelectorOnMainThread:@selector(addFiles:) withObject:[addedFilenames allObjects] waitUntilDone:YES];
 		[self addFiles:[addedFilenames allObjects]];
 	}
 	
 	if(0 != [removedFilenames count]) {
+//		[self performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:YES];
 		[self removeFiles:[removedFilenames allObjects]];
 	}
 	
-//	[pool release];
+	// Force a refresh
+	[watchFolder loadStreams];
+	
+	[pool release];
 }
 
 #pragma mark Stream Table Management
@@ -2370,19 +2382,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_streamTable setNeedsDisplay:YES];
 }
 
-- (void) watchFolderRemoved:(NSNotification *)aNotification
+- (void) watchFolderChanged:(NSNotification *)aNotification
 {
-	WatchFolder		*watchFolder	= [[aNotification userInfo] objectForKey:WatchFolderObjectKey];
-	NSEnumerator	*enumerator		= [[watchFolder streams] objectEnumerator];
-	AudioStream		*stream			= nil;
-	
-	while((stream = [enumerator nextObject])) {
-		if([stream isPlaying]) {
-			[self stop:self];
-		}
-		
-		[stream delete];
-	}		
+	[self performSelector:@selector(synchronizeWithWatchFolder:) withObject:[[aNotification userInfo] objectForKey:WatchFolderObjectKey] afterDelay:0];
+//	[self synchronizeWithWatchFolder:[[aNotification userInfo] objectForKey:WatchFolderObjectKey]];	
+	[_streamTable setNeedsDisplay:YES];
 }
 
 @end

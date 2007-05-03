@@ -45,6 +45,7 @@
 		[self setIcon:icon];
 		
 		[_watchFolder addObserver:self forKeyPath:WatchFolderNameKey options:NSKeyValueObservingOptionNew context:NULL];
+		[_watchFolder addObserver:self forKeyPath:WatchFolderURLKey options:NSKeyValueObservingOptionNew context:NULL];
 	}
 	return self;
 }
@@ -52,6 +53,7 @@
 - (void) dealloc
 {
 	[_watchFolder removeObserver:self forKeyPath:WatchFolderNameKey];
+	[_watchFolder removeObserver:self forKeyPath:WatchFolderURLKey];
 	[_watchFolder removeObserver:self forKeyPath:WatchFolderStreamsKey];
 	
 	[super dealloc];
@@ -61,6 +63,11 @@
 {
 	if([keyPath isEqualToString:WatchFolderNameKey]) {
 		[self setName:[change valueForKey:NSKeyValueChangeNewKey]];
+	}
+	if([keyPath isEqualToString:WatchFolderURLKey]) {
+		[self willChangeValueForKey:@"streams"];
+		[_watchFolder loadStreams];
+		[self didChangeValueForKey:@"streams"];
 	}
 	else if([keyPath isEqualToString:WatchFolderStreamsKey]) {
 		[self refreshStreams];
