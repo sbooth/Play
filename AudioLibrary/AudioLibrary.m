@@ -42,6 +42,7 @@
 
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "WatchFolderManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
 #import "SmartPlaylist.h"
@@ -192,6 +193,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) setupStreamTableColumns;
 - (void) setupPlayQueueTableColumns;
 
+- (void) scanWatchFolders;
+- (void) synchronizeWithWatchFolder:(WatchFolder *)watchFolder;
+
 - (void) saveStreamTableColumnOrder;
 - (IBAction) streamTableHeaderContextMenuSelected:(id)sender;
 
@@ -205,6 +209,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) streamsAdded:(NSNotification *)aNotification;
 - (void) streamRemoved:(NSNotification *)aNotification;
 - (void) streamsRemoved:(NSNotification *)aNotification;
+
+- (void) watchFolderAdded:(NSNotification *)aNotification;
+- (void) watchFolderRemoved:(NSNotification *)aNotification;
 
 @end
 
@@ -418,6 +425,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 												 selector:@selector(streamsRemoved:) 
 													 name:AudioStreamsRemovedFromLibraryNotification
 												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(watchFolderAdded:) 
+													 name:WatchFolderAddedToLibraryNotification
+												   object:nil];
+
+		[[NSNotificationCenter defaultCenter] addObserver:self 
+												 selector:@selector(watchFolderRemoved:) 
+													 name:WatchFolderRemovedFromLibraryNotification
+												   object:nil];
 	}
 	return self;
 }
@@ -478,6 +495,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[self setupStreamTableColumns];
 	[self setupPlayQueueTableColumns];
+	
+	[self scanWatchFolders];
 }
 
 - (void) windowDidLoad
@@ -2128,6 +2147,79 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_playQueueTable setDelegate:self];
 }
 
+- (void) scanWatchFolders
+{
+	// Load all the watch folders and update the library contents (in the background because this is a potentially slow operation)
+	NSEnumerator	*enumerator		= [[[[CollectionManager manager] watchFolderManager] watchFolders] objectEnumerator];
+	WatchFolder		*watchFolder	= nil;
+	
+	while((watchFolder = [enumerator nextObject])) {
+//		[NSThread detachNewThreadSelector:@selector(synchronizeWithWatchFolder:) toTarget:self withObject:watchFolder];
+		[self synchronizeWithWatchFolder:watchFolder];
+	}
+}
+
+- (void) synchronizeWithWatchFolder:(WatchFolder *)watchFolder
+{
+	NSParameterAssert(nil != watchFolder);
+	
+//	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+	NSURL				*url				= [watchFolder valueForKey:WatchFolderURLKey];
+	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
+	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
+	AudioStream			*stream				= nil;
+	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
+	
+	// Attempt to set the thread's priority (should be low)
+	/*	BOOL result = [NSThread setThreadPriority:0.2];
+	if(NO == result) {
+		NSLog(@"Unable to set thread priority");
+	}*/
+	
+	while((stream = [enumerator nextObject])) {
+		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
+	}
+	
+	// Next iterate through and see what is actually in the directory
+	NSMutableSet	*physicalFilenames	= [NSMutableSet set];
+	NSArray			*allowedTypes		= getAudioExtensions();
+	NSString		*path				= [url path];
+	NSString		*filename			= nil;
+	BOOL			isDir;
+	
+	BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
+	if(NO == result || NO == isDir) {
+		NSLog(@"Unable to locate folder \"%@\".", path);
+		return;
+	}
+	
+	NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:path];
+	
+	while((filename = [directoryEnumerator nextObject])) {
+		if([allowedTypes containsObject:[filename pathExtension]]) {
+			[physicalFilenames addObject:[path stringByAppendingPathComponent:filename]];
+		}
+	}
+	
+	// Determine if any files were deleted
+	NSMutableSet	*removedFilenames		= [NSMutableSet setWithSet:libraryFilenames];
+	[removedFilenames minusSet:physicalFilenames];
+	
+	// Determine if any files were added
+	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
+	[addedFilenames minusSet:libraryFilenames];
+	
+	if(0 != [addedFilenames count]) {
+		[self addFiles:[addedFilenames allObjects]];
+	}
+	
+	if(0 != [removedFilenames count]) {
+		[self removeFiles:[removedFilenames allObjects]];
+	}
+	
+//	[pool release];
+}
+
 #pragma mark Stream Table Management
 
 - (void) saveStreamTableColumnOrder
@@ -2270,6 +2362,27 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self didChangeValueForKey:PlayQueueKey];
 
 	[self updatePlayButtonState];
+}
+
+- (void) watchFolderAdded:(NSNotification *)aNotification
+{
+	[self synchronizeWithWatchFolder:[[aNotification userInfo] objectForKey:WatchFolderObjectKey]];
+	[_streamTable setNeedsDisplay:YES];
+}
+
+- (void) watchFolderRemoved:(NSNotification *)aNotification
+{
+	WatchFolder		*watchFolder	= [[aNotification userInfo] objectForKey:WatchFolderObjectKey];
+	NSEnumerator	*enumerator		= [[watchFolder streams] objectEnumerator];
+	AudioStream		*stream			= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		if([stream isPlaying]) {
+			[self stop:self];
+		}
+		
+		[stream delete];
+	}		
 }
 
 @end

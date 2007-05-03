@@ -22,15 +22,14 @@
 #include "sqlite3.h"
 
 @class WatchFolder;
-@class UKKQueue;
 
 // ========================================
 // Class that provides access to the Playlist objects contained
 // in the database managed by the CollectionManager
 // Provides a single, unique object for each stream
 // This class does not guarantee fast access!
-// This class is KVC-compliant (read only) for the key "playlists" and all
-// keys supported by Playlist
+// This class is KVC-compliant (read only) for the key "watchFolders" and all
+// keys supported by WatchFolder
 // ========================================
 @interface WatchFolderManager : NSObject
 {
@@ -48,8 +47,6 @@
 	BOOL					_updating;				// Indicates if a transaction is in progress
 	
 	NSArray					*_folderKeys;			// WatchFolders (aggregate) keys this object supports
-	
-	UKKQueue				*_kq;					// URLs we are watching
 }
 
 // ========================================

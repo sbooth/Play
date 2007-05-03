@@ -25,8 +25,6 @@
 #import "WatchFolder.h"
 #import "AudioLibrary.h"
 
-#import "UKKQueue.h"
-
 #import "SQLiteUtilityFunctions.h"
 
 @interface WatchFolderManager (CollectionManagerMethods)
@@ -41,10 +39,6 @@
 
 - (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
 - (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
-@end
-
-@interface WatchFolderManager (UKFileWatcherDelegateMethods)
--(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath;
 @end
 
 @interface WatchFolderManager (Private)
@@ -64,10 +58,6 @@
 - (void) doDeleteWatchFolder:(WatchFolder *)folder;
 
 - (NSArray *) watchFolderKeys;
-
-- (UKKQueue *) kq;
-
-- (void) synchronizeLibraryStreamsWithURL:(NSURL *)url;
 @end
 
 @implementation WatchFolderManager
@@ -266,22 +256,10 @@
 {
 	_db = db;
 	[self prepareSQL];
-	
-	// Load all the watch folders and update the library contents (in the background because this is a potentially slow operation)
-	NSEnumerator *enumerator = [[self watchFolders] objectEnumerator];
-	WatchFolder *watchFolder = nil;
-	NSURL *url = nil;
-	while((watchFolder = [enumerator nextObject])) {
-		url = [watchFolder valueForKey:WatchFolderURLKey];
-//		[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
-		[self synchronizeLibraryStreamsWithURL:url];
-//		[[self kq] addPath:[url path]];
-	}
 }
 
 - (void) disconnectedFromDatabase
 {
-//	[[self kq] removeAllPathsFromQueue];
 	[self finalizeSQL];
 	_db = NULL;
 }
@@ -449,28 +427,6 @@
 		[self saveWatchFolder:folder];	
 		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
 	}
-}
-
-@end
-
-@implementation WatchFolderManager (UKFileWatcherDelegateMethods)
-
--(void) watcher:(id<UKFileWatcher>)kq receivedNotification:(NSString*)nm forPath:(NSString*)fpath
-{
-	/*
-	 extern NSString* UKFileWatcherRenameNotification;
-	 extern NSString* UKFileWatcherWriteNotification;
-	 extern NSString* UKFileWatcherDeleteNotification;
-	 extern NSString* UKFileWatcherAttributeChangeNotification;
-	 extern NSString* UKFileWatcherSizeIncreaseNotification;
-	 extern NSString* UKFileWatcherLinkCountChangeNotification;
-	 extern NSString* UKFileWatcherAccessRevocationNotification;
-	 */
-	NSLog(@"receivedNotification:%@ forPath:%@", nm, fpath);
-
-	NSURL *url = [NSURL fileURLWithPath:fpath];
-//	[NSThread detachNewThreadSelector:@selector(synchronizeLibraryStreamsWithURL:) toTarget:self withObject:url];
-	[self synchronizeLibraryStreamsWithURL:url];
 }
 
 @end
@@ -743,78 +699,6 @@
 		}
 	}
 	return _folderKeys;
-}
-
-- (UKKQueue *) kq
-{
-	if(nil == _kq) {
-		_kq = [[UKKQueue alloc] init];
-		[_kq setDelegate:self];
-	}
-	return _kq;
-}
-
-#pragma mark URL and AudioStream Addition
-
-- (void) synchronizeLibraryStreamsWithURL:(NSURL *)url
-{
-	NSParameterAssert(nil != url);
-
-	// First grab the paths for the streams in the library under this url
-//	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
-	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
-	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
-	AudioStream			*stream				= nil;
-	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
-	
-	// Attempt to set the thread's priority (should be low)
-/*	BOOL result = [NSThread setThreadPriority:0.2];
-	if(NO == result) {
-		NSLog(@"Unable to set thread priority");
-	}*/
-	
-	while((stream = [enumerator nextObject])) {
-		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
-	}
-	
-	// Next iterate through and see what is actually in the directory
-	NSMutableSet	*physicalFilenames	= [NSMutableSet set];
-	NSArray			*allowedTypes		= getAudioExtensions();
-	NSString		*path				= [url path];
-	NSString		*filename			= nil;
-	BOOL			isDir;
-	
-	BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];
-	if(NO == result || NO == isDir) {
-		NSLog(@"Unable to locate folder \"%@\".", path);
-		return;
-	}
-	
-	NSDirectoryEnumerator *directoryEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:path];
-	
-	while((filename = [directoryEnumerator nextObject])) {
-		if([allowedTypes containsObject:[filename pathExtension]]) {
-			[physicalFilenames addObject:[path stringByAppendingPathComponent:filename]];
-		}
-	}
-
-	// Determine if any files were deleted
-	NSMutableSet	*removedFilenames		= [NSMutableSet setWithSet:libraryFilenames];
-	[removedFilenames minusSet:physicalFilenames];
-
-	// Determine if any files were added
-	NSMutableSet	*addedFilenames			= [NSMutableSet setWithSet:physicalFilenames];
-	[addedFilenames minusSet:libraryFilenames];
-
-	if(0 != [addedFilenames count]) {
-		[[AudioLibrary library] performSelectorOnMainThread:@selector(addFiles:) withObject:[addedFilenames allObjects] waitUntilDone:YES];
-	}
-	
-	if(0 != [removedFilenames count]) {
-		[[AudioLibrary library] performSelectorOnMainThread:@selector(removeFiles:) withObject:[removedFilenames allObjects] waitUntilDone:YES];
-	}
-	
-//	[pool release];
 }
 
 @end
