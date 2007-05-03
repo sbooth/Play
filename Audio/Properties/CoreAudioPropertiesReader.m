@@ -28,19 +28,15 @@
 - (BOOL) readProperties:(NSError **)error
 {
 	ExtAudioFileRef					extAudioFile;
-	NSString						*path;
-	OSStatus						result;
 	UInt32							specifierSize;
 	FSRef							ref;
 	SInt64							totalFrames;
-	AudioStreamBasicDescription		asbd, asbdCopy;
-	NSString						*fileFormat;
 //	UInt32							isVBR;
-	NSMutableDictionary				*propertiesDictionary;
-	
+	NSMutableDictionary				*propertiesDictionary	= [NSMutableDictionary dictionary];
+
 	// Open the input file
-	path		= [[self valueForKey:StreamURLKey] path];
-	result		= FSPathMakeRef((const UInt8 *)[[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], &ref, NULL);
+	NSString	*path	= [[self valueForKey:StreamURLKey] path];
+	OSStatus	result	= FSPathMakeRef((const UInt8 *)[[[self valueForKey:StreamURLKey] path] fileSystemRepresentation], &ref, NULL);
 	
 	if(noErr != result) {
 		if(nil != error) {
@@ -58,8 +54,10 @@
 		return NO;
 	}
 	
-	result = ExtAudioFileOpen(&ref, &extAudioFile);
+	// Open the audio file
+	AudioFileID audioFileID = NULL;
 	
+	result = AudioFileOpen(&ref, fsRdPerm, 0, &audioFileID); 
 	if(noErr != result) {
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -75,34 +73,29 @@
 		
 		return NO;
 	}
+
+	// Determine the file type
+	AudioFileTypeID		audioFileTypeID		= 0;
+	NSString			*fileType			= nil;
+
+	specifierSize	= sizeof(AudioFileTypeID);
+	result			= AudioFileGetProperty(audioFileID, kAudioFilePropertyFileFormat, &specifierSize, &audioFileTypeID);
+	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
+
+	specifierSize	= sizeof(fileType);
+	result			= AudioFileGetGlobalInfo(kAudioFileGlobalInfo_FileTypeName, sizeof(audioFileTypeID), &audioFileTypeID, &specifierSize, &fileType);
+	NSAssert1(noErr == result, @"AudioFileGetGlobalInfo failed: %@", UTCreateStringForOSType(result));
 	
-	// Query file type
-	specifierSize		= sizeof(AudioStreamBasicDescription);
-	result				= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
+	[propertiesDictionary setValue:[fileType autorelease] forKey:PropertiesFileTypeKey];
+
+	// And data format
+	NSString						*dataFormat			= nil;
+	AudioStreamBasicDescription		asbd;
+
+	specifierSize	= sizeof(AudioStreamBasicDescription);
+	result			= AudioFileGetProperty(audioFileID, kAudioFilePropertyDataFormat, &specifierSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
-	// This doesn't work how I would expect it to
-//	specifierSize					= sizeof(isVBR);
-//	result							= AudioFormatGetProperty(kAudioFormatProperty_FormatIsVBR, sizeof(asbd), &asbd, &specifierSize, &isVBR);
-//	NSAssert1(noErr == result, @"AudioFormatGetProperty(kAudioFormatProperty_FormatIsVBR) failed: %@", UTCreateStringForOSType(result));
-	
-	// Zero out part of the asbd so we only get the format's name
-	memset(&asbdCopy, 0, sizeof(AudioStreamBasicDescription));
-	asbdCopy.mFormatID			= asbd.mFormatID;
-	asbdCopy.mFormatFlags		= asbd.mFormatFlags;
-	
-	specifierSize		= sizeof(fileFormat);
-	result				= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbdCopy, &specifierSize, &fileFormat);
-	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
-	
-	specifierSize		= sizeof(totalFrames);
-	result				= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
-	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
-		
-	propertiesDictionary = [NSMutableDictionary dictionary];
-	
-	[propertiesDictionary setValue:[fileFormat autorelease] forKey:PropertiesFormatTypeKey];
-	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
 	if(0 != asbd.mBitsPerChannel) {
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:PropertiesBitsPerChannelKey];
 	}
@@ -124,14 +117,45 @@
 	}
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:PropertiesSampleRateKey];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / asbd.mSampleRate] forKey:PropertiesDurationKey];
-//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:isVBR] forKey:@"isVBR"];
+	
+	// Save sample rate for duration calcuation
+	Float64 sampleRate = asbd.mSampleRate;
+	
+	// Zero out part of the asbd so we only get the format's name
+	asbd.mSampleRate		= 0;
+	asbd.mBytesPerPacket	= 0;
+	asbd.mFramesPerPacket	= 0;
+	asbd.mBytesPerFrame		= 0;
+	asbd.mChannelsPerFrame	= 0;
+	asbd.mBitsPerChannel	= 0;
+	asbd.mReserved			= 0;
+	
+	specifierSize	= sizeof(dataFormat);
+	result			= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &dataFormat);
+	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
+
+	[propertiesDictionary setValue:[dataFormat autorelease] forKey:PropertiesFormatTypeKey];
+
+	// Open as an ExtAudioFile to count frames	
+	result = ExtAudioFileWrapAudioFileID(audioFileID, NO, &extAudioFile);
+	NSAssert1(noErr == result, @"ExtAudioFileWrapAudioFileID failed: %@", UTCreateStringForOSType(result));
+	
+	specifierSize	= sizeof(totalFrames);
+	result			= ExtAudioFileGetProperty(extAudioFile, kExtAudioFileProperty_FileLengthFrames, &specifierSize, &totalFrames);
+	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
+
+	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
+	
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / sampleRate] forKey:PropertiesDurationKey];
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
-	// Close the output file
+	// Close the files
 	result = ExtAudioFileDispose(extAudioFile);
 	NSAssert1(noErr == result, @"ExtAudioFileDispose failed: %@", UTCreateStringForOSType(result));
+
+	result = AudioFileClose(audioFileID);
+	NSAssert1(noErr == result, @"AudioFileDispose failed: %@", UTCreateStringForOSType(result));
 	
 	return YES;
 }
