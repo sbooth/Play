@@ -87,7 +87,6 @@
 	NSAssert1(noErr == result, @"AudioFileGetGlobalInfo failed: %@", UTCreateStringForOSType(result));
 	
 	[propertiesDictionary setValue:fileType forKey:PropertiesFileTypeKey];
-	[propertiesDictionary setValue:fileType forKey:PropertiesFormatDescriptionKey];
 
 	// And data format
 	NSString						*dataFormat			= nil;
@@ -136,6 +135,14 @@
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
 
 	[propertiesDictionary setValue:dataFormat forKey:PropertiesDataFormatKey];
+
+	// For container formats the description should be the dataFormat
+	if(kAudioFileMPEG4Type == audioFileTypeID || kAudioFileM4AType == audioFileTypeID || kAudioFileCAFType == audioFileTypeID) {
+		[propertiesDictionary setValue:dataFormat forKey:PropertiesFormatDescriptionKey];
+	}
+	else {
+		[propertiesDictionary setValue:fileType forKey:PropertiesFormatDescriptionKey];
+	}
 
 	// Open as an ExtAudioFile to count frames	
 	result = ExtAudioFileWrapAudioFileID(audioFileID, NO, &extAudioFile);
