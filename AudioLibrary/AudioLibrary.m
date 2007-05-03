@@ -82,6 +82,8 @@
 #import "RecentlyPlayedNode.h"
 #import "RecentlySkippedNode.h"
 
+#import "UtilityFunctions.h"
+
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
