@@ -34,7 +34,8 @@ INSERT INTO 'streams' (
 		album_peak,
 				
 		file_type,
-		format_type,
+		data_format,
+		format_description,
 		bits_per_channel,
 		channels_per_frame,
 		sample_rate,
@@ -79,6 +80,7 @@ INSERT INTO 'streams' (
 		?,
 		?,
 				
+		?,
 		?,
 		?,
 		?, 

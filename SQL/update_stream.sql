@@ -33,7 +33,8 @@ UPDATE 'streams' SET
 		album_peak = :album_peak,
 
 		file_type = :file_type,
-		format_type = :format_type,
+		data_format = :data_format,
+		format_description = :format_description,
 		bits_per_channel = :bits_per_channel,
 		channels_per_frame = :channels_per_frame,
 		sample_rate = :sample_rate,

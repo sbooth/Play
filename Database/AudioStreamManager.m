@@ -761,13 +761,14 @@
 
 	// Properties
 	getColumnValue(statement, 30, stream, PropertiesFileTypeKey, eObjectTypeString);
-	getColumnValue(statement, 31, stream, PropertiesFormatTypeKey, eObjectTypeString);
-	getColumnValue(statement, 32, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 33, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-	getColumnValue(statement, 34, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-	getColumnValue(statement, 35, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-	getColumnValue(statement, 36, stream, PropertiesDurationKey, eObjectTypeDouble);
-	getColumnValue(statement, 37, stream, PropertiesBitrateKey, eObjectTypeDouble);
+	getColumnValue(statement, 31, stream, PropertiesDataFormatKey, eObjectTypeString);
+	getColumnValue(statement, 32, stream, PropertiesFormatDescriptionKey, eObjectTypeString);
+	getColumnValue(statement, 33, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 34, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 35, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+	getColumnValue(statement, 36, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+	getColumnValue(statement, 37, stream, PropertiesDurationKey, eObjectTypeDouble);
+	getColumnValue(statement, 38, stream, PropertiesBitrateKey, eObjectTypeDouble);
 	
 	// Register the object	
 	NSMapInsert(_registeredStreams, (void *)objectID, (void *)stream);
@@ -830,13 +831,14 @@
 
 		// Properties
 		bindParameter(statement, 30, stream, PropertiesFileTypeKey, eObjectTypeString);
-		bindParameter(statement, 31, stream, PropertiesFormatTypeKey, eObjectTypeString);
-		bindParameter(statement, 32, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 33, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 34, stream, PropertiesSampleRateKey, eObjectTypeDouble);
-		bindParameter(statement, 35, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-		bindParameter(statement, 36, stream, PropertiesDurationKey, eObjectTypeDouble);
-		bindParameter(statement, 37, stream, PropertiesBitrateKey, eObjectTypeDouble);
+		bindParameter(statement, 31, stream, PropertiesDataFormatKey, eObjectTypeString);
+		bindParameter(statement, 32, stream, PropertiesFormatDescriptionKey, eObjectTypeString);
+		bindParameter(statement, 33, stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 34, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 35, stream, PropertiesSampleRateKey, eObjectTypeDouble);
+		bindParameter(statement, 36, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
+		bindParameter(statement, 37, stream, PropertiesDurationKey, eObjectTypeDouble);
+		bindParameter(statement, 38, stream, PropertiesBitrateKey, eObjectTypeDouble);
 				
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -928,7 +930,8 @@
 	
 	// Properties
 	bindNamedParameter(statement, ":file_type", stream, PropertiesFileTypeKey, eObjectTypeString);
-	bindNamedParameter(statement, ":format_type", stream, PropertiesFormatTypeKey, eObjectTypeString);
+	bindNamedParameter(statement, ":data_format", stream, PropertiesDataFormatKey, eObjectTypeString);
+	bindNamedParameter(statement, ":format_description", stream, PropertiesFormatDescriptionKey, eObjectTypeString);
 	bindNamedParameter(statement, ":bits_per_channel", stream, PropertiesBitsPerChannelKey, eObjectTypeUnsignedInteger);
 	bindNamedParameter(statement, ":channels_per_frame", stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInteger);
 	bindNamedParameter(statement, ":sample_rate", stream, PropertiesSampleRateKey, eObjectTypeDouble);
@@ -1033,7 +1036,8 @@
 				ReplayGainAlbumPeakKey,
 
 				PropertiesFileTypeKey,
-				PropertiesFormatTypeKey,
+				PropertiesDataFormatKey,
+				PropertiesFormatDescriptionKey,
 				PropertiesBitsPerChannelKey,
 				PropertiesChannelsPerFrameKey,
 				PropertiesSampleRateKey,

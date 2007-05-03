@@ -58,7 +58,8 @@ extern NSString * const		ReplayGainAlbumGainKey;
 extern NSString * const		ReplayGainAlbumPeakKey;
 
 extern NSString * const		PropertiesFileTypeKey;
-extern NSString * const		PropertiesFormatTypeKey;
+extern NSString * const		PropertiesDataFormatKey;
+extern NSString * const		PropertiesFormatDescriptionKey;
 extern NSString * const		PropertiesBitsPerChannelKey;
 extern NSString * const		PropertiesChannelsPerFrameKey;
 extern NSString * const		PropertiesSampleRateKey;
@@ -79,6 +80,9 @@ extern NSString * const		PropertiesBitrateKey;
 
 - (IBAction) rescanMetadata:(id)sender;
 - (IBAction) saveMetadata:(id)sender;
+
+- (NSString *) trackString;
+- (NSString *) discString;
 
 - (NSString *) filename;
 - (NSString *) pathname;

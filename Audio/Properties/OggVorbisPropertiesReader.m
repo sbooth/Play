@@ -90,7 +90,8 @@
 	propertiesDictionary	= [NSMutableDictionary dictionary];
 	
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Ogg", @"Formats", @"") forKey:PropertiesFileTypeKey];
-	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Vorbis", @"Formats", @"") forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Vorbis", @"Formats", @"") forKey:PropertiesDataFormatKey];
+	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Ogg Vorbis", @"Formats", @"") forKey:PropertiesFormatDescriptionKey];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
 	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:PropertiesBitrateKey];
 	//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];

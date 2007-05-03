@@ -247,8 +247,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"genre",
 		[NSNumber numberWithBool:YES], @"track",
 		[NSNumber numberWithBool:NO], @"disc",
-		[NSNumber numberWithBool:NO], @"fileType",
-		[NSNumber numberWithBool:YES], @"formatType",
+		[NSNumber numberWithBool:YES], @"formatDescription",
 		[NSNumber numberWithBool:NO], @"composer",
 		[NSNumber numberWithBool:YES], @"duration",
 		[NSNumber numberWithBool:NO], @"playCount",
@@ -271,8 +270,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:63], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
 		[NSNumber numberWithFloat:54], @"disc",
-		[NSNumber numberWithFloat:88], @"fileType",
-		[NSNumber numberWithFloat:88], @"formatType",
+		[NSNumber numberWithFloat:88], @"formatDescription",
 		[NSNumber numberWithFloat:99], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
@@ -287,7 +285,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		nil];
 	
 	NSDictionary *streamTableColumnOrderArray = [NSArray arrayWithObjects:
-		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
+		@"title", @"artist", @"albumTitle", @"genre", @"track", @"formatDescription", nil];
 
 	// Setup play queue column defaults
 	NSDictionary *playQueueVisibleColumnsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -300,8 +298,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"genre",
 		[NSNumber numberWithBool:YES], @"track",
 		[NSNumber numberWithBool:NO], @"disc",
-		[NSNumber numberWithBool:NO], @"fileType",
-		[NSNumber numberWithBool:YES], @"formatType",
+		[NSNumber numberWithBool:YES], @"formatDescription",
 		[NSNumber numberWithBool:NO], @"composer",
 		[NSNumber numberWithBool:YES], @"duration",
 		[NSNumber numberWithBool:NO], @"playCount",
@@ -325,8 +322,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:63], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
 		[NSNumber numberWithFloat:54], @"disc",
-		[NSNumber numberWithFloat:88], @"fileType",
-		[NSNumber numberWithFloat:88], @"formatType",
+		[NSNumber numberWithFloat:88], @"formatDescription",
 		[NSNumber numberWithFloat:99], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
@@ -341,7 +337,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		nil];
 	
 	NSDictionary *playQueueColumnOrderArray = [NSArray arrayWithObjects:
-		@"nowPlaying", @"title", @"artist", @"albumTitle", @"genre", @"track", @"formatType", nil];
+		@"nowPlaying", @"title", @"artist", @"albumTitle", @"genre", @"track", @"formatDescription", nil];
 	
 	NSDictionary *tableDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
 		streamTableVisibleColumnsDictionary, @"streamTableColumnVisibility",
@@ -486,7 +482,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:PropertiesFormatTypeKey ascending:YES] autorelease],
+		[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],

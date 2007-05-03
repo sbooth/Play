@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'album_peak'				REAL,
 	
 	'file_type'					TEXT,
-	'format_type'				TEXT,
+	'data_format'				TEXT,
+	'format_description'		TEXT,
 	'bits_per_channel'			INTEGER,
 	'channels_per_frame'		INTEGER,
 	'sample_rate'				REAL,

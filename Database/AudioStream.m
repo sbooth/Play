@@ -58,7 +58,8 @@ NSString * const	ReplayGainAlbumGainKey					= @"albumGain";
 NSString * const	ReplayGainAlbumPeakKey					= @"albumPeak";
 
 NSString * const	PropertiesFileTypeKey					= @"fileType";
-NSString * const	PropertiesFormatTypeKey					= @"formatType";
+NSString * const	PropertiesDataFormatKey					= @"dataFormat";
+NSString * const	PropertiesFormatDescriptionKey			= @"formatDescription";
 NSString * const	PropertiesBitsPerChannelKey				= @"bitsPerChannel";
 NSString * const	PropertiesChannelsPerFrameKey			= @"channelsPerFrame";
 NSString * const	PropertiesSampleRateKey					= @"sampleRate";
@@ -67,6 +68,12 @@ NSString * const	PropertiesDurationKey					= @"duration";
 NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 @implementation AudioStream
+
++ (void) initialize
+{
+	[self setKeys:[NSArray arrayWithObjects:MetadataTrackNumberKey, MetadataTrackTotalKey, nil] triggerChangeNotificationsForDependentKey:@"trackString"];
+	[self setKeys:[NSArray arrayWithObjects:MetadataDiscNumberKey, MetadataDiscTotalKey, nil] triggerChangeNotificationsForDependentKey:@"discString"];
+}
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues
 {
@@ -146,6 +153,44 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 		}*/
 		return;
 	}	
+}
+
+- (NSString *) trackString
+{
+	NSNumber	*trackNumber	= [self valueForKey:MetadataTrackNumberKey];
+	NSNumber	*trackTotal		= [self valueForKey:MetadataTrackTotalKey];
+	
+	if(nil != trackNumber && nil != trackTotal) {
+		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@/%@", @"AudioStream", @""), trackNumber, trackTotal];
+	}
+	else if(nil != trackNumber) {
+		return [trackNumber stringValue];
+		
+	}
+	else if(nil != trackTotal) {
+		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"/%@", @"AudioStream", @""), trackTotal];
+	}
+
+	return nil;
+}
+
+- (NSString *) discString
+{
+	NSNumber	*discNumber		= [self valueForKey:MetadataDiscNumberKey];
+	NSNumber	*discTotal		= [self valueForKey:MetadataDiscTotalKey];
+	
+	if(nil != discNumber && nil != discTotal) {
+		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@/%@", @"AudioStream", @""), discNumber, discTotal];
+	}
+	else if(nil != discNumber) {
+		return [discNumber stringValue];
+		
+	}
+	else if(nil != discTotal) {
+		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"/%@", @"AudioStream", @""), discTotal];
+	}
+	
+	return nil;
 }
 
 - (NSString *) filename
@@ -232,7 +277,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			ReplayGainAlbumPeakKey,
 			
 			PropertiesFileTypeKey,
-			PropertiesFormatTypeKey,
+			PropertiesDataFormatKey,
+			PropertiesFormatDescriptionKey,
 			PropertiesBitsPerChannelKey,
 			PropertiesChannelsPerFrameKey,
 			PropertiesSampleRateKey,

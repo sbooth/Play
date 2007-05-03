@@ -245,7 +245,8 @@ enum {
 		MetadataTrackNumberKey, MetadataTrackTotalKey, MetadataDiscNumberKey, MetadataDiscTotalKey, 
 		MetadataISRCKey, MetadataMCNKey, MetadataBPMKey,
 		@"-", 
-		PropertiesFileTypeKey, PropertiesFormatTypeKey, PropertiesBitsPerChannelKey, PropertiesChannelsPerFrameKey, PropertiesSampleRateKey, 
+		PropertiesFileTypeKey, PropertiesDataFormatKey, PropertiesFormatDescriptionKey, 
+		PropertiesBitsPerChannelKey, PropertiesChannelsPerFrameKey, PropertiesSampleRateKey, 
 		PropertiesTotalFramesKey, PropertiesDurationKey, PropertiesBitrateKey,
 		@"-",
 		StatisticsDateAddedKey, StatisticsFirstPlayedDateKey, StatisticsLastPlayedDateKey, StatisticsLastSkippedDateKey,
@@ -476,8 +477,12 @@ enum {
 		displayName		= NSLocalizedStringFromTable(@"File Type", @"AudioStream", @"");
 		attributeType	= NSStringAttributeType;
 	}
-	else if([keyPath isEqualToString:PropertiesFormatTypeKey]) {
-		displayName		= NSLocalizedStringFromTable(@"Format Type", @"AudioStream", @"");
+	else if([keyPath isEqualToString:PropertiesDataFormatKey]) {
+		displayName		= NSLocalizedStringFromTable(@"Data Format", @"AudioStream", @"");
+		attributeType	= NSStringAttributeType;
+	}
+	else if([keyPath isEqualToString:PropertiesFormatDescriptionKey]) {
+		displayName		= NSLocalizedStringFromTable(@"Format Description", @"AudioStream", @"");
 		attributeType	= NSStringAttributeType;
 	}
 	else if([keyPath isEqualToString:PropertiesBitsPerChannelKey]) {

@@ -86,7 +86,8 @@
 	result			= AudioFileGetGlobalInfo(kAudioFileGlobalInfo_FileTypeName, sizeof(audioFileTypeID), &audioFileTypeID, &specifierSize, &fileType);
 	NSAssert1(noErr == result, @"AudioFileGetGlobalInfo failed: %@", UTCreateStringForOSType(result));
 	
-	[propertiesDictionary setValue:[fileType autorelease] forKey:PropertiesFileTypeKey];
+	[propertiesDictionary setValue:fileType forKey:PropertiesFileTypeKey];
+	[propertiesDictionary setValue:fileType forKey:PropertiesFormatDescriptionKey];
 
 	// And data format
 	NSString						*dataFormat			= nil;
@@ -134,7 +135,7 @@
 	result			= AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(AudioStreamBasicDescription), &asbd, &specifierSize, &dataFormat);
 	NSAssert1(noErr == result, @"AudioFormatGetProperty failed: %@", UTCreateStringForOSType(result));
 
-	[propertiesDictionary setValue:[dataFormat autorelease] forKey:PropertiesFormatTypeKey];
+	[propertiesDictionary setValue:dataFormat forKey:PropertiesDataFormatKey];
 
 	// Open as an ExtAudioFile to count frames	
 	result = ExtAudioFileWrapAudioFileID(audioFileID, NO, &extAudioFile);
