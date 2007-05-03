@@ -49,16 +49,16 @@
 	TagLib::MPEG::Properties	*audioProperties			= f.audioProperties();
 	
 	if(NULL != audioProperties) {
-		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG-1", @"Formats", @"") forKey:PropertiesFileTypeKey];		
+		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG-1 Audio", @"Formats", @"") forKey:PropertiesFileTypeKey];		
 		switch(audioProperties->layer()) {
 			case 1:
-				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Audio Layer I", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Layer I", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
 				break;
 			case 2:
-				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Audio Layer II", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Layer II", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
 				break;
 			case 3:
-				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Audio Layer III", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
+				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Layer III", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
 				break;
 		}
 		
@@ -69,8 +69,8 @@
 		[propertiesDictionary setValue:[NSNumber numberWithInt:audioProperties->length()] forKey:PropertiesDurationKey];
 	}
 	else {
-		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG-1", @"Formats", @"") forKey:PropertiesFileTypeKey];		
-		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Audio Layer III", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
+		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"MPEG-1 Audio", @"Formats", @"") forKey:PropertiesFileTypeKey];		
+		[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Layer III", @"Formats", @"") forKey:PropertiesFormatTypeKey];		
 	}	
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
