@@ -37,7 +37,7 @@
 
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	int				result		= WavpackSeekSample(_wpc, frame);
+	int result = WavpackSeekSample(_wpc, frame);
 	return (result ? frame : -1);
 }
 
@@ -48,7 +48,7 @@
 	[super setupDecoder:error];
 	
 	// Setup converter
-	_wpc = WavpackOpenFileInput([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], errorBuf, 0, 0);
+	_wpc = WavpackOpenFileInput([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], errorBuf, OPEN_NORMALIZE, 0);
 	if(NULL == _wpc) {
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -66,11 +66,11 @@
 	
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
 	
 	_pcmFormat.mSampleRate			= WavpackGetSampleRate(_wpc);
 	_pcmFormat.mChannelsPerFrame	= WavpackGetNumChannels(_wpc);
-	_pcmFormat.mBitsPerChannel		= WavpackGetBitsPerSample(_wpc);
+	_pcmFormat.mBitsPerChannel		= 32;
 	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
@@ -116,102 +116,76 @@
 
 - (void) fillPCMBuffer
 {
-	UInt32				bytesToWrite, bytesAvailableToWrite;
-	UInt32				spaceRequired;
 	void				*writePointer;
 	int32_t				inputBuffer [WP_INPUT_BUFFER_LEN];
-	uint32_t			samplesRead;
 	uint32_t			sample;
-	int32_t				audioSample;
-	int8_t				*alias8;
-	int16_t				*alias16;
-	int32_t				*alias32;
 	
 	for(;;) {
-		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
-		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		spaceRequired				= WP_INPUT_BUFFER_LEN /* * [self pcmFormat].mChannelsPerFrame */ * ([self pcmFormat].mBitsPerChannel / 8);	
+		UInt32	bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+		UInt32	bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+		UInt32	spaceRequired				= WP_INPUT_BUFFER_LEN /* * [self pcmFormat].mChannelsPerFrame */ * ([self pcmFormat].mBitsPerChannel / 8);	
 		
 		if(bytesAvailableToWrite < bytesToWrite || spaceRequired > bytesAvailableToWrite) {
 			break;
 		}
 				
 		// Wavpack uses "complete" samples (one sample across all channels), i.e. a Core Audio frame
-		samplesRead		= WavpackUnpackSamples(_wpc, inputBuffer, WP_INPUT_BUFFER_LEN / [self pcmFormat].mChannelsPerFrame);
+		uint32_t samplesRead = WavpackUnpackSamples(_wpc, inputBuffer, WP_INPUT_BUFFER_LEN / [self pcmFormat].mChannelsPerFrame);
 
 		// Handle floating point files
-		// Perform hard clipping and convert to integers
-		if(MODE_FLOAT & WavpackGetMode(_wpc) && 127 == WavpackGetFloatNormExp(_wpc)) {
-			float f;
-			alias32 = inputBuffer;
-			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-				f =  * ((float *) alias32);
-				
-				if(f > 1.0)		{ f = 1.0; }
-				if(f < -1.0)	{ f = -1.0; }
-				
-//				*alias32++ = (int32_t) (f * 2147483647.0);
-				*alias32++ = (int32_t) (f * 32767.0);
-			}
-		}
-
-		switch([self pcmFormat].mBitsPerChannel) {
+		if(MODE_FLOAT & WavpackGetMode(_wpc)) {
 			
-			case 8:
-				
-				// No need for byte swapping
-				alias8 = writePointer;
-				for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-					*alias8++ = (int8_t)inputBuffer[sample];
+			if(127 != WavpackGetFloatNormExp(_wpc)) {
+				NSLog(@"Floating point data not scaled to +/- 1.0");
+				return;
+			}
+			
+			float	*inputFloatBuffer	= (float *)inputBuffer;
+			float	*floatBuffer		= (float *)writePointer;
+			float	audioSample			= 0;
+
+			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+				audioSample = inputFloatBuffer[sample];
+
+				// Clip
+				if(audioSample > 1.0) {
+					audioSample = 1.0;
 				}
-					
-				[[self pcmBuffer] didWriteLength:samplesRead * [self pcmFormat].mChannelsPerFrame * sizeof(int8_t)];
-				
-				break;
-				
-			case 16:
-				
-				// Convert to big endian byte order 
-				alias16 = writePointer;
-				for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-					*alias16++ = (int16_t)OSSwapHostToBigInt16((int16_t)inputBuffer[sample]);
+				else if(audioSample < -1.0){
+					audioSample = -1.0;
 				}
-					
-				[[self pcmBuffer] didWriteLength:samplesRead * [self pcmFormat].mChannelsPerFrame * sizeof(int16_t)];
 				
-				break;
-				
-			case 24:
-				
-				// Convert to big endian byte order 
-				alias8 = writePointer;
-				for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-					audioSample	= OSSwapHostToBigInt32(inputBuffer[sample]);
-					*alias8++	= (int8_t)(audioSample >> 16);
-					*alias8++	= (int8_t)(audioSample >> 8);
-					*alias8++	= (int8_t)audioSample;
+				*floatBuffer++ = audioSample;
+			}
+
+			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
+		}
+		else {
+			float	*floatBuffer	= (float *)writePointer;
+			double	scaleFactor		= (1LL << WavpackGetBitsPerSample(_wpc));
+			double	audioSample		= 0;
+
+			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+
+				if(0 <= inputBuffer[sample]) {
+					audioSample = (double)(inputBuffer[sample] / (scaleFactor - 1));
 				}
-					
-				[[self pcmBuffer] didWriteLength:samplesRead * [self pcmFormat].mChannelsPerFrame * 3 * sizeof(int8_t)];
-				
-				break;
-				
-			case 32:
-				
-				// Convert to big endian byte order 
-				alias32 = writePointer;
-				for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-					*alias32++ = OSSwapHostToBigInt32(inputBuffer[sample]);
+				else {
+					audioSample = (double)(inputBuffer[sample] / scaleFactor);
 				}
-					
-				[[self pcmBuffer] didWriteLength:samplesRead * [self pcmFormat].mChannelsPerFrame * sizeof(int32_t)];
 				
-				break;
+				// Clip
+				if(audioSample > 1.0) {
+					audioSample = 1.0;
+				}
+				else if(audioSample < -1.0){
+					audioSample = -1.0;
+				}
 				
-			default:
-				NSLog(@"Sample size not supported");
-				samplesRead = 0;
-				break;	
+				*floatBuffer++ = (float)audioSample;
+			}
+			
+			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
 		}
 
 		// EOS?
