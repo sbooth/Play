@@ -145,17 +145,8 @@
 			float	audioSample			= 0;
 
 			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-				audioSample = inputFloatBuffer[sample];
-
-				// Clip
-				if(audioSample > 1.0) {
-					audioSample = 1.0;
-				}
-				else if(audioSample < -1.0){
-					audioSample = -1.0;
-				}
-				
-				*floatBuffer++ = audioSample;
+				audioSample		= inputFloatBuffer[sample];
+				*floatBuffer++	= (audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 			}
 
 			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
@@ -174,15 +165,7 @@
 					audioSample = (double)(inputBuffer[sample] / scaleFactor);
 				}
 				
-				// Clip
-				if(audioSample > 1.0) {
-					audioSample = 1.0;
-				}
-				else if(audioSample < -1.0){
-					audioSample = -1.0;
-				}
-				
-				*floatBuffer++ = (float)audioSample;
+				*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 			}
 			
 			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
