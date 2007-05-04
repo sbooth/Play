@@ -23,11 +23,8 @@
 #include <FLAC/metadata.h>
 
 @interface FLACStreamDecoder (Private)
-
 - (void)	setSampleRate:(Float64)sampleRate;
-- (void)	setBitsPerChannel:(UInt32)bitsPerChannel;
 - (void)	setChannelsPerFrame:(UInt32)channelsPerFrame;
-
 @end
 
 static FLAC__StreamDecoderWriteStatus 
@@ -35,94 +32,34 @@ writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, cons
 {
 	FLACStreamDecoder	*streamDecoder			= (FLACStreamDecoder *)client_data;
 	
-	unsigned			spaceRequired			= 0;
-	
-	int8_t				*alias8					= NULL;
-	int16_t				*alias16				= NULL;
-	int32_t				*alias32				= NULL;
-	
 	unsigned			sample, channel;
-	int32_t				audioSample;
-	
-	UInt32				bytesAvailableToWrite;
 	void				*writePointer;
 
 	// Calculate the number of audio data points contained in the frame (should be one for each channel)
-	spaceRequired		= frame->header.blocksize * frame->header.channels * (frame->header.bits_per_sample / 8);
-	bytesAvailableToWrite = [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+	unsigned	spaceRequired			= frame->header.blocksize * frame->header.channels * (32 / 8);
+	UInt32		bytesAvailableToWrite	= [[streamDecoder pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
 
 	// Increase buffer size as required
 	if(bytesAvailableToWrite < spaceRequired) {
 		return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 	}
 	
-	switch(frame->header.bits_per_sample) {
-		
-		case 8:
-			
-			// Interleave the audio (no need for byte swapping)
-			alias8 = writePointer;
-			for(sample = 0; sample < frame->header.blocksize; ++sample) {
-				for(channel = 0; channel < frame->header.channels; ++channel) {
-					*alias8++ = (int8_t)buffer[channel][sample];
-				}
+	float	*floatBuffer	= (float *)writePointer;
+	float	scaleFactor		= (1 << frame->header.bits_per_sample);
+	
+	for(sample = 0; sample < frame->header.blocksize; ++sample) {
+		for(channel = 0; channel < frame->header.channels; ++channel) {
+			if(0 <= buffer[channel][sample]) {
+				*floatBuffer++ = (float)(buffer[channel][sample] / (scaleFactor - 1));
 			}
-				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
-			
-			break;
-			
-		case 16:
-			
-			// Interleave the audio, converting to big endian byte order 
-			alias16 = writePointer;
-			for(sample = 0; sample < frame->header.blocksize; ++sample) {
-				for(channel = 0; channel < frame->header.channels; ++channel) {
-					*alias16++ = (int16_t)OSSwapHostToBigInt16((int16_t)buffer[channel][sample]);
-				}
+			else {
+				*floatBuffer++ = (float)(buffer[channel][sample] / scaleFactor);
 			}
-				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
-			
-			break;
-			
-		case 24:				
-			
-			// Interleave the audio (no need for byte swapping)
-			alias8 = writePointer;
-			for(sample = 0; sample < frame->header.blocksize; ++sample) {
-				for(channel = 0; channel < frame->header.channels; ++channel) {
-					audioSample	= buffer[channel][sample];
-					*alias8++	= (int8_t)(audioSample >> 16);
-					*alias8++	= (int8_t)(audioSample >> 8);
-					*alias8++	= (int8_t)audioSample;
-				}
-			}
-				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
-			
-			break;
-			
-		case 32:
-			
-			// Interleave the audio, converting to big endian byte order 
-			alias32 = writePointer;
-			for(sample = 0; sample < frame->header.blocksize; ++sample) {
-				for(channel = 0; channel < frame->header.channels; ++channel) {
-					*alias32++ = OSSwapHostToBigInt32(buffer[channel][sample]);
-				}
-			}
-				
-			[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
-			
-			break;
-			
-		default:
-			NSLog(@"Sample size not supported");
-			return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
-			break;				
+		}
 	}
 	
+	[[streamDecoder pcmBuffer] didWriteLength:spaceRequired];
+
 	// Always return continue; an exception will be thrown if this isn't the case
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
@@ -139,7 +76,6 @@ metadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata 
 	switch(metadata->type) {
 		case FLAC__METADATA_TYPE_STREAMINFO:
 			[source setSampleRate:metadata->data.stream_info.sample_rate];			
-			[source setBitsPerChannel:metadata->data.stream_info.bits_per_sample];
 			[source setChannelsPerFrame:metadata->data.stream_info.channels];
 
 			[source setTotalFrames:metadata->data.stream_info.total_samples];
@@ -185,7 +121,7 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	FLAC__bool		result		= FLAC__stream_decoder_seek_absolute(_flac, frame);	
+	FLAC__bool result = FLAC__stream_decoder_seek_absolute(_flac, frame);	
 	
 	// Attempt to re-sync the stream if necessary
 	if(/*result && */FLAC__STREAM_DECODER_SEEK_ERROR == FLAC__stream_decoder_get_state(_flac)) {
@@ -197,22 +133,19 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 - (BOOL) setupDecoder:(NSError **)error
 {
-	FLAC__bool						result;
-	FLAC__StreamDecoderInitStatus	status;	
-	
 	[super setupDecoder:error];
 
 	// Create FLAC decoder
-	_flac		= FLAC__stream_decoder_new();
+	_flac = FLAC__stream_decoder_new();
 	NSAssert(NULL != _flac, @"Unable to create the FLAC decoder.");
 	
 	// Initialize decoder
-	status		= FLAC__stream_decoder_init_file(_flac, 
-												 [[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation],
-												 writeCallback, 
-												 metadataCallback, 
-												 errorCallback,
-												 self);
+	FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_file(_flac, 
+																		  [[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation],
+																		  writeCallback, 
+																		  metadataCallback, 
+																		  errorCallback,
+																		  self);
 	NSAssert1(FLAC__STREAM_DECODER_INIT_STATUS_OK == status, @"FLAC__stream_decoder_init_file failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 
 	/*
@@ -222,27 +155,9 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	 */
 				
 	// Process metadata
-	result = FLAC__stream_decoder_process_until_end_of_metadata(_flac);
+	FLAC__bool result = FLAC__stream_decoder_process_until_end_of_metadata(_flac);
 	NSAssert1(YES == result, @"FLAC__stream_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
-	
-	// We only handle a subset of the legal bitsPerChannel for FLAC
-	if(8 != _pcmFormat.mBitsPerChannel && 16 != _pcmFormat.mBitsPerChannel && 24 != _pcmFormat.mBitsPerChannel && 32 != _pcmFormat.mBitsPerChannel) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported FLAC format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only 8, 16, 24 or 32 bits per sample are supported for FLAC.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-										 code:AudioStreamDecoderFileFormatNotSupportedError 
-									 userInfo:errorDictionary];
-		}		
 		
-		return NO;
-	}
-	
 	// FLAC doesn't have default channel mappings so for now only support mono and stereo
 /*	if(1 != _pcmFormat.mChannelsPerFrame && 2 != _pcmFormat.mChannelsPerFrame) {
 		if(nil != error) {
@@ -263,8 +178,9 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
-		
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
+	_pcmFormat.mBitsPerChannel		= 32;
+			
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
@@ -308,13 +224,12 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		// there is no good way to know in advance the bytes which will be required to hold a FLAC frame.
 		// This is because FLAC uses a "push" model, while most everything else uses a "pull" model
 		// I'll handle it here by checking to see if there is enough space for the block
-		// that was just read.  For files with varying block sizes, channels or sample depths
-		// this could blow up!
+		// that was just read.  For files with varying block sizes or channels this could blow up!
 		// It's not feasible to use the maximum possible values, because
-		// maxBlocksize(65535) * maxBitsPerSample(32) * maxChannels(8) = 16,776,960 (No 16 MB buffers here!)
+		// maxBlocksize(65535) * maxChannels(8) * sampleSize(32 bit float) = 16,776,960 (No 16 MB buffers here!)
 		blockSize					= FLAC__stream_decoder_get_blocksize(_flac);
 		channels					= FLAC__stream_decoder_get_channels(_flac);
-		bitsPerSample				= FLAC__stream_decoder_get_bits_per_sample(_flac); 
+		bitsPerSample				= 32;
 		
 		blockByteSize				= blockSize * channels * (bitsPerSample / 8);
 
@@ -324,7 +239,6 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		}
 
 		result	= FLAC__stream_decoder_process_single(_flac);	
-//		NSAssert1(YES == result, @"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 		if(YES != result) {
 			NSLog(@"FLAC__stream_decoder_process_single failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 			return;
@@ -343,7 +257,6 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 @implementation FLACStreamDecoder (Private)
 
 - (void)	setSampleRate:(Float64)sampleRate				{ _pcmFormat.mSampleRate = sampleRate; }
-- (void)	setBitsPerChannel:(UInt32)bitsPerChannel		{ _pcmFormat.mBitsPerChannel = bitsPerChannel; }
 - (void)	setChannelsPerFrame:(UInt32)channelsPerFrame	{ _pcmFormat.mChannelsPerFrame = channelsPerFrame; }
 
 @end
