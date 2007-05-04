@@ -26,6 +26,7 @@
 #include <mac/CharacterHelper.h>
 
 #define SELF_DECOMPRESSOR	(reinterpret_cast<IAPEDecompress *>(_decompressor))
+#define APE_DECODER_BUFFER_LENGTH 1024
 
 @implementation MonkeysAudioStreamDecoder
 
@@ -63,11 +64,11 @@
 
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
 	
 	_pcmFormat.mSampleRate			= SELF_DECOMPRESSOR->GetInfo(APE_INFO_SAMPLE_RATE);
 	_pcmFormat.mChannelsPerFrame	= SELF_DECOMPRESSOR->GetInfo(APE_INFO_CHANNELS);
-	_pcmFormat.mBitsPerChannel		= SELF_DECOMPRESSOR->GetInfo(APE_INFO_BITS_PER_SAMPLE);
+	_pcmFormat.mBitsPerChannel		= 32;
 	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
@@ -111,39 +112,100 @@
 
 - (void) fillPCMBuffer
 {
-	UInt32				bytesToWrite, bytesAvailableToWrite;
-	UInt32				spaceRequired;
-	void				*writePointer;
-	int					result;
-	int					blockSize;
-	int					samplesRead;
-		
-	blockSize	= SELF_DECOMPRESSOR->GetInfo(APE_INFO_BLOCK_ALIGN);
-	NSAssert(0 != blockSize, @"Unable to determine the Monkey's Audio block size.");
+	void			*writePointer				= NULL;
+	int8_t			*inputBuffer				= NULL;
+	unsigned		sample						= 0;
+	UInt32			bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+	UInt32			bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+	float			*floatBuffer				= (float *)writePointer;
+	UInt32			bytesWritten				= 0;
+	int				samplesRead					= 0;
 	
-	for(;;) {
-		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
-		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		spaceRequired				= blockSize;	
-		
-		if(bytesAvailableToWrite < bytesToWrite || spaceRequired > bytesAvailableToWrite) {
-			break;
-		}
-				
-		result		= SELF_DECOMPRESSOR->GetData((char *)writePointer, bytesAvailableToWrite / blockSize, &samplesRead);
-		//		NSAssert(ERROR_SUCCESS == result, @"Monkey's Audio invalid checksum.");
-		if(ERROR_SUCCESS != result) {
-			NSLog(@"Monkey's Audio invalid checksum.");
-		}
-		
-		[[self pcmBuffer] didWriteLength:samplesRead * blockSize];
-		
-		// EOS?
-		if(0 == samplesRead) {
-			[self setAtEndOfStream:YES];
-			break;
-		}		
+	if(bytesToWrite > bytesAvailableToWrite) {
+		return;
 	}
+	
+	int bitsPerChannel = SELF_DECOMPRESSOR->GetInfo(APE_INFO_BITS_PER_SAMPLE);
+	NSAssert(0 != bitsPerChannel, @"Unable to determine the Monkey's Audio bits per sample.");
+	
+	int bytesPerChannel = SELF_DECOMPRESSOR->GetInfo(APE_INFO_BYTES_PER_SAMPLE);
+	NSAssert(0 != bytesPerChannel, @"Unable to determine the Monkey's Audio bytes per sample.");
+	
+	// frameSize is the size (in bytes) of an audio frame (a single sample across all channels)
+	int frameSize = SELF_DECOMPRESSOR->GetInfo(APE_INFO_BLOCK_ALIGN);
+	NSAssert(0 != frameSize, @"Unable to determine the Monkey's Audio block alignment.");
+
+	// Determine the ratio of the APE sample size to our float sample size of 32 bits
+	unsigned sampleSizeRatio = (32 / 8) / bytesPerChannel;
+	
+	// Allocate input buffer large enough for APE_DECODER_BUFFER_LENGTH frames
+	inputBuffer = (int8_t *)calloc(APE_DECODER_BUFFER_LENGTH * frameSize, sizeof(int8_t));
+	NSAssert(NULL != inputBuffer, @"Unable to allocate memory.");
+	
+	unsigned inputBufferSize = APE_DECODER_BUFFER_LENGTH * frameSize * sizeof(int8_t);
+
+	UInt32 bytesToRead = (bytesAvailableToWrite / sampleSizeRatio) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / sampleSizeRatio;
+
+	int result = SELF_DECOMPRESSOR->GetData((char *)inputBuffer, bytesToRead / frameSize, &samplesRead);
+	if(ERROR_SUCCESS != result) {
+		NSLog(@"Monkey's Audio invalid checksum.");
+		free(inputBuffer);
+		return;
+	}
+			
+	unsigned	framesRead		= samplesRead * [self pcmFormat].mChannelsPerFrame;
+	double		scaleFactor		= (1LL << (((bitsPerChannel + 7) / 8) * 8));
+	float		audioSample		= 0;
+	int32_t		actualSample	= 0;
+	int8_t		sample8			= 0;
+	int16_t		sample16		= 0;
+	int32_t		sample32		= 0;
+	
+	for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+		
+		switch(bytesPerChannel) {
+			case (8 / 8):
+				memcpy(&sample8, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
+				actualSample = sample8;
+				break;
+				
+			case (16 / 8):
+				memcpy(&sample16, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
+				actualSample = sample16;
+				break;
+			
+			case (24 / 8):
+				memcpy((&sample32) + sizeof(int8_t), inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
+				actualSample = sample8;
+				break;
+
+			case (32 / 8):
+				memcpy(&sample32, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
+				actualSample = sample32;
+				break;
+		}
+
+		if(0 <= actualSample) {
+			audioSample = (float)(actualSample / (scaleFactor - 1));
+		}
+		else {
+			audioSample = (float)(actualSample / scaleFactor);
+		}
+		
+		*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
+	}
+	
+	bytesWritten = framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
+	
+	if(0 < bytesWritten) {
+		[[self pcmBuffer] didWriteLength:bytesWritten];				
+	}
+	
+	if(0 == samplesRead) {
+		[self setAtEndOfStream:YES];
+	}	
+	
+	free(inputBuffer);
 }
 
 @end
