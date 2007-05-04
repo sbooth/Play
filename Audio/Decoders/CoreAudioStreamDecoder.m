@@ -50,9 +50,7 @@
 
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	OSStatus	result;
-	
-	result			= ExtAudioFileSeek(_extAudioFile, frame);
+	OSStatus result = ExtAudioFileSeek(_extAudioFile, frame);
 	
 	if(noErr != result) {
 		return -1;
@@ -131,10 +129,10 @@
 	_channelLayout					= channelLayout;
 
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
 	
 	// Preserve mSampleRate and mChannelsPerFrame
-	_pcmFormat.mBitsPerChannel		= (0 == _pcmFormat.mBitsPerChannel ? 16 : _pcmFormat.mBitsPerChannel);
+	_pcmFormat.mBitsPerChannel		= 32;
 	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
