@@ -138,73 +138,69 @@
 
 - (void) fillPCMBuffer
 {
-	void				*writePointer			= NULL;
-	int16_t				inputBuffer				[OV_DECODER_BUFFER_LENGTH];
-	unsigned			inputBufferSize			= OV_DECODER_BUFFER_LENGTH * sizeof(int16_t);
-	unsigned			sample					= 0;
+	void			*writePointer				= NULL;
+	int16_t			inputBuffer					[OV_DECODER_BUFFER_LENGTH];
+	unsigned		inputBufferSize				= OV_DECODER_BUFFER_LENGTH * sizeof(int16_t);
+	unsigned		sample						= 0;
+	UInt32			bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+	UInt32			bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+	float			*floatBuffer				= (float *)writePointer;
+	int				currentSection				= 0;
+	UInt32			totalBytesWritten			= 0;
+	UInt32			currentBytesWritten			= 0;
+	long			bytesRead					= 0;
 
-	for(;;) {
-		UInt32		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
-		UInt32		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		float		*floatBuffer				= (float *)writePointer;
-		int			currentSection				= 0;
-		UInt32		totalBytesWritten			= 0;
-		UInt32		currentBytesWritten			= 0;
-		long		bytesRead					= 0;
+	if(bytesToWrite > bytesAvailableToWrite) {
+		return;
+	}
 
-		if(bytesToWrite > bytesAvailableToWrite) {
-			break;
-		}
+	while(0 < bytesAvailableToWrite) {
 
-		while(0 < bytesAvailableToWrite) {
-
-			UInt32 bytesToRead = (bytesAvailableToWrite / 2) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / 2;
-			
-			// Always grab in host byte order
+		UInt32 bytesToRead = (bytesAvailableToWrite / 2) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / 2;
+		
+		// Always grab in host byte order
 #if __BIG_ENDIAN__
-			bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), YES, &currentSection);
+		bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), YES, &currentSection);
 #else
-			bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), NO, &currentSection);
+		bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), NO, &currentSection);
 #endif
-			
-			if(0 > bytesRead) {
-				NSLog(@"Ogg Vorbis decode error.");
-				return;
-			}
-			
-			unsigned	framesRead		= (bytesRead / sizeof(int16_t)) / [self pcmFormat].mChannelsPerFrame;
-			float		scaleFactor		= (1L << 16);
-			float		audioSample		= 0;
-			
-			for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-				
-				if(0 <= inputBuffer[sample]) {
-					audioSample = (float)(inputBuffer[sample] / (scaleFactor - 1));
-				}
-				else {
-					audioSample = (float)(inputBuffer[sample] / scaleFactor);
-				}
-				
-				*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
-			}
-
-			currentBytesWritten		= framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
-			totalBytesWritten		+= currentBytesWritten;
-			bytesAvailableToWrite	-= currentBytesWritten;
-
-			if(0 == bytesRead) {
-				break;
-			}
-		}
-
-		if(0 < totalBytesWritten) {
-			[[self pcmBuffer] didWriteLength:totalBytesWritten];				
+		
+		if(0 > bytesRead) {
+			NSLog(@"Ogg Vorbis decode error.");
+			return;
 		}
 		
+		unsigned	framesRead		= (bytesRead / sizeof(int16_t)) / [self pcmFormat].mChannelsPerFrame;
+		float		scaleFactor		= (1L << 16);
+		float		audioSample		= 0;
+		
+		for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+			
+			if(0 <= inputBuffer[sample]) {
+				audioSample = (float)(inputBuffer[sample] / (scaleFactor - 1));
+			}
+			else {
+				audioSample = (float)(inputBuffer[sample] / scaleFactor);
+			}
+			
+			*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
+		}
+
+		currentBytesWritten		= framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
+		totalBytesWritten		+= currentBytesWritten;
+		bytesAvailableToWrite	-= currentBytesWritten;
+
 		if(0 == bytesRead) {
-			[self setAtEndOfStream:YES];
 			break;
 		}
+	}
+
+	if(0 < totalBytesWritten) {
+		[[self pcmBuffer] didWriteLength:totalBytesWritten];				
+	}
+	
+	if(0 == bytesRead) {
+		[self setAtEndOfStream:YES];
 	}
 }
 
