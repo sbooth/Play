@@ -159,7 +159,11 @@
 		UInt32 bytesToRead = (bytesAvailableToWrite / 2) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / 2;
 		
 		// Always grab in host byte order
-		bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, __BIG_ENDIAN__, sizeof(int16_t), YES, &currentSection);
+#if __BIG_ENDIAN__
+		bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), YES, &currentSection);
+#else
+		bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, NO, sizeof(int16_t), YES, &currentSection);
+#endif
 		
 		if(0 > bytesRead) {
 			NSLog(@"Ogg Vorbis decode error.");
