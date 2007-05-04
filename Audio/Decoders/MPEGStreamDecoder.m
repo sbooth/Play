@@ -27,6 +27,7 @@
 #define INPUT_BUFFER_SIZE	(5 * 8192)
 #define LAME_HEADER_SIZE	((8 * 5) + 4 + 4 + 8 + 32 + 16 + 16 + 4 + 4 + 8 + 12 + 12 + 8 + 8 + 2 + 3 + 11 + 32 + 32 + 32)
 
+#define BIT_RESOLUTION		24
 
 // From vbrheadersdk:
 // ========================================
@@ -172,11 +173,8 @@ audio_linear_round(unsigned int bits,
 
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
-	
-//	_pcmFormat.mSampleRate			= ;
-//	_pcmFormat.mChannelsPerFrame	= ;
-	_pcmFormat.mBitsPerChannel		= 24;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
+	_pcmFormat.mBitsPerChannel		= 32;
 	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
@@ -201,26 +199,21 @@ audio_linear_round(unsigned int bits,
 
 - (void) fillPCMBuffer
 {
-	UInt32			bytesToWrite, bytesAvailableToWrite;
-	UInt32			bytesToRead, bytesWritten, bytesRemaining;
-	ssize_t			bytesRead;
+	UInt32			bytesToRead, bytesRemaining;
 	void			*writePointer;
 	unsigned char	*readStartPointer;
-	unsigned		frameByteSize, i, sampleCount;
+	unsigned		i;
 	int32_t			audioSample;
-	int8_t			*alias8;
-	int				result;
-	BOOL			readEOF;
 	
+	UInt32			bytesToWrite			= RING_BUFFER_WRITE_CHUNK_SIZE;
+	UInt32			bytesAvailableToWrite	= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+	UInt32			bytesWritten			= 0;
+	float			*floatBuffer			= writePointer;
+	BOOL			readEOF					= NO;
+	double			scaleFactor				= (1LL << BIT_RESOLUTION);
 
-	bytesToWrite			= RING_BUFFER_WRITE_CHUNK_SIZE;
-	bytesAvailableToWrite	= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-	bytesWritten			= 0;
-	alias8					= writePointer;
-	readEOF					= NO;
-
-	// Calculate bytes requiredfor decompressing one MPEG frame to 24-bit PCM 
-	frameByteSize			= _samplesPerMPEGFrame * 2 * 3;
+	// Calculate bytes requiredfor decompressing one MPEG frame to 32-bit float PCM 
+	unsigned		frameByteSize			= _samplesPerMPEGFrame * 2 * (32 / 8);
 	
 	// Ensure sufficient space remains in the buffer
 	if(bytesToWrite > bytesAvailableToWrite) {
@@ -247,7 +240,7 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// Read raw bytes from the MP3 file
-			bytesRead = read(_fd, readStartPointer, bytesToRead);
+			ssize_t bytesRead = read(_fd, readStartPointer, bytesToRead);
 			
 			if(-1 == bytesRead) {
 #if DEBUG
@@ -273,7 +266,7 @@ audio_linear_round(unsigned int bits,
 		}
 		
 		// Decode the MPEG frame
-		result = mad_frame_decode(&_mad_frame, &_mad_stream);
+		int result = mad_frame_decode(&_mad_frame, &_mad_stream);
 		if(-1 == result) {
 
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
@@ -316,31 +309,37 @@ audio_linear_round(unsigned int bits,
 
 		// If a LAME header was found, the total number of audio frames (AKA samples) 
 		// is known.  Ensure only that many are output
-		sampleCount = _mad_synth.pcm.length;
+		unsigned sampleCount = _mad_synth.pcm.length;
 		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + sampleCount) {
 			sampleCount = [self totalFrames] - _samplesDecoded;
 		}
 				
-		// Output samples in 24-bit signed integer big endian PCM
+		// Output samples in 32-bit float PCM
 		for(/*i = 0*/; i < sampleCount; ++i) {						
-			audioSample = audio_linear_round(24, _mad_synth.pcm.samples[0][i]);
+			audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[0][i]);
 			
-			*alias8++	= (int8_t)(audioSample >> 16);
-			*alias8++	= (int8_t)(audioSample >> 8);
-			*alias8++	= (int8_t)audioSample;
-			
-			bytesWritten			+= 3;
-			bytesAvailableToWrite	-= 3;
+			if(0 <= audioSample) {
+				*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
+			}
+			else {
+				*floatBuffer++ = (float)(audioSample / scaleFactor);
+			}
+
+			bytesWritten			+= (32 / 8);
+			bytesAvailableToWrite	-= (32 / 8);
 			
 			if(2 == MAD_NCHANNELS(&_mad_frame.header)) {
-				audioSample = audio_linear_round(24, _mad_synth.pcm.samples[1][i]);
+				audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[1][i]);
 
-				*alias8++	= (int8_t)(audioSample >> 16);
-				*alias8++	= (int8_t)(audioSample >> 8);
-				*alias8++	= (int8_t)audioSample;
-
-				bytesWritten			+= 3;
-				bytesAvailableToWrite	-= 3;
+				if(0 <= audioSample) {
+					*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
+				}
+				else {
+					*floatBuffer++ = (float)(audioSample / scaleFactor);
+				}
+				
+				bytesWritten			+= (32 / 8);
+				bytesAvailableToWrite	-= (32 / 8);
 			}
 			
 			++_samplesDecoded;
