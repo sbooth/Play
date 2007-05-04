@@ -149,7 +149,7 @@
 				*floatBuffer++	= (audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 			}
 
-			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
+			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 8)];
 		}
 		else {
 			float	*floatBuffer	= (float *)writePointer;
@@ -168,7 +168,7 @@
 				*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 			}
 			
-			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 4)];
+			[[self pcmBuffer] didWriteLength:samplesRead * (32 / 8)];
 		}
 
 		// EOS?
