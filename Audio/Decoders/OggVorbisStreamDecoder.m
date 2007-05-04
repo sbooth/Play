@@ -21,6 +21,8 @@
 #import "OggVorbisStreamDecoder.h"
 #import "AudioStream.h"
 
+#define OV_DECODER_BUFFER_LENGTH 1024
+
 @implementation OggVorbisStreamDecoder
 
 - (NSString *) sourceFormatDescription
@@ -105,11 +107,11 @@
 
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsPacked;
+	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
 	
 	_pcmFormat.mSampleRate			= ovInfo->rate;
 	_pcmFormat.mChannelsPerFrame	= ovInfo->channels;
-	_pcmFormat.mBitsPerChannel		= 16;
+	_pcmFormat.mBitsPerChannel		= 32;
 	
 	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
 	_pcmFormat.mFramesPerPacket		= 1;
@@ -136,38 +138,67 @@
 
 - (void) fillPCMBuffer
 {
-	UInt32				bytesToWrite, bytesAvailableToWrite;
-	UInt32				bytesRead, bytesWritten;
-	int					currentSection;
-	void				*writePointer;
+	void				*writePointer			= NULL;
+	int16_t				inputBuffer				[OV_DECODER_BUFFER_LENGTH];
+	unsigned			inputBufferSize			= OV_DECODER_BUFFER_LENGTH * sizeof(int16_t);
+	unsigned			sample					= 0;
 
 	for(;;) {
-		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
-		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		currentSection				= 0;
-		bytesWritten				= 0;
+		UInt32		bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
+		UInt32		bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
+		float		*floatBuffer				= (float *)writePointer;
+		int			currentSection				= 0;
+		UInt32		totalBytesWritten			= 0;
+		UInt32		currentBytesWritten			= 0;
+		long		bytesRead					= 0;
 
 		if(bytesToWrite > bytesAvailableToWrite) {
 			break;
 		}
 
-		for(;;) {
-			bytesRead			= ov_read(&_vf, writePointer + bytesWritten, bytesAvailableToWrite - bytesWritten, YES, sizeof(int16_t), YES, &currentSection);
-//			NSAssert(0 <= bytesRead, @"Ogg Vorbis decode error.");
+		while(0 < bytesAvailableToWrite) {
+
+			UInt32 bytesToRead = (bytesAvailableToWrite / 2) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / 2;
+			
+			// Always grab in host byte order
+#if __BIG_ENDIAN__
+			bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), YES, &currentSection);
+#else
+			bytesRead = ov_read(&_vf, (char *)inputBuffer, bytesToRead, YES, sizeof(int16_t), NO, &currentSection);
+#endif
+			
 			if(0 > bytesRead) {
 				NSLog(@"Ogg Vorbis decode error.");
 				return;
 			}
 			
-			bytesWritten		+= bytesRead;
+			unsigned	framesRead		= (bytesRead / sizeof(int16_t)) / [self pcmFormat].mChannelsPerFrame;
+			float		scaleFactor		= (1L << 16);
+			float		audioSample		= 0;
 			
-			if(0 == bytesRead || bytesWritten >= bytesAvailableToWrite) {
+			for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+				
+				if(0 <= inputBuffer[sample]) {
+					audioSample = (float)(inputBuffer[sample] / (scaleFactor - 1));
+				}
+				else {
+					audioSample = (float)(inputBuffer[sample] / scaleFactor);
+				}
+				
+				*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
+			}
+
+			currentBytesWritten		= framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
+			totalBytesWritten		+= currentBytesWritten;
+			bytesAvailableToWrite	-= currentBytesWritten;
+
+			if(0 == bytesRead) {
 				break;
 			}
 		}
 
-		if(0 < bytesWritten) {
-			[[self pcmBuffer] didWriteLength:bytesWritten];				
+		if(0 < totalBytesWritten) {
+			[[self pcmBuffer] didWriteLength:totalBytesWritten];				
 		}
 		
 		if(0 == bytesRead) {
