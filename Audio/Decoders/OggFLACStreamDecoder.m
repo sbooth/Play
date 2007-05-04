@@ -47,7 +47,7 @@ writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, cons
 	}
 	
 	float	*floatBuffer	= (float *)writePointer;
-	double	scaleFactor		= (1LL << frame->header.bits_per_sample);
+	double	scaleFactor		= (1LL << (((frame->header.bits_per_sample + 7) / 8) * 8));
 	
 	for(sample = 0; sample < frame->header.blocksize; ++sample) {
 		for(channel = 0; channel < frame->header.channels; ++channel) {
