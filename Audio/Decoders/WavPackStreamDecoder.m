@@ -123,7 +123,7 @@
 	for(;;) {
 		UInt32	bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
 		UInt32	bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-		UInt32	spaceRequired				= WP_INPUT_BUFFER_LEN /* * [self pcmFormat].mChannelsPerFrame */ * ([self pcmFormat].mBitsPerChannel / 8);	
+		UInt32	spaceRequired				= WP_INPUT_BUFFER_LEN /* * [self pcmFormat].mChannelsPerFrame */ * (32 / 8);	
 		
 		if(bytesAvailableToWrite < bytesToWrite || spaceRequired > bytesAvailableToWrite) {
 			break;
@@ -134,11 +134,6 @@
 
 		// Handle floating point files
 		if(MODE_FLOAT & WavpackGetMode(_wpc)) {
-			
-			if(127 != WavpackGetFloatNormExp(_wpc)) {
-				NSLog(@"Floating point data not scaled to +/- 1.0");
-				return;
-			}
 			
 			float	*inputFloatBuffer	= (float *)inputBuffer;
 			float	*floatBuffer		= (float *)writePointer;
@@ -153,7 +148,7 @@
 		}
 		else {
 			float	*floatBuffer	= (float *)writePointer;
-			double	scaleFactor		= (1LL << WavpackGetBitsPerSample(_wpc));
+			double	scaleFactor		= (1LL << (WavpackGetBytesPerSample(_wpc) * 8));
 			double	audioSample		= 0;
 
 			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
