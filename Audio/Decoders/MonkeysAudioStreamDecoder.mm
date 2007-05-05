@@ -42,22 +42,20 @@
 
 - (SInt64) performSeekToFrame:(SInt64)frame
 {
-	int		result		= SELF_DECOMPRESSOR->Seek(frame);
+	int result = SELF_DECOMPRESSOR->Seek(frame);
 	return (ERROR_SUCCESS == result ? frame : -1);
 }
 
 - (BOOL) setupDecoder:(NSError **)error
 {
-	str_utf16			*chars;
-	int					result;
-
 	[super setupDecoder:error];
 	
 	// Setup converter
-	chars			= GetUTF16FromANSI([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation]);
+	str_utf16 chars = GetUTF16FromANSI([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
-	_decompressor	= (void *)CreateIAPEDecompress(chars, &result);
+	int result;
+	_decompressor = (void *)CreateIAPEDecompress(chars, &result);
 	NSAssert(NULL != _decompressor && ERROR_SUCCESS == result, @"Unable to open the input file.");
 
 	delete [] chars;
