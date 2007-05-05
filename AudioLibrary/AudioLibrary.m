@@ -265,23 +265,23 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		nil];
 	
 	NSDictionary *streamTableColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithFloat:50], @"id",
-		[NSNumber numberWithFloat:186], @"title",
+		[NSNumber numberWithFloat:72], @"id",
+		[NSNumber numberWithFloat:192], @"title",
 		[NSNumber numberWithFloat:128], @"albumTitle",
-		[NSNumber numberWithFloat:129], @"artist",
-		[NSNumber numberWithFloat:129], @"albumArtist",
-		[NSNumber numberWithFloat:63], @"genre",
+		[NSNumber numberWithFloat:128], @"artist",
+		[NSNumber numberWithFloat:128], @"albumArtist",
+		[NSNumber numberWithFloat:64], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
 		[NSNumber numberWithFloat:54], @"disc",
-		[NSNumber numberWithFloat:88], @"formatDescription",
-		[NSNumber numberWithFloat:99], @"composer",
+		[NSNumber numberWithFloat:76], @"formatDescription",
+		[NSNumber numberWithFloat:128], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
 		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
-		[NSNumber numberWithFloat:55], @"filename",
+		[NSNumber numberWithFloat:64], @"filename",
 		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
@@ -317,23 +317,23 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSDictionary *playQueueColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 		[NSNumber numberWithFloat:18], @"nowPlaying",
-		[NSNumber numberWithFloat:50], @"id",
-		[NSNumber numberWithFloat:186], @"title",
+		[NSNumber numberWithFloat:72], @"id",
+		[NSNumber numberWithFloat:192], @"title",
 		[NSNumber numberWithFloat:128], @"albumTitle",
-		[NSNumber numberWithFloat:129], @"artist",
-		[NSNumber numberWithFloat:129], @"albumArtist",
-		[NSNumber numberWithFloat:63], @"genre",
+		[NSNumber numberWithFloat:128], @"artist",
+		[NSNumber numberWithFloat:128], @"albumArtist",
+		[NSNumber numberWithFloat:64], @"genre",
 		[NSNumber numberWithFloat:54], @"track",
 		[NSNumber numberWithFloat:54], @"disc",
-		[NSNumber numberWithFloat:88], @"formatDescription",
-		[NSNumber numberWithFloat:99], @"composer",
+		[NSNumber numberWithFloat:76], @"formatDescription",
+		[NSNumber numberWithFloat:128], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
 		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
-		[NSNumber numberWithFloat:55], @"filename",
+		[NSNumber numberWithFloat:64], @"filename",
 		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
@@ -352,16 +352,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		nil];
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:tableDefaults];
-	
-	NSDictionary *defaultsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithBool:NO], @"alwaysPlayStreamsWhenDoubleClicked",
-		[NSNumber numberWithBool:NO], @"rescanMetadataBeforePlayback",
-		[NSNumber numberWithBool:NO], @"removeStreamsFromPlayQueueWhenFinished",
-		[NSNumber numberWithBool:NO], @"limitPlayQueueHistorySize",
-		[NSNumber numberWithInt:5], @"playQueueHistorySize",
-		nil];
-
-	[[NSUserDefaults standardUserDefaults] registerDefaults:defaultsDictionary];
 }	
 
 + (AudioLibrary *) library
