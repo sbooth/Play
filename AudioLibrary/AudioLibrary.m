@@ -1754,6 +1754,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	[self setPlaybackIndex:NSNotFound];
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 	
 	// If the player isn't playing, it could be because the streams have different PCM formats
 	if(NO == [[self player] isPlaying]) {
@@ -1767,11 +1771,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			[[self player] reset];
 			[self updatePlayButtonState];
 		}
-	}
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
-														object:self 
-													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+	}	
 }
 
 - (void) requestNextStream
