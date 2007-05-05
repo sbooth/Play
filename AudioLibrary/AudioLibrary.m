@@ -78,6 +78,7 @@
 #import "WatchFoldersNode.h"
 #import "WatchFolderNode.h"
 #import "MostPopularNode.h"
+#import "HighestRatedNode.h"
 #import "RecentlyAddedNode.h"
 #import "RecentlyPlayedNode.h"
 #import "RecentlySkippedNode.h"
@@ -2003,12 +2004,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[watchFoldersNode setIcon:folderIcon];
 
 	MostPopularNode *mostPopularNode = [[MostPopularNode alloc] init];
+	HighestRatedNode *highestRatedNode = [[HighestRatedNode alloc] init];
 	RecentlyAddedNode *recentlyAddedNode = [[RecentlyAddedNode alloc] init];
 	RecentlyPlayedNode *recentlyPlayedNode = [[RecentlyPlayedNode alloc] init];
 	RecentlySkippedNode *recentlySkippedNode = [[RecentlySkippedNode alloc] init];
 	
 	[browserRoot addChild:_libraryNode];
 	[browserRoot addChild:[mostPopularNode autorelease]];
+	[browserRoot addChild:[highestRatedNode autorelease]];
 	[browserRoot addChild:[recentlyAddedNode autorelease]];
 	[browserRoot addChild:[recentlyPlayedNode autorelease]];
 	[browserRoot addChild:[recentlySkippedNode autorelease]];
