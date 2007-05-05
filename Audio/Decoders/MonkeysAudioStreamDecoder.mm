@@ -154,7 +154,6 @@
 			return;
 		}
 				
-		unsigned	framesRead		= samplesRead * [self pcmFormat].mChannelsPerFrame;
 		double		scaleFactor		= (1LL << (((bitsPerChannel + 7) / 8) * 8));
 		float		audioSample		= 0;
 		int32_t		actualSample	= 0;
@@ -162,7 +161,7 @@
 		int16_t		sample16		= 0;
 		int32_t		sample32		= 0;
 		
-		for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
+		for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
 			
 			switch(bytesPerChannel) {
 				case (8 / 8):
@@ -196,7 +195,7 @@
 			*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 		}
 		
-		currentBytesWritten		= framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
+		currentBytesWritten		= samplesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
 		totalBytesWritten		+= currentBytesWritten;
 		bytesAvailableToWrite	-= currentBytesWritten;
 
