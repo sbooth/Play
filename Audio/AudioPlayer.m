@@ -26,12 +26,31 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
-/*struct ReplayGain {
-	unsigned nameCode:3;
-	unsigned originatorCode:3;
-	unsigned sign:1;
-	unsigned value:9;
-};*/
+static BOOL
+channelLayoutsAreEqual(AudioChannelLayout *layoutA,
+					   AudioChannelLayout *layoutB)
+{
+	// First check if the tags are equal
+	if(layoutA->mChannelLayoutTag != layoutB->mChannelLayoutTag) {
+		return NO;
+	}
+	
+	// If the tags are equal, check for special values
+	if(kAudioChannelLayoutTag_UseChannelBitmap == layoutA->mChannelLayoutTag) {
+		return (layoutA->mChannelBitmap == layoutB->mChannelBitmap);
+	}
+
+	if(kAudioChannelLayoutTag_UseChannelDescriptions == layoutA->mChannelLayoutTag) {
+		if(layoutA->mNumberChannelDescriptions != layoutB->mNumberChannelDescriptions) {
+			return NO;
+		}
+		
+		unsigned bytesToCompare = layoutA->mNumberChannelDescriptions * sizeof(AudioChannelDescription);
+		return (0 == memcmp(&layoutA->mChannelDescriptions, &layoutB->mChannelDescriptions, bytesToCompare));
+	}
+	
+	return YES;
+}
 
 NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlayer";
 
@@ -449,16 +468,21 @@ MyRenderNotification(void							*inRefCon,
 	nextChannelLayout	= [[self nextStreamDecoder] channelLayout];
 
 	BOOL pcmFormatsMatch		= (0 == memcmp(&pcmFormat, &nextPCMFormat, sizeof(AudioStreamBasicDescription)));
-	BOOL channelLayoutsMatch	= ([[self streamDecoder] hasChannelLayout] == [[self nextStreamDecoder] hasChannelLayout]
-								   && ([[self streamDecoder] hasChannelLayout] && (0 == memcmp(&channelLayout, &nextChannelLayout, sizeof(AudioChannelLayout)))));
-	
+	BOOL channelLayoutsMatch	= channelLayoutsAreEqual(&channelLayout, &nextChannelLayout);
+
 	// We can only join the two files if they have the same formats (mSampleRate, etc) and channel layouts
 	if(NO == pcmFormatsMatch || NO == channelLayoutsMatch) {
 
 #if DEBUG
-		NSLog(@"Unable to join buffers for gapless playback, PCM formats and/or channel layouts don't match");
-//		dumpASBD(&pcmFormat);
-//		dumpASBD(&nextPCMFormat);
+		if(NO == pcmFormatsMatch) {
+			NSLog(@"Unable to join buffers for gapless playback, PCM formats don't match");
+//			dumpASBD(&pcmFormat);
+//			dumpASBD(&nextPCMFormat);
+		}
+
+		if(NO == channelLayoutsMatch) {
+			NSLog(@"Unable to join buffers for gapless playback, channel layouts don't match");
+		}
 #endif
 		
 		[[self nextStreamDecoder] stopDecoding:error];
