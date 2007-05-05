@@ -51,7 +51,7 @@
 	[super setupDecoder:error];
 	
 	// Setup converter
-	str_utf16 chars = GetUTF16FromANSI([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation]);
+	str_utf16 *chars = GetUTF16FromANSI([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	int result;
