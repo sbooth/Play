@@ -38,7 +38,6 @@ enum {
 };
 
 @class AudioStream;
-@class AudioStreamReaderThread;
 
 // A decoder reads audio data in some format and provides it as PCM
 @interface AudioStreamDecoder : NSObject
