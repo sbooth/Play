@@ -214,8 +214,8 @@
 	NSArray			*defaultNotifications		= nil;
 	NSArray			*allNotifications			= nil;
 	
-	defaultNotifications		= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
-	allNotifications			= [NSArray arrayWithObjects:@"Stream Playback Started", nil];
+	defaultNotifications		= [NSArray arrayWithObjects:@"Track Playback Started", nil];
+	allNotifications			= [NSArray arrayWithObjects:@"Track Playback Started", nil];
 	registrationDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
 		@"Play", GROWL_APP_NAME,  
 		allNotifications, GROWL_NOTIFICATIONS_ALL, 
@@ -327,7 +327,7 @@
 				
 		[GrowlApplicationBridge notifyWithTitle:notificationTitle
 									description:notificationDescription
-							   notificationName:@"Stream Playback Started" 
+							   notificationName:@"Track Playback Started" 
 									   iconData:nil/*[stream valueForKey:@"albumArt"]*/
 									   priority:0 
 									   isSticky:NO 
