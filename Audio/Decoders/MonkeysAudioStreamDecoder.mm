@@ -118,7 +118,8 @@
 	UInt32			bytesToWrite				= RING_BUFFER_WRITE_CHUNK_SIZE;
 	UInt32			bytesAvailableToWrite		= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
 	float			*floatBuffer				= (float *)writePointer;
-	UInt32			bytesWritten				= 0;
+	UInt32			totalBytesWritten			= 0;
+	UInt32			currentBytesWritten			= 0;
 	int				samplesRead					= 0;
 	
 	if(bytesToWrite > bytesAvailableToWrite) {
@@ -144,61 +145,70 @@
 	
 	unsigned inputBufferSize = APE_DECODER_BUFFER_LENGTH * frameSize * sizeof(int8_t);
 
-	UInt32 bytesToRead = (bytesAvailableToWrite / sampleSizeRatio) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / sampleSizeRatio;
+	while(0 < bytesAvailableToWrite) {
 
-	int result = SELF_DECOMPRESSOR->GetData((char *)inputBuffer, bytesToRead / frameSize, &samplesRead);
-	if(ERROR_SUCCESS != result) {
-		NSLog(@"Monkey's Audio invalid checksum.");
-		free(inputBuffer);
-		return;
-	}
-			
-	unsigned	framesRead		= samplesRead * [self pcmFormat].mChannelsPerFrame;
-	double		scaleFactor		= (1LL << (((bitsPerChannel + 7) / 8) * 8));
-	float		audioSample		= 0;
-	int32_t		actualSample	= 0;
-	int8_t		sample8			= 0;
-	int16_t		sample16		= 0;
-	int32_t		sample32		= 0;
-	
-	for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
-		
-		switch(bytesPerChannel) {
-			case (8 / 8):
-				memcpy(&sample8, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
-				actualSample = sample8;
-				break;
+		UInt32 bytesToRead = (bytesAvailableToWrite / sampleSizeRatio) > inputBufferSize ? inputBufferSize : bytesAvailableToWrite / sampleSizeRatio;
+
+		int result = SELF_DECOMPRESSOR->GetData((char *)inputBuffer, bytesToRead / frameSize, &samplesRead);
+		if(ERROR_SUCCESS != result) {
+			NSLog(@"Monkey's Audio invalid checksum.");
+			free(inputBuffer);
+			return;
+		}
 				
-			case (16 / 8):
-				memcpy(&sample16, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
-				actualSample = sample16;
-				break;
+		unsigned	framesRead		= samplesRead * [self pcmFormat].mChannelsPerFrame;
+		double		scaleFactor		= (1LL << (((bitsPerChannel + 7) / 8) * 8));
+		float		audioSample		= 0;
+		int32_t		actualSample	= 0;
+		int8_t		sample8			= 0;
+		int16_t		sample16		= 0;
+		int32_t		sample32		= 0;
+		
+		for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {
 			
-			case (24 / 8):
-				memcpy((&sample32) + sizeof(int8_t), inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
-				actualSample = sample8;
-				break;
+			switch(bytesPerChannel) {
+				case (8 / 8):
+					sample8 = *((int8_t *)(inputBuffer + (sample * bytesPerChannel)));
+					actualSample = sample8;
+					break;
+					
+				case (16 / 8):
+					sample16 = *((int16_t *)(inputBuffer + (sample * bytesPerChannel)));
+					actualSample = sample16;
+					break;
+				
+				case (24 / 8):
+					memcpy((&sample32) + sizeof(int8_t), inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
+					actualSample = sample32;
+					break;
 
-			case (32 / 8):
-				memcpy(&sample32, inputBuffer + (sample * bytesPerChannel), bytesPerChannel);
-				actualSample = sample32;
-				break;
-		}
+				case (32 / 8):
+					sample32 = *((int32_t *)(inputBuffer + (sample * bytesPerChannel)));
+					actualSample = sample32;
+					break;
+			}
 
-		if(0 <= actualSample) {
-			audioSample = (float)(actualSample / (scaleFactor - 1));
-		}
-		else {
-			audioSample = (float)(actualSample / scaleFactor);
+			if(0 <= actualSample) {
+				audioSample = (float)(actualSample / (scaleFactor - 1));
+			}
+			else {
+				audioSample = (float)(actualSample / scaleFactor);
+			}
+			
+			*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
 		}
 		
-		*floatBuffer++ = (float)(audioSample < -1.0 ? -1.0 : (audioSample > 1.0 ? 1.0 : audioSample));
+		currentBytesWritten		= framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
+		totalBytesWritten		+= currentBytesWritten;
+		bytesAvailableToWrite	-= currentBytesWritten;
+
+		if(0 == samplesRead) {
+			break;
+		}
 	}
 	
-	bytesWritten = framesRead * [self pcmFormat].mChannelsPerFrame * (32 / 8);
-	
-	if(0 < bytesWritten) {
-		[[self pcmBuffer] didWriteLength:bytesWritten];				
+	if(0 < totalBytesWritten) {
+		[[self pcmBuffer] didWriteLength:totalBytesWritten];				
 	}
 	
 	if(0 == samplesRead) {
