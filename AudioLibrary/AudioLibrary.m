@@ -454,6 +454,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_playQueue release], _playQueue = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
+	[_mostPopularNode release], _mostPopularNode = nil;
+	[_highestRatedNode release], _highestRatedNode = nil;
+	[_recentlyAddedNode release], _recentlyAddedNode = nil;
+	[_recentlyPlayedNode release], _recentlyPlayedNode = nil;
+	[_recentlySkippedNode release], _recentlySkippedNode = nil;
 	
 	[super dealloc];
 }
@@ -622,11 +627,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 					  contextInfo:nil];
 }
 
-- (IBAction) jumpToLibrary:(id)sender
-{
-	/*BOOL success =*/ [self selectLibraryNode];
-}
-
 - (IBAction) jumpToNowPlaying:(id)sender
 {
 	if(nil != [self nowPlaying] && 0 != [self countOfPlayQueue]) {
@@ -637,6 +637,36 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self scrollNowPlayingToVisible];
 		[_playQueueController setSelectionIndex:[self playbackIndex]];
 	}
+}
+
+- (IBAction) selectLibrary:(id)sender
+{
+	/*BOOL success =*/ [self selectLibraryNode];
+}
+
+- (IBAction) selectMostPopular:(id)sender
+{
+	/*BOOL success =*/ [self selectMostPopularNode];
+}
+
+- (IBAction) selectHighestRated:(id)sender
+{
+	/*BOOL success =*/ [self selectHighestRatedNode];
+}
+
+- (IBAction) selectRecentlyAdded:(id)sender
+{
+	/*BOOL success =*/ [self selectRecentlyAddedNode];
+}
+
+- (IBAction) selectRecentlyPlayed:(id)sender
+{
+	/*BOOL success =*/ [self selectRecentlyPlayedNode];
+}
+
+- (IBAction) selectRecentlySkipped:(id)sender
+{
+	/*BOOL success =*/ [self selectRecentlySkippedNode];
 }
 
 #pragma mark File Addition and Removal
@@ -1352,6 +1382,31 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
 }
 
+- (BOOL) selectMostPopularNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_mostPopularNode]];
+}
+
+- (BOOL) selectHighestRatedNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_highestRatedNode]];
+}
+
+- (BOOL) selectRecentlyAddedNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyAddedNode]];
+}
+
+- (BOOL) selectRecentlyPlayedNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyPlayedNode]];
+}
+
+- (BOOL) selectRecentlySkippedNode
+{
+	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlySkippedNode]];
+}
+
 #pragma mark Properties
 
 - (BOOL)		randomPlayback										{ return _randomPlayback; }
@@ -1969,9 +2024,13 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	BrowserNode *browserRoot = [[BrowserNode alloc] initWithName:NSLocalizedStringFromTable(@"Collection", @"Library", @"")];
 	[browserRoot setIcon:folderIcon];
 	
-	_libraryNode = [[LibraryNode alloc] init];
-//	[_libraryNode setIcon:cdIcon];
-
+	_libraryNode			= [[LibraryNode alloc] init];
+	_mostPopularNode		= [[MostPopularNode alloc] init];
+	_highestRatedNode		= [[HighestRatedNode alloc] init];
+	_recentlyAddedNode		= [[RecentlyAddedNode alloc] init];
+	_recentlyPlayedNode		= [[RecentlyPlayedNode alloc] init];
+	_recentlySkippedNode	= [[RecentlySkippedNode alloc] init];
+	
 	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
 	[artistsNode setIcon:folderIcon];
 
@@ -1993,18 +2052,13 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
 	[watchFoldersNode setIcon:folderIcon];
 
-	MostPopularNode *mostPopularNode = [[MostPopularNode alloc] init];
-	HighestRatedNode *highestRatedNode = [[HighestRatedNode alloc] init];
-	RecentlyAddedNode *recentlyAddedNode = [[RecentlyAddedNode alloc] init];
-	RecentlyPlayedNode *recentlyPlayedNode = [[RecentlyPlayedNode alloc] init];
-	RecentlySkippedNode *recentlySkippedNode = [[RecentlySkippedNode alloc] init];
 	
 	[browserRoot addChild:_libraryNode];
-	[browserRoot addChild:[mostPopularNode autorelease]];
-	[browserRoot addChild:[highestRatedNode autorelease]];
-	[browserRoot addChild:[recentlyAddedNode autorelease]];
-	[browserRoot addChild:[recentlyPlayedNode autorelease]];
-	[browserRoot addChild:[recentlySkippedNode autorelease]];
+	[browserRoot addChild:_mostPopularNode];
+	[browserRoot addChild:_highestRatedNode];
+	[browserRoot addChild:_recentlyAddedNode];
+	[browserRoot addChild:_recentlyPlayedNode];
+	[browserRoot addChild:_recentlySkippedNode];
 	[browserRoot addChild:[artistsNode autorelease]];
 	[browserRoot addChild:[albumsNode autorelease]];
 	[browserRoot addChild:[composersNode autorelease]];

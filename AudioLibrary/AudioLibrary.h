@@ -26,7 +26,7 @@
 @class PlayQueueTableView;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
-@class BrowserNode, LibraryNode;
+@class BrowserNode;
 @class RBSplitView;
 
 // ========================================
@@ -108,7 +108,12 @@ extern NSString * const		PlayQueueKey;
 	unsigned				_playbackIndex;
 	unsigned				_nextPlaybackIndex;
 	
-	LibraryNode				*_libraryNode;
+	BrowserNode				*_libraryNode;
+	BrowserNode				*_mostPopularNode;
+	BrowserNode				*_highestRatedNode;
+	BrowserNode				*_recentlyAddedNode;
+	BrowserNode				*_recentlyPlayedNode;
+	BrowserNode				*_recentlySkippedNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
@@ -172,8 +177,14 @@ extern NSString * const		PlayQueueKey;
 - (IBAction)	add10RandomStreamsToPlayQueue:(id)sender;
 - (IBAction)	add25RandomStreamsToPlayQueue:(id)sender;
 
-- (IBAction)	jumpToLibrary:(id)sender;
 - (IBAction)	jumpToNowPlaying:(id)sender;
+
+- (IBAction)	selectLibrary:(id)sender;
+- (IBAction)	selectMostPopular:(id)sender;
+- (IBAction)	selectHighestRated:(id)sender;
+- (IBAction)	selectRecentlyAdded:(id)sender;
+- (IBAction)	selectRecentlyPlayed:(id)sender;
+- (IBAction)	selectRecentlySkipped:(id)sender;
 
 // ========================================
 // Play Queue management
@@ -195,6 +206,11 @@ extern NSString * const		PlayQueueKey;
 // ========================================
 // Browser support
 - (BOOL)		selectLibraryNode;
+- (BOOL)		selectMostPopularNode;
+- (BOOL)		selectHighestRatedNode;
+- (BOOL)		selectRecentlyAddedNode;
+- (BOOL)		selectRecentlyPlayedNode;
+- (BOOL)		selectRecentlySkippedNode;
 
 // ========================================
 // Library properties

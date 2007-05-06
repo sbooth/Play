@@ -12,7 +12,6 @@
                 insertPlaylistWithSelection = id; 
                 insertSmartPlaylist = id; 
                 insertWatchFolder = id; 
-                jumpToLibrary = id; 
                 jumpToNowPlaying = id; 
                 playNextStream = id; 
                 playPause = id; 
@@ -21,6 +20,12 @@
                 remove = id; 
                 rescanMetadata = id; 
                 saveMetadata = id; 
+                selectHighestRated = id; 
+                selectLibrary = id; 
+                selectMostPopular = id; 
+                selectRecentlyAdded = id; 
+                selectRecentlyPlayed = id; 
+                selectRecentlySkipped = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
