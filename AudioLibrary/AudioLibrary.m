@@ -641,32 +641,32 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) selectLibrary:(id)sender
 {
-	/*BOOL success =*/ [self selectLibraryNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
 }
 
 - (IBAction) selectMostPopular:(id)sender
 {
-	/*BOOL success =*/ [self selectMostPopularNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_mostPopularNode]];
 }
 
 - (IBAction) selectHighestRated:(id)sender
 {
-	/*BOOL success =*/ [self selectHighestRatedNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_highestRatedNode]];
 }
 
 - (IBAction) selectRecentlyAdded:(id)sender
 {
-	/*BOOL success =*/ [self selectRecentlyAddedNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyAddedNode]];
 }
 
 - (IBAction) selectRecentlyPlayed:(id)sender
 {
-	/*BOOL success =*/ [self selectRecentlyPlayedNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyPlayedNode]];
 }
 
 - (IBAction) selectRecentlySkipped:(id)sender
 {
-	/*BOOL success =*/ [self selectRecentlySkippedNode];
+	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlySkippedNode]];
 }
 
 #pragma mark File Addition and Removal
@@ -1375,38 +1375,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self updatePlayButtonState];
 }
 
-#pragma mark Browser support
-
-- (BOOL) selectLibraryNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
-}
-
-- (BOOL) selectMostPopularNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_mostPopularNode]];
-}
-
-- (BOOL) selectHighestRatedNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_highestRatedNode]];
-}
-
-- (BOOL) selectRecentlyAddedNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyAddedNode]];
-}
-
-- (BOOL) selectRecentlyPlayedNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyPlayedNode]];
-}
-
-- (BOOL) selectRecentlySkippedNode
-{
-	return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlySkippedNode]];
-}
-
 #pragma mark Properties
 
 - (BOOL)		randomPlayback										{ return _randomPlayback; }
@@ -2070,8 +2038,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_browserController setContent:[browserRoot autorelease]];
 
 	// Select the LibraryNode
-	BOOL success = [self selectLibraryNode];
-	NSAssert(YES == success, @"Unable to set browser selection to LibraryNode");
+	[self selectLibrary:self];
 	
 	// Setup the custom data cell
 	NSTableColumn		*tableColumn		= [_browserOutlineView tableColumnWithIdentifier:@"name"];

@@ -204,15 +204,6 @@ extern NSString * const		PlayQueueKey;
 - (IBAction)		clearPlayQueue:(id)sender;
 
 // ========================================
-// Browser support
-- (BOOL)		selectLibraryNode;
-- (BOOL)		selectMostPopularNode;
-- (BOOL)		selectHighestRatedNode;
-- (BOOL)		selectRecentlyAddedNode;
-- (BOOL)		selectRecentlyPlayedNode;
-- (BOOL)		selectRecentlySkippedNode;
-
-// ========================================
 // Library properties
 - (BOOL)		randomPlayback;
 - (void)		setRandomPlayback:(BOOL)randomPlayback;
