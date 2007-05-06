@@ -142,12 +142,6 @@ MyRenderer(void							*inRefCon,
 	UInt32 originalBufferSize	= ioData->mBuffers[0].mDataByteSize;
 	UInt32 framesRead			= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
 		
-#if DEBUG
-	if(framesRead != inNumberFrames) {
-		NSLog(@"MyRenderer requested %i frames, got %i", inNumberFrames, framesRead);
-	}
-#endif
-	
 	// If this stream is finished, roll straight into the next one if possible
 	if(framesRead != inNumberFrames && [streamDecoder atEndOfStream] && nil != [player nextStreamDecoder]) {
 		AudioBufferList			additionalData;
@@ -169,6 +163,12 @@ MyRenderer(void							*inRefCon,
 
 		framesRead									+= additionalFramesRead;
 	}
+	
+#if DEBUG
+	if(framesRead != inNumberFrames) {
+		NSLog(@"MyRenderer requested %i frames, got %i", inNumberFrames, framesRead);
+	}
+#endif
 	
 	if(0 == framesRead) {
 		*ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
