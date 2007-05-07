@@ -278,17 +278,16 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	NSParameterAssert(1 == bufferList->mNumberBuffers);
 	NSParameterAssert(0 < frameCount);
 	
-	UInt32							framesRead;
-	UInt32							bytesToRead, bytesAvailable;
-	void							*readPointer;
+	UInt32		framesRead, bytesToRead;
+	void		*readPointer;
 
-    bytesAvailable					= [[self pcmBuffer] lengthAvailableToReadReturningPointer:&readPointer];
+    UInt32 bytesAvailable = [[self pcmBuffer] lengthAvailableToReadReturningPointer:&readPointer];
 
 	if(bytesAvailable >= bufferList->mBuffers[0].mDataByteSize) {
-		bytesToRead					= bufferList->mBuffers[0].mDataByteSize;
+		bytesToRead = bufferList->mBuffers[0].mDataByteSize;
 	}
 	else {
-		bytesToRead					= bytesAvailable;
+		bytesToRead = bytesAvailable;
 
 		// Zero the portion of the buffer we can't fill
 		bzero(bufferList->mBuffers[0].mData + bytesToRead, bufferList->mBuffers[0].mDataByteSize - bytesToRead);
@@ -301,7 +300,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 	}
 
 	// If there is now enough space available to write into the ring buffer, wake up the feeder thread.
-	if((RING_BUFFER_SIZE - RING_BUFFER_WRITE_CHUNK_SIZE) > bytesAvailable) {
+	if(RING_BUFFER_SIZE - (bytesAvailable - bytesToRead) > RING_BUFFER_WRITE_CHUNK_SIZE) {
 		semaphore_signal([self semaphore]);
 	}
 	
