@@ -134,6 +134,10 @@ MyRenderer(void							*inRefCon,
 		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
 			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
 		}
+
+#if DEBUG
+		NSLog(@"MyRenderer returning silence (%i frames requested, no stream available)", inNumberFrames);
+#endif
 		
 		[pool release];
 		return noErr;
@@ -165,8 +169,8 @@ MyRenderer(void							*inRefCon,
 	}
 	
 #if DEBUG
-	if(framesRead != inNumberFrames) {
-		NSLog(@"MyRenderer requested %i frames, got %i", inNumberFrames, framesRead);
+	if(framesRead != inNumberFrames && 0 != framesRead) {
+		NSLog(@"MyRenderer returning %i frames (%i requested)", framesRead, inNumberFrames);
 	}
 #endif
 	
@@ -185,6 +189,10 @@ MyRenderer(void							*inRefCon,
 //										order:0
 //										modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
 		}
+		
+#if DEBUG
+		NSLog(@"MyRenderer returning silence (%i frames requested, none available)", inNumberFrames);
+#endif		
 	}
 	
 	[pool release];
