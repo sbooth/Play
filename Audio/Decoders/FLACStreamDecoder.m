@@ -210,7 +210,6 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	
 	unsigned					blockSize;
 	unsigned					channels;
-	unsigned					bitsPerSample;
 	unsigned					blockByteSize;
 	
 	UInt32						bytesToWrite, bytesAvailableToWrite;
@@ -228,10 +227,8 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		// It's not feasible to use the maximum possible values, because
 		// maxBlocksize(65535) * maxChannels(8) * sampleSize(32 bit float) = 16,776,960 (No 16 MB buffers here!)
 		blockSize					= FLAC__stream_decoder_get_blocksize(_flac);
-		channels					= FLAC__stream_decoder_get_channels(_flac);
-		bitsPerSample				= 32;
-		
-		blockByteSize				= blockSize * channels * (bitsPerSample / 8);
+		channels					= FLAC__stream_decoder_get_channels(_flac);		
+		blockByteSize				= blockSize * channels * (32 / 8);
 
 		// Ensure sufficient space remains in the buffer
 		if(bytesAvailableToWrite < bytesToWrite || bytesAvailableToWrite < blockByteSize) {
