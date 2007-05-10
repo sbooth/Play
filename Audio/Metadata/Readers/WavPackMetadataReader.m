@@ -33,10 +33,10 @@ getWavPackTag(WavpackContext	*wpc,
 	int			len			= WavpackGetTagItem(wpc, name, NULL, 0);
 
 	if(0 != len) {
-		char *tagValue = (char *)calloc(len, sizeof(char));
+		char *tagValue = (char *)calloc(len + 1, sizeof(char));
 		NSCAssert(NULL != tagValue, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
-		WavpackGetTagItem(wpc, name, tagValue, len);
+		len = WavpackGetTagItem(wpc, name, tagValue, len + 1);
 		result = [[NSString alloc] initWithBytesNoCopy:tagValue length:len encoding:NSUTF8StringEncoding freeWhenDone:YES];
 	}
 	
