@@ -155,10 +155,9 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain)
 		}
 		
 		// Get the track's gain
-		NSLog(@"track peak = %1.6f", trackPeak);
 		[stream setValue:[NSNumber numberWithFloat:GetTitleGain()] forKey:ReplayGainTrackGainKey];
 		[stream setValue:[NSNumber numberWithFloat:ReplayGainReferenceLoudness] forKey:ReplayGainReferenceLoudnessKey];
-//		[stream setValue:[NSNumber numberWithFloat:trackPeak] forKey:ReplayGainTrackPeakKey];
+		[stream setValue:[NSNumber numberWithFloat:trackPeak] forKey:ReplayGainTrackPeakKey];
 		
 		if(calculateAlbumGain) {
 			albumPeak = LOCAL_MAX(albumPeak, trackPeak);
@@ -169,9 +168,8 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain)
 	}
 	
 	if(calculateAlbumGain) {
-		NSLog(@"album peak = %1.6f", albumPeak);
 		[streams setValue:[NSNumber numberWithFloat:GetAlbumGain()] forKey:ReplayGainAlbumGainKey];
-//		[stream setValue:[NSNumber numberWithFloat:albumPeak] forKey:ReplayGainAlbumPeakKey];
+		[stream setValue:[NSNumber numberWithFloat:albumPeak] forKey:ReplayGainAlbumPeakKey];
 	}
 
 cleanup:
