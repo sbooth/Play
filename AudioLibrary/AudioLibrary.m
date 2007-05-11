@@ -382,21 +382,26 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	if((self = [super initWithWindowNibName:@"AudioLibrary"])) {
 		// Seed random number generator
 		init_gen_rand(time(NULL));
-
-		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
-		NSAssert(nil != paths, NSLocalizedStringFromTable(@"Unable to locate the \"Application Support\" folder.", @"Errors", @""));
 		
-		NSString *applicationName			= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-		NSString *applicationSupportFolder	= [[paths objectAtIndex:0] stringByAppendingPathComponent:applicationName];
-		
-		if(NO == [[NSFileManager defaultManager] fileExistsAtPath:applicationSupportFolder]) {
-			BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:applicationSupportFolder attributes:nil];
-			NSAssert(YES == success, NSLocalizedStringFromTable(@"Unable to create the \"Application Support\" folder.", @"Errors", @""));
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"useInMemoryDatabase"]) {
+			[[CollectionManager manager] connectToDatabase:@":memory:"];
 		}
-		
-		NSString *databasePath = [applicationSupportFolder stringByAppendingPathComponent:@"Library.sqlite3"];
-		
-		[[CollectionManager manager] connectToDatabase:databasePath];
+		else {
+			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+			NSAssert(nil != paths, NSLocalizedStringFromTable(@"Unable to locate the \"Application Support\" folder.", @"Errors", @""));
+			
+			NSString *applicationName			= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+			NSString *applicationSupportFolder	= [[paths objectAtIndex:0] stringByAppendingPathComponent:applicationName];
+			
+			if(NO == [[NSFileManager defaultManager] fileExistsAtPath:applicationSupportFolder]) {
+				BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:applicationSupportFolder attributes:nil];
+				NSAssert(YES == success, NSLocalizedStringFromTable(@"Unable to create the \"Application Support\" folder.", @"Errors", @""));
+			}
+			
+			NSString *databasePath = [applicationSupportFolder stringByAppendingPathComponent:@"Library.sqlite3"];
+
+			[[CollectionManager manager] connectToDatabase:databasePath];
+		}
 		
 		_playQueue			= [[NSMutableArray alloc] init];
 		_playbackIndex		= NSNotFound;

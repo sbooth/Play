@@ -45,5 +45,7 @@
 	<string></string>
 	<key>replayGain</key>
 	<integer>0</integer>
+	<key>useInMemoryDatabase</key>
+	<false/>
 </dict>
 </plist>
