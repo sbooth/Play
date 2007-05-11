@@ -78,6 +78,8 @@ extern NSString * const		PropertiesBitrateKey;
 - (IBAction) resetPlayCount:(id)sender;
 - (IBAction) resetSkipCount:(id)sender;
 
+- (IBAction) clearReplayGain:(id)sender;
+
 - (IBAction) rescanMetadata:(id)sender;
 - (IBAction) saveMetadata:(id)sender;
 

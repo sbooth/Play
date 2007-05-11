@@ -103,6 +103,15 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsSkipCountKey];
 }
 
+- (IBAction) clearReplayGain:(id)sender
+{
+	[self setValue:nil forKey:ReplayGainReferenceLoudnessKey];
+	[self setValue:nil forKey:ReplayGainTrackGainKey];
+	[self setValue:nil forKey:ReplayGainTrackPeakKey];
+	[self setValue:nil forKey:ReplayGainAlbumGainKey];
+	[self setValue:nil forKey:ReplayGainAlbumPeakKey];
+}
+
 - (IBAction) rescanMetadata:(id)sender
 {
 	NSError					*error				= nil;
