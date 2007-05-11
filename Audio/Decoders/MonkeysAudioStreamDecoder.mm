@@ -154,7 +154,7 @@
 			return;
 		}
 				
-		double		scaleFactor		= (1LL << (((bitsPerChannel + 7) / 8) * 8));
+		double		scaleFactor		= (1LL << ((((bitsPerChannel + 7) / 8) * 8) - 1));
 		float		audioSample		= 0;
 		int32_t		actualSample	= 0;
 		int8_t		sample8			= 0;

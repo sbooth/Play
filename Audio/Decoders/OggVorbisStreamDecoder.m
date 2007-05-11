@@ -171,7 +171,7 @@
 		}
 		
 		unsigned	framesRead		= (bytesRead / sizeof(int16_t)) / [self pcmFormat].mChannelsPerFrame;
-		float		scaleFactor		= (1L << 16);
+		float		scaleFactor		= (1L << (16 - 1));
 		float		audioSample		= 0;
 		
 		for(sample = 0; sample < framesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {

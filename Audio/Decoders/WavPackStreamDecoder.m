@@ -148,7 +148,7 @@
 		}
 		else {
 			float	*floatBuffer	= (float *)writePointer;
-			double	scaleFactor		= (1LL << (WavpackGetBytesPerSample(_wpc) * 8));
+			double	scaleFactor		= (1LL << ((WavpackGetBytesPerSample(_wpc) * 8) - 1));
 			double	audioSample		= 0;
 
 			for(sample = 0; sample < samplesRead * [self pcmFormat].mChannelsPerFrame; ++sample) {

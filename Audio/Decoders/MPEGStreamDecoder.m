@@ -210,7 +210,7 @@ audio_linear_round(unsigned int bits,
 	UInt32			bytesWritten			= 0;
 	float			*floatBuffer			= writePointer;
 	BOOL			readEOF					= NO;
-	double			scaleFactor				= (1LL << BIT_RESOLUTION);
+	double			scaleFactor				= (1LL << (BIT_RESOLUTION - 1));
 
 	// Calculate bytes requiredfor decompressing one MPEG frame to 32-bit float PCM 
 	unsigned		frameByteSize			= _samplesPerMPEGFrame * 2 * (32 / 8);
