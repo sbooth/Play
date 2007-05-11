@@ -243,6 +243,7 @@
 		8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */; };
 		8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */; };
 		8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */; };
+		8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */; };
 		8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */; };
 		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
 		8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */; };
@@ -681,6 +682,8 @@
 		8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlayQueueTableView.m; path = AudioLibrary/PlayQueueTableView.m; sourceTree = "<group>"; };
 		8CA56D230BD641A800225BB4 /* PlayQueueArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayQueueArrayController.h; path = AudioLibrary/PlayQueueArrayController.h; sourceTree = "<group>"; };
 		8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlayQueueArrayController.m; path = AudioLibrary/PlayQueueArrayController.m; sourceTree = "<group>"; };
+		8CA8345C0BF3850F00E98527 /* ReplayGainUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReplayGainUtilities.h; path = Utilities/ReplayGainUtilities.h; sourceTree = "<group>"; };
+		8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReplayGainUtilities.m; path = Utilities/ReplayGainUtilities.m; sourceTree = "<group>"; };
 		8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamArrayController.h; path = AudioLibrary/AudioStreamArrayController.h; sourceTree = "<group>"; };
 		8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamArrayController.m; path = AudioLibrary/AudioStreamArrayController.m; sourceTree = "<group>"; };
 		8CAFB6530B87A35800B3A0EB /* BrowserTreeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BrowserTreeController.h; path = AudioLibrary/BrowserTreeController.h; sourceTree = "<group>"; };
@@ -1362,6 +1365,8 @@
 				8C9C31DC0B732F1B00CE799A /* UtilityFunctions.m */,
 				8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */,
 				8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */,
+				8CA8345C0BF3850F00E98527 /* ReplayGainUtilities.h */,
+				8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1858,6 +1863,7 @@
 				8C3033A20BE6F40E00E37350 /* WatchFolderInformationSheet.m in Sources */,
 				8CDF26D30BEBF8FF00D82E81 /* HighestRatedNode.m in Sources */,
 				8C5E0E730BEEF45E006E045D /* replaygain_analysis.c in Sources */,
+				8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

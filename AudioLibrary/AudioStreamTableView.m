@@ -31,6 +31,7 @@
 #import "AudioStreamManager.h"
 
 #import "SecondsFormatter.h"
+#import "ReplayGainUtilities.h"
 
 #import "CTBadge.h"
 
@@ -73,6 +74,12 @@
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(saveMetadata:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(calculateTrackReplayGain:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
+	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(remove:)) {
@@ -310,6 +317,30 @@
 	}
 	
 	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(saveMetadata:) withObject:sender];
+}
+
+- (IBAction) calculateTrackReplayGain:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[CollectionManager manager] beginUpdate];
+	calculateTrackReplayGain([_streamController selectedObjects]);
+	[[CollectionManager manager] finishUpdate];	
+}
+
+- (IBAction) calculateTrackAndAlbumReplayGain:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+
+	[[CollectionManager manager] beginUpdate];
+	calculateTrackAndAlbumReplayGain([_streamController selectedObjects]);
+	[[CollectionManager manager] finishUpdate];	
 }
 
 - (IBAction) remove:(id)sender

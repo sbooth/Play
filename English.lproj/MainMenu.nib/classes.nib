@@ -6,6 +6,8 @@
                 add25RandomStreamsToPlayQueue = id; 
                 addFiles = id; 
                 addToPlayQueue = id; 
+                calculateTrackAndAlbumReplayGain = id; 
+                calculateTrackReplayGain = id; 
                 clearPlayQueue = id; 
                 editMetadata = id; 
                 insertPlaylist = id; 

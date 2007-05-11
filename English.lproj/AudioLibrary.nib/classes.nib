@@ -98,6 +98,8 @@
         {
             ACTIONS = {
                 addToPlayQueue = id; 
+                calculateTrackAndAlbumReplayGain = id; 
+                calculateTrackReplayGain = id; 
                 convertWithMax = id; 
                 editMetadata = id; 
                 openWith = id; 

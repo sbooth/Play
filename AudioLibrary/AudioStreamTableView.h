@@ -45,6 +45,9 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	rescanMetadata:(id)sender;
 - (IBAction)	saveMetadata:(id)sender;
 
+- (IBAction)	calculateTrackReplayGain:(id)sender;
+- (IBAction)	calculateTrackAndAlbumReplayGain:(id)sender;
+
 - (IBAction)	remove:(id)sender;
 
 - (IBAction)	openWithFinder:(id)sender;
