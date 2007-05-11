@@ -59,10 +59,6 @@
 	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
 	result = MP4SetMetadataAlbumArtist(mp4FileHandle, (nil == albumArtist ? "" : [albumArtist UTF8String]));
 	
-	// BPM
-	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
-	result = MP4SetMetadataTempo(mp4FileHandle, (nil == bpm ? 0 : [bpm unsignedShortValue]));
-	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	result = MP4SetMetadataWriter(mp4FileHandle, (nil == composer ? "" : [composer UTF8String]));
@@ -90,6 +86,10 @@
 								 (nil == trackNumber ? 0 : [trackNumber unsignedIntValue]),
 								 (nil == trackTotal ? 0 : [trackTotal unsignedIntValue]));
 	
+	// Compilation
+	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
+	result = MP4SetMetadataCompilation(mp4FileHandle, (nil == compilation ? NO : [compilation boolValue]));
+	
 	// Disc number
 	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
@@ -97,9 +97,9 @@
 								(nil == discNumber ? 0 : [discNumber unsignedIntValue]),
 								(nil == discTotal ? 0 : [discTotal unsignedIntValue]));
 	
-	// Compilation
-	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	result = MP4SetMetadataCompilation(mp4FileHandle, (nil == compilation ? NO : [compilation boolValue]));
+	// BPM
+	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
+	result = MP4SetMetadataTempo(mp4FileHandle, (nil == bpm ? 0 : [bpm unsignedShortValue]));
 	
 	// Album art
 /*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];

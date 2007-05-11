@@ -46,6 +46,7 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	NSString						*path				= [_url path];
 	FLAC__Metadata_Iterator			*iterator			= NULL;
 	FLAC__StreamMetadata			*block				= NULL;
+	NSNumber						*numericValue		= nil;
 	FLAC__bool						result;
 				
 	FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
@@ -162,19 +163,24 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	setVorbisComment(block, @"TITLE", [metadata valueForKey:MetadataTitleKey]);
 	
 	// Track number
-	setVorbisComment(block, @"TRACKNUMBER", [[metadata valueForKey:MetadataTrackNumberKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataTrackNumberKey];
+	setVorbisComment(block, @"TRACKNUMBER", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// Total tracks
-	setVorbisComment(block, @"TRACKTOTAL", [[metadata valueForKey:MetadataTrackTotalKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataTrackTotalKey];
+	setVorbisComment(block, @"TRACKTOTAL", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// Compilation
-	setVorbisComment(block, @"COMPILATION", [[metadata valueForKey:MetadataCompilationKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataCompilationKey];
+	setVorbisComment(block, @"COMPILATION", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// Disc number
-	setVorbisComment(block, @"DISCNUMBER", [[metadata valueForKey:MetadataDiscNumberKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataDiscNumberKey];
+	setVorbisComment(block, @"DISCNUMBER", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// Discs in set
-	setVorbisComment(block, @"DISCTOTAL", [[metadata valueForKey:MetadataDiscTotalKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataDiscTotalKey];
+	setVorbisComment(block, @"DISCTOTAL", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// ISRC
 	setVorbisComment(block, @"ISRC", [metadata valueForKey:MetadataISRCKey]);
@@ -183,7 +189,8 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	setVorbisComment(block, @"MCN", [metadata valueForKey:MetadataMCNKey]);
 
 	// BPM
-	setVorbisComment(block, @"BPM", [[metadata valueForKey:MetadataBPMKey] stringValue]);
+	numericValue = [metadata valueForKey:MetadataBPMKey];
+	setVorbisComment(block, @"BPM", (nil == numericValue? nil : [numericValue stringValue]));
 
 	// Write the new metadata to the file
 	result = FLAC__metadata_chain_write(chain, YES, NO);

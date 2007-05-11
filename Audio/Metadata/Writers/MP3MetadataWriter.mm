@@ -196,7 +196,7 @@
 	}
 		
 	// Album art
-	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
+/*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
 	if(nil != albumArt) {
 		NSData										*data;
 		TagLib::ID3v2::AttachedPictureFrame			*pictureFrame;
@@ -208,7 +208,7 @@
 		pictureFrame->setMimeType(TagLib::String("image/png", TagLib::String::Latin1));
 		pictureFrame->setPicture(TagLib::ByteVector((const char *)[data bytes], [data length]));
 		f.ID3v2Tag()->addFrame(pictureFrame);
-	}
+	}*/
 	
 	result = f.save();
 	if(NO == result) {

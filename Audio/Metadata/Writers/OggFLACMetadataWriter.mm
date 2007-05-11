@@ -109,8 +109,8 @@
 	f.tag()->addField("MCN", (nil == mcn ? TagLib::String::null : TagLib::String([mcn UTF8String], TagLib::String::UTF8)));
 
 	// BPM
-	NSString *bpm = [metadata valueForKey:MetadataBPMKey];
-	f.tag()->addField("BPM", (nil == bpm ? TagLib::String::null : TagLib::String([bpm UTF8String], TagLib::String::UTF8)));
+	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
+	f.tag()->addField("BPM", (nil == bpm ? TagLib::String::null : TagLib::String([[bpm stringValue] UTF8String], TagLib::String::UTF8)));
 
 	result = f.save();
 	if(NO == result) {

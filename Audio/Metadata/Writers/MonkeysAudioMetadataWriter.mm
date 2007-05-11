@@ -25,10 +25,14 @@
 #include <mac/APETag.h>
 #include <mac/CharacterHelper.h>
 
-static void setField(CAPETag		*f, 
-					 const char		*name, 
-					 NSString		*value)
+static void 
+setField(CAPETag		*f, 
+		 const char		*name, 
+		 NSString		*value)
 {
+	NSCParameterAssert(NULL != f);
+	NSCParameterAssert(NULL != name);
+	
 	str_utf16 *fieldName = GetUTF16FromANSI(name);
 	NSCAssert(NULL != fieldName, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
@@ -48,6 +52,7 @@ static void setField(CAPETag		*f,
 	NSString				*path				= [_url path];
 	str_utf16				*chars				= NULL;
 	CAPETag					*f					= NULL;
+	NSNumber				*numericValue		= nil;
 	int						result;
 	
 	chars = GetUTF16FromANSI([path fileSystemRepresentation]);
@@ -75,64 +80,58 @@ static void setField(CAPETag		*f,
 	}
 	
 	// Album title
-	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	setField(f, "ALBUM", album);
+	setField(f, "ALBUM", [metadata valueForKey:MetadataAlbumTitleKey]);
 	
 	// Artist
-	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	setField(f, "ARTIST", artist);
+	setField(f, "ARTIST", [metadata valueForKey:MetadataArtistKey]);
+
+	// Album Artist
+	setField(f, "ALBUM ARTIST", [metadata valueForKey:MetadataAlbumArtistKey]);
 	
 	// Composer
-	NSString *composer = [metadata valueForKey:MetadataComposerKey];
-	setField(f, "COMPOSER", composer);
+	setField(f, "COMPOSER", [metadata valueForKey:MetadataComposerKey]);
 	
 	// Genre
-	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	setField(f, "GENRE", genre);
+	setField(f, "GENRE", [metadata valueForKey:MetadataGenreKey]);
 
-	// Genre
-	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
-	setField(f, "BPM", [bpm stringValue]);
-	
 	// Date
-	NSString *year = [metadata valueForKey:MetadataDateKey];
-	setField(f, "YEAR", year);
+	setField(f, "YEAR", [metadata valueForKey:MetadataDateKey]);
 	
 	// Comment
-	NSString *comment = [metadata valueForKey:MetadataCommentKey];
-	setField(f, "COMMENT", comment);
+	setField(f, "COMMENT", [metadata valueForKey:MetadataCommentKey]);
 	
 	// Track title
-	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	setField(f, "TITLE", title);
+	setField(f, "TITLE", [metadata valueForKey:MetadataTitleKey]);
 	
 	// Track number
-	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
-	setField(f, "TRACK", [trackNumber stringValue]);
+	numericValue = [metadata valueForKey:MetadataTrackNumberKey];
+	setField(f, "TRACK", (nil == numericValue ? nil : [numericValue stringValue]));
 	
-	// Track total
-	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
-	setField(f, "TRACKTOTAL", [trackTotal stringValue]);
-	
-	// Disc number
-	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
-	setField(f, "DISCNUMBER", [discNumber stringValue]);
-	
-	// Discs in set
-	NSNumber *discTotal	= [metadata valueForKey:MetadataDiscTotalKey];
-	setField(f, "DISCTOTAL", [discTotal stringValue]);
+	// Total tracks
+	numericValue = [metadata valueForKey:MetadataTrackTotalKey];
+	setField(f, "TRACKTOTAL", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// Compilation
-	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	setField(f, "COMPILATION", [compilation stringValue]);
+	numericValue = [metadata valueForKey:MetadataCompilationKey];
+	setField(f, "COMPILATION", (nil == numericValue? nil : [numericValue stringValue]));
+	
+	// Disc number
+	numericValue = [metadata valueForKey:MetadataDiscNumberKey];
+	setField(f, "DISCNUMBER", (nil == numericValue? nil : [numericValue stringValue]));
+	
+	// Discs in set
+	numericValue = [metadata valueForKey:MetadataDiscTotalKey];
+	setField(f, "DISCTOTAL", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	// ISRC
-	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
-	setField(f, "ISRC", isrc);
+	setField(f, "ISRC", [metadata valueForKey:MetadataISRCKey]);
 	
 	// MCN
-	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
-	setField(f, "MCN", mcn);
+	setField(f, "MCN", [metadata valueForKey:MetadataMCNKey]);
+
+	// BPM
+	numericValue = [metadata valueForKey:MetadataBPMKey];
+	setField(f, "BPM", (nil == numericValue? nil : [numericValue stringValue]));
 	
 	result = f->Save();
 	if(ERROR_SUCCESS != result) {

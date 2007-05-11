@@ -63,7 +63,7 @@
 		WavpackAppendTagItem(wpc, "ARTIST", [artist UTF8String], strlen([artist UTF8String]));
 	}
 
-	// Artist
+	// Album Artist
 	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
 	WavpackDeleteTagItem(wpc, "ALBUMARTIST");
 	if(nil != albumArtist) {
@@ -106,21 +106,28 @@
 	}
 	
 	// Track number
-	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
+	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
 	WavpackDeleteTagItem(wpc, "TRACK");
 	if(nil != trackNumber) {
 		WavpackAppendTagItem(wpc, "TRACK", [[trackNumber stringValue] UTF8String], strlen([[trackNumber stringValue] UTF8String]));
 	}
 	
 	// Track total
-	NSNumber *trackTotal		= [metadata valueForKey:MetadataTrackTotalKey];
+	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
 	WavpackDeleteTagItem(wpc, "TRACKTOTAL");
 	if(nil != trackTotal) {
 		WavpackAppendTagItem(wpc, "TRACKTOTAL", [[trackTotal stringValue] UTF8String], strlen([[trackTotal stringValue] UTF8String]));
 	}
 	
+	// Compilation
+	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
+	WavpackDeleteTagItem(wpc, "COMPILATION");
+	if(nil != compilation) {
+		WavpackAppendTagItem(wpc, "COMPILATION", [[compilation stringValue] UTF8String], strlen([[compilation stringValue] UTF8String]));
+	}
+	
 	// Disc number
-	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
+	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
 	WavpackDeleteTagItem(wpc, "DISCNUMBER");
 	if(nil != discNumber) {
 		WavpackAppendTagItem(wpc, "DISCNUMBER", [[discNumber stringValue] UTF8String], strlen([[discNumber stringValue] UTF8String]));
@@ -131,13 +138,6 @@
 	WavpackDeleteTagItem(wpc, "DISCTOTAL");
 	if(nil != discTotal) {
 		WavpackAppendTagItem(wpc, "DISCTOTAL", [[discTotal stringValue] UTF8String], strlen([[discTotal stringValue] UTF8String]));
-	}
-	
-	// Compilation
-	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
-	WavpackDeleteTagItem(wpc, "COMPILATION");
-	if(nil != compilation) {
-		WavpackAppendTagItem(wpc, "COMPILATION", [[compilation stringValue] UTF8String], strlen([[compilation stringValue] UTF8String]));
 	}
 	
 	// ISRC
