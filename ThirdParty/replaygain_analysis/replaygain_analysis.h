@@ -42,15 +42,13 @@
 extern "C" {
 #endif
 
-typedef float   Float_t;         /* Type used for filtering */
-
-extern Float_t ReplayGainReferenceLoudness; /* in dB SPL, currently == 89.0 */
+extern float ReplayGainReferenceLoudness; /* in dB SPL, currently == 89.0 */
 
 int     InitGainAnalysis ( long samplefreq );
-int     AnalyzeSamples   ( const Float_t* left_samples, const Float_t* right_samples, size_t num_samples, int num_channels );
+int     AnalyzeSamples   ( const float* left_samples, const float* right_samples, size_t num_samples, int num_channels );
 int		ResetSampleFrequency ( long samplefreq );
-Float_t GetTitleGain     ( void );
-Float_t GetAlbumGain     ( void );
+float	GetTitleGain     ( void );
+float	GetAlbumGain     ( void );
 
 #ifdef __cplusplus
 }

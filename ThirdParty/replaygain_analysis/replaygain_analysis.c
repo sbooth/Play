@@ -38,8 +38,8 @@
  *
  *  to initialize everything. Call
  *
- *    AnalyzeSamples ( const Float_t*  left_samples,
- *                     const Float_t*  right_samples,
+ *    AnalyzeSamples ( const float*  left_samples,
+ *                     const float*  right_samples,
  *                     size_t          num_samples,
  *                     int             num_channels );
  *
@@ -59,8 +59,8 @@
  *
  *  Pseudo-code to process an album:
  *
- *    Float_t       l_samples [4096];
- *    Float_t       r_samples [4096];
+ *    float       l_samples [4096];
+ *    float       r_samples [4096];
  *    size_t        num_samples;
  *    unsigned int  num_songs;
  *    unsigned int  i;
@@ -100,12 +100,7 @@
 
 #include "replaygain_analysis.h"
 
-Float_t ReplayGainReferenceLoudness = 89.0; /* in dB SPL */
-
-typedef unsigned short  Uint16_t;
-typedef signed short    Int16_t;
-typedef unsigned int    Uint32_t;
-typedef signed int      Int32_t;
+float ReplayGainReferenceLoudness = 89.0; /* in dB SPL */
 
 #define YULE_ORDER         10
 #define BUTTER_ORDER        2
@@ -125,25 +120,25 @@ typedef signed int      Int32_t;
 #define MAX_SAMPLES_PER_WINDOW  (size_t) (MAX_SAMP_FREQ * RMS_WINDOW_TIME + 1.)   /* max. Samples per Time slice */
 #define PINK_REF                64.82 /* 298640883795 */                          /* calibration value */
 
-static Float_t          linprebuf [MAX_ORDER * 2];
-static Float_t*         linpre;                                          /* left input samples, with pre-buffer */
-static Float_t          lstepbuf  [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
-static Float_t*         lstep;                                           /* left "first step" (i.e. post first filter) samples */
-static Float_t          loutbuf   [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
-static Float_t*         lout;                                            /* left "out" (i.e. post second filter) samples */
-static Float_t          rinprebuf [MAX_ORDER * 2];
-static Float_t*         rinpre;                                          /* right input samples ... */
-static Float_t          rstepbuf  [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
-static Float_t*         rstep;
-static Float_t          routbuf   [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
-static Float_t*         rout;
+static float          linprebuf [MAX_ORDER * 2];
+static float*         linpre;                                          /* left input samples, with pre-buffer */
+static float          lstepbuf  [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
+static float*         lstep;                                           /* left "first step" (i.e. post first filter) samples */
+static float          loutbuf   [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
+static float*         lout;                                            /* left "out" (i.e. post second filter) samples */
+static float          rinprebuf [MAX_ORDER * 2];
+static float*         rinpre;                                          /* right input samples ... */
+static float          rstepbuf  [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
+static float*         rstep;
+static float          routbuf   [MAX_SAMPLES_PER_WINDOW + MAX_ORDER];
+static float*         rout;
 static unsigned int              sampleWindow;                           /* number of samples required to reach number of milliseconds required for RMS window */
 static unsigned long    totsamp;
 static double           lsum;
 static double           rsum;
 static int              freqindex;
-static Uint32_t  A [(size_t)(STEPS_per_dB * MAX_dB)];
-static Uint32_t  B [(size_t)(STEPS_per_dB * MAX_dB)];
+static uint32_t  A [(size_t)(STEPS_per_dB * MAX_dB)];
+static uint32_t  B [(size_t)(STEPS_per_dB * MAX_dB)];
 
 /* for each filter:
    [0] 48 kHz, [1] 44.1 kHz, [2] 32 kHz, [3] 24 kHz, [4] 22050 Hz, [5] 16 kHz, [6] 12 kHz, [7] is 11025 Hz, [8] 8 kHz */
@@ -152,7 +147,7 @@ static Uint32_t  B [(size_t)(STEPS_per_dB * MAX_dB)];
 #pragma warning ( disable : 4305 )
 #endif
 
-static const Float_t  AYule [9] [11] = {
+static const float  AYule [9] [11] = {
     { 1., -3.84664617118067,  7.81501653005538,-11.34170355132042, 13.05504219327545,-12.28759895145294,  9.48293806319790, -5.87257861775999,  2.75465861874613, -0.86984376593551, 0.13919314567432 },
     { 1., -3.47845948550071,  6.36317777566148, -8.54751527471874,  9.47693607801280, -8.81498681370155,  6.85401540936998, -4.39470996079559,  2.19611684890774, -0.75104302451432, 0.13149317958808 },
     { 1., -2.37898834973084,  2.84868151156327, -2.64577170229825,  2.23697657451713, -1.67148153367602,  1.00595954808547, -0.45953458054983,  0.16378164858596, -0.05032077717131, 0.02347897407020 },
@@ -164,7 +159,7 @@ static const Float_t  AYule [9] [11] = {
     { 1., -0.25049871956020, -0.43193942311114, -0.03424681017675, -0.04678328784242,  0.26408300200955,  0.15113130533216, -0.17556493366449, -0.18823009262115,  0.05477720428674, 0.04704409688120 }
 };
 
-static const Float_t  BYule [9] [11] = {
+static const float  BYule [9] [11] = {
     { 0.03857599435200, -0.02160367184185, -0.00123395316851, -0.00009291677959, -0.01655260341619,  0.02161526843274, -0.02074045215285,  0.00594298065125,  0.00306428023191,  0.00012025322027,  0.00288463683916 },
     { 0.05418656406430, -0.02911007808948, -0.00848709379851, -0.00851165645469, -0.00834990904936,  0.02245293253339, -0.02596338512915,  0.01624864962975, -0.00240879051584,  0.00674613682247, -0.00187763777362 },
     { 0.15457299681924, -0.09331049056315, -0.06247880153653,  0.02163541888798, -0.05588393329856,  0.04781476674921,  0.00222312597743,  0.03174092540049, -0.01390589421898,  0.00651420667831, -0.00881362733839 },
@@ -176,7 +171,7 @@ static const Float_t  BYule [9] [11] = {
     { 0.53648789255105, -0.42163034350696, -0.00275953611929,  0.04267842219415, -0.10214864179676,  0.14590772289388, -0.02459864859345, -0.11202315195388, -0.04060034127000,  0.04788665548180, -0.02217936801134 }
 };
 
-static const Float_t  AButter [9] [3] = {
+static const float  AButter [9] [3] = {
     { 1., -1.97223372919527, 0.97261396931306 },
     { 1., -1.96977855582618, 0.97022847566350 },
     { 1., -1.95835380975398, 0.95920349965459 },
@@ -188,7 +183,7 @@ static const Float_t  AButter [9] [3] = {
     { 1., -1.88903307939452, 0.89487434461664 }
 };
 
-static const Float_t  BButter [9] [3] = {
+static const float  BButter [9] [3] = {
     { 0.98621192462708, -1.97242384925416, 0.98621192462708 },
     { 0.98500175787242, -1.97000351574484, 0.98500175787242 },
     { 0.97938932735214, -1.95877865470428, 0.97938932735214 },
@@ -207,7 +202,7 @@ static const Float_t  BButter [9] [3] = {
 /* When calling this procedure, make sure that ip[-order] and op[-order] point to real data! */
 
 static void
-filter ( const Float_t* input, Float_t* output, size_t nSamples, const Float_t* a, const Float_t* b, size_t order )
+filter ( const float* input, float* output, size_t nSamples, const float* a, const float* b, size_t order )
 {
     double  y;
     size_t  i;
@@ -217,7 +212,7 @@ filter ( const Float_t* input, Float_t* output, size_t nSamples, const Float_t* 
         y = input[i] * b[0];
         for ( k = 1; k <= order; k++ )
             y += input[i-k] * b[k] - output[i-k] * a[k];
-        output[i] = (Float_t)y;
+        output[i] = (float)y;
     }
 }
 
@@ -277,10 +272,10 @@ InitGainAnalysis ( long samplefreq )
 /* returns GAIN_ANALYSIS_OK if successful, GAIN_ANALYSIS_ERROR if not */
 
 int
-AnalyzeSamples ( const Float_t* left_samples, const Float_t* right_samples, size_t num_samples, int num_channels )
+AnalyzeSamples ( const float* left_samples, const float* right_samples, size_t num_samples, int num_channels )
 {
-    const Float_t*  curleft;
-    const Float_t*  curright;
+    const float*  curleft;
+    const float*  curright;
     long            batchsamples;
     long            cursamples;
     long            cursamplepos;
@@ -299,12 +294,12 @@ AnalyzeSamples ( const Float_t* left_samples, const Float_t* right_samples, size
     }
 
     if ( num_samples < MAX_ORDER ) {
-        memcpy ( linprebuf + MAX_ORDER, left_samples , num_samples * sizeof(Float_t) );
-        memcpy ( rinprebuf + MAX_ORDER, right_samples, num_samples * sizeof(Float_t) );
+        memcpy ( linprebuf + MAX_ORDER, left_samples , num_samples * sizeof(float) );
+        memcpy ( rinprebuf + MAX_ORDER, right_samples, num_samples * sizeof(float) );
     }
     else {
-        memcpy ( linprebuf + MAX_ORDER, left_samples,  MAX_ORDER   * sizeof(Float_t) );
-        memcpy ( rinprebuf + MAX_ORDER, right_samples, MAX_ORDER   * sizeof(Float_t) );
+        memcpy ( linprebuf + MAX_ORDER, left_samples,  MAX_ORDER   * sizeof(float) );
+        memcpy ( rinprebuf + MAX_ORDER, right_samples, MAX_ORDER   * sizeof(float) );
     }
 
     while ( batchsamples > 0 ) {
@@ -341,35 +336,35 @@ AnalyzeSamples ( const Float_t* left_samples, const Float_t* right_samples, size
             if ( ival >= (int)(sizeof(A)/sizeof(*A)) ) ival = (int)(sizeof(A)/sizeof(*A)) - 1;
             A [ival]++;
             lsum = rsum = 0.;
-            memmove ( loutbuf , loutbuf  + totsamp, MAX_ORDER * sizeof(Float_t) );
-            memmove ( routbuf , routbuf  + totsamp, MAX_ORDER * sizeof(Float_t) );
-            memmove ( lstepbuf, lstepbuf + totsamp, MAX_ORDER * sizeof(Float_t) );
-            memmove ( rstepbuf, rstepbuf + totsamp, MAX_ORDER * sizeof(Float_t) );
+            memmove ( loutbuf , loutbuf  + totsamp, MAX_ORDER * sizeof(float) );
+            memmove ( routbuf , routbuf  + totsamp, MAX_ORDER * sizeof(float) );
+            memmove ( lstepbuf, lstepbuf + totsamp, MAX_ORDER * sizeof(float) );
+            memmove ( rstepbuf, rstepbuf + totsamp, MAX_ORDER * sizeof(float) );
             totsamp = 0;
         }
         if ( totsamp > sampleWindow )   /* somehow I really screwed up: Error in programming! Contact author about totsamp > sampleWindow */
             return GAIN_ANALYSIS_ERROR;
     }
     if ( num_samples < MAX_ORDER ) {
-        memmove ( linprebuf,                           linprebuf + num_samples, (MAX_ORDER-num_samples) * sizeof(Float_t) );
-        memmove ( rinprebuf,                           rinprebuf + num_samples, (MAX_ORDER-num_samples) * sizeof(Float_t) );
-        memcpy  ( linprebuf + MAX_ORDER - num_samples, left_samples,          num_samples             * sizeof(Float_t) );
-        memcpy  ( rinprebuf + MAX_ORDER - num_samples, right_samples,         num_samples             * sizeof(Float_t) );
+        memmove ( linprebuf,                           linprebuf + num_samples, (MAX_ORDER-num_samples) * sizeof(float) );
+        memmove ( rinprebuf,                           rinprebuf + num_samples, (MAX_ORDER-num_samples) * sizeof(float) );
+        memcpy  ( linprebuf + MAX_ORDER - num_samples, left_samples,          num_samples             * sizeof(float) );
+        memcpy  ( rinprebuf + MAX_ORDER - num_samples, right_samples,         num_samples             * sizeof(float) );
     }
     else {
-        memcpy  ( linprebuf, left_samples  + num_samples - MAX_ORDER, MAX_ORDER * sizeof(Float_t) );
-        memcpy  ( rinprebuf, right_samples + num_samples - MAX_ORDER, MAX_ORDER * sizeof(Float_t) );
+        memcpy  ( linprebuf, left_samples  + num_samples - MAX_ORDER, MAX_ORDER * sizeof(float) );
+        memcpy  ( rinprebuf, right_samples + num_samples - MAX_ORDER, MAX_ORDER * sizeof(float) );
     }
 
     return GAIN_ANALYSIS_OK;
 }
 
 
-static Float_t
-analyzeResult ( Uint32_t* Array, size_t len )
+static float
+analyzeResult ( uint32_t* Array, size_t len )
 {
-    Uint32_t  elems;
-    Int32_t   upper;
+    uint32_t  elems;
+    int32_t   upper;
     size_t    i;
 
     elems = 0;
@@ -378,20 +373,20 @@ analyzeResult ( Uint32_t* Array, size_t len )
     if ( elems == 0 )
         return GAIN_NOT_ENOUGH_SAMPLES;
 
-    upper = (Int32_t) ceil (elems * (1. - RMS_PERCENTILE));
+    upper = (int32_t) ceil (elems * (1. - RMS_PERCENTILE));
     for ( i = len; i-- > 0; ) {
         if ( (upper -= Array[i]) <= 0 )
             break;
     }
 
-    return (Float_t) ((Float_t)PINK_REF - (Float_t)i / (Float_t)STEPS_per_dB);
+    return (float) ((float)PINK_REF - (float)i / (float)STEPS_per_dB);
 }
 
 
-Float_t
+float
 GetTitleGain ( void )
 {
-    Float_t  retval;
+    float  retval;
     unsigned int    i;
 
     retval = analyzeResult ( A, sizeof(A)/sizeof(*A) );
@@ -410,7 +405,7 @@ GetTitleGain ( void )
 }
 
 
-Float_t
+float
 GetAlbumGain ( void )
 {
     return analyzeResult ( B, sizeof(B)/sizeof(*B) );
