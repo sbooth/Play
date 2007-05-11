@@ -37,14 +37,15 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 	AudioStreamDecoder		*decoder		= nil;
 	AudioBufferList			bufferList;
 	Float64					sampleRate		= 0;
-	float					scale			= (1L << 16);
+	float					scale			= (1L << (16 - 1));
 	float					albumPeak		= 0;
 	
+	
 	// Allocate RG buffers (only two are needed because the RG analysis code only works on mono or stereo)
-	Float_t *leftSamples = (Float_t *)calloc(BUFFER_LENGTH, sizeof(Float_t));
+	float *leftSamples = (float *)calloc(BUFFER_LENGTH, sizeof(float));
 	NSCAssert(NULL != leftSamples, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 
-	Float_t *rightSamples = (Float_t *)calloc(BUFFER_LENGTH, sizeof(Float_t));
+	float *rightSamples = (float *)calloc(BUFFER_LENGTH, sizeof(float));
 	NSCAssert(NULL != rightSamples, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	// Allocate the AudioBufferList for the decoder
@@ -53,8 +54,16 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 	
 	bufferList.mNumberBuffers		= 1;
 	bufferList.mBuffers[0].mData	= buffer;
-		
+
+#if DEBUG
+	clock_t album_start = clock();
+#endif
+	
 	while((stream = [enumerator nextObject])) {
+
+#if DEBUG
+		clock_t track_start = clock();
+#endif
 		
 		decoder = [AudioStreamDecoder streamDecoderForStream:stream error:nil];
 		
@@ -91,9 +100,9 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 			
 		}
 		
-		AudioStreamBasicDescription asbd = [decoder pcmFormat];
-		float trackPeak = 0;
-		
+		AudioStreamBasicDescription		asbd			= [decoder pcmFormat];
+		float							trackPeak		= 0;
+
 		// Process the file
 		for(;;) {
 			// Reset read parameters
@@ -129,7 +138,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 					trackPeak			= LOCAL_MAX(trackPeak, fabsf(buffer[2 * i]));
 					
 					rightSamples[i]		= buffer[(2 * i) + 1] * scale;
-					trackPeak			= LOCAL_MAX(trackPeak, fabsf(buffer[(2 * i) + 1]));
+					trackPeak			= LOCAL_MAX(trackPeak, fabsf(buffer[2 * i]));
 				}
 				
 				int result = AnalyzeSamples(leftSamples, rightSamples, framesRead, 2);
@@ -157,11 +166,21 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 		
 		// Stop decoding
 		/*BOOL result =*/ [decoder stopDecoding:nil];
+		
+#if DEBUG
+		clock_t track_end = clock();
+		NSLog(@"Calculated ReplayGain for %@ in %f seconds", stream, (track_end - track_start) / (double)CLOCKS_PER_SEC);
+#endif		
 	}
 	
 	if(calculateAlbumGain) {
 		[streams setValue:[NSNumber numberWithFloat:GetAlbumGain()] forKey:ReplayGainAlbumGainKey];
 		[streams setValue:[NSNumber numberWithFloat:albumPeak] forKey:ReplayGainAlbumPeakKey];
+
+#if DEBUG
+		clock_t album_end = clock();
+		NSLog(@"Calculated album ReplayGain in %f seconds", (album_end - album_start) / (double)CLOCKS_PER_SEC);
+#endif		
 	}
 
 cleanup:
