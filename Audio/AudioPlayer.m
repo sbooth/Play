@@ -175,7 +175,7 @@ MyRenderer(void							*inRefCon,
 		
 		unsigned i;
 		for(i = 0; i < sampleCount; ++i) {
-			sample		= buffer[i] * multiplier;;
+			sample		= buffer[i] * multiplier;
 			buffer[i]	= (float)(sample < -1.0 ? -1.0 : (sample > 1.0 ? 1.0 : sample));
 		}
 	}
