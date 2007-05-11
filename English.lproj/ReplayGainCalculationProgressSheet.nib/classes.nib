@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {cancel = id; startProgressIndicator = id; stopProgressIndicator = id; }; 
+            CLASS = ReplayGainCalculationProgressSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_progressIndicator" = NSProgressIndicator; "_sheet" = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

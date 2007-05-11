@@ -27,22 +27,8 @@
 #define LOCAL_MAX(a, b)			((a) > (b) ? (a) : (b))
 #define BUFFER_LENGTH			4096
 
-static void calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain);
-
 void 
-calculateTrackReplayGain(NSArray *streams)
-{
-	calculateReplayGain(streams, NO);
-}
-
-void 
-calculateTrackAndAlbumReplayGain(NSArray *streams)
-{
-	calculateReplayGain(streams, YES);
-}
-
-static void 
-calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain)
+calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession modalSession)
 {
 	NSCParameterAssert(nil != streams);
 	
@@ -152,6 +138,12 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain)
 					goto cleanup;
 				}
 			}
+			
+			// Allow user cancellation
+			if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+				[decoder stopDecoding:nil];
+				goto cleanup;
+			}			
 		}
 		
 		// Get the track's gain

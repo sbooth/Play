@@ -18,14 +18,41 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import <Cocoa/Cocoa.h>
+#import "ReplayGainCalculationProgressSheet.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+@implementation ReplayGainCalculationProgressSheet
 
-	void calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession modalSession);
-
-#ifdef __cplusplus
+- (id) init
+{
+	if((self = [super init])) {
+		BOOL result = [NSBundle loadNibNamed:@"ReplayGainCalculationProgressSheet" owner:self];
+		if(NO == result) {
+			NSLog(@"Missing resource: \"ReplayGainCalculationProgressSheet.nib\".");
+			[self release];
+			return nil;
+		}
+	}
+	return self;
 }
-#endif
+
+- (NSWindow *) sheet
+{
+	return _sheet;
+}
+
+- (IBAction) cancel:(id)sender
+{
+	[[NSApplication sharedApplication] stopModal];
+}
+
+- (IBAction) startProgressIndicator:(id)sender
+{
+	[_progressIndicator startAnimation:sender];
+}
+
+- (IBAction) stopProgressIndicator:(id)sender
+{
+	[_progressIndicator stopAnimation:sender];
+}
+
+@end

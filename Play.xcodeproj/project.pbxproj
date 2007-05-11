@@ -244,6 +244,8 @@
 		8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */; };
 		8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */; };
 		8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */; };
+		8CA83BF90BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CA83BF30BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib */; };
+		8CA83C030BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA83C010BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m */; };
 		8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */; };
 		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
 		8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6990B87A6AB00B3A0EB /* BrowserOutlineView.m */; };
@@ -684,6 +686,9 @@
 		8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlayQueueArrayController.m; path = AudioLibrary/PlayQueueArrayController.m; sourceTree = "<group>"; };
 		8CA8345C0BF3850F00E98527 /* ReplayGainUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReplayGainUtilities.h; path = Utilities/ReplayGainUtilities.h; sourceTree = "<group>"; };
 		8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReplayGainUtilities.m; path = Utilities/ReplayGainUtilities.m; sourceTree = "<group>"; };
+		8CA83BF40BF3AE5100E98527 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ReplayGainCalculationProgressSheet.nib; sourceTree = "<group>"; };
+		8CA83C000BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReplayGainCalculationProgressSheet.h; path = AudioLibrary/ReplayGainCalculationProgressSheet.h; sourceTree = "<group>"; };
+		8CA83C010BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReplayGainCalculationProgressSheet.m; path = AudioLibrary/ReplayGainCalculationProgressSheet.m; sourceTree = "<group>"; };
 		8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamArrayController.h; path = AudioLibrary/AudioStreamArrayController.h; sourceTree = "<group>"; };
 		8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamArrayController.m; path = AudioLibrary/AudioStreamArrayController.m; sourceTree = "<group>"; };
 		8CAFB6530B87A35800B3A0EB /* BrowserTreeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BrowserTreeController.h; path = AudioLibrary/BrowserTreeController.h; sourceTree = "<group>"; };
@@ -859,6 +864,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CA83BF30BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib */,
 				8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */,
 				8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */,
 				8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */,
@@ -1262,6 +1268,8 @@
 				8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */,
 				8CA56D230BD641A800225BB4 /* PlayQueueArrayController.h */,
 				8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */,
+				8CA83C000BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.h */,
+				8CA83C010BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m */,
 			);
 			name = AudioLibrary;
 			sourceTree = "<group>";
@@ -1694,6 +1702,7 @@
 				8C5838150BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings in Resources */,
 				8C5838210BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff in Resources */,
 				8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */,
+				8CA83BF90BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1864,6 +1873,7 @@
 				8CDF26D30BEBF8FF00D82E81 /* HighestRatedNode.m in Sources */,
 				8C5E0E730BEEF45E006E045D /* replaygain_analysis.c in Sources */,
 				8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */,
+				8CA83C030BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2052,6 +2062,14 @@
 				8C9C40210B745B4700CE799A /* English */,
 			);
 			name = AudioMetadataEditingSheet.nib;
+			sourceTree = "<group>";
+		};
+		8CA83BF30BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CA83BF40BF3AE5100E98527 /* English */,
+			);
+			name = ReplayGainCalculationProgressSheet.nib;
 			sourceTree = "<group>";
 		};
 		8CB3E3E90BDD40E800B5E828 /* Credits.rtf */ = {

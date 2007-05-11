@@ -20,12 +20,17 @@
 
 #import <Cocoa/Cocoa.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-	void calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession modalSession);
-
-#ifdef __cplusplus
+@interface ReplayGainCalculationProgressSheet : NSObject
+{
+	IBOutlet NSWindow				*_sheet;
+	IBOutlet NSProgressIndicator	*_progressIndicator;
 }
-#endif
+
+- (NSWindow *)		sheet;
+
+- (IBAction)		cancel:(id)sender;
+
+- (IBAction)		startProgressIndicator:(id)sender;
+- (IBAction)		stopProgressIndicator:(id)sender;
+
+@end

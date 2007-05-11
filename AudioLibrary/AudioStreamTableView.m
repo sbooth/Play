@@ -31,7 +31,9 @@
 #import "AudioStreamManager.h"
 
 #import "SecondsFormatter.h"
+
 #import "ReplayGainUtilities.h"
+#import "ReplayGainCalculationProgressSheet.h"
 
 #import "CTBadge.h"
 
@@ -41,6 +43,7 @@
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain;
 @end
 
 @implementation AudioStreamTableView
@@ -326,9 +329,7 @@
 		return;
 	}
 	
-	[[CollectionManager manager] beginUpdate];
-	calculateTrackReplayGain([_streamController selectedObjects]);
-	[[CollectionManager manager] finishUpdate];	
+	[self performReplayGainCalculationForStreams:[_streamController selectedObjects] calculateAlbumGain:NO];
 }
 
 - (IBAction) calculateTrackAndAlbumReplayGain:(id)sender
@@ -338,9 +339,7 @@
 		return;
 	}
 
-	[[CollectionManager manager] beginUpdate];
-	calculateTrackAndAlbumReplayGain([_streamController selectedObjects]);
-	[[CollectionManager manager] finishUpdate];	
+	[self performReplayGainCalculationForStreams:[_streamController selectedObjects] calculateAlbumGain:YES];
 }
 
 - (IBAction) remove:(id)sender
@@ -517,6 +516,31 @@
 	}
 	
 	[metadataEditingSheet release];
+}
+
+- (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain
+{
+	ReplayGainCalculationProgressSheet *progressSheet = [[ReplayGainCalculationProgressSheet alloc] init];
+				
+	[[NSApplication sharedApplication] beginSheet:[progressSheet sheet]
+								   modalForWindow:[self window]
+									modalDelegate:nil
+								   didEndSelector:nil
+									  contextInfo:nil];
+	
+	NSModalSession modalSession = [[NSApplication sharedApplication] beginModalSessionForWindow:[progressSheet sheet]];
+	
+	[progressSheet startProgressIndicator:self];
+	[[CollectionManager manager] beginUpdate];
+	calculateReplayGain(streams, calculateAlbumGain, modalSession);
+	[[CollectionManager manager] finishUpdate];	
+	[progressSheet stopProgressIndicator:self];
+	
+	[NSApp endModalSession:modalSession];
+	
+	[NSApp endSheet:[progressSheet sheet]];
+	[[progressSheet sheet] close];
+	[progressSheet release];
 }
 
 @end
