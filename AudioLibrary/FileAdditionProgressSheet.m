@@ -19,7 +19,6 @@
  */
 
 #import "FileAdditionProgressSheet.h"
-#import "AudioLibrary.h"
 
 @implementation FileAdditionProgressSheet
 
