@@ -192,6 +192,22 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	numericValue = [metadata valueForKey:MetadataBPMKey];
 	setVorbisComment(block, @"BPM", (nil == numericValue? nil : [numericValue stringValue]));
 
+	// ReplayGain
+	numericValue = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
+	setVorbisComment(block, @"REPLAYGAIN_REFERENCE_LOUDNESS", (nil == numericValue ? nil : [NSString stringWithFormat:@"%2.1f dB", [numericValue doubleValue]]));
+
+	numericValue = [metadata valueForKey:ReplayGainTrackGainKey];
+	setVorbisComment(block, @"REPLAYGAIN_TRACK_GAIN", (nil == numericValue ? nil : [NSString stringWithFormat:@"%+2.2f dB", [numericValue doubleValue]]));
+
+	numericValue = [metadata valueForKey:ReplayGainTrackPeakKey];
+	setVorbisComment(block, @"REPLAYGAIN_TRACK_PEAK", (nil == numericValue ? nil : [NSString stringWithFormat:@"%1.8f", [numericValue doubleValue]]));
+
+	numericValue = [metadata valueForKey:ReplayGainAlbumGainKey];
+	setVorbisComment(block, @"REPLAYGAIN_ALBUM_GAIN", (nil == numericValue ? nil : [NSString stringWithFormat:@"%+2.2f dB", [numericValue doubleValue]]));
+	
+	numericValue = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	setVorbisComment(block, @"REPLAYGAIN_ALBUM_PEAK", (nil == numericValue ? nil : [NSString stringWithFormat:@"%1.8f", [numericValue doubleValue]]));
+	
 	// Write the new metadata to the file
 	result = FLAC__metadata_chain_write(chain, YES, NO);
 	if(NO == result) {

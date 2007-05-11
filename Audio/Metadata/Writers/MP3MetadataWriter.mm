@@ -29,6 +29,7 @@
 #include <taglib/tbytevector.h>
 #include <taglib/textidentificationframe.h>
 #include <taglib/attachedpictureframe.h>
+#include <taglib/relativevolumeframe.h>
 #include <taglib/id3v2tag.h>
 
 @implementation MP3MetadataWriter
@@ -194,7 +195,25 @@
 		frame->setText(TagLib::String([[NSString stringWithFormat:@"/%@", discTotal] UTF8String], TagLib::String::UTF8));
 		f.ID3v2Tag()->addFrame(frame);
 	}
+	
+	// ReplayGain
+	f.ID3v2Tag()->removeFrames("RVA2");
+	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	if(nil != trackGain || nil != albumGain) {
+		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
+		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
+
+		if(nil != trackGain) {
+			relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
+		}
+		else if(nil != albumGain) {
+			relativeVolume->setVolumeAdjustment([albumGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
+		}
 		
+		f.ID3v2Tag()->addFrame(relativeVolume);
+	}
+
 	// Album art
 /*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
 	if(nil != albumArt) {

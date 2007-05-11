@@ -47,6 +47,7 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	calculateTrackReplayGain:(id)sender;
 - (IBAction)	calculateTrackAndAlbumReplayGain:(id)sender;
+- (IBAction)	clearReplayGain:(id)sender;
 
 - (IBAction)	remove:(id)sender;
 

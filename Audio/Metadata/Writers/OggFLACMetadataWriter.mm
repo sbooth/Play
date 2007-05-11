@@ -112,6 +112,22 @@
 	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
 	f.tag()->addField("BPM", (nil == bpm ? TagLib::String::null : TagLib::String([[bpm stringValue] UTF8String], TagLib::String::UTF8)));
 
+	// ReplayGain
+	NSNumber *referenceLoudness = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
+	f.tag()->addField("REPLAYGAIN_REFERENCE_LOUDNESS", (nil == referenceLoudness ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%2.1f dB", [referenceLoudness doubleValue]] UTF8String], TagLib::String::UTF8)));
+	
+	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	f.tag()->addField("REPLAYGAIN_TRACK_GAIN", (nil == trackGain ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]] UTF8String], TagLib::String::UTF8)));
+	
+	NSNumber *trackPeak = [metadata valueForKey:ReplayGainTrackPeakKey];
+	f.tag()->addField("REPLAYGAIN_TRACK_PEAK", (nil == trackPeak ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%1.8f", [trackPeak doubleValue]] UTF8String], TagLib::String::UTF8)));
+	
+	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	f.tag()->addField("REPLAYGAIN_ALBUM_GAIN", (nil == albumGain ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]] UTF8String], TagLib::String::UTF8)));
+	
+	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	f.tag()->addField("REPLAYGAIN_ALBUM_PEAK", (nil == albumPeak ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]] UTF8String], TagLib::String::UTF8)));
+
 	result = f.save();
 	if(NO == result) {
 		if(nil != error) {

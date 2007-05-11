@@ -9,6 +9,7 @@
                 calculateTrackAndAlbumReplayGain = id; 
                 calculateTrackReplayGain = id; 
                 clearPlayQueue = id; 
+                clearReplayGain = id; 
                 editMetadata = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 

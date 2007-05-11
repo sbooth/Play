@@ -85,6 +85,9 @@
 	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:)) {
 		return (0 != [[_streamController selectedObjects] count]);
 	}
+	else if([menuItem action] == @selector(clearReplayGain:)) {
+		return (0 != [[_streamController selectedObjects] count]);
+	}
 	else if([menuItem action] == @selector(remove:)) {
 		return [_streamController canRemove];
 	}
@@ -340,6 +343,18 @@
 	}
 
 	[self performReplayGainCalculationForStreams:[_streamController selectedObjects] calculateAlbumGain:YES];
+}
+
+- (IBAction) clearReplayGain:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[CollectionManager manager] beginUpdate];
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(clearReplayGain:) withObject:sender];
+	[[CollectionManager manager] finishUpdate];
 }
 
 - (IBAction) remove:(id)sender

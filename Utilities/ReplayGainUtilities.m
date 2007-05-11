@@ -179,7 +179,8 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 
 #if DEBUG
 		clock_t album_end = clock();
-		NSLog(@"Calculated album ReplayGain in %f seconds", (album_end - album_start) / (double)CLOCKS_PER_SEC);
+		double elapsed = (album_end - album_start) / (double)CLOCKS_PER_SEC;
+		NSLog(@"Calculated album ReplayGain in %f seconds (%f seconds per track)", elapsed, elapsed / [streams count]);
 #endif		
 	}
 
