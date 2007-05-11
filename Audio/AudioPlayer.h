@@ -54,7 +54,6 @@ enum {
 	AudioStreamDecoder		*_nextStreamDecoder;
 	BOOL					_requestedNextStream;
 
-	Float32					_baseVolume;
 	double					_replayGain;
 	
 	AudioLibrary			*_owner;
@@ -92,8 +91,8 @@ enum {
 
 - (BOOL)			isPlaying;
 
-- (Float32)			baseVolume;
-- (void)			setBaseVolume:(Float32)baseVolume;
+- (Float32)			volume;
+- (void)			setVolume:(Float32)volume;
 
 - (double)			replayGain;
 - (void)			setReplayGain:(double)replayGain;

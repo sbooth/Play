@@ -87,9 +87,6 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 - (void) setPlaying:(BOOL)playing;
 - (void) setOutputDeviceUID:(NSString *)deviceUID;
 
-- (Float32) actualVolume;
-- (void) setActualVolume:(Float32)volume;
-
 - (void) setReplayGainForStream:(AudioStream *)stream;
 @end
 
@@ -166,6 +163,21 @@ MyRenderer(void							*inRefCon,
 		ioData->mBuffers[0].mDataByteSize			= bufferSizeAfterFirstRead + additionalData.mBuffers[0].mDataByteSize;
 
 		framesRead									+= additionalFramesRead;
+	}
+	
+	// Apply replay gain
+	double replayGain = [player replayGain];
+	if(0 != replayGain) {
+		double		multiplier		= pow(10, replayGain / 20);
+		float		*buffer			= ioData->mBuffers[0].mData;
+		unsigned	sampleCount		= framesRead * ioData->mBuffers[0].mNumberChannels;
+		float		sample;
+		
+		unsigned i;
+		for(i = 0; i < sampleCount; ++i) {
+			sample		= buffer[i] * multiplier;;
+			buffer[i]	= (float)(sample < -1.0 ? -1.0 : (sample > 1.0 ? 1.0 : sample));
+		}
 	}
 	
 #if DEBUG
@@ -302,8 +314,6 @@ MyRenderNotification(void							*inRefCon,
 		
 		// Set the output device
 		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
-
-		_baseVolume = [self actualVolume];
 
 		// Listen for changes to the output device
 		[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self 
@@ -625,18 +635,35 @@ MyRenderNotification(void							*inRefCon,
 
 #pragma mark Bindings
 
-- (Float32) baseVolume
+- (Float32) volume
 {
-	return _baseVolume;	
+	Float32				volume		= 0;	
+	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
+															kHALOutputParam_Volume,
+															kAudioUnitScope_Global,
+															0,
+															&volume);
+	
+	if(noErr != result) {
+		NSLog(@"Unable to determine volume");
+	}
+	
+	return volume;
 }
 
-- (void) setBaseVolume:(Float32)baseVolume
+- (void) setVolume:(Float32)volume
 {
-	NSParameterAssert(0 <= baseVolume <= 1);
+	NSParameterAssert(0 <= volume && volume <= 1);
 	
-	_baseVolume = baseVolume;
-	
-	[self setActualVolume:[self baseVolume] * pow(10, [self replayGain] / 20)];
+	ComponentResult result =  AudioUnitSetParameter([self audioUnit],
+													kHALOutputParam_Volume,
+													kAudioUnitScope_Global,
+													0,
+													volume,
+													0);
+	if(noErr != result) {
+		NSLog(@"Unable to set volume");
+	}
 }
 
 - (double) replayGain
@@ -647,8 +674,6 @@ MyRenderNotification(void							*inRefCon,
 - (void) setReplayGain:(double)replayGain
 {
 	_replayGain = replayGain;
-	
-	[self setActualVolume:[self baseVolume] * pow(10, [self replayGain] / 20)];
 }
 
 - (SInt64) totalFrames
@@ -886,36 +911,6 @@ MyRenderNotification(void							*inRefCon,
 		NSLog(@"Error setting output device");
 	}
 	
-}
-
-
-- (Float32) actualVolume
-{
-	Float32				volume		= 0;	
-	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
-															kHALOutputParam_Volume,
-															kAudioUnitScope_Global,
-															0,
-															&volume);
-	
-	if(noErr != result) {
-		NSLog(@"Unable to determine volume");
-	}
-	
-	return volume;
-}
-
-- (void) setActualVolume:(Float32)volume
-{
-	ComponentResult result =  AudioUnitSetParameter([self audioUnit],
-													kHALOutputParam_Volume,
-													kAudioUnitScope_Global,
-													0,
-													volume,
-													0);
-	if(noErr != result) {
-		NSLog(@"Unable to set volume");
-	}
 }
 
 - (void) setReplayGainForStream:(AudioStream *)stream
