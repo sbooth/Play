@@ -169,7 +169,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain)
 	
 	if(calculateAlbumGain) {
 		[streams setValue:[NSNumber numberWithFloat:GetAlbumGain()] forKey:ReplayGainAlbumGainKey];
-		[stream setValue:[NSNumber numberWithFloat:albumPeak] forKey:ReplayGainAlbumPeakKey];
+		[streams setValue:[NSNumber numberWithFloat:albumPeak] forKey:ReplayGainAlbumPeakKey];
 	}
 
 cleanup:
