@@ -83,7 +83,7 @@
 		return (0 != [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:)) {
-		return (0 != [[_streamController selectedObjects] count]);
+		return (1 < [[_streamController selectedObjects] count]);
 	}
 	else if([menuItem action] == @selector(clearReplayGain:)) {
 		return (0 != [[_streamController selectedObjects] count]);
@@ -337,7 +337,7 @@
 
 - (IBAction) calculateTrackAndAlbumReplayGain:(id)sender
 {
-	if(0 == [[_streamController selectedObjects] count]) {
+	if(1 >= [[_streamController selectedObjects] count]) {
 		NSBeep();
 		return;
 	}
