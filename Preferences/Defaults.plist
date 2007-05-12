@@ -4,16 +4,18 @@
 <dict>
 	<key>SUCheckAtStartup</key>
 	<true/>
+	<key>useInMemoryDatabase</key>
+	<false/>
 	<key>enableAudioScrobbler</key>
 	<true/>
 	<key>enableGrowlNotifications</key>
-	<true/>
-	<key>rememberPlayQueue</key>
 	<true/>
 	<key>alwaysPlayStreamsWhenDoubleClicked</key>
 	<false/>
 	<key>rescanMetadataBeforePlayback</key>
 	<false/>
+	<key>rememberPlayQueue</key>
+	<true/>
 	<key>removeStreamsFromPlayQueueWhenFinished</key>
 	<true/>
 	<key>limitPlayQueueHistorySize</key>
@@ -43,9 +45,11 @@
 	</dict>
 	<key>outputAudioDeviceUID</key>
 	<string></string>
+	<key>preAmplification</key>
+	<real>6.0<real/>
 	<key>replayGain</key>
 	<integer>0</integer>
-	<key>useInMemoryDatabase</key>
-	<false/>
+	<key>clippingPrevention</key>
+	<integer>0</integer>
 </dict>
 </plist>

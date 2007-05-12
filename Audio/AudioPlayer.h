@@ -41,9 +41,14 @@ enum {
 // User Defaults tag values
 // ========================================
 enum {
+	// ReplayGain
 	ReplayGainNone			= 0,
 	ReplayGainTrackGain		= 1,
-	ReplayGainAlbumGain		= 2
+	ReplayGainAlbumGain		= 2,
+	
+	// Clipping behavior
+	HardLimiting			= 0,
+	ReducePreAmpGain		= 1
 };
 
 @interface AudioPlayer : NSObject
@@ -54,7 +59,8 @@ enum {
 	AudioStreamDecoder		*_nextStreamDecoder;
 	BOOL					_requestedNextStream;
 
-	double					_replayGain;
+	float					_preAmplification;
+	float					_replayGain;
 	
 	AudioLibrary			*_owner;
 	
@@ -94,8 +100,11 @@ enum {
 - (Float32)			volume;
 - (void)			setVolume:(Float32)volume;
 
-- (double)			replayGain;
-- (void)			setReplayGain:(double)replayGain;
+- (float)			preAmplification;
+- (void)			setPreAmplification:(float)preAmplification;
+
+- (float)			replayGain;
+- (void)			setReplayGain:(float)replayGain;
 
 // UI bindings (updated approximately once per second to avoid excessive CPU loads)
 - (SInt64)			totalFrames;

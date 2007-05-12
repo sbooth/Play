@@ -293,6 +293,19 @@
 		8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */; };
 		8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */; };
 		8CDF26D30BEBF8FF00D82E81 /* HighestRatedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDF26D10BEBF8FF00D82E81 /* HighestRatedNode.m */; };
+		8CF257B20BF543FA00A8520E /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A10BF543FA00A8520E /* AIPlasticButton.m */; };
+		8CF257B40BF543FA00A8520E /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */; };
+		8CF257B60BF543FA00A8520E /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */; };
+		8CF257B80BF543FA00A8520E /* AIPlasticPlusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A70BF543FA00A8520E /* AIPlasticPlusButton.m */; };
+		8CF257B90BF543FA00A8520E /* i.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257A80BF543FA00A8520E /* i.png */; };
+		8CF257BA0BF543FA00A8520E /* minus.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257A90BF543FA00A8520E /* minus.png */; };
+		8CF257BB0BF543FA00A8520E /* PlasticButtonDefault_Caps.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AA0BF543FA00A8520E /* PlasticButtonDefault_Caps.png */; };
+		8CF257BC0BF543FA00A8520E /* PlasticButtonDefault_Middle.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AB0BF543FA00A8520E /* PlasticButtonDefault_Middle.png */; };
+		8CF257BD0BF543FA00A8520E /* PlasticButtonNormal_Caps.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AC0BF543FA00A8520E /* PlasticButtonNormal_Caps.png */; };
+		8CF257BE0BF543FA00A8520E /* PlasticButtonNormal_Middle.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AD0BF543FA00A8520E /* PlasticButtonNormal_Middle.png */; };
+		8CF257BF0BF543FA00A8520E /* PlasticButtonPressed_Caps.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AE0BF543FA00A8520E /* PlasticButtonPressed_Caps.png */; };
+		8CF257C00BF543FA00A8520E /* PlasticButtonPressed_Middle.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257AF0BF543FA00A8520E /* PlasticButtonPressed_Middle.png */; };
+		8CF257C10BF543FA00A8520E /* plus.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CF257B00BF543FA00A8520E /* plus.png */; };
 		8CF41B230BC8587600540D3F /* MPEGStreamDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF41B210BC8587600540D3F /* MPEGStreamDecoder.m */; };
 		8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
@@ -757,6 +770,23 @@
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
 		8CDF26D00BEBF8FF00D82E81 /* HighestRatedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = HighestRatedNode.h; path = Browser/HighestRatedNode.h; sourceTree = "<group>"; };
 		8CDF26D10BEBF8FF00D82E81 /* HighestRatedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = HighestRatedNode.m; path = Browser/HighestRatedNode.m; sourceTree = "<group>"; };
+		8CF257A00BF543FA00A8520E /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticButton.h; path = ThirdParty/AIPlasticButton/AIPlasticButton.h; sourceTree = "<group>"; };
+		8CF257A10BF543FA00A8520E /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticButton.m; path = ThirdParty/AIPlasticButton/AIPlasticButton.m; sourceTree = "<group>"; };
+		8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticInfoButton.h; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.h; sourceTree = "<group>"; };
+		8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticInfoButton.m; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.m; sourceTree = "<group>"; };
+		8CF257A40BF543FA00A8520E /* AIPlasticMinusButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticMinusButton.h; path = ThirdParty/AIPlasticButton/AIPlasticMinusButton.h; sourceTree = "<group>"; };
+		8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticMinusButton.m; path = ThirdParty/AIPlasticButton/AIPlasticMinusButton.m; sourceTree = "<group>"; };
+		8CF257A60BF543FA00A8520E /* AIPlasticPlusButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticPlusButton.h; path = ThirdParty/AIPlasticButton/AIPlasticPlusButton.h; sourceTree = "<group>"; };
+		8CF257A70BF543FA00A8520E /* AIPlasticPlusButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticPlusButton.m; path = ThirdParty/AIPlasticButton/AIPlasticPlusButton.m; sourceTree = "<group>"; };
+		8CF257A80BF543FA00A8520E /* i.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = i.png; path = ThirdParty/AIPlasticButton/i.png; sourceTree = "<group>"; };
+		8CF257A90BF543FA00A8520E /* minus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = minus.png; path = ThirdParty/AIPlasticButton/minus.png; sourceTree = "<group>"; };
+		8CF257AA0BF543FA00A8520E /* PlasticButtonDefault_Caps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonDefault_Caps.png; path = ThirdParty/AIPlasticButton/PlasticButtonDefault_Caps.png; sourceTree = "<group>"; };
+		8CF257AB0BF543FA00A8520E /* PlasticButtonDefault_Middle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonDefault_Middle.png; path = ThirdParty/AIPlasticButton/PlasticButtonDefault_Middle.png; sourceTree = "<group>"; };
+		8CF257AC0BF543FA00A8520E /* PlasticButtonNormal_Caps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonNormal_Caps.png; path = ThirdParty/AIPlasticButton/PlasticButtonNormal_Caps.png; sourceTree = "<group>"; };
+		8CF257AD0BF543FA00A8520E /* PlasticButtonNormal_Middle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonNormal_Middle.png; path = ThirdParty/AIPlasticButton/PlasticButtonNormal_Middle.png; sourceTree = "<group>"; };
+		8CF257AE0BF543FA00A8520E /* PlasticButtonPressed_Caps.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonPressed_Caps.png; path = ThirdParty/AIPlasticButton/PlasticButtonPressed_Caps.png; sourceTree = "<group>"; };
+		8CF257AF0BF543FA00A8520E /* PlasticButtonPressed_Middle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlasticButtonPressed_Middle.png; path = ThirdParty/AIPlasticButton/PlasticButtonPressed_Middle.png; sourceTree = "<group>"; };
+		8CF257B00BF543FA00A8520E /* plus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = plus.png; path = ThirdParty/AIPlasticButton/plus.png; sourceTree = "<group>"; };
 		8CF41B200BC8587600540D3F /* MPEGStreamDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MPEGStreamDecoder.h; path = Audio/Decoders/MPEGStreamDecoder.h; sourceTree = "<group>"; };
 		8CF41B210BC8587600540D3F /* MPEGStreamDecoder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MPEGStreamDecoder.m; path = Audio/Decoders/MPEGStreamDecoder.m; sourceTree = "<group>"; };
 		8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
@@ -1091,6 +1121,7 @@
 		8C9C23F70B72490400CE799A /* Third Party */ = {
 			isa = PBXGroup;
 			children = (
+				8CF2579D0BF543E700A8520E /* AIPlasticButton */,
 				8C06F01C0B866EB500E8ADB6 /* CTBadge */,
 				8C06F0190B866EA700E8ADB6 /* CTGradient */,
 				8C5E0E5D0BEEF312006E045D /* Gain Analysis */,
@@ -1559,6 +1590,30 @@
 			name = Preferences;
 			sourceTree = "<group>";
 		};
+		8CF2579D0BF543E700A8520E /* AIPlasticButton */ = {
+			isa = PBXGroup;
+			children = (
+				8CF257A00BF543FA00A8520E /* AIPlasticButton.h */,
+				8CF257A10BF543FA00A8520E /* AIPlasticButton.m */,
+				8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */,
+				8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */,
+				8CF257A40BF543FA00A8520E /* AIPlasticMinusButton.h */,
+				8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */,
+				8CF257A60BF543FA00A8520E /* AIPlasticPlusButton.h */,
+				8CF257A70BF543FA00A8520E /* AIPlasticPlusButton.m */,
+				8CF257A80BF543FA00A8520E /* i.png */,
+				8CF257A90BF543FA00A8520E /* minus.png */,
+				8CF257AA0BF543FA00A8520E /* PlasticButtonDefault_Caps.png */,
+				8CF257AB0BF543FA00A8520E /* PlasticButtonDefault_Middle.png */,
+				8CF257AC0BF543FA00A8520E /* PlasticButtonNormal_Caps.png */,
+				8CF257AD0BF543FA00A8520E /* PlasticButtonNormal_Middle.png */,
+				8CF257AE0BF543FA00A8520E /* PlasticButtonPressed_Caps.png */,
+				8CF257AF0BF543FA00A8520E /* PlasticButtonPressed_Middle.png */,
+				8CF257B00BF543FA00A8520E /* plus.png */,
+			);
+			name = AIPlasticButton;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1703,6 +1758,15 @@
 				8C5838210BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff in Resources */,
 				8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */,
 				8CA83BF90BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib in Resources */,
+				8CF257B90BF543FA00A8520E /* i.png in Resources */,
+				8CF257BA0BF543FA00A8520E /* minus.png in Resources */,
+				8CF257BB0BF543FA00A8520E /* PlasticButtonDefault_Caps.png in Resources */,
+				8CF257BC0BF543FA00A8520E /* PlasticButtonDefault_Middle.png in Resources */,
+				8CF257BD0BF543FA00A8520E /* PlasticButtonNormal_Caps.png in Resources */,
+				8CF257BE0BF543FA00A8520E /* PlasticButtonNormal_Middle.png in Resources */,
+				8CF257BF0BF543FA00A8520E /* PlasticButtonPressed_Caps.png in Resources */,
+				8CF257C00BF543FA00A8520E /* PlasticButtonPressed_Middle.png in Resources */,
+				8CF257C10BF543FA00A8520E /* plus.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1874,6 +1938,10 @@
 				8C5E0E730BEEF45E006E045D /* replaygain_analysis.c in Sources */,
 				8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */,
 				8CA83C030BF3AEB900E98527 /* ReplayGainCalculationProgressSheet.m in Sources */,
+				8CF257B20BF543FA00A8520E /* AIPlasticButton.m in Sources */,
+				8CF257B40BF543FA00A8520E /* AIPlasticInfoButton.m in Sources */,
+				8CF257B60BF543FA00A8520E /* AIPlasticMinusButton.m in Sources */,
+				8CF257B80BF543FA00A8520E /* AIPlasticPlusButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
