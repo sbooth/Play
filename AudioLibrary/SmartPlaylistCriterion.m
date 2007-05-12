@@ -30,15 +30,15 @@ enum {
 
 @interface SmartPlaylistCriterion (Private)
 
-- (void)				setView:(NSView *)view;
+- (void) setView:(NSView *)view;
 
-- (void)				setupKeyPathPopUpButton;
-- (void)				setupPredicateTypePopUpButton;
+- (void) setupKeyPathPopUpButton;
+- (void) setupPredicateTypePopUpButton;
 
-- (NSAttributeType)		attributeTypeForKeyPath:(NSString *)keyPath;
-- (NSString *)			displayNameForKeyPath:(NSString *)keyPath;
+- (NSAttributeType) attributeTypeForKeyPath:(NSString *)keyPath;
+- (NSString *) displayNameForKeyPath:(NSString *)keyPath;
 
-- (NSDictionary *)		propertiesDictionaryForKeyPath:(NSString *)keyPath;
+- (NSDictionary *) propertiesDictionaryForKeyPath:(NSString *)keyPath;
 
 - (void) unbindSearchTerm;
 - (void) bindSearchTerm;
@@ -76,7 +76,7 @@ enum {
 	_predicateType	= NSEqualToPredicateOperatorType;
 	[self setAttributeType:NSStringAttributeType];
 	
-	//	[self setupKeyPathPopUpButton];
+//	[self setupKeyPathPopUpButton];
 //	[self setupPredicateTypePopUpButton];
 
 	NSPopUpButton	*popUpButton	= [[self view] viewWithTag:KeyPathPopupButtonTag];
@@ -111,6 +111,9 @@ enum {
 	if([self attributeType] != attributeType) {
 		NSView *oldView = [self view];
 
+		// Having all the prototype views bound to searchTerm simultaneously can cause errors, for example
+		// an NSDate does not respond to intValue, which the integer views expect
+		// So all bindings must be established programatically
 		[self unbindSearchTerm];
 		
 		_attributeType = attributeType;
