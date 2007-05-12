@@ -59,8 +59,9 @@ enum {
 	AudioStreamDecoder		*_nextStreamDecoder;
 	BOOL					_requestedNextStream;
 
-	float					_preAmplification;
+	BOOL					_hasReplayGain;
 	float					_replayGain;
+	float					_preAmplification;
 	
 	AudioLibrary			*_owner;
 	
@@ -100,11 +101,12 @@ enum {
 - (Float32)			volume;
 - (void)			setVolume:(Float32)volume;
 
-- (float)			preAmplification;
-- (void)			setPreAmplification:(float)preAmplification;
+- (BOOL)			hasReplayGain;
 
 - (float)			replayGain;
-- (void)			setReplayGain:(float)replayGain;
+
+- (float)			preAmplification;
+- (void)			setPreAmplification:(float)preAmplification;
 
 // UI bindings (updated approximately once per second to avoid excessive CPU loads)
 - (SInt64)			totalFrames;

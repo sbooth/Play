@@ -87,6 +87,9 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 - (void) setPlaying:(BOOL)playing;
 - (void) setOutputDeviceUID:(NSString *)deviceUID;
 
+- (void) setHasReplayGain:(BOOL)hasReplayGain;
+- (void) setReplayGain:(float)replayGain;
+
 - (void) prepareToPlayStream:(AudioStream *)stream;
 - (NSNumber *) setReplayGainForStream:(AudioStream *)stream;
 @end
@@ -167,8 +170,8 @@ MyRenderer(void							*inRefCon,
 	}
 
 	// Apply preamp and ReplayGain
-	float adjustment = [player preAmplification] + [player replayGain];
-	if(0 != adjustment) {
+	if([player hasReplayGain]) {
+		float		adjustment		= [player preAmplification] + [player replayGain];
 		double		multiplier		= pow(10, adjustment / 20);
 		float		*buffer			= ioData->mBuffers[0].mData;
 		unsigned	sampleCount		= framesRead * ioData->mBuffers[0].mNumberChannels;
@@ -667,6 +670,16 @@ MyRenderNotification(void							*inRefCon,
 	}
 }
 
+- (BOOL) hasReplayGain
+{
+	return _hasReplayGain;
+}
+
+- (float) replayGain
+{
+	return _replayGain;
+}
+
 - (float) preAmplification
 {
 	return _preAmplification;
@@ -677,18 +690,6 @@ MyRenderNotification(void							*inRefCon,
 	NSParameterAssert(-15.0 <= preAmplification && preAmplification <= 15.0);
 	
 	_preAmplification = preAmplification;
-}
-
-- (float) replayGain
-{
-	return _replayGain;
-}
-
-- (void) setReplayGain:(float)replayGain
-{
-	NSParameterAssert(-51.0 <= replayGain && replayGain <= 51.0);
-	
-	_replayGain = replayGain;
 }
 
 - (SInt64) totalFrames
@@ -928,6 +929,18 @@ MyRenderNotification(void							*inRefCon,
 	
 }
 
+- (void) setHasReplayGain:(BOOL)hasReplayGain
+{
+	_hasReplayGain = hasReplayGain;
+}
+
+- (void) setReplayGain:(float)replayGain
+{
+	NSParameterAssert(-51.0 <= replayGain && replayGain <= 51.0);
+	
+	_replayGain = replayGain;
+}
+
 - (void) prepareToPlayStream:(AudioStream *)stream
 {
 	NSParameterAssert(nil != stream);
@@ -940,7 +953,7 @@ MyRenderNotification(void							*inRefCon,
 
 	// Reduce pre-amp gain, if user specified and signal would clip
 	// NOTE: Hard-limiting will be applied in the render callback, regardless of user preferences
-	if(nil != peak && ReducePreAmpGain == [[NSUserDefaults standardUserDefaults] integerForKey:@"clippingPrevention"]) {
+	if([self hasReplayGain] && nil != peak && ReducePreAmpGain == [[NSUserDefaults standardUserDefaults] integerForKey:@"clippingPrevention"]) {
 
 		float adjustment = [self preAmplification] + [self replayGain];
 		
@@ -969,24 +982,29 @@ MyRenderNotification(void							*inRefCon,
 	// Try to use the RG the user wants
 	if(ReplayGainTrackGain == replayGain && nil != trackGain) {
 		[self setReplayGain:[trackGain doubleValue]];
+		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainTrackPeakKey];
 	}
 	else if(ReplayGainAlbumGain == replayGain && nil != albumGain) {
 		[self setReplayGain:[albumGain doubleValue]];
+		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainAlbumPeakKey];
 	}
 	// Fall back to any gain if present
 	else if(ReplayGainNone != replayGain && nil != trackGain) {
 		[self setReplayGain:[trackGain doubleValue]];
+		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainTrackPeakKey];
 	}
 	else if(ReplayGainNone != replayGain && nil != albumGain) {
 		[self setReplayGain:[albumGain doubleValue]];
+		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainAlbumPeakKey];
 	}
 
 	// No dice, or RG set to off
 	[self setReplayGain:0];
+	[self setHasReplayGain:NO];
 	return nil;
 }
 
