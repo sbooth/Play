@@ -24,7 +24,8 @@
 
 enum {
 	KeyPathPopupButtonTag			= 1,
-	PredicateTypePopupButtonTag		= 2
+	PredicateTypePopupButtonTag		= 2,
+	SearchTermControlTag			= 3
 };
 
 @interface SmartPlaylistCriterion (Private)
@@ -38,6 +39,9 @@ enum {
 - (NSString *)			displayNameForKeyPath:(NSString *)keyPath;
 
 - (NSDictionary *)		propertiesDictionaryForKeyPath:(NSString *)keyPath;
+
+- (void) unbindSearchTerm;
+- (void) bindSearchTerm;
 
 @end
 
@@ -107,6 +111,8 @@ enum {
 	if([self attributeType] != attributeType) {
 		NSView *oldView = [self view];
 
+		[self unbindSearchTerm];
+		
 		_attributeType = attributeType;
 		
 		// Determine the view that matches our new attributeType
@@ -152,6 +158,7 @@ enum {
 		// Similarly, the searchTerm may not be valid either
 		[self setSearchTerm:nil];
 
+		[self bindSearchTerm];
 	}	
 }
 
@@ -543,6 +550,60 @@ enum {
 		displayName,								@"displayName",
 		[NSNumber numberWithInt:attributeType],		@"attributeType",
 		nil];
+}
+
+- (void) unbindSearchTerm
+{
+	id bindingTarget = [[self view] viewWithTag:SearchTermControlTag];
+	
+	switch([self attributeType]) {
+		case NSUndefinedAttributeType:		;													break;
+			
+		case NSInteger16AttributeType:		[bindingTarget unbind:@"value"];					break;
+		case NSInteger32AttributeType:		[bindingTarget unbind:@"value"];					break;
+		case NSInteger64AttributeType:		[bindingTarget unbind:@"value"];					break;
+			
+		case NSDecimalAttributeType:		[bindingTarget unbind:@"value"];					break;
+		case NSDoubleAttributeType:			[bindingTarget unbind:@"value"];					break;
+		case NSFloatAttributeType:			[bindingTarget unbind:@"value"];					break;
+			
+		case NSStringAttributeType:			[bindingTarget unbind:@"value"];					break;
+			
+		case NSBooleanAttributeType:		[bindingTarget unbind:@"selectedTag"];				break;
+			
+		case NSDateAttributeType:			[bindingTarget unbind:@"value"];					break;
+			
+		case NSBinaryDataAttributeType:		;													break;
+			
+		default:							;													break;
+	}
+}
+
+- (void) bindSearchTerm
+{
+	id bindingTarget = [[self view] viewWithTag:SearchTermControlTag];
+	
+	switch([self attributeType]) {
+		case NSUndefinedAttributeType:		;																							break;
+			
+		case NSInteger16AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSInteger32AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSInteger64AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+			
+		case NSDecimalAttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSDoubleAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSFloatAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+			
+		case NSStringAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+			
+		case NSBooleanAttributeType:		[bindingTarget bind:@"selectedTag" toObject:self withKeyPath:@"searchTerm" options:nil];	break;
+			
+		case NSDateAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+			
+		case NSBinaryDataAttributeType:		;																							break;
+			
+		default:							;																							break;
+	}
 }
 
 @end

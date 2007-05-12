@@ -20,17 +20,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-enum {
-	SmartPlaylistCriterion_TitleMenuItemTag		= 1,
-	SmartPlaylistCriterion_ArtistMenuItemTag	= 2,
-	SmartPlaylistCriterion_AlbumMenuItemTag		= 3,
-	SmartPlaylistCriterion_ComposerMenuItemTag	= 4,
-	SmartPlaylistCriterion_GenreMenuItemTag		= 5,
-	SmartPlaylistCriterion_DateMenuItemTag		= 6,
-	SmartPlaylistCriterion_FormatMenuItemTag	= 7
-
-};
-
 @interface SmartPlaylistCriterion : NSObject
 {
 	// View prototypes
