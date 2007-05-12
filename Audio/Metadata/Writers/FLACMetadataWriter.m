@@ -30,13 +30,18 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	NSCParameterAssert(NULL != block);
 	NSCParameterAssert(nil != key);
 
-	FLAC__StreamMetadata_VorbisComment_Entry entry;
+	int success = FLAC__metadata_object_vorbiscomment_remove_entry_matching(block, [key cStringUsingEncoding:NSASCIIStringEncoding]);
+	NSCAssert(-1 != success, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
-	FLAC__bool result = FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, [key cStringUsingEncoding:NSASCIIStringEncoding], (nil == value ? "" : [value UTF8String]));
-	NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
-	
-	result = FLAC__metadata_object_vorbiscomment_replace_comment(block, entry, NO, NO);
-	NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+	if(nil != value) {
+		FLAC__StreamMetadata_VorbisComment_Entry entry;
+
+		FLAC__bool result = FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry, [key cStringUsingEncoding:NSASCIIStringEncoding], [value UTF8String]);
+		NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+		
+		result = FLAC__metadata_object_vorbiscomment_replace_comment(block, entry, NO, NO);
+		NSCAssert(YES == result, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+	}
 }
 
 @implementation FLACMetadataWriter
@@ -50,8 +55,8 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	FLAC__bool						result;
 				
 	FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
-	NSAssert(NULL != chain, @"Unable to allocate memory.");
-	
+	NSAssert(NULL != chain, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
 		
 		if(nil != error) {
@@ -89,8 +94,8 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	
 	FLAC__metadata_chain_sort_padding(chain);
 
-	iterator					= FLAC__metadata_iterator_new();
-	NSAssert(NULL != iterator, @"Unable to allocate memory.");
+	iterator = FLAC__metadata_iterator_new();
+	NSAssert(NULL != iterator, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
 	FLAC__metadata_iterator_init(iterator, chain);
 	
@@ -110,7 +115,7 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 		}
 		
 		block = FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT);
-		NSAssert(NULL != block, @"Unable to allocate memory.");
+		NSAssert(NULL != block, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		// Add our metadata
 		result = FLAC__metadata_iterator_insert_block_after(iterator, block);
