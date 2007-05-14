@@ -253,13 +253,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"formatDescription",
 		[NSNumber numberWithBool:NO], @"composer",
 		[NSNumber numberWithBool:YES], @"duration",
+		[NSNumber numberWithBool:NO], @"dateAdded",
 		[NSNumber numberWithBool:NO], @"playCount",
 		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"lastSkipped",
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
-		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"rating",
 		[NSNumber numberWithBool:NO], @"bpm",
 		nil];
@@ -276,13 +277,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:76], @"formatDescription",
 		[NSNumber numberWithFloat:128], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
+		[NSNumber numberWithFloat:96], @"dateAdded",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:64], @"filename",
-		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
 		nil];
@@ -304,13 +306,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:YES], @"formatDescription",
 		[NSNumber numberWithBool:NO], @"composer",
 		[NSNumber numberWithBool:YES], @"duration",
+		[NSNumber numberWithBool:NO], @"dateAdded",
 		[NSNumber numberWithBool:NO], @"playCount",
 		[NSNumber numberWithBool:NO], @"lastPlayed",
+		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"lastSkipped",
 		[NSNumber numberWithBool:NO], @"date",
 		[NSNumber numberWithBool:NO], @"compilation",
 		[NSNumber numberWithBool:NO], @"filename",
-		[NSNumber numberWithBool:NO], @"skipCount",
 		[NSNumber numberWithBool:NO], @"rating",
 		[NSNumber numberWithBool:NO], @"bpm",
 		nil];
@@ -328,13 +331,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:76], @"formatDescription",
 		[NSNumber numberWithFloat:128], @"composer",
 		[NSNumber numberWithFloat:74], @"duration",
+		[NSNumber numberWithFloat:96], @"dateAdded",
 		[NSNumber numberWithFloat:72], @"playCount",
 		[NSNumber numberWithFloat:96], @"lastPlayed",
+		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:96], @"lastSkipped",
 		[NSNumber numberWithFloat:50], @"date",
 		[NSNumber numberWithFloat:70], @"compilation",
 		[NSNumber numberWithFloat:64], @"filename",
-		[NSNumber numberWithFloat:72], @"skipCount",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
 		nil];
@@ -2071,6 +2075,28 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
 	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
 	
+	// Set localized date formatters
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+	
+	[[[_streamTable tableColumnWithIdentifier:@"dateAdded"] dataCell] setFormatter:dateFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"lastPlayed"] dataCell] setFormatter:dateFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"lastSkipped"] dataCell] setFormatter:dateFormatter];
+	
+	[dateFormatter release];
+	
+	// Set localized number formatters
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	
+	[[[_streamTable tableColumnWithIdentifier:@"id"] dataCell] setFormatter:numberFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"playCount"] dataCell] setFormatter:numberFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"skipCount"] dataCell] setFormatter:numberFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"bpm"] dataCell] setFormatter:numberFormatter];
+	
+	[numberFormatter release];
+
 	[[_streamTable headerView] setMenu:_streamTableHeaderContextMenu];
 	
 	// Keep our changes from generating notifications to ourselves
@@ -2129,6 +2155,28 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	_playQueueTableVisibleColumns		= [[NSMutableSet alloc] init];
 	_playQueueTableHiddenColumns		= [[NSMutableSet alloc] init];
 	_playQueueTableHeaderContextMenu	= [[NSMenu alloc] initWithTitle:@"Play Queue Table Header Context Menu"];
+	
+	// Set localized date formatters
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+	
+	[[[_playQueueTable tableColumnWithIdentifier:@"dateAdded"] dataCell] setFormatter:dateFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"lastPlayed"] dataCell] setFormatter:dateFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"lastSkipped"] dataCell] setFormatter:dateFormatter];
+	
+	[dateFormatter release];
+
+	// Set localized number formatters
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	
+	[[[_playQueueTable tableColumnWithIdentifier:@"id"] dataCell] setFormatter:numberFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"playCount"] dataCell] setFormatter:numberFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"skipCount"] dataCell] setFormatter:numberFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"bpm"] dataCell] setFormatter:numberFormatter];
+	
+	[numberFormatter release];
 	
 	[[_playQueueTable headerView] setMenu:_playQueueTableHeaderContextMenu];
 	
