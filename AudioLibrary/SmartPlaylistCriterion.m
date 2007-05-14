@@ -72,6 +72,29 @@ enum {
 
 - (void) awakeFromNib
 {
+	// Set localized date formatters
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateStyle:NSDateFormatterMediumStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterNoStyle];
+	
+	[[_dateCriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:dateFormatter];
+	
+	[dateFormatter release];
+
+	// Set localized number formatters
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+
+	[[_integer16CriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	[[_integer32CriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	[[_integer64CriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	
+	[[_decimalCriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	[[_floatCriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	[[_doubleCriterionViewPrototype viewWithTag:SearchTermControlTag] setFormatter:numberFormatter];
+	
+	[numberFormatter release];
+	
 	// Reasonable defaults
 	_predicateType	= NSEqualToPredicateOperatorType;
 	[self setAttributeType:NSStringAttributeType];
