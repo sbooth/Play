@@ -53,6 +53,9 @@
 		return;
 	}
 	
+	[NSDateFormatter setDefaultFormatterBehavior:NSDateFormatterBehavior10_4];
+	[NSNumberFormatter setDefaultFormatterBehavior:NSNumberFormatterBehavior10_4];
+
 	NSDictionary *initialValuesDictionary = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];		
 	
 	[[NSUserDefaults standardUserDefaults] registerDefaults:initialValuesDictionary];
