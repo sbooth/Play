@@ -231,9 +231,7 @@
 
 - (IBAction) streamInformation:(id)sender
 {
-	NSArray *streams = [_streamController selectedObjects];
-
-	if(1 != [streams count]) {
+	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();
 		return;
 	}
