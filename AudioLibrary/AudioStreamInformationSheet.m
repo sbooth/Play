@@ -35,6 +35,77 @@
 	return self;
 }
 
+- (void) awakeFromNib
+{
+	// Set formatters
+	
+	// Generic numbers
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	
+	[_channelsTextField setFormatter:numberFormatter];
+	[_playCountTextField setFormatter:numberFormatter];
+	[_skipCountTextField setFormatter:numberFormatter];
+	[numberFormatter release];
+
+	// Sample Rate
+	NSNumberFormatter *sampleRateFormatter = [[NSNumberFormatter alloc] init];
+	[sampleRateFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	[sampleRateFormatter setPositiveSuffix:NSLocalizedStringFromTable(@" Hz", @"Formats", @"")];
+	
+	[_sampleRateTextField setFormatter:sampleRateFormatter];
+	[sampleRateFormatter release];
+
+	// Sample Size
+	NSNumberFormatter *sampleSizeFormatter = [[NSNumberFormatter alloc] init];
+	[sampleSizeFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	[sampleSizeFormatter setPositiveSuffix:NSLocalizedStringFromTable(@" bits", @"Formats", @"")];
+	
+	[_sampleSizeTextField setFormatter:sampleSizeFormatter];
+	[sampleSizeFormatter release];
+	
+	// Bitrate
+	NSNumberFormatter *bitrateFormatter = [[NSNumberFormatter alloc] init];
+	[bitrateFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+//	[bitrateFormatter setMultiplier:[NSNumber numberWithFloat:0.001]];
+	[bitrateFormatter setPositiveSuffix:NSLocalizedStringFromTable(@" bps", @"Formats", @"")];
+
+	[_bitrateTextField setFormatter:bitrateFormatter];
+	[bitrateFormatter release];
+
+	// Dates
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateStyle:NSDateFormatterFullStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterFullStyle];
+	
+	[_dateAddedTextField setFormatter:dateFormatter];
+	[_firstPlayedTextField setFormatter:dateFormatter];
+	[_lastPlayedTextField setFormatter:dateFormatter];
+	[_lastSkippedTextField setFormatter:dateFormatter];	
+	[dateFormatter release];
+
+	// Decibel values
+	NSNumberFormatter *decibelFormatter = [[NSNumberFormatter alloc] init];
+	[decibelFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	[decibelFormatter setMinimumFractionDigits:2];
+	[decibelFormatter setPositiveSuffix:NSLocalizedStringFromTable(@" dB", @"Formats", @"")];
+	[decibelFormatter setNegativeSuffix:NSLocalizedStringFromTable(@" dB", @"Formats", @"")];
+	
+	[_referenceLoudnessTextField setFormatter:decibelFormatter];
+	[_trackGainTextField setFormatter:decibelFormatter];
+	[_albumGainTextField setFormatter:decibelFormatter];
+	[decibelFormatter release];
+	
+	// Peaks
+	NSNumberFormatter *peakFormatter = [[NSNumberFormatter alloc] init];
+	[peakFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	[peakFormatter setMinimumFractionDigits:8];
+	
+	[_trackPeakTextField setFormatter:peakFormatter];
+	[_albumPeakTextField setFormatter:peakFormatter];
+	[peakFormatter release];	
+}
+
 - (NSWindow *) sheet
 {
 	return _sheet;

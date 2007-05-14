@@ -24,9 +24,27 @@
 
 @interface AudioStreamInformationSheet : NSObject
 {
-	IBOutlet NSWindow	*_sheet;
+	IBOutlet NSWindow		*_sheet;
+	
+	IBOutlet NSTextField	*_channelsTextField;
+	IBOutlet NSTextField	*_sampleRateTextField;
+	IBOutlet NSTextField	*_sampleSizeTextField;
+	IBOutlet NSTextField	*_bitrateTextField;
 
-	AudioStream			*_stream;
+	IBOutlet NSTextField	*_dateAddedTextField;
+	IBOutlet NSTextField	*_firstPlayedTextField;
+	IBOutlet NSTextField	*_lastPlayedTextField;
+	IBOutlet NSTextField	*_playCountTextField;
+	IBOutlet NSTextField	*_lastSkippedTextField;
+	IBOutlet NSTextField	*_skipCountTextField;
+
+	IBOutlet NSTextField	*_referenceLoudnessTextField;
+	IBOutlet NSTextField	*_trackGainTextField;
+	IBOutlet NSTextField	*_trackPeakTextField;
+	IBOutlet NSTextField	*_albumGainTextField;
+	IBOutlet NSTextField	*_albumPeakTextField;
+
+	AudioStream				*_stream;
 }
 
 - (NSWindow *)			sheet;

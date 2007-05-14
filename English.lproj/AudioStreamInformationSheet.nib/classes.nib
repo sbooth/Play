@@ -4,7 +4,24 @@
             ACTIONS = {cancel = id; ok = id; }; 
             CLASS = AudioStreamInformationSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_sheet" = NSWindow; }; 
+            OUTLETS = {
+                "_albumGainTextField" = NSTextField; 
+                "_albumPeakTextField" = NSTextField; 
+                "_bitrateTextField" = NSTextField; 
+                "_channelsTextField" = NSTextField; 
+                "_dateAddedTextField" = NSTextField; 
+                "_firstPlayedTextField" = NSTextField; 
+                "_lastPlayedTextField" = NSTextField; 
+                "_lastSkippedTextField" = NSTextField; 
+                "_playCountTextField" = NSTextField; 
+                "_referenceLoudnessTextField" = NSTextField; 
+                "_sampleRateTextField" = NSTextField; 
+                "_sampleSizeTextField" = NSTextField; 
+                "_sheet" = NSWindow; 
+                "_skipCountTextField" = NSTextField; 
+                "_trackGainTextField" = NSTextField; 
+                "_trackPeakTextField" = NSTextField; 
+            }; 
             SUPERCLASS = NSObject; 
         }, 
         {CLASS = FileURLFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }, 
