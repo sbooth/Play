@@ -36,6 +36,20 @@
 	return self;
 }
 
+- (void) awakeFromNib
+{
+	// Set number formatters	
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	
+	[_trackNumberTextField setFormatter:numberFormatter];
+	[_trackTotalTextField setFormatter:numberFormatter];
+	[_discNumberTextField setFormatter:numberFormatter];
+	[_discTotalTextField setFormatter:numberFormatter];
+	[_bpmTextField setFormatter:numberFormatter];
+	[numberFormatter release];
+}
+
 - (NSWindow *) sheet
 {
 	return _sheet;
