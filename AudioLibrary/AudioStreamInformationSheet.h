@@ -20,11 +20,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
-
 @interface AudioStreamInformationSheet : NSObject
 {
 	IBOutlet NSWindow		*_sheet;
+	IBOutlet NSArrayController	*_streamController;
 	
 	IBOutlet NSTextField	*_channelsTextField;
 	IBOutlet NSTextField	*_sampleRateTextField;
@@ -43,8 +42,6 @@
 	IBOutlet NSTextField	*_trackPeakTextField;
 	IBOutlet NSTextField	*_albumGainTextField;
 	IBOutlet NSTextField	*_albumPeakTextField;
-
-	AudioStream				*_stream;
 }
 
 - (NSWindow *)			sheet;

@@ -19,6 +19,7 @@
                 "_sampleSizeTextField" = NSTextField; 
                 "_sheet" = NSWindow; 
                 "_skipCountTextField" = NSTextField; 
+                "_streamController" = NSArrayController; 
                 "_trackGainTextField" = NSTextField; 
                 "_trackPeakTextField" = NSTextField; 
             }; 

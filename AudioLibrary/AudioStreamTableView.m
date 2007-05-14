@@ -239,9 +239,10 @@
 	}
 	
 	AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
-	
-	[streamInformationSheet setValue:[streams objectAtIndex:0] forKey:@"stream"];
-	
+	NSArrayController *streamController = [streamInformationSheet valueForKey:@"streamController"];
+	[streamController setContent:[_streamController arrangedObjects]];
+	[streamController setSelectionIndex:[_streamController selectionIndex]];
+
 	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
 								   modalForWindow:[self window] 
 									modalDelegate:self 
