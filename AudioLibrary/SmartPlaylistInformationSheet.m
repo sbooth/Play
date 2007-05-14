@@ -55,6 +55,25 @@
 {
 	[_removeCriterionButton setEnabled:(1 < [[self criteria] count])];
 	[_predicateTypePopUpButton setEnabled:(1 < [[self criteria] count])];
+
+	// Set formatters
+	
+	// Generic numbers
+	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	
+	[_playCountTextField setFormatter:numberFormatter];
+	[numberFormatter release];
+	
+	// Dates
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	[dateFormatter setDateStyle:NSDateFormatterFullStyle];
+	[dateFormatter setTimeStyle:NSDateFormatterFullStyle];
+	
+	[_dateCreatedTextField setFormatter:dateFormatter];
+	[_firstPlayedTextField setFormatter:dateFormatter];
+	[_lastPlayedTextField setFormatter:dateFormatter];
+	[dateFormatter release];
 }
 
 - (NSWindow *) sheet

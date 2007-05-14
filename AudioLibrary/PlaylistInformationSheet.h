@@ -24,10 +24,15 @@
 
 @interface PlaylistInformationSheet : NSObject
 {
-	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSWindow		*_sheet;
+
+	IBOutlet NSTextField	*_dateCreatedTextField;
+	IBOutlet NSTextField	*_firstPlayedTextField;
+	IBOutlet NSTextField	*_lastPlayedTextField;
+	IBOutlet NSTextField	*_playCountTextField;
 	
 @private
-	Playlist					*_playlist;
+	Playlist				*_playlist;
 }
 
 - (NSWindow *)		sheet;

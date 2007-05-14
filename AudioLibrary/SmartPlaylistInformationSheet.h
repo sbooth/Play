@@ -30,6 +30,11 @@
 	IBOutlet NSView				*_criteriaView;
 	IBOutlet NSButton			*_removeCriterionButton;
 	IBOutlet NSPopUpButton		*_predicateTypePopUpButton;
+
+	IBOutlet NSTextField		*_dateCreatedTextField;
+	IBOutlet NSTextField		*_firstPlayedTextField;
+	IBOutlet NSTextField		*_lastPlayedTextField;
+	IBOutlet NSTextField		*_playCountTextField;
 	
 @private
 	SmartPlaylist				*_playlist;
