@@ -46,7 +46,7 @@
 	<key>outputAudioDeviceUID</key>
 	<string></string>
 	<key>preAmplification</key>
-	<real>6.0<real/>
+	<real>6.0</real>
 	<key>replayGain</key>
 	<integer>0</integer>
 	<key>clippingPrevention</key>
