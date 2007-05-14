@@ -133,9 +133,17 @@
 					left					= [comparisonPredicate leftExpression];
 					right					= [comparisonPredicate rightExpression];
 					
-					[criterion setKeyPath:[left keyPath]];
-					[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
-					[criterion setSearchTerm:[right constantValue]];					
+					// IN is reversed
+					if(NSInPredicateOperatorType == [comparisonPredicate predicateOperatorType]) {
+						[criterion setKeyPath:[right keyPath]];
+						[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+						[criterion setSearchTerm:[left constantValue]];					
+					}
+					else {
+						[criterion setKeyPath:[left keyPath]];
+						[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+						[criterion setSearchTerm:[right constantValue]];					
+					}
 				}
 				
 				[self addCriterion:[criterion autorelease]];
@@ -148,9 +156,17 @@
 			left					= [comparisonPredicate leftExpression];
 			right					= [comparisonPredicate rightExpression];
 			
-			[criterion setKeyPath:[left keyPath]];
-			[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
-			[criterion setSearchTerm:[right constantValue]];					
+			// IN is reversed
+			if(NSInPredicateOperatorType == [comparisonPredicate predicateOperatorType]) {
+				[criterion setKeyPath:[right keyPath]];
+				[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+				[criterion setSearchTerm:[left constantValue]];					
+			}
+			else {
+				[criterion setKeyPath:[left keyPath]];
+				[criterion setPredicateType:[comparisonPredicate predicateOperatorType]];
+				[criterion setSearchTerm:[right constantValue]];					
+			}
 			
 			[self addCriterion:[criterion autorelease]];
 		}		

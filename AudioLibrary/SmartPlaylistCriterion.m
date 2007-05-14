@@ -240,6 +240,15 @@ enum {
 	NSExpression	*left		= [NSExpression expressionForKeyPath:[self keyPath]];
 	NSExpression	*right		= [NSExpression expressionForConstantValue:[self searchTerm]];
 	
+	// IN is reversed
+	if(NSInPredicateOperatorType == [self predicateType]) {
+		return [NSComparisonPredicate predicateWithLeftExpression:right
+												  rightExpression:left
+														 modifier:NSDirectPredicateModifier
+															 type:[self predicateType]
+														  options:NSCaseInsensitivePredicateOption/*NSDiacriticInsensitivePredicateOption*/];	
+	}
+	
 	return [NSComparisonPredicate predicateWithLeftExpression:left
 											  rightExpression:right
 													 modifier:NSDirectPredicateModifier
@@ -361,7 +370,7 @@ enum {
 			
 			menuItem = [[NSMenuItem alloc] init];
 			[menuItem setTitle:NSLocalizedStringFromTable(@"contains", @"SmartPlaylistCriteria", @"")];
-			[menuItem setTag:NSLikePredicateOperatorType];
+			[menuItem setTag:NSInPredicateOperatorType];
 			[buttonMenu addItem:[menuItem autorelease]];
 			
 			menuItem = [[NSMenuItem alloc] init];
@@ -372,6 +381,11 @@ enum {
 			menuItem = [[NSMenuItem alloc] init];
 			[menuItem setTitle:NSLocalizedStringFromTable(@"ends with", @"SmartPlaylistCriteria", @"")];
 			[menuItem setTag:NSEndsWithPredicateOperatorType];
+			[buttonMenu addItem:[menuItem autorelease]];
+
+			menuItem = [[NSMenuItem alloc] init];
+			[menuItem setTitle:NSLocalizedStringFromTable(@"matches", @"SmartPlaylistCriteria", @"")];
+			[menuItem setTag:NSMatchesPredicateOperatorType];
 			[buttonMenu addItem:[menuItem autorelease]];
 			
 			break;
