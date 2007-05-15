@@ -25,6 +25,7 @@
 #include <taglib/id3v2frame.h>
 #include <taglib/attachedpictureframe.h>
 #include <taglib/relativevolumeframe.h>
+#include <taglib/textidentificationframe.h>
 
 #include <mad/mad.h>
 
@@ -209,28 +210,72 @@
 		}			
 
 		// ReplayGain
-		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = NULL;
-		frameList = id3v2tag->frameListMap()["RVA2"];
-		if(NO == frameList.isEmpty() && NULL != (relativeVolume = dynamic_cast<TagLib::ID3v2::RelativeVolumeFrame *>(frameList.front()))) {
+		// Preference is TXXX frames, RVA2 frame, then LAME header
+		TagLib::ID3v2::UserTextIdentificationFrame *trackGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_GAIN");
+		TagLib::ID3v2::UserTextIdentificationFrame *trackPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_PEAK");
+		TagLib::ID3v2::UserTextIdentificationFrame *albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_GAIN");
+		TagLib::ID3v2::UserTextIdentificationFrame *albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_PEAK");
+		
+		if(NULL != trackGainFrame) {
+			NSString	*value			= [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			NSScanner	*scanner		= [NSScanner scannerWithString:value];
+			double		doubleValue		= 0.0;
 			
-			// Attempt to use the master volume if present
-			TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
-			TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
-
-			// Fall back on whatever else exists in the frame
-			if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume)) {
-				channelType = channels.front();
-			}
-
-			float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
-			
-			if(0 != volumeAdjustment) {
-				[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
+			if([scanner scanDouble:&doubleValue]) {
+				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
+				[metadataDictionary setValue:[NSNumber numberWithDouble:89.0] forKey:ReplayGainReferenceLoudnessKey];
 				foundReplayGain = YES;
 			}
-		}			
-	}
+		}
+		
+		if(NULL != trackPeakFrame) {
+			NSString *value = [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
+		}
+		
+		if(NULL != albumGainFrame) {
+			NSString	*value			= [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			NSScanner	*scanner		= [NSScanner scannerWithString:value];
+			double		doubleValue		= 0.0;
+			
+			if([scanner scanDouble:&doubleValue]) {
+				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
+				[metadataDictionary setValue:[NSNumber numberWithDouble:89.0] forKey:ReplayGainReferenceLoudnessKey];
+				foundReplayGain = YES;
+			}
+		}
+		
+		if(NULL != albumPeakFrame) {
+			NSString *value = [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+		}
 
+		// If nothing found check for RVA2 frame
+		if(NO == foundReplayGain) {
+			TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = NULL;
+			frameList = id3v2tag->frameListMap()["RVA2"];
+			if(NO == frameList.isEmpty() && NULL != (relativeVolume = dynamic_cast<TagLib::ID3v2::RelativeVolumeFrame *>(frameList.front()))) {
+				
+				// Attempt to use the master volume if present
+				TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
+				TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
+				
+				// Fall back on whatever else exists in the frame
+				if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume)) {
+					channelType = channels.front();
+				}
+				
+				float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
+				
+				if(0 != volumeAdjustment) {
+					[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
+					foundReplayGain = YES;
+				}
+			}
+		}	
+	}
+	
+	// If still nothing, scan for LAME header
 	if(NO == foundReplayGain) {
 		[self scanForXingAndLAMEHeaders:metadataDictionary];
 	}
@@ -459,6 +504,7 @@
 						double		replayGainDB	= (negative ? -1 : 1) * (adjustment / 10.0);
 						
 						[metadataDictionary setValue:[NSNumber numberWithDouble:replayGainDB] forKey:ReplayGainTrackGainKey];
+						[metadataDictionary setValue:[NSNumber numberWithDouble:89.0] forKey:ReplayGainReferenceLoudnessKey];
 					}
 					
 					uint16_t audiophileReplayGain = mad_bit_read(&stream.anc_ptr, 16);
@@ -468,6 +514,7 @@
 						double		replayGainDB	= (negative ? -1 : 1) * (adjustment / 10.0);
 
 						[metadataDictionary setValue:[NSNumber numberWithDouble:replayGainDB] forKey:ReplayGainAlbumGainKey];
+						[metadataDictionary setValue:[NSNumber numberWithDouble:89.0] forKey:ReplayGainReferenceLoudnessKey];
 					}
 					
 					/*uint8_t encodingFlags =*/ mad_bit_read(&stream.anc_ptr, 4);

@@ -197,13 +197,79 @@
 	}
 	
 	// ReplayGain
-	f.ID3v2Tag()->removeFrames("RVA2");
 	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	NSNumber *trackPeak = [metadata valueForKey:ReplayGainTrackPeakKey];
 	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	
+	// Write TXXX frames
+	TagLib::ID3v2::UserTextIdentificationFrame *trackGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_GAIN");
+	TagLib::ID3v2::UserTextIdentificationFrame *trackPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_PEAK");
+	TagLib::ID3v2::UserTextIdentificationFrame *albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_GAIN");
+	TagLib::ID3v2::UserTextIdentificationFrame *albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_PEAK");
+
+	if(NULL != trackGainFrame) {
+		f.ID3v2Tag()->removeFrame(trackGainFrame);
+	}
+
+	if(NULL != trackPeakFrame) {
+		f.ID3v2Tag()->removeFrame(trackPeakFrame);
+	}
+
+	if(NULL != albumGainFrame) {
+		f.ID3v2Tag()->removeFrame(albumGainFrame);
+	}
+
+	if(NULL != albumPeakFrame) {
+		f.ID3v2Tag()->removeFrame(albumPeakFrame);
+	}
+	
+	if(nil != trackGain) {
+		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
+		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
+
+		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_TRACK_GAIN", TagLib::String::Latin1));
+		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]] UTF8String], TagLib::String::UTF8));
+		
+		f.ID3v2Tag()->addFrame(userTextFrame);
+	}
+
+	if(nil != trackPeak) {
+		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
+		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
+		
+		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_TRACK_PEAK", TagLib::String::Latin1));
+		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%1.8f dB", [trackPeak doubleValue]] UTF8String], TagLib::String::UTF8));
+		
+		f.ID3v2Tag()->addFrame(userTextFrame);
+	}
+
+	if(nil != albumGain) {
+		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
+		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
+		
+		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_ALBUM_GAIN", TagLib::String::Latin1));
+		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]] UTF8String], TagLib::String::UTF8));
+		
+		f.ID3v2Tag()->addFrame(userTextFrame);
+	}
+
+	if(nil != albumPeak) {
+		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
+		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
+		
+		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_ALBUM_PEAK", TagLib::String::Latin1));
+		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%1.8f dB", [albumPeak doubleValue]] UTF8String], TagLib::String::UTF8));
+		
+		f.ID3v2Tag()->addFrame(userTextFrame);
+	}
+	
+	// Also write the RVA2 frame
+	f.ID3v2Tag()->removeFrames("RVA2");
 	if(nil != trackGain || nil != albumGain) {
 		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
 		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
-
+		
 		if(nil != trackGain) {
 			relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
 		}
