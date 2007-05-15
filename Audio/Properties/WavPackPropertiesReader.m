@@ -59,6 +59,7 @@
 	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetBitsPerSample(wpc)] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithInt:WavpackGetNumChannels(wpc)] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:WavpackGetSampleRate(wpc)] forKey:PropertiesSampleRateKey];
+	[propertiesDictionary setValue:[NSNumber numberWithDouble:WavpackGetAverageBitrate(wpc, YES)] forKey:PropertiesBitrateKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)WavpackGetNumSamples(wpc) / WavpackGetSampleRate(wpc)] forKey:PropertiesDurationKey];
 	
 	
