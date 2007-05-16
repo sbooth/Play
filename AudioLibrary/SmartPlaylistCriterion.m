@@ -621,24 +621,25 @@ enum {
 
 - (void) bindSearchTerm
 {
-	id bindingTarget = [[self view] viewWithTag:SearchTermControlTag];
+	id				bindingTarget	= [[self view] viewWithTag:SearchTermControlTag];
+	NSDictionary	*options		= [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], NSContinuouslyUpdatesValueBindingOption, nil];
 	
 	switch([self attributeType]) {
 		case NSUndefinedAttributeType:		;																							break;
 			
-		case NSInteger16AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
-		case NSInteger32AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
-		case NSInteger64AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSInteger16AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
+		case NSInteger32AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
+		case NSInteger64AttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
 			
-		case NSDecimalAttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
-		case NSDoubleAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
-		case NSFloatAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSDecimalAttributeType:		[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
+		case NSDoubleAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
+		case NSFloatAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
 			
-		case NSStringAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSStringAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
 			
 		case NSBooleanAttributeType:		[bindingTarget bind:@"selectedTag" toObject:self withKeyPath:@"searchTerm" options:nil];	break;
 			
-		case NSDateAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:nil];			break;
+		case NSDateAttributeType:			[bindingTarget bind:@"value" toObject:self withKeyPath:@"searchTerm" options:options];		break;
 			
 		case NSBinaryDataAttributeType:		;																							break;
 			
