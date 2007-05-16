@@ -1942,43 +1942,21 @@ NSString * const	PlayQueueKey								= @"playQueue";
 }
 
 - (void) updatePlayButtonState
-{
-	NSString						*buttonImagePath, *buttonAlternateImagePath;
-	NSImage							*buttonImage, *buttonAlternateImage;
-	
+{	
 	if([[self player] isPlaying]) {		
-		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];
-		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
-		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
-		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
-		
 		[_playPauseButton setState:NSOnState];
-		[_playPauseButton setImage:buttonImage];
-		[_playPauseButton setAlternateImage:buttonAlternateImage];
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Pause playback", @"Player", @"")];
 		
 		[self setPlayButtonEnabled:YES];
 	}
 	else if(NO == [[self player] hasValidStream]) {
-		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
-		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
-		
 		[_playPauseButton setState:NSOffState];
-		[_playPauseButton setImage:buttonImage];
-		[_playPauseButton setAlternateImage:nil];		
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Play", @"Player", @"")];
 		
 		[self setPlayButtonEnabled:(0 != [self countOfPlayQueue] || 0 != [[_streamController selectedObjects] count])];
 	}
 	else {
-		buttonImagePath				= [[NSBundle mainBundle] pathForResource:@"player_play" ofType:@"png"];
-		buttonAlternateImagePath	= [[NSBundle mainBundle] pathForResource:@"player_pause" ofType:@"png"];		
-		buttonImage					= [[NSImage alloc] initWithContentsOfFile:buttonImagePath];
-		buttonAlternateImage		= [[NSImage alloc] initWithContentsOfFile:buttonAlternateImagePath];
-		
 		[_playPauseButton setState:NSOffState];
-		[_playPauseButton setImage:buttonImage];
-		[_playPauseButton setAlternateImage:buttonAlternateImage];
 		[_playPauseButton setToolTip:NSLocalizedStringFromTable(@"Resume playback", @"Player", @"")];
 		
 		[self setPlayButtonEnabled:YES];
