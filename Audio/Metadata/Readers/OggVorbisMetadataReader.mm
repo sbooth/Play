@@ -182,7 +182,7 @@
 		tag = "REPLAYGAIN_TRACK_PEAK";
 		if(fieldList.contains(tag)) {
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
-			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
 		}					
 		
 		tag = "REPLAYGAIN_ALBUM_GAIN";
