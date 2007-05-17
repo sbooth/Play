@@ -95,12 +95,34 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (IBAction) resetPlayCount:(id)sender
 {
-	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsPlayCountKey];
+	[self setValue:nil forKey:StatisticsPlayCountKey];
+	[self setValue:nil forKey:StatisticsLastPlayedDateKey];
 }
 
 - (IBAction) resetSkipCount:(id)sender
 {
-	[self setValue:[NSNumber numberWithInt:0] forKey:StatisticsSkipCountKey];
+	[self setValue:nil forKey:StatisticsSkipCountKey];
+	[self setValue:nil forKey:StatisticsLastSkippedDateKey];
+}
+
+- (IBAction) clearMetadata:(id)sender
+{
+	[self setValue:nil forKey:MetadataTitleKey];
+	[self setValue:nil forKey:MetadataAlbumTitleKey];
+	[self setValue:nil forKey:MetadataArtistKey];
+	[self setValue:nil forKey:MetadataAlbumArtistKey];
+	[self setValue:nil forKey:MetadataGenreKey];
+	[self setValue:nil forKey:MetadataComposerKey];
+	[self setValue:nil forKey:MetadataDateKey];
+	[self setValue:nil forKey:MetadataCompilationKey];
+	[self setValue:nil forKey:MetadataTrackNumberKey];
+	[self setValue:nil forKey:MetadataTrackTotalKey];
+	[self setValue:nil forKey:MetadataDiscNumberKey];
+	[self setValue:nil forKey:MetadataDiscTotalKey];
+	[self setValue:nil forKey:MetadataCommentKey];
+	[self setValue:nil forKey:MetadataISRCKey];
+	[self setValue:nil forKey:MetadataMCNKey];
+	[self setValue:nil forKey:MetadataBPMKey];
 }
 
 - (IBAction) clearReplayGain:(id)sender
@@ -132,6 +154,9 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 		return;
 	}
 	
+	// Empty old metadata
+	[self clearMetadata:sender];
+
 	NSDictionary	*metadata		= [metadataReader valueForKey:@"metadata"];
 	NSEnumerator	*enumerator		= [metadata keyEnumerator];
 	NSString		*key;
