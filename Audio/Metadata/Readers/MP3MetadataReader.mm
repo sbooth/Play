@@ -216,6 +216,9 @@
 		TagLib::ID3v2::UserTextIdentificationFrame *albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_GAIN");
 		TagLib::ID3v2::UserTextIdentificationFrame *albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_PEAK");
 		
+		if(NULL == trackGainFrame) {
+			trackGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_track_gain");
+		}
 		if(NULL != trackGainFrame) {
 			NSString	*value			= [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
 			NSScanner	*scanner		= [NSScanner scannerWithString:value];
@@ -228,13 +231,19 @@
 			}
 		}
 		
+		if(NULL == trackPeakFrame) {
+			trackPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_track_peak");
+		}
 		if(NULL != trackPeakFrame) {
-			NSString *value = [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			NSString *value = [NSString stringWithUTF8String:trackPeakFrame->fieldList().back().toCString(true)];
 			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
 		}
 		
+		if(NULL == albumGainFrame) {
+			albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_album_gain");
+		}
 		if(NULL != albumGainFrame) {
-			NSString	*value			= [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			NSString	*value			= [NSString stringWithUTF8String:albumGainFrame->fieldList().back().toCString(true)];
 			NSScanner	*scanner		= [NSScanner scannerWithString:value];
 			double		doubleValue		= 0.0;
 			
@@ -245,8 +254,11 @@
 			}
 		}
 		
+		if(NULL == albumPeakFrame) {
+			albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_album_peak");
+		}
 		if(NULL != albumPeakFrame) {
-			NSString *value = [NSString stringWithUTF8String:trackGainFrame->fieldList().back().toCString(true)];
+			NSString *value = [NSString stringWithUTF8String:albumPeakFrame->fieldList().back().toCString(true)];
 			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
 		}
 
