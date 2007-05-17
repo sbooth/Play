@@ -137,6 +137,47 @@ getWavPackTag(WavpackContext	*wpc,
 		[metadataDictionary setValue:[NSNumber numberWithInt:[bpm intValue]] forKey:MetadataBPMKey];	
 	}
 	
+	// ReplayGain
+	NSString *referenceLoudness = getWavPackTag(wpc, "REPLAYGAIN_REFERENCE_LOUDNESS");
+	if(nil != referenceLoudness) {
+		NSScanner	*scanner		= [NSScanner scannerWithString:referenceLoudness];						
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue]) {
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainReferenceLoudnessKey];
+		}						
+	}
+
+	NSString *trackGain = getWavPackTag(wpc, "REPLAYGAIN_TRACK_GAIN");
+	if(nil != trackGain) {
+		NSScanner	*scanner		= [NSScanner scannerWithString:trackGain];						
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue]) {
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
+		}						
+	}
+
+	NSString *trackPeak = getWavPackTag(wpc, "REPLAYGAIN_TRACK_PEAK");
+	if(nil != trackPeak) {
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[trackPeak doubleValue]] forKey:ReplayGainTrackPeakKey];
+	}
+
+	NSString *albumGain = getWavPackTag(wpc, "REPLAYGAIN_ALBUM_GAIN");
+	if(nil != albumGain) {
+		NSScanner	*scanner		= [NSScanner scannerWithString:albumGain];						
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue]) {
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
+		}						
+	}
+	
+	NSString *albumPeak = getWavPackTag(wpc, "REPLAYGAIN_ALBUM_PEAK");
+	if(nil != albumPeak) {
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[albumPeak doubleValue]] forKey:ReplayGainAlbumPeakKey];
+	}
+	
 	WavpackCloseFile(wpc);
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];
