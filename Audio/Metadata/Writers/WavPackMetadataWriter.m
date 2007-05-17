@@ -160,6 +160,42 @@
 	if(nil != bpm) {
 		WavpackAppendTagItem(wpc, "BPM", [[bpm stringValue] UTF8String], strlen([[bpm stringValue] UTF8String]));
 	}
+
+	// ReplayGain
+	NSNumber *referenceLoudness = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
+	WavpackDeleteTagItem(wpc, "REPLAYGAIN_REFERENCE_LOUDNESS");
+	if(nil != referenceLoudness) {
+		NSString *referenceLoudnessString = [NSString stringWithFormat:@"%2.1f dB", [referenceLoudness doubleValue]];
+		WavpackAppendTagItem(wpc, "REPLAYGAIN_REFERENCE_LOUDNESS", [referenceLoudnessString UTF8String], strlen([referenceLoudnessString UTF8String]));
+	}
+
+	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	WavpackDeleteTagItem(wpc, "REPLAYGAIN_TRACK_GAIN");
+	if(nil != trackGain) {
+		NSString *trackGainString = [NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]];
+		WavpackAppendTagItem(wpc, "REPLAYGAIN_TRACK_GAIN", [trackGainString UTF8String], strlen([trackGainString UTF8String]));
+	}
+
+	NSNumber *trackPeak = [metadata valueForKey:ReplayGainTrackPeakKey];
+	WavpackDeleteTagItem(wpc, "REPLAYGAIN_TRACK_PEAK");
+	if(nil != trackPeak) {
+		NSString *trackPeakString = [NSString stringWithFormat:@"%1.8f", [trackPeak doubleValue]];
+		WavpackAppendTagItem(wpc, "REPLAYGAIN_TRACK_PEAK", [trackPeakString UTF8String], strlen([trackPeakString UTF8String]));
+	}
+
+	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	WavpackDeleteTagItem(wpc, "REPLAYGAIN_ALBUM_GAIN");
+	if(nil != albumGain) {
+		NSString *albumGainString = [NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]];
+		WavpackAppendTagItem(wpc, "REPLAYGAIN_ALBUM_GAIN", [albumGainString UTF8String], strlen([albumGainString UTF8String]));
+	}
+
+	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	WavpackDeleteTagItem(wpc, "REPLAYGAIN_ALBUM_PEAK");
+	if(nil != albumPeak) {
+		NSString *albumPeakString = [NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]];
+		WavpackAppendTagItem(wpc, "REPLAYGAIN_ALBUM_PEAK", [albumPeakString UTF8String], strlen([albumPeakString UTF8String]));
+	}
 	
 	result	= WavpackWriteTag(wpc);
 
