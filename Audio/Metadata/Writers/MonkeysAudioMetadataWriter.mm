@@ -133,6 +133,25 @@ setField(CAPETag		*f,
 	numericValue = [metadata valueForKey:MetadataBPMKey];
 	setField(f, "BPM", (nil == numericValue? nil : [numericValue stringValue]));
 	
+	// ReplayGain
+	NSNumber *referenceLoudness = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
+	setField(f, "REPLAYGAIN_REFERENCE_LOUDNESS", (nil == referenceLoudness ? nil : [NSString stringWithFormat:@"%2.1f dB", [referenceLoudness doubleValue]]));
+	
+	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	setField(f, "REPLAYGAIN_TRACK_GAIN", (nil == trackGain ? nil : [NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]]));
+	setField(f, "Replay Gain (radio)", (nil == trackGain ? nil : [trackGain stringValue]));
+	
+	NSNumber *trackPeak = [metadata valueForKey:ReplayGainTrackPeakKey];
+	setField(f, "REPLAYGAIN_TRACK_PEAK", (nil == trackPeak ? nil : [NSString stringWithFormat:@"%1.8f", [trackPeak doubleValue]]));
+	setField(f, "Peak Level", (nil == trackPeak ? nil : [trackPeak stringValue]));
+	
+	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	setField(f, "REPLAYGAIN_ALBUM_GAIN", (nil == albumGain ? nil : [NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]]));
+	setField(f, "Replay Gain (album)", (nil == albumGain ? nil : [albumGain stringValue]));
+	
+	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	setField(f, "REPLAYGAIN_ALBUM_PEAK", (nil == albumPeak ? nil : [NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]]));
+
 	result = f->Save();
 	if(ERROR_SUCCESS != result) {
 		if(nil != error) {
