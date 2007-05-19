@@ -98,7 +98,7 @@
 				<string>application/ogg</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>Vorbis Audio</string>
+			<string>Ogg Vorbis Audio</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
