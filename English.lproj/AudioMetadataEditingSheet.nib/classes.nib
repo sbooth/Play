@@ -5,10 +5,12 @@
             CLASS = AudioMetadataEditingSheet; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                "_allStreamsController" = NSArrayController; 
                 "_bpmTextField" = NSTextField; 
                 "_discNumberTextField" = NSTextField; 
                 "_discTotalTextField" = NSTextField; 
                 "_sheet" = NSWindow; 
+                "_streamController" = NSArrayController; 
                 "_trackNumberTextField" = NSTextField; 
                 "_trackTotalTextField" = NSTextField; 
             }; 

@@ -289,10 +289,12 @@
 //	[self rescanMetadata:sender];
 	
 	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
-	
-	[metadataEditingSheet setValue:[_streamController selection] forKey:@"streams"];
-	[metadataEditingSheet setValue:[[[CollectionManager manager] streamManager] streams] forKey:@"allStreams"];
-	
+	NSArrayController *allStreamsController = [metadataEditingSheet valueForKey:@"allStreamsController"];
+	[allStreamsController setContent:[[[CollectionManager manager] streamManager] streams]];
+	NSArrayController *streamController = [metadataEditingSheet valueForKey:@"streamController"];
+	[streamController setContent:[_streamController arrangedObjects]];
+	[streamController setSelectionIndexes:[_streamController selectionIndexes]];
+		
 	[[CollectionManager manager] beginUpdate];
 	
 	[[NSApplication sharedApplication] beginSheet:[metadataEditingSheet sheet] 

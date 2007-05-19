@@ -25,15 +25,14 @@
 @interface AudioMetadataEditingSheet : NSObject
 {
 	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSArrayController	*_streamController;
+	IBOutlet NSArrayController	*_allStreamsController;
 
 	IBOutlet NSTextField		*_trackNumberTextField;
 	IBOutlet NSTextField		*_trackTotalTextField;
 	IBOutlet NSTextField		*_discNumberTextField;
 	IBOutlet NSTextField		*_discTotalTextField;
 	IBOutlet NSTextField		*_bpmTextField;
-	
-	id							_streams;
-	NSArray						*_allStreams;
 }
 
 - (NSWindow *)			sheet;
