@@ -48,7 +48,7 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 		result = [[FLACPropertiesReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
-	else if([pathExtension isEqualToString:@"ogg"]) {
+	else if([pathExtension isEqualToString:@"ogg"] || [pathExtension isEqualToString:@"oga"]) {
 		OggStreamType type = oggStreamType(url);
 		
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {

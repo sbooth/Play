@@ -49,7 +49,7 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 		[result setValue:url forKey:StreamURLKey];
 	}
 	// Determine the content type of the ogg stream
-	else if([pathExtension isEqualToString:@"ogg"]) {
+	else if([pathExtension isEqualToString:@"ogg"] || [pathExtension isEqualToString:@"oga"]) {
 		OggStreamType type = oggStreamType(url);
 
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {

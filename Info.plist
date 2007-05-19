@@ -9,6 +9,30 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>oga</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Ogg</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/ogg</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Ogg Audio</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.xiph.ogg</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
 				<string>mpc</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
@@ -74,7 +98,7 @@
 				<string>application/ogg</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>Ogg Multimedia</string>
+			<string>Vorbis Audio</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>

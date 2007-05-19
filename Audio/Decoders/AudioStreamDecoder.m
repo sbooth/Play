@@ -120,7 +120,7 @@ NSString *const AudioStreamDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.Au
 		result = [[FLACStreamDecoder alloc] init];
 		[result setStream:stream];
 	}
-	else if([pathExtension isEqualToString:@"ogg"]) {
+	else if([pathExtension isEqualToString:@"ogg"] || [pathExtension isEqualToString:@"oga"]) {
 		OggStreamType type = oggStreamType(url);
 		
 		if(kOggStreamTypeInvalid == type || kOggStreamTypeUnknown == type || kOggStreamTypeSpeex == type) {
