@@ -238,7 +238,8 @@
 	
 	AudioStreamInformationSheet *streamInformationSheet = [[AudioStreamInformationSheet alloc] init];
 	NSArrayController *streamController = [streamInformationSheet valueForKey:@"streamController"];
-	[streamController setContent:[_streamController arrangedObjects]];
+	NSArray *streams = [[_streamController arrangedObjects] copy];
+	[streamController setContent:[streams autorelease]];
 	[streamController setSelectionIndex:[_streamController selectionIndex]];
 
 	[[NSApplication sharedApplication] beginSheet:[streamInformationSheet sheet] 
@@ -278,9 +279,7 @@
 
 - (IBAction) editMetadata:(id)sender
 {
-	NSArray *streams = [_streamController selectedObjects];
-	
-	if(0 == [streams count]) {
+	if(0 == [[_streamController selectedObjects] count]) {
 		NSBeep();
 		return;
 	}
@@ -292,7 +291,8 @@
 	NSArrayController *allStreamsController = [metadataEditingSheet valueForKey:@"allStreamsController"];
 	[allStreamsController setContent:[[[CollectionManager manager] streamManager] streams]];
 	NSArrayController *streamController = [metadataEditingSheet valueForKey:@"streamController"];
-	[streamController setContent:[_streamController arrangedObjects]];
+	NSArray *streams = [[_streamController arrangedObjects] copy];
+	[streamController setContent:[streams autorelease]];
 	[streamController setSelectionIndexes:[_streamController selectionIndexes]];
 		
 	[[CollectionManager manager] beginUpdate];
