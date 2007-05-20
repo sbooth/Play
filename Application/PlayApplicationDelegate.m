@@ -405,9 +405,15 @@
 
 - (void) setWindowTitleForStream:(AudioStream *)stream
 {
-	NSString *title			= [stream valueForKey:MetadataTitleKey];
-	NSString *artist		= [stream valueForKey:MetadataArtistKey];		
-	NSString *windowTitle	= nil;
+	NSURL		*url					= [stream valueForKey:StreamURLKey];
+	NSString	*title					= [stream valueForKey:MetadataTitleKey];
+	NSString	*artist					= [stream valueForKey:MetadataArtistKey];		
+	NSString	*windowTitle			= nil;
+	NSString	*representedFilename	= nil;
+	
+	if(nil != url && [url isFileURL]) {
+		representedFilename = [url path];
+	}
 	
 	if(nil != title && nil != artist) {
 		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
@@ -423,6 +429,7 @@
 	}
 	
 	[[[AudioLibrary library] window] setTitle:windowTitle];
+	[[[AudioLibrary library] window] setRepresentedFilename:representedFilename];
 }
 
 @end
