@@ -160,24 +160,6 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	FLAC__bool result = FLAC__stream_decoder_process_until_end_of_metadata(_flac);
 	NSAssert1(YES == result, @"FLAC__stream_decoder_process_until_end_of_metadata failed: %s", FLAC__stream_decoder_get_resolved_state_string(_flac));
 		
-	// FLAC doesn't have default channel mappings so for now only support mono and stereo
-/*	if(1 != _pcmFormat.mChannelsPerFrame && 2 != _pcmFormat.mChannelsPerFrame) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported FLAC format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for FLAC.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-										 code:AudioStreamDecoderFileFormatNotSupportedError 
-									 userInfo:errorDictionary];
-		}		
-		
-		return NO;
-	}*/
-
 	// Setup input format descriptor
 	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
 	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
@@ -188,7 +170,11 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	// Setup the channel layout
-//	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
+	switch(_pcmFormat.mChannelsPerFrame) {
+		// TODO: FLAC doesn't have default channel layouts
+		case 1:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;				break;
+		case 2:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;			break;
+	}
 	
 	return YES;
 }

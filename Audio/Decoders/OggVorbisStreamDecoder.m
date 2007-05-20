@@ -85,24 +85,6 @@
 	vorbis_info *ovInfo = ov_info(&_vf, -1);
 	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
 	
-	// Vorbis doesn't have default channel mappings so for now only support mono and stereo
-/*	if(1 != ovInfo->channels && 2 != ovInfo->channels) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			NSString				*path				= [[[self stream] valueForKey:StreamURLKey] path];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unsupported Ogg Vorbis format", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Only mono and stereo is supported for Ogg Vorbis.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:AudioStreamDecoderErrorDomain 
-										 code:AudioStreamDecoderFileFormatNotSupportedError 
-									 userInfo:errorDictionary];
-		}		
-		
-		return NO;
-	}*/
-
 	[self setTotalFrames:ov_pcm_total(&_vf, -1)];
 
 	// Setup input format descriptor
@@ -118,8 +100,17 @@
 	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
 	
 	// Setup the channel layout
-//	_channelLayout.mChannelLayoutTag  = (1 == _pcmFormat.mChannelsPerFrame ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
-
+	switch(ovInfo->channels) {
+			// Default channel layouts from Vorbis I specification section 4.3.9
+		case 1:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;				break;
+		case 2:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;			break;
+			// FIXME: Is this the right tag for 3 channels?
+		case 3:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_3_0_A;		break;
+		case 4:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Quadraphonic;		break;
+		case 5:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_5_0_C;		break;
+		case 6:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_5_1_C;		break;
+	}
+	
 	return YES;
 }
 
