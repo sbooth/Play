@@ -1813,7 +1813,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSArray *streams = _playQueue;
 	
-	if(nil == stream || 1 >= [streams count]) {
+	if(nil == stream || 0 == [streams count]) {
 		[self setNextPlaybackIndex:NSNotFound];
 	}
 	else if([self randomPlayback]) {
@@ -1821,10 +1821,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		unsigned	randomIndex;
 		
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
-			do {
-				randomNumber	= genrand_real2();
-				randomIndex		= (unsigned)(randomNumber * [streams count]);
-			} while(randomIndex == [self playbackIndex]);
+			
+			if(1 == [streams count]) {
+				randomIndex = NSNotFound;
+			}
+			else {
+				do {
+					randomNumber	= genrand_real2();
+					randomIndex		= (unsigned)(randomNumber * [streams count]);
+				} while(randomIndex == [self playbackIndex]);
+			}
 		}
 		else {
 			randomNumber	= genrand_real2();
