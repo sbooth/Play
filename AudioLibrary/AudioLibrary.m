@@ -488,11 +488,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
+		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		nil]];
 
 /*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
