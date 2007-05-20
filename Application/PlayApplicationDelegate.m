@@ -409,7 +409,7 @@
 	NSString	*title					= [stream valueForKey:MetadataTitleKey];
 	NSString	*artist					= [stream valueForKey:MetadataArtistKey];		
 	NSString	*windowTitle			= nil;
-	NSString	*representedFilename	= nil;
+	NSString	*representedFilename	= @"";
 	
 	if(nil != url && [url isFileURL]) {
 		representedFilename = [url path];
