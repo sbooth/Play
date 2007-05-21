@@ -280,7 +280,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Play 0.1.1</string>
+	<string>Play 0.1.2</string>
 	<key>CFBundleIconFile</key>
 	<string>Play</string>
 	<key>CFBundleIdentifier</key>
@@ -294,7 +294,7 @@
 	<key>CFBundleSignature</key>
 	<string>plaY</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.1</string>
+	<string>0.1.2</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>YES</string>
 	<key>NSMainNibFile</key>
