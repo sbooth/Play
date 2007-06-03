@@ -18,12 +18,17 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
-#include <FLAC/stream_decoder.h>
+#import <Cocoa/Cocoa.h>
+#import "AudioDecoder.h"
 
-@interface FLACStreamDecoder : AudioStreamDecoder
+#include <wavpack/wavpack.h>
+
+@interface WavPackDecoder : AudioDecoder
 {
-	FLAC__StreamDecoder			*_flac;
+    WavpackContext		*_wpc;
+	
+	SInt64				_totalFrames;
+	SInt64				_currentFrame;
 }
 
 @end

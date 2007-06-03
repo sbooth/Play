@@ -18,11 +18,21 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
+#import <Cocoa/Cocoa.h>
+#import "AudioDecoder.h"
 
-@interface MonkeysAudioStreamDecoder : AudioStreamDecoder
+@interface MonkeysAudioDecoder : AudioDecoder
 {
-	void						*_decompressor;			// Use a void * to avoid any C++ here
+	void				*_decompressor; // Use a void * to avoid any C++ here
+	
+	AudioBufferList		*_bufferList;
+	
+	SInt64				_totalFrames;
+	SInt64				_currentFrame;
+	
+	int					_bitsPerSample;
+	int					_bytesPerSample;
+	int					_blockAlign;
 }
 
 @end

@@ -18,12 +18,19 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
+#import <Cocoa/Cocoa.h>
+#import "AudioDecoder.h"
+
 #include <FLAC/stream_decoder.h>
 
-@interface OggFLACStreamDecoder : AudioStreamDecoder
+@interface FLACDecoder : AudioDecoder
 {
-	FLAC__StreamDecoder			*_flac;
+	FLAC__StreamDecoder					*_flac;
+	FLAC__StreamMetadata_StreamInfo		_streamInfo;
+	SInt64								_currentFrame;
+	
+	// For converting push to pull
+	AudioBufferList						*_bufferList;
 }
 
 @end

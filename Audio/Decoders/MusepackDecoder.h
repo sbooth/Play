@@ -18,32 +18,21 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
-#include <mad/mad.h>
+#import <Cocoa/Cocoa.h>
+#import "AudioDecoder.h"
 
-@interface MPEGStreamDecoder : AudioStreamDecoder
+#include <mpcdec/mpcdec.h>
+
+@interface MusepackDecoder : AudioDecoder
 {
-	int					_fd;
-	unsigned char		*_inputBuffer;
+	FILE				*_file;
+	mpc_reader_file		_reader_file;
+	mpc_decoder			_decoder;
 	
-	uint32_t			_mpegFramesDecoded;
-	uint32_t			_totalMPEGFrames;
+	AudioBufferList		*_bufferList;
 	
-	uint16_t			_encoderDelay;
-	uint16_t			_encoderPadding;
-	
-	SInt64				_samplesDecoded;
-	unsigned			_samplesPerMPEGFrame;
-	
-	BOOL				_foundXingHeader;
-	BOOL				_foundLAMEHeader;
-	
-	off_t				_fileBytes;
-	uint8_t				_xingTOC [100];
-
-	struct mad_stream	_mad_stream;
-	struct mad_frame	_mad_frame;
-	struct mad_synth	_mad_synth;
+	SInt64				_totalFrames;
+	SInt64				_currentFrame;
 }
 
 @end

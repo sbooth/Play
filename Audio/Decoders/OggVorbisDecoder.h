@@ -18,14 +18,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
-#include <mpcdec/mpcdec.h>
+#import <Cocoa/Cocoa.h>
+#import "AudioDecoder.h"
 
-@interface MusepackStreamDecoder : AudioStreamDecoder
+#include <vorbis/vorbisfile.h>
+
+@interface OggVorbisDecoder : AudioDecoder
 {
-	FILE							*_file;
-	mpc_reader_file					_reader_file;
-	mpc_decoder						_decoder;
+	OggVorbis_File _vf;
 }
 
 @end

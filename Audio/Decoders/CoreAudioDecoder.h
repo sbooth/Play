@@ -18,12 +18,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "AudioStreamDecoder.h"
-#include <wavpack/wavpack.h>
+#import "AudioDecoder.h"
+#include <AudioToolbox/ExtendedAudioFile.h>
 
-@interface WavPackStreamDecoder : AudioStreamDecoder
+@interface CoreAudioDecoder : AudioDecoder
 {
-    WavpackContext					*_wpc;
+	ExtAudioFileRef _extAudioFile;
 }
 
 @end

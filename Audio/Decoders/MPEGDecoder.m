@@ -18,9 +18,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "MPEGStreamDecoder.h"
+#import "MPEGDecoder.h"
 #import "AudioStream.h"
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -63,41 +64,96 @@ audio_linear_round(unsigned int bits,
 		MIN = -MAD_F_ONE,
 		MAX =  MAD_F_ONE - 1
 	};
-
+	
 	/* round */
 	sample += (1L << (MAD_F_FRACBITS - bits));
 	
 	/* clip */
-	if(MAX < sample) {
+	if(MAX < sample)
 		sample = MAX;
-	}
-	else if(MIN > sample) {
+	else if(MIN > sample)
 		sample = MIN;
-	}
 	
 	/* quantize and scale */
 	return sample >> (MAD_F_FRACBITS + 1 - bits);
 }
 // End madplay code
 
-@interface MPEGStreamDecoder (Private)
+@interface MPEGDecoder (Private)
 - (BOOL) scanFile;
 @end
 
-@implementation MPEGStreamDecoder
+@implementation MPEGDecoder
 
-- (NSString *) sourceFormatDescription
+- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
 {
-	return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@, %u channels, %u Hz", @"Formats", @""), NSLocalizedStringFromTable(@"MPEG Audio", @"Formats", @""), [self pcmFormat].mChannelsPerFrame, (unsigned)[self pcmFormat].mSampleRate];
+	NSParameterAssert(nil != stream);
+	
+	if((self = [super initWithStream:stream error:error])) {
+		_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
+		NSAssert(NULL != _inputBuffer, @"Unable to allocate memory");
+		
+		_fd = open([[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
+		if(-1 == _fd) {
+			if(nil != error) {
+				
+			}
+			
+			[self release];
+			return nil;
+		}
+		
+		mad_stream_init(&_mad_stream);
+		mad_frame_init(&_mad_frame);
+		mad_synth_init(&_mad_synth);
+		
+		// Scan file to determine sample rate, channels, total frames, etc
+		if(NO == [self scanFile]) {
+			[self release];
+			return nil;
+		}
+		
+		// Allocate the buffer list
+		_bufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (_format.mChannelsPerFrame - 1)), 1);
+		NSAssert(NULL != _bufferList, @"Unable to allocate memory");
+		
+		_bufferList->mNumberBuffers = _format.mChannelsPerFrame;
+		
+		unsigned i;
+		for(i = 0; i < _bufferList->mNumberBuffers; ++i) {
+			_bufferList->mBuffers[i].mData = calloc(_samplesPerMPEGFrame, sizeof(float));
+			NSAssert(NULL != _bufferList->mBuffers[i].mData, @"Unable to allocate memory");
+			
+			_bufferList->mBuffers[i].mNumberChannels = 1;
+		}		
+	}
+	return self;
 }
 
-- (BOOL) supportsSeeking
+- (void) dealloc
 {
-	return YES;
+	mad_synth_finish(&_mad_synth);
+	mad_frame_finish(&_mad_frame);
+	mad_stream_finish(&_mad_stream);
+	
+	free(_inputBuffer), _inputBuffer = NULL;
+	close(_fd), _fd = -1;
+	
+	if(_bufferList) {
+		unsigned i;
+		for(i = 0; i < _bufferList->mNumberBuffers; ++i)
+			free(_bufferList->mBuffers[i].mData), _bufferList->mBuffers[i].mData = NULL;	
+		free(_bufferList), _bufferList = NULL;
+	}
+	
+	[super dealloc];
 }
 
-// FIXME: Seeking breaks gapless playback for the stream
-- (SInt64) performSeekToFrame:(SInt64)frame
+- (SInt64)			totalFrames						{ return _totalFrames; }
+- (SInt64)			currentFrame					{ return _currentFrame; }
+
+	// FIXME: Seeking breaks gapless playback for the stream
+- (SInt64) seekToFrame:(SInt64)frame
 {
 	double	fraction	= (double)frame / [self totalFrames];
 	off_t	seekPoint	= 0;
@@ -107,127 +163,101 @@ audio_linear_round(unsigned int bits,
 		double		percent		= 100 * fraction;
 		unsigned	firstIndex	= percent;
 		
-		if(99 < firstIndex) {
+		if(99 < firstIndex)
 			firstIndex = 99;
-		}
-
+		
 		double firstOffset	= _xingTOC[firstIndex];
 		double secondOffset	= 256;
-
-		if(99 > firstIndex) {
+		
+		if(99 > firstIndex)
 			secondOffset = _xingTOC[firstIndex + 1];;
-		}
-
-		double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
-		seekPoint = (off_t)((1.0 / 256.0) * x * _fileBytes); 
+			
+			double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
+			seekPoint = (off_t)((1.0 / 256.0) * x * _fileBytes); 
 	}
-	else {
+	else
 		seekPoint = (off_t)_fileBytes * fraction;
-	}
 	
-	int result = lseek(_fd, seekPoint, SEEK_SET);
+	off_t result = lseek(_fd, seekPoint, SEEK_SET);
 	if(-1 != result) {
 		mad_stream_buffer(&_mad_stream, NULL, 0);
-
+		
 		// Reset frame count to prevent early termination of playback
 		_mpegFramesDecoded	= 0;
 		_samplesDecoded		= 0;
+		
+		_currentFrame		= frame;
 	}
 	
 	// Right now it's only possible to return an approximation of the audio frame
 	return (-1 == result ? -1 : frame);
 }
 
-- (BOOL) setupDecoder:(NSError **)error
+- (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount
 {
-	_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
-	if(NULL == _inputBuffer) {
-		if(nil != error) {
-			
-		}
-		
-		return NO;
-	}
+	NSParameterAssert(NULL != bufferList);
+	NSParameterAssert(bufferList->mNumberBuffers == _format.mChannelsPerFrame);
+	NSParameterAssert(0 < frameCount);
 	
-	_fd = open([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
-	if(-1 == _fd) {
-		if(nil != error) {
-			
-		}
-	
-		free(_inputBuffer), _inputBuffer = NULL;
-		return NO;
-	}
-	
-	mad_stream_init(&_mad_stream);
-	mad_frame_init(&_mad_frame);
-	mad_synth_init(&_mad_synth);
-
-	// Scan file to determine total frames, etc
-	BOOL result = [self scanFile];
-	if(NO == result) {
-		free(_inputBuffer), _inputBuffer = NULL;
-		close(_fd), _fd = -1;
-		return NO;
-	}
-
-	// Setup input format descriptor
-	_pcmFormat.mFormatID			= kAudioFormatLinearPCM;
-	_pcmFormat.mFormatFlags			= kAudioFormatFlagsNativeFloatPacked;
-	_pcmFormat.mBitsPerChannel		= 32;
-	
-	_pcmFormat.mBytesPerPacket		= (_pcmFormat.mBitsPerChannel / 8) * _pcmFormat.mChannelsPerFrame;
-	_pcmFormat.mFramesPerPacket		= 1;
-	_pcmFormat.mBytesPerFrame		= _pcmFormat.mBytesPerPacket * _pcmFormat.mFramesPerPacket;
-	
-	return YES;
-}
-
-- (BOOL) cleanupDecoder:(NSError **)error
-{
-	mad_synth_finish(&_mad_synth);
-	mad_frame_finish(&_mad_frame);
-	mad_stream_finish(&_mad_stream);
-
-	free(_inputBuffer), _inputBuffer = NULL;
-	close(_fd), _fd = -1;
-	
-	[super cleanupDecoder:error];
-	
-	return YES;
-}
-
-- (void) fillPCMBuffer
-{
-	UInt32			bytesToRead, bytesRemaining;
-	void			*writePointer;
+	UInt32			bytesToRead;
+	UInt32			bytesRemaining;
 	unsigned char	*readStartPointer;
-	unsigned		i;
 	int32_t			audioSample;
 	
-	UInt32			bytesToWrite			= RING_BUFFER_WRITE_CHUNK_SIZE;
-	UInt32			bytesAvailableToWrite	= [[self pcmBuffer] lengthAvailableToWriteReturningPointer:&writePointer];
-	UInt32			bytesWritten			= 0;
-	float			*floatBuffer			= writePointer;
 	BOOL			readEOF					= NO;
-	double			scaleFactor				= (1LL << (BIT_RESOLUTION - 1));
-
-	// Calculate bytes requiredfor decompressing one MPEG frame to 32-bit float PCM 
-	unsigned		frameByteSize			= _samplesPerMPEGFrame * 2 * (32 / 8);
+	float			scaleFactor				= (1L << (BIT_RESOLUTION - 1));
 	
-	// Ensure sufficient space remains in the buffer
-	if(bytesToWrite > bytesAvailableToWrite) {
-		return;
+	UInt32			framesRead				= 0;
+	
+	// Zero output buffers
+	unsigned i;
+	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
+		bufferList->mBuffers[i].mDataByteSize = 0;
+		bufferList->mBuffers[i].mNumberChannels = 1;
 	}
 	
 	for(;;) {
-
+		
+		UInt32	framesRemaining	= frameCount - framesRead;
+		UInt32	framesToSkip	= bufferList->mBuffers[0].mDataByteSize / sizeof(float);
+		UInt32	framesInBuffer	= _bufferList->mBuffers[0].mDataByteSize / sizeof(float);
+		UInt32	framesToCopy	= (framesInBuffer > framesRemaining ? framesRemaining : framesInBuffer);
+		
+		// Copy data from the buffer to output
+		for(i = 0; i < _bufferList->mNumberBuffers; ++i) {
+			float *floatBuffer = bufferList->mBuffers[i].mData;
+			memcpy(floatBuffer + framesToSkip, _bufferList->mBuffers[i].mData, framesToCopy * sizeof(float));
+			bufferList->mBuffers[i].mDataByteSize += (framesToCopy * sizeof(float));
+			
+			// Move remaining data in buffer to beginning
+			if(framesToCopy != framesInBuffer) {
+				floatBuffer = _bufferList->mBuffers[i].mData;
+				memmove(floatBuffer, floatBuffer + framesToCopy, (framesInBuffer - framesToCopy) * sizeof(float));
+			}
+			
+			_bufferList->mBuffers[i].mDataByteSize -= (framesToCopy * sizeof(float));
+		}
+		
+		framesRead += framesToCopy;
+		
+		// All requested frames were read
+		if(framesRead == frameCount)
+			break;
+		
+		// If the file contains a Xing header but not LAME gapless information,
+		// decode the number of MPEG frames specified by the Xing header
+		if(_foundXingHeader && NO == _foundLAMEHeader && _mpegFramesDecoded == _totalMPEGFrames)
+			break;
+		
+		// The LAME header indicates how many samples are in the file
+		if(_foundLAMEHeader && [self totalFrames] == _samplesDecoded)
+			break;
+		
 		// Feed the input buffer if necessary
 		if(NULL == _mad_stream.buffer || MAD_ERROR_BUFLEN == _mad_stream.error) {
-
 			if(NULL != _mad_stream.next_frame) {
 				bytesRemaining		= _mad_stream.bufend - _mad_stream.next_frame;
-
+				
 				memmove(_inputBuffer, _mad_stream.next_frame, bytesRemaining);
 				
 				readStartPointer	= _inputBuffer + bytesRemaining;
@@ -255,39 +285,49 @@ audio_linear_round(unsigned int bits,
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
 			}
-
+			
 			mad_stream_buffer(&_mad_stream, _inputBuffer, bytesRead + bytesRemaining);
 			_mad_stream.error = MAD_ERROR_NONE;
-		}
-
-		// Ensure space exists for this frame before decoding
-		if(bytesAvailableToWrite < frameByteSize) {
-			break;
 		}
 		
 		// Decode the MPEG frame
 		int result = mad_frame_decode(&_mad_frame, &_mad_stream);
 		if(-1 == result) {
-
+			
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
+				
+				// Prevent ID3 tags from reporting recoverable frame errors
+				const uint8_t	*buffer			= _mad_stream.this_frame;
+				unsigned		buflen			= _mad_stream.bufend - _mad_stream.this_frame;
+				uint32_t		id3_length		= 0;
+				
+				if(10 <= buflen && 0x49 == buffer[0] && 0x44 == buffer[1] && 0x33 == buffer[2]) {
+					id3_length = (((buffer[6] & 0x7F) << (3 * 7)) | ((buffer[7] & 0x7F) << (2 * 7)) |
+								  ((buffer[8] & 0x7F) << (1 * 7)) | ((buffer[9] & 0x7F) << (0 * 7)));
+					
+					// Add 10 bytes for ID3 header
+					id3_length += 10;
+					
+					mad_stream_skip(&_mad_stream, id3_length);
+				}
+				else {
 #if DEBUG
-				NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
 #endif
+				}
+				
 				continue;
 			}
 			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
-			else if(MAD_ERROR_BUFLEN == _mad_stream.error && readEOF) {
-				[self setAtEndOfStream:YES];
+			else if(MAD_ERROR_BUFLEN == _mad_stream.error && readEOF)
 				break;
-			}
-			else if(MAD_ERROR_BUFLEN == _mad_stream.error) {
+			else if(MAD_ERROR_BUFLEN == _mad_stream.error)
 				continue;
-			}
 			else {
 #if DEBUG
 				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
 #endif
-				return;
+				break;
 			}
 		}
 		
@@ -296,77 +336,49 @@ audio_linear_round(unsigned int bits,
 		
 		// Synthesize the frame into PCM
 		mad_synth_frame(&_mad_synth, &_mad_frame);
-
+		
 		i = 0;
 		// Skip the Xing header (it contains empty audio)
-		if(_foundXingHeader && 1 == _mpegFramesDecoded) {
+		if(_foundXingHeader && 1 == _mpegFramesDecoded)
 			continue;
-		}
 		// Adjust the first real audio frame for gapless playback
-		else if(_foundLAMEHeader && 2 == _mpegFramesDecoded) {
+		else if(_foundLAMEHeader && 2 == _mpegFramesDecoded)
 			i = _encoderDelay;
-		}
-
+		
 		// If a LAME header was found, the total number of audio frames (AKA samples) 
 		// is known.  Ensure only that many are output
 		unsigned sampleCount = _mad_synth.pcm.length;
-		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + sampleCount) {
+		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + sampleCount)
 			sampleCount = [self totalFrames] - _samplesDecoded;
-		}
-				
+		
 		// Output samples in 32-bit float PCM
-		for(/*i = 0*/; i < sampleCount; ++i) {						
-			audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[0][i]);
+		unsigned channel, sample;
+		for(channel = 0; channel < MAD_NCHANNELS(&_mad_frame.header); ++channel) {
+			float *floatBuffer = _bufferList->mBuffers[channel].mData;
 			
-			if(0 <= audioSample) {
-				*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
-			}
-			else {
-				*floatBuffer++ = (float)(audioSample / scaleFactor);
-			}
-
-			bytesWritten			+= (32 / 8);
-			bytesAvailableToWrite	-= (32 / 8);
-			
-			if(2 == MAD_NCHANNELS(&_mad_frame.header)) {
-				audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[1][i]);
-
-				if(0 <= audioSample) {
-					*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
-				}
-				else {
-					*floatBuffer++ = (float)(audioSample / scaleFactor);
-				}
+			for(sample = 0; sample < sampleCount; ++sample) {
+				audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[channel][sample]);
 				
-				bytesWritten			+= (32 / 8);
-				bytesAvailableToWrite	-= (32 / 8);
+				if(0 <= audioSample)
+					*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
+				else
+					*floatBuffer++ = (float)(audioSample / scaleFactor);
 			}
 			
-			++_samplesDecoded;
+			_bufferList->mBuffers[channel].mNumberChannels	= 1;
+			_bufferList->mBuffers[channel].mDataByteSize	= sampleCount * sizeof(float);			
 		}
 		
-		// If the file contains a Xing header but not LAME gapless information,
-		// decode the number of MPEG frames specified by the Xing header
-		if(_foundXingHeader && NO == _foundLAMEHeader && _mpegFramesDecoded == _totalMPEGFrames) {
-			[self setAtEndOfStream:YES];
-			break;
-		}
-
-		// The LAME header indicates how many samples are in the file
-		if(_foundLAMEHeader && [self totalFrames] == _samplesDecoded) {
-			[self setAtEndOfStream:YES];
-			break;
-		}
+		_samplesDecoded += sampleCount;		
 	}
-
-	if(0 < bytesWritten) {
-		[[self pcmBuffer] didWriteLength:bytesWritten];				
-	}		
+	
+	_currentFrame += framesRead;
+	return framesRead;
 }
 
 @end
 
-@implementation MPEGStreamDecoder (Private)
+@implementation MPEGDecoder (Private)
 
 - (BOOL) scanFile
 {
@@ -381,52 +393,39 @@ audio_linear_round(unsigned int bits,
 	
 	int					result;
 	struct stat			stat;
+	uint32_t			id3_length		= 0;
 	
 	// Set up	
-	unsigned char *inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
-	if(NULL == inputBuffer) {
-		return NO;
-	}
-	
-	int fd = open([[[[self stream] valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
-	if(-1 == fd) {
-		free(inputBuffer);
-		return NO;
-	}
-	
 	mad_stream_init(&stream);
 	mad_frame_init(&frame);
 	
 	readEOF = NO;
 	
-	result = fstat(fd, &stat);
-	if(-1 == result) {
-		free(inputBuffer);
-		close(fd);
+	result = fstat(_fd, &stat);
+	if(-1 == result)
 		return NO;
-	}
 	
 	_fileBytes = stat.st_size;
 	
 	for(;;) {
 		if(NULL == stream.buffer || MAD_ERROR_BUFLEN == stream.error) {
 			
-			if(NULL != stream.next_frame) {
+			if(stream.next_frame) {
 				bytesRemaining		= stream.bufend - stream.next_frame;
 				
-				memmove(inputBuffer, stream.next_frame, bytesRemaining);
+				memmove(_inputBuffer, stream.next_frame, bytesRemaining);
 				
-				readStartPointer	= inputBuffer + bytesRemaining;
+				readStartPointer	= _inputBuffer + bytesRemaining;
 				bytesToRead			= INPUT_BUFFER_SIZE - bytesRemaining;
 			}
 			else {
 				bytesToRead			= INPUT_BUFFER_SIZE,
-				readStartPointer	= inputBuffer,
+				readStartPointer	= _inputBuffer,
 				bytesRemaining		= 0;
 			}
 			
 			// Read raw bytes from the MP3 file
-			bytesRead = read(fd, readStartPointer, bytesToRead);
+			bytesRead = read(_fd, readStartPointer, bytesToRead);
 			
 			if(-1 == bytesRead) {
 #if DEBUG
@@ -441,8 +440,8 @@ audio_linear_round(unsigned int bits,
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
 			}
-
-			mad_stream_buffer(&stream, inputBuffer, bytesRead + bytesRemaining);
+			
+			mad_stream_buffer(&stream, _inputBuffer, bytesRead + bytesRemaining);
 			stream.error = MAD_ERROR_NONE;
 		}
 		
@@ -455,8 +454,7 @@ audio_linear_round(unsigned int bits,
 				// Prevent ID3 tags from reporting recoverable frame errors
 				const uint8_t	*buffer			= stream.this_frame;
 				unsigned		buflen			= stream.bufend - stream.this_frame;
-				uint32_t		id3_length		= 0;
-
+				
 				if(10 <= buflen && 0x49 == buffer[0] && 0x44 == buffer[1] && 0x33 == buffer[2]) {
 					id3_length = (((buffer[6] & 0x7F) << (3 * 7)) | ((buffer[7] & 0x7F) << (2 * 7)) |
 								  ((buffer[8] & 0x7F) << (1 * 7)) | ((buffer[9] & 0x7F) << (0 * 7)));
@@ -475,12 +473,10 @@ audio_linear_round(unsigned int bits,
 				continue;
 			}
 			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
-			else if(MAD_ERROR_BUFLEN == stream.error && readEOF) {
+			else if(MAD_ERROR_BUFLEN == stream.error && readEOF)
 				break;
-			}
-			else if(MAD_ERROR_BUFLEN == stream.error) {
+			else if(MAD_ERROR_BUFLEN == stream.error)
 				continue;
-			}
 			else {
 #if DEBUG
 				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&stream));
@@ -490,14 +486,14 @@ audio_linear_round(unsigned int bits,
 		}
 		
 		++framesDecoded;
-
+		
 		// Look for a Xing header in the first frame that was successfully decoded
 		// Reference http://www.codeproject.com/audio/MPEGAudioInfo.asp
 		if(1 == framesDecoded) {
 			
-			_pcmFormat.mSampleRate			= frame.header.samplerate;
-			_pcmFormat.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
-
+			_format.mSampleRate			= frame.header.samplerate;
+			_format.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
+			
 			// MAD_NCHANNELS always returns 1 or 2
 			_channelLayout.mChannelLayoutTag  = (1 == MAD_NCHANNELS(&frame.header) ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo);
 			
@@ -518,39 +514,43 @@ audio_linear_round(unsigned int bits,
 			
 			unsigned ancillaryBitsRemaining = stream.anc_bitlen;
 			
-			if(32 > ancillaryBitsRemaining) { continue; }
-
+			if(32 > ancillaryBitsRemaining)
+				continue;
+			
 			uint32_t magic = mad_bit_read(&stream.anc_ptr, 32);
 			ancillaryBitsRemaining -= 32;
 			
 			if('Xing' == magic || 'Info' == magic) {
-//			if((('X' << 24) | ('i' << 16) | ('n' << 8) | ('g')) == magic) {
+				//			if((('X' << 24) | ('i' << 16) | ('n' << 8) | ('g')) == magic) {
 				
 				unsigned	i;
 				uint32_t	flags = 0, frames = 0, bytes = 0, vbrScale = 0;
 				
-				if(32 > ancillaryBitsRemaining) { continue; }
+				if(32 > ancillaryBitsRemaining)
+					continue;
 				
 				flags = mad_bit_read(&stream.anc_ptr, 32);
 				ancillaryBitsRemaining -= 32;
-
+				
 				// 4 byte value containing total frames
 				if(FRAMES_FLAG & flags) {
-					if(32 > ancillaryBitsRemaining) { continue; }
-
+					if(32 > ancillaryBitsRemaining)
+						continue;
+					
 					frames = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
-
+					
 					_totalMPEGFrames = frames;
-
+					
 					// Determine number of samples, discounting encoder delay and padding
 					// Our concept of a frame is the same as CoreAudio's- one sample across all channels
-					[self setTotalFrames:frames * _samplesPerMPEGFrame];
+					_totalFrames = frames * _samplesPerMPEGFrame;
 				}
 				
 				// 4 byte value containing total bytes
 				if(BYTES_FLAG & flags) {
-					if(32 > ancillaryBitsRemaining) { continue; }
+					if(32 > ancillaryBitsRemaining)
+						continue;
 					
 					bytes = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
@@ -558,44 +558,46 @@ audio_linear_round(unsigned int bits,
 				
 				// 100 bytes containing TOC information
 				if(TOC_FLAG & flags) {
-					if(8 * 100 > ancillaryBitsRemaining) { continue; }
+					if(8 * 100 > ancillaryBitsRemaining)
+						continue;
 					
-					for(i = 0; i < 100; ++i) {
+					for(i = 0; i < 100; ++i)
 						_xingTOC[i] = mad_bit_read(&stream.anc_ptr, 8);
-					}
 					
 					ancillaryBitsRemaining -= (8* 100);
 				}
 				
 				// 4 byte value indicating encoded vbr scale
 				if(VBR_SCALE_FLAG & flags) {
-					if(32 > ancillaryBitsRemaining) { continue; }
+					if(32 > ancillaryBitsRemaining)
+						continue;
 					
 					vbrScale = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 				}
-
+				
 				framesDecoded	= frames;
 				
 				_foundXingHeader = YES;
-
+				
 				// Loook for the LAME header next
 				// http://gabriel.mp3-tech.org/mp3infotag.html				
-				if(32 > ancillaryBitsRemaining) { continue; }
+				if(32 > ancillaryBitsRemaining)
+					continue;
 				magic = mad_bit_read(&stream.anc_ptr, 32);
 				
 				ancillaryBitsRemaining -= 32;
-
+				
 				if('LAME' == magic) {
-
-					if(LAME_HEADER_SIZE > ancillaryBitsRemaining) { continue; }
+					
+					if(LAME_HEADER_SIZE > ancillaryBitsRemaining)
+						continue;
 					
 					/*unsigned char versionString [5 + 1];
 					memset(versionString, 0, 6);*/
 					
-					for(i = 0; i < 5; ++i) {
+					for(i = 0; i < 5; ++i)
 						/*versionString[i] =*/ mad_bit_read(&stream.anc_ptr, 8);
-					}
 					
 					/*uint8_t infoTagRevision =*/ mad_bit_read(&stream.anc_ptr, 4);
 					/*uint8_t vbrMethod =*/ mad_bit_read(&stream.anc_ptr, 4);
@@ -613,9 +615,9 @@ audio_linear_round(unsigned int bits,
 					
 					uint16_t encoderDelay = mad_bit_read(&stream.anc_ptr, 12);
 					uint16_t encoderPadding = mad_bit_read(&stream.anc_ptr, 12);
-
-					[self setTotalFrames:[self totalFrames] - (encoderDelay + encoderPadding)];
-
+					
+					_totalFrames = [self totalFrames] - (encoderDelay + encoderPadding);
+					
 					// Adjust encoderDelay for MDCT/filterbank delay
 					_encoderDelay = encoderDelay + 528 + 1;
 					_encoderPadding = encoderPadding;
@@ -635,30 +637,31 @@ audio_linear_round(unsigned int bits,
 					/*uint32_t tagCRC =*/ mad_bit_read(&stream.anc_ptr, 32);
 					
 					ancillaryBitsRemaining -= LAME_HEADER_SIZE;
-
+					
 					_foundLAMEHeader = YES;
 					break;
-
+					
+				}
 				}
 			}
-		}
 		else {
-			// Just estimate the number of frames based on the previous duration estimate
-			[self setTotalFrames:[[[self stream] valueForKey:PropertiesDurationKey] unsignedIntValue] * frame.header.samplerate];
+			// Just estimate the number of frames based on the file's size
+			_totalFrames = (double)frame.header.samplerate * ((_fileBytes - id3_length) / (frame.header.bitrate / 8.0));
 			
 			// For now, quit after second frame
 			break;
 		}		
-	}
-
+		}
+	
 	// Clean up
 	mad_frame_finish(&frame);
 	mad_stream_finish(&stream);
 	
-	free(inputBuffer);
-	close(fd);
+	// Rewind to the beginning of file
+	if(-1 == lseek(_fd, 0, SEEK_SET))
+		return NO;
 	
 	return YES;
-}
+	}
 
 @end
