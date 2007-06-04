@@ -77,8 +77,11 @@
 // ========================================
 - (unsigned) completedLoops;
 
-- (UInt32) totalFrames;
+- (SInt64) totalFrames;
 - (SInt64) currentFrame;
+- (SInt64) framesRemaining;
+
+- (BOOL) supportsSeeking;
 - (SInt64) seekToFrame:(SInt64)frame;
 
 - (SInt64) framesScheduled;

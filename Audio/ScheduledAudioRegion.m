@@ -117,7 +117,8 @@
 
 #pragma mark Properties
 
-- (AudioTimeStamp) startTime						{ return _startTime; }
+- (AudioTimeStamp)	startTime								{ return _startTime; }
+
 - (void) setStartTime:(AudioTimeStamp)startTime
 {
 	NSParameterAssert(kAudioTimeStampSampleTimeValid & startTime.mFlags);
@@ -125,7 +126,8 @@
 	_startTime = startTime;
 }
 
-- (AudioDecoder *) decoder								{ return _decoder; }
+- (AudioDecoder *)	decoder									{ return _decoder; }
+
 - (void) setDecoder:(AudioDecoder *)decoder
 {
 	NSParameterAssert(nil != decoder);
@@ -136,10 +138,11 @@
 	_decoder = [decoder retain];
 }
 
-- (unsigned) loopCount								{ return _loopCount; }
-- (void) setLoopCount:(unsigned)loopCount 			{ _loopCount = loopCount; }
+- (unsigned)		loopCount								{ return _loopCount; }
+- (void)			setLoopCount:(unsigned)loopCount 		{ _loopCount = loopCount; }
 
-- (SInt64) startingFrame							{ return _startingFrame; }
+- (SInt64)			startingFrame							{ return _startingFrame; }
+
 - (void) setStartingFrame:(SInt64)startingFrame
 {
 	NSParameterAssert(0 <= startingFrame);
@@ -147,7 +150,8 @@
 	_startingFrame = startingFrame;
 }
 
-- (UInt32) framesToPlay								{ return _framesToPlay; }
+- (UInt32)			framesToPlay							{ return _framesToPlay; }
+
 - (void) setFramesToPlay:(UInt32)framesToPlay
 {
 	NSParameterAssert(0 < framesToPlay);
@@ -157,20 +161,13 @@
 
 #pragma mark Playback
 
-- (unsigned) completedLoops
-{
-	return _completedLoops;
-}
+- (unsigned)		completedLoops							{ return _completedLoops; }
 
-- (UInt32) totalFrames
-{
-	return (([self loopCount] + 1) * [self framesToPlay]);
-}
+- (SInt64)			totalFrames								{ return (([self loopCount] + 1) * [self framesToPlay]); }
+- (SInt64)			currentFrame							{ return _totalFramesRead; }
+- (SInt64)			framesRemaining							{ return ([self totalFrames] - [self currentFrame]); }
 
-- (SInt64) currentFrame
-{
-	return _totalFramesRead;
-}
+- (BOOL)			supportsSeeking							{ return [[self decoder] supportsSeeking]; }
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
@@ -185,15 +182,8 @@
 	return [self currentFrame];
 }
 
-- (SInt64) framesScheduled
-{
-	return _framesScheduled;
-}
-
-- (SInt64) framesRendered
-{
-	return _framesRendered;
-}
+- (SInt64)			framesScheduled							{ return _framesScheduled; }
+- (SInt64)			framesRendered							{ return _framesRendered; }
 
 - (NSString *) description
 {
@@ -213,24 +203,23 @@
 	_completedLoops				= 0;
 }
 
-- (void) clearFramesScheduled
-{
-	_framesScheduled = 0;
-}
-
-- (void) clearFramesRendered
-{
-	_framesRendered = 0;
-}
+- (void)			clearFramesScheduled					{ _framesScheduled = 0; }
+- (void)			clearFramesRendered						{ _framesRendered = 0; }
 
 - (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount
 {
+	NSParameterAssert(NULL != bufferList);
+	NSParameterAssert(0 < frameCount);
+	
 	if([self loopCount] < [self completedLoops])
 		return 0;
 
 	UInt32	framesRemaining		= [self startingFrame] + [self framesToPlay] - [[self decoder] currentFrame];
 	UInt32	framesToRead		= (frameCount < framesRemaining ? frameCount : framesRemaining);
-	UInt32	framesRead			= [[self decoder] readAudio:bufferList frameCount:framesToRead];
+	UInt32	framesRead			= 0;
+	
+	if(0 < framesToRead)
+		framesRead = [[self decoder] readAudio:bufferList frameCount:framesToRead];
 	
 	_framesReadInCurrentLoop	+= framesRead;
 	_totalFramesRead			+= framesRead;
