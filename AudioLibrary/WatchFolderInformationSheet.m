@@ -90,9 +90,8 @@
 	[_watchFolder release];
 	_watchFolder = [watchFolder retain];
 	
-	if(nil != watchFolder) {
+	if(nil != watchFolder)
 		[_folderImageView setImage:[[NSWorkspace sharedWorkspace] iconForFile:[[_watchFolder valueForKey:WatchFolderURLKey] path]]];
-	}
 }
 
 /*- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender

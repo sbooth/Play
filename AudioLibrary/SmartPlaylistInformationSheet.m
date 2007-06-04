@@ -89,9 +89,8 @@
 		NSCompoundPredicate *playlistPredicate = [[NSCompoundPredicate alloc] initWithType:[self predicateType] subpredicates:predicates];
 		[[self smartPlaylist] setValue:playlistPredicate forKey:SmartPlaylistPredicateKey];
 	}
-	else {
+	else
 		[[self smartPlaylist] setValue:[NSPredicate predicateWithValue:YES] forKey:SmartPlaylistPredicateKey];
-	}
 	
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSOKButton];
 }
@@ -301,9 +300,8 @@
 
 - (NSMutableArray *) criteria
 {
-	if(nil == _criteria) {
+	if(nil == _criteria)
 		_criteria = [[NSMutableArray alloc] init];
-	}
 
 	return _criteria;
 }

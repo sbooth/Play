@@ -104,9 +104,8 @@ NSString * const SmartPlaylistPboardType				= @"org.sbooth.Play.SmartPlaylist.Pb
 	BrowserNode		*node			= nil;
 	
 	while((node = [enumerator nextObject])) {
-		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[SmartPlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]]) {
+		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[SmartPlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]])
 			return YES;
-		}
 	}
 	
 	return NO;

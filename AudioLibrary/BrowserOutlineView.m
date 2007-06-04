@@ -61,15 +61,12 @@ static float heightOffset	= 3.0;
 		BrowserNode *node = [_browserController selectedNode];
 		return ([node isKindOfClass:[AudioStreamCollectionNode class]] && 0 != [(AudioStreamCollectionNode *)node countOfStreams]);
 	}
-	else if([menuItem action] == @selector(playlistInformation:)) {
+	else if([menuItem action] == @selector(playlistInformation:))
 		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
-	}
-	else if([menuItem action] == @selector(watchFolderInformation:)) {
+	else if([menuItem action] == @selector(watchFolderInformation:))
 		return [_browserController selectedNodeIsWatchFolder];
-	}
-	else if([menuItem action] == @selector(remove:)) {
+	else if([menuItem action] == @selector(remove:))
 		return [_browserController canRemove];
-	}
 	
 	return YES;
 }
@@ -79,27 +76,22 @@ static float heightOffset	= 3.0;
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
-	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
+	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags)
 		[self remove:event];
-	}
-	else if(0x0020 == key && 0 == flags) {
+	else if(0x0020 == key && 0 == flags)
 		[[AudioLibrary library] playPause:self];
-	}
-	else if(NSCarriageReturnCharacter == key && 0 == flags) {
+	else if(NSCarriageReturnCharacter == key && 0 == flags)
 		[self doubleClickAction:event];
-	}
-	else {
+	else
 		[super keyDown:event]; // let somebody else handle the event 
-	}
 }
 
 - (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
 {
 	BrowserNode *node			= [[self itemAtRow:[dragRows firstIndex]] observedObject];
 
-	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]]) {
+	if(NO == [node isKindOfClass:[AudioStreamCollectionNode class]])
 		return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
-	}
 	
 	NSImage		*badgeImage		= [[CTBadge systemBadge] smallBadgeForValue:[(AudioStreamCollectionNode *)node countOfStreams]];
 	NSSize		badgeSize		= [badgeImage size];
@@ -124,22 +116,17 @@ static float heightOffset	= 3.0;
 	
 	if(-1 != row) {
 		
-		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row]) {
+		if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row])
 			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-		}
-		else {
+		else
 			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-		}
 		
-		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]) {
+		if([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist])
 			return _playlistMenu;
-		}
-		if([_browserController selectedNodeIsWatchFolder]) {
+		if([_browserController selectedNodeIsWatchFolder])
 			return _watchFolderMenu;
-		}
-		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]]) {
+		else if([[_browserController selectedNode] isKindOfClass:[AudioStreamCollectionNode class]])
 			return [self menu];
-		}
 	}
 	
 	return nil;
@@ -177,19 +164,16 @@ static float heightOffset	= 3.0;
 - (void) highlightSelectionInClipRect:(NSRect)clipRect
 {
 	int selectedRow = [self selectedRow];
-	if(-1 == selectedRow) {
+	if(-1 == selectedRow)
 		return;
-	}
 	
 	CTGradient	*gradient		= nil;
 	NSRect		drawingRect		= [self rectOfRow:[self selectedRow]];
 
-	if(([[self window] firstResponder] == self) && [[self window] isMainWindow] && [[self window] isKeyWindow]) {
+	if(([[self window] firstResponder] == self) && [[self window] isMainWindow] && [[self window] isKeyWindow])
 		gradient = [CTGradient sourceListSelectedGradient];
-	}
-	else {
+	else
 		gradient = [CTGradient sourceListUnselectedGradient];
-	}
 
 	[gradient fillRect:drawingRect angle:90];
 }
@@ -306,9 +290,8 @@ static float heightOffset	= 3.0;
 		[[AudioLibrary library] addStreamsToPlayQueue:streams];
 		[[AudioLibrary library] playStreamAtIndex:0];
 	}
-	else {
+	else
 		[[AudioLibrary library] addStreamsToPlayQueue:streams];
-	}
 }
 
 @end
@@ -321,9 +304,8 @@ static float heightOffset	= 3.0;
 	
 	[sheet orderOut:self];
 	
-	if(NSOKButton == returnCode) {
+	if(NSOKButton == returnCode)
 		[[CollectionManager manager] finishUpdate];
-	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];
 		// TODO: refresh affected objects
@@ -338,9 +320,8 @@ static float heightOffset	= 3.0;
 	
 	[sheet orderOut:self];
 	
-	if(NSOKButton == returnCode) {
+	if(NSOKButton == returnCode)
 		[[CollectionManager manager] finishUpdate];
-	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];
 		// TODO: refresh affected objects
@@ -355,9 +336,8 @@ static float heightOffset	= 3.0;
 	
 	[sheet orderOut:self];
 	
-	if(NSOKButton == returnCode) {
+	if(NSOKButton == returnCode)
 		[[CollectionManager manager] finishUpdate];
-	}
 	else if(NSCancelButton == returnCode) {
 		[[CollectionManager manager] cancelUpdate];
 		// TODO: refresh affected objects

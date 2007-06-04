@@ -89,9 +89,8 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 
 - (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
 {
-    if(0 > row) {
+    if(0 > row)
 		row = 0;
-	}
 
 	// First handle internal drops for reordering
     if(tableView == [info draggingSource]) {
@@ -127,9 +126,8 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		rowIndexes	= [NSIndexSet indexSetWithIndexesInRange:range];
 		
 		// Adjust the current playbackIndex, if the currently playing stream was dragged
-		if(NSNotFound != playbackIndex) {
+		if(NSNotFound != playbackIndex)
 			[[AudioLibrary library] setPlaybackIndex:(row - rowsAbove + playbackIndex)];
-		}
 		
 		[self setSelectionIndexes:rowIndexes];
 		
@@ -197,9 +195,8 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 			BOOL success = [[AudioLibrary library] addFile:[url path]];
 			if(success) {
 				NSArray *streams = [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
-				if(nil != streams) {
+				if(nil != streams)
 					[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
-				}
 			}
 			   
 			return success;
@@ -218,9 +215,8 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		
 		while((track = [enumerator nextObject])) {
 			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
-			if([url isFileURL]) {
+			if([url isFileURL])
 				success |= [[AudioLibrary library] addFile:[url path]];
-			}
 		}
 		
 		if(success) {

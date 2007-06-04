@@ -45,9 +45,8 @@
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {	
-	if([menuItem action] == @selector(addToPlayQueue:)) {
+	if([menuItem action] == @selector(addToPlayQueue:))
 		return NO;
-	}
 
 	return [super validateMenuItem:menuItem];
 }
@@ -60,9 +59,8 @@
 	}
 
 	// If removing the currently playing stream, stop playback
-	if([[_streamController selectionIndexes] containsIndex:[[AudioLibrary library] playbackIndex]]) {
+	if([[_streamController selectionIndexes] containsIndex:[[AudioLibrary library] playbackIndex]])
 		[[AudioLibrary library] stop:sender];
-	}
 	
 	[[CollectionManager manager] beginUpdate];
 	[_streamController remove:sender];
@@ -109,9 +107,8 @@
 {
 	if(-1 != _highlightedRow && NO == [[self selectedRowIndexes] containsIndex:_highlightedRow]) {
 		NSRect rowRect = [self rectOfRow:_highlightedRow];
-		if(NSIsEmptyRect(rowRect)) {
+		if(NSIsEmptyRect(rowRect))
 			return;
-		}
 		
 		NSImage *highlightImage = [[NSImage alloc] initWithSize:rowRect.size];
 //		CTGradient *highlightGradient = [CTGradient unifiedNormalGradient];

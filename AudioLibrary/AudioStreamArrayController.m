@@ -90,15 +90,13 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 
 - (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)op
 {
-    if(0 > row) {
+    if(0 > row)
 		row = 0;
-	}
 	
 	// First handle internal drops for reordering ordered streams
     if(tableView == [info draggingSource]) {
-		if(NO == [[AudioLibrary library] streamsAreOrdered]) {
+		if(NO == [[AudioLibrary library] streamsAreOrdered])
 			return NO;
-		}
 		
 		NSData			*indexData		= [[info draggingPasteboard] dataForType:AudioStreamTableMovedRowsPboardType];
 		NSIndexSet		*rowIndexes		= [NSKeyedUnarchiver unarchiveObjectWithData:indexData];
@@ -146,9 +144,8 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	}
 	else if([bestType isEqualToString:NSURLPboardType]) {
 		NSURL *url = [NSURL URLFromPasteboard:[info draggingPasteboard]];
-		if([url isFileURL]) {
+		if([url isFileURL])
 			return [[AudioLibrary library] addFile:[url path]];
-		}
 	}
 	// Handle iTunes drops
 	else if([bestType isEqualToString:iTunesPboardType]) {
@@ -161,9 +158,8 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 		
 		while((track = [enumerator nextObject])) {
 			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
-			if([url isFileURL]) {
+			if([url isFileURL])
 				success &= [[AudioLibrary library] addFile:[url path]];
-			}
 		}
 		
 		return success;
@@ -217,9 +213,8 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	while((objectID = [rowEnumerator nextObject])) {
 		enumerator = [arrangedObjects objectEnumerator];
 		while((object = [enumerator nextObject])) {
-			if([[object valueForKey:ObjectIDKey] isEqual:objectID]) {
+			if([[object valueForKey:ObjectIDKey] isEqual:objectID])
 				[indexSet addIndex:[arrangedObjects indexOfObject:object]];
-			}
 		}
 	}
 	
@@ -232,9 +227,8 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	unsigned		currentIndex	= [indexSet firstIndex];
 	
 	while(NSNotFound != currentIndex) {
-		if(currentIndex < (unsigned)row) {
+		if(currentIndex < (unsigned)row)
 			++i;
-		}
 		
 		currentIndex = [indexSet indexGreaterThanIndex:currentIndex];
 	}

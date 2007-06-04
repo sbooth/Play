@@ -58,50 +58,36 @@
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
-	if([menuItem action] == @selector(addToPlayQueue:)) {
+	if([menuItem action] == @selector(addToPlayQueue:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(streamInformation:)) {
+	else if([menuItem action] == @selector(streamInformation:))
 		return (1 == [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(resetPlayCount:)) {
+	else if([menuItem action] == @selector(resetPlayCount:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(resetSkipCount:)) {
+	else if([menuItem action] == @selector(resetSkipCount:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(editMetadata:)) {
+	else if([menuItem action] == @selector(editMetadata:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(rescanMetadata:)) {
+	else if([menuItem action] == @selector(rescanMetadata:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(saveMetadata:)) {
+	else if([menuItem action] == @selector(saveMetadata:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(calculateTrackReplayGain:)) {
+	else if([menuItem action] == @selector(calculateTrackReplayGain:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:)) {
+	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:))
 		return (1 < [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(clearReplayGain:)) {
+	else if([menuItem action] == @selector(clearReplayGain:))
 		return (0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(remove:)) {
+	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
-	}
-	else if([menuItem action] == @selector(insertPlaylistWithSelection:)) {
+	else if([menuItem action] == @selector(insertPlaylistWithSelection:))
 		return (/*[_browserController canInsert] && */0 != [[_streamController selectedObjects] count]);
-	}
-	else if([menuItem action] == @selector(convertWithMax:)) {
+	else if([menuItem action] == @selector(convertWithMax:))
 		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
-	}
 	else if([menuItem action] == @selector(revealInFinder:)
 			|| [menuItem action] == @selector(openWithFinder:)
-			|| [menuItem action] == @selector(openWith:)) {
+			|| [menuItem action] == @selector(openWith:))
 		return (kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
-	}
 
 	return YES;
 }
@@ -111,24 +97,18 @@
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
-	if(0x0020 == key && 0 == flags) {
+	if(0x0020 == key && 0 == flags)
 		[[AudioLibrary library] playPause:self];
-	}
-	else if(NSCarriageReturnCharacter == key && 0 == flags) {
+	else if(NSCarriageReturnCharacter == key && 0 == flags)
 		[self doubleClickAction:event];
-	}
-	else if(0xf702 == key && 0 == flags) {
+	else if(0xf702 == key && 0 == flags)
 		[[AudioLibrary library] skipBackward:self];
-	}
-	else if(0xf703 == key && 0 == flags) {
+	else if(0xf703 == key && 0 == flags)
 		[[AudioLibrary library] skipForward:self];
-	}
-	else if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags) {
+	else if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags)
 		[self remove:event];
-	}
-	else {
+	else
 		[super keyDown:event]; // let somebody else handle the event 
-	}
 }
 
 - (NSImage *) dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent*)dragEvent offset:(NSPointPointer)dragImageOffset
@@ -163,12 +143,10 @@
 		
 		// If a row contained in the selection was right-clicked, don't change anything
 		if(NO == [[self selectedRowIndexes] containsIndex:row]) {
-			if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row]) {
+			if([[self delegate] respondsToSelector:@selector(tableView:shouldSelectRow:)] && [[self delegate] tableView:self shouldSelectRow:row])
 				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:shiftPressed];
-			}
-			else {
+			else
 				[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:shiftPressed];
-			}			
 		}
 		
 		return [self menu];
@@ -475,12 +453,10 @@
 
 - (NSString *) emptyMessage
 {
-	if(0 == [[[[CollectionManager manager] streamManager] streams] count]) {
+	if(0 == [[[[CollectionManager manager] streamManager] streams] count])
 		return NSLocalizedStringFromTable(@"Library Empty", @"Library", @"");	
-	}
-	else {
+	else
 		return NSLocalizedStringFromTable(@"Empty Selection", @"Library", @"");	
-	}
 }
 
 @end
@@ -527,9 +503,8 @@
 		[[CollectionManager manager] finishUpdate];
 		[_streamController rearrangeObjects];
 	}
-	else if(NSCancelButton == returnCode) {
+	else if(NSCancelButton == returnCode)
 		[[CollectionManager manager] cancelUpdate];
-	}
 	
 	[metadataEditingSheet release];
 }
