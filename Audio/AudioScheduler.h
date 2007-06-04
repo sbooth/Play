@@ -23,6 +23,12 @@
 #include <AudioToolbox/AudioToolbox.h>
 #include <mach/mach.h>
 
+// ========================================
+// Dictionary Keys
+// ========================================
+extern NSString * const		AudioSchedulerObjectKey;			// AudioScheduler
+extern NSString * const		ScheduledAudioRegionObjectKey;		// ScheduledAudioRegion
+
 @class ScheduledAudioRegion;
 
 @interface AudioScheduler : NSObject
@@ -76,6 +82,9 @@
 // YES if this object is actively scheduling audio for rendering, NO otherwise
 - (BOOL) isScheduling;
 
+// YES if this object's scheduled audio is rendering, NO otherwise
+- (BOOL) isRendering;
+
 // Unschedule any scheduled audio and reset current play time
 - (void) reset;
 
@@ -96,10 +105,9 @@
 - (void) audioSchedulerScheduledLastFrame:(AudioScheduler *)scheduler;
 - (void) audioSchedulerRenderedLastFrame:(AudioScheduler *)scheduler;
 
-- (void) audioScheduler:(AudioScheduler *)scheduler startedSchedulingRegion:(ScheduledAudioRegion *)region;
-- (void) audioScheduler:(AudioScheduler *)scheduler finishedSchedulingRegion:(ScheduledAudioRegion *)region;
+- (void) audioSchedulerStartedSchedulingRegion:(NSDictionary *)schedulerAndRegion;
+- (void) audioSchedulerFinishedSchedulingRegion:(NSDictionary *)schedulerAndRegion;
 
-- (void) audioScheduler:(AudioScheduler *)scheduler startedRenderingRegion:(ScheduledAudioRegion *)region;
-- (void) audioScheduler:(AudioScheduler *)scheduler finishedRenderingRegion:(ScheduledAudioRegion *)region;
-
+- (void) audioSchedulerStartedRenderingRegion:(NSDictionary *)schedulerAndRegion;
+- (void) audioSchedulerFinishedRenderingRegion:(NSDictionary *)schedulerAndRegion;
 @end
