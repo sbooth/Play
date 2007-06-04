@@ -134,10 +134,10 @@
 	[super dealloc];
 }
 
-- (SInt64)			totalFrames							{ return _totalFrames; }
-- (SInt64)			currentFrame						{ return _currentFrame; }
+- (SInt64)			totalFrames						{ return _totalFrames; }
+- (SInt64)			currentFrame					{ return _currentFrame; }
 
-- (BOOL)			supportsSeeking						{ return YES; }
+- (BOOL)			supportsSeeking					{ return YES; }
 
 - (SInt64) seekToFrame:(SInt64)frame
 {

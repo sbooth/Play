@@ -152,6 +152,8 @@ audio_linear_round(unsigned int bits,
 - (SInt64)			totalFrames						{ return _totalFrames; }
 - (SInt64)			currentFrame					{ return _currentFrame; }
 
+- (BOOL)			supportsSeeking					{ return YES; }
+
 	// FIXME: Seeking breaks gapless playback for the stream
 - (SInt64) seekToFrame:(SInt64)frame
 {
