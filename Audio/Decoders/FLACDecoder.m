@@ -119,7 +119,7 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		for(i = 0; i < _bufferList->mNumberBuffers; ++i) {
 			_bufferList->mBuffers[i].mData = calloc(_streamInfo.max_blocksize, sizeof(float));
 			NSAssert(NULL != _bufferList->mBuffers[i].mData, @"Unable to allocate memory");
-			_bufferList->mBuffers[i].mDataByteSize = _streamInfo.max_blocksize * sizeof(float);
+
 			_bufferList->mBuffers[i].mNumberChannels = 1;
 		}
 	}
