@@ -82,9 +82,8 @@ NSString * const	AudioSchedulerRunLoopMode			= @"org.sbooth.Play.AudioScheduler.
 static void
 scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 {
-	AudioScheduler *scheduler = (AudioScheduler *)userData;
-
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSAutoreleasePool	*pool		= [[NSAutoreleasePool alloc] init];
+	AudioScheduler		*scheduler	= (AudioScheduler *)userData;
 	
 #if DEBUG
 	if(kScheduledAudioSliceFlag_BeganToRenderLate & slice->mFlags)
@@ -92,7 +91,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 #endif
 
 	// Determine if this render represents a  new region
-	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && nil != [scheduler regionBeingScheduled] && [scheduler regionBeingScheduled] != [scheduler regionBeingRendered]) {
+	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && nil == [scheduler regionBeingRendered]) {
 
 		// Update the scheduler
 		[scheduler setRegionBeingRendered:[scheduler regionBeingScheduled]];
@@ -110,7 +109,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 		
 	// Signal the scheduling thread that a slice is available for filling
 	semaphore_signal([scheduler semaphore]);
-	
+
 	// Determine if region rendering is complete
 	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && [[scheduler regionBeingRendered] framesRendered] == [[scheduler regionBeingRendered] framesScheduled]) {
 
@@ -125,7 +124,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	}
 	
 	// Determine if all rendering is complete
-	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && [scheduler framesRendered] == [scheduler framesScheduled]) {
+	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && nil == [scheduler regionBeingRendered] && [scheduler framesRendered] == [scheduler framesScheduled]) {
 
 		// Notify the delegate
 		if(nil != [scheduler delegate] && [[scheduler delegate] respondsToSelector:@selector(audioSchedulerRenderedLastFrame:)])
@@ -403,24 +402,14 @@ slice_contains_sample(const ScheduledAudioSlice *slice, double sample)
 	return timeStamp;
 }
 
-- (SInt64) framesScheduled
-{
-	return _framesScheduled;
-}
-
-- (SInt64) framesRendered
-{
-	return _framesRendered;
-}
+- (SInt64)			framesScheduled					{ return _framesScheduled; }
+- (SInt64)			framesRendered					{ return _framesRendered; }
 
 @end
 
 @implementation AudioScheduler (Private)
 
-- (semaphore_t) semaphore
-{
-	return _semaphore;
-}
+- (semaphore_t)		semaphore						{ return _semaphore; }
 
 - (NSMutableArray *) scheduledAudioRegions
 {
@@ -439,10 +428,7 @@ slice_contains_sample(const ScheduledAudioSlice *slice, double sample)
 	[_regionBeingRendered release], _regionBeingRendered = [region retain];
 }
 
-- (BOOL) keepScheduling
-{
-	return _keepScheduling;
-}
+- (BOOL)			keepScheduling					{ return _keepScheduling; }
 
 - (void) allocateSliceBufferForASBD:(AudioStreamBasicDescription)asbd
 {
