@@ -28,6 +28,7 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
+#define kAUPeakLimiterParameter_PreGain 2
 
 // ========================================
 // Utility functions
@@ -121,10 +122,9 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	[self exposeBinding:@"hasValidStream"];
 	[self exposeBinding:@"streamSupportsSeeking"];
 	
-	[self setKeys:[NSArray arrayWithObject:@"streamDecoder"] triggerChangeNotificationsForDependentKey:@"hasValidStream"];
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"streamSupportsSeeking"];
 
-//	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
+	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
 
 	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"currentSecond"];
@@ -179,8 +179,8 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	[super dealloc];
 }
 
-- (AudioLibrary *)		owner									{ return _owner; }
-- (void)				setOwner:(AudioLibrary *)owner			{ _owner = owner; }
+- (AudioLibrary *)		owner									{ return [[_owner retain] autorelease]; }
+- (void)				setOwner:(AudioLibrary *)owner			{ [_owner release], _owner = [owner retain]; }
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
@@ -229,6 +229,31 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 		}
 	}
 
+	// Update the AUGraph
+	if(NO == channelLayoutsAreEqual(&newChannelLayout, &_channelLayout)) {
+		OSStatus err = [self setAUGraphChannelLayout:newChannelLayout];
+		if(noErr != err) {
+			if(nil != error) {
+				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+											 code:AudioPlayerInternalError 
+										 userInfo:errorDictionary];
+			}
+			
+			[self teardownAUGraph];
+			[self setupAUGraph];
+			[[self scheduler] setAudioUnit:_generatorUnit];
+			
+			return NO;
+		}
+	}
+	
 	// Schedule the region for playback, and start scheduling audio slices
 	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder]];
 	[[self scheduler] startScheduling];
@@ -475,7 +500,11 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 
 - (void) setCurrentFrame:(SInt64)currentFrame
 {
-	NSParameterAssert(0 <= currentFrame && currentFrame <= [self totalFrames]);
+//	NSParameterAssert(0 <= currentFrame && currentFrame < [self totalFrames]);
+	if(0 > currentFrame)
+		currentFrame = 0;
+	else if([self totalFrames] <= currentFrame)
+		currentFrame = [self totalFrames ] - 1;
 	
 	BOOL resume = NO;
 	
@@ -613,8 +642,11 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 		[self setPlayingFrame:0];
 		[self didChangeValueForKey:@"currentFrame"];
 	}
-	else
+	// Otherwise set up for the next stream
+	else {
 		_regionStartingFrame += [region framesRendered];
+		[self prepareToPlayStream:[[[[self scheduler] regionBeingScheduled] decoder] stream]];
+	}
 
 	if(NO == [_owner sentNextStreamRequest])
 		[_owner streamPlaybackDidComplete];
@@ -1074,24 +1106,26 @@ return err;	*/
 			float	magnitude	= fabsf(sample);
 			
 			// If clipping will occur, reduce the preamp gain so the peak will be +/- 1.0
-			if(1.0 < magnitude) {
+			if(1.0 < magnitude)
 				[self setPreAmplification:(20 * log10(1.0 / peakSample)) - [self replayGain]];
-			}
 		}
 	}
+
+	// Set the pre-gain on the peak limiter
+	float preGain = 0;
+	if([self hasReplayGain])
+		preGain = [self preAmplification] + [self replayGain];
 	
-	if([self hasReplayGain]) {
-		AudioUnitParameter auParameter;
-		
-		auParameter.mAudioUnit		= _limiterUnit;
-		auParameter.mParameterID	= 2;
-		auParameter.mScope			= kAudioUnitScope_Global;
-		auParameter.mElement		= 0;
-		
-		OSStatus err = AUParameterSet(NULL, NULL, &auParameter, [self preAmplification] + [self replayGain], 0);
-		if(noErr != err)
-			NSLog(@"Error settting RG");
-	}
+	AudioUnitParameter auParameter;
+	
+	auParameter.mAudioUnit		= _limiterUnit;
+	auParameter.mParameterID	= kAUPeakLimiterParameter_PreGain;
+	auParameter.mScope			= kAudioUnitScope_Global;
+	auParameter.mElement		= 0;
+	
+	OSStatus err = AUParameterSet(NULL, NULL, &auParameter, preGain, 0);
+	if(noErr != err)
+		NSLog(@"Error settting ReplayGain");
 }
 
 - (NSNumber *) setReplayGainForStream:(AudioStream *)stream

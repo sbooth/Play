@@ -72,7 +72,6 @@ enum {
 	
 	AudioStreamBasicDescription _format;
 	AudioChannelLayout			_channelLayout;
-//	AudioUnitUIEditor		*_audioUnitUI;
 
 	BOOL					_hasReplayGain;
 	float					_replayGain;
