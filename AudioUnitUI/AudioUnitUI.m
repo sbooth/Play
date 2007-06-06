@@ -24,12 +24,12 @@
 // ========================================
 // Toolbar item identifiers
 // ========================================
-static NSString * const AudioUnitUIToolbarIdentifier					= @"org.sbooth.AudioUnitUIEditor.Toolbar";
-static NSString * const PresetDrawerToolbarItemIdentifier				= @"org.sbooth.AudioUnitUIEditor.Toolbar.PresetDrawer";
-static NSString * const SavePresetToolbarItemIdentifier					= @"org.sbooth.AudioUnitUIEditor.Toolbar.SavePreset";
-static NSString * const BypassEffectToolbarItemIdentifier				= @"org.sbooth.AudioUnitUIEditor.Toolbar.BypassEffect";
-static NSString * const ExportPresetToolbarItemIdentifier				= @"org.sbooth.AudioUnitUIEditor.Toolbar.ExportPreset";
-static NSString * const ImportPresetToolbarItemIdentifier				= @"org.sbooth.AudioUnitUIEditor.Toolbar.ImportPreset";
+static NSString * const AudioUnitUIToolbarIdentifier					= @"org.sbooth.Play.AudioUnitUI.Toolbar";
+static NSString * const PresetDrawerToolbarItemIdentifier				= @"org.sbooth.Play.AudioUnitUI.Toolbar.PresetDrawer";
+static NSString * const SavePresetToolbarItemIdentifier					= @"org.sbooth.Play.AudioUnitUI.Toolbar.SavePreset";
+static NSString * const BypassEffectToolbarItemIdentifier				= @"org.sbooth.Play.AudioUnitUI.Toolbar.BypassEffect";
+static NSString * const ExportPresetToolbarItemIdentifier				= @"org.sbooth.Play.AudioUnitUI.Toolbar.ExportPreset";
+static NSString * const ImportPresetToolbarItemIdentifier				= @"org.sbooth.Play.AudioUnitUI.Toolbar.ImportPreset";
 
 @interface AudioUnitUI (NotificationManagerMethods)
 - (void) auViewFrameDidChange:(NSNotification *)notification;
