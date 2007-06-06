@@ -75,7 +75,7 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	NSDragOperation dragOperation = NSDragOperationNone;
 	
 	// Move rows if this is an internal drag and the library is displaying an ordered set of streams
-	if(tableView == [info draggingSource] && [[AudioLibrary library] streamsAreOrdered]) {
+	if(tableView == [info draggingSource] && [[AudioLibrary library] streamsAreOrdered] && [[AudioLibrary library] streamReorderingAllowed]) {
 		[tableView setDropRow:row dropOperation:NSTableViewDropAbove];
 		dragOperation = NSDragOperationMove;
 	}

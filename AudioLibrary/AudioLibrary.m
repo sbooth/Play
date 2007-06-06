@@ -1389,6 +1389,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	return _streamsAreOrdered;
 }
 
+- (BOOL) streamReorderingAllowed
+{
+	return _streamReorderingAllowed;
+}
+
 @end
 
 @implementation AudioLibrary (NSTableViewDelegateMethods)
@@ -1566,8 +1571,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			[_streamController bind:@"contentArray" toObject:newStreamsNode withKeyPath:@"streams" options:nil];
 			[_streamController setSelectedObjects:selected];
 
-			// Save stream ordering for drag validation
-			_streamsAreOrdered = [newStreamsNode streamsAreOrdered];
+			// Save stream ordering info for drag validation
+			_streamsAreOrdered			= [newStreamsNode streamsAreOrdered];
+			_streamReorderingAllowed	= [newStreamsNode streamReorderingAllowed];
 		}
 	}
 	else if([[oldStreamsNode exposedBindings] containsObject:@"streams"] && NO == [oldStreamsNode streamsAreOrdered]) {

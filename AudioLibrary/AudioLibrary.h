@@ -103,6 +103,7 @@ extern NSString * const		PlayQueueKey;
 	BOOL					_playButtonEnabled;
 	
 	BOOL					_streamsAreOrdered;
+	BOOL					_streamReorderingAllowed;
 
 	NSMutableArray			*_playQueue;	
 	unsigned				_playbackIndex;
@@ -219,6 +220,7 @@ extern NSString * const		PlayQueueKey;
 - (BOOL)		canPlayPreviousStream;
 
 - (BOOL)		streamsAreOrdered;
+- (BOOL)		streamReorderingAllowed;
 
 - (AudioStream *) nowPlaying;
 
