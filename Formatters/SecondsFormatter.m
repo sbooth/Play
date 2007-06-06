@@ -20,6 +20,8 @@
 
 #import "SecondsFormatter.h"
 
+#include <math.h>
+
 @implementation SecondsFormatter
 
 - (NSString *) stringForObjectValue:(id)object
