@@ -32,7 +32,11 @@
 		return nil;
 	}
 	
-	unsigned value			= [object unsignedIntValue];
+	float floatValue = [object floatValue];
+	if(isnan(floatValue) || isinf(floatValue))
+		return nil;
+	
+	unsigned value			= (unsigned)floatValue;
 	unsigned seconds		= value % 60;
 	unsigned minutes		= value / 60;
 	
@@ -46,18 +50,14 @@
 		++days;
 	}
 
-	if(0 < days) {
+	if(0 < days)
 		result = [NSString stringWithFormat:@"%u:%.2u:%.2u:%.2u", days, hours, minutes, seconds];
-	}
-	else if(0 < hours) {
+	else if(0 < hours)
 		result = [NSString stringWithFormat:@"%u:%.2u:%.2u", hours, minutes, seconds];
-	}
-	else if(0 < minutes) {
+	else if(0 < minutes)
 		result = [NSString stringWithFormat:@"%u:%.2u", minutes, seconds];
-	}
-	else {
+	else
 		result = [NSString stringWithFormat:@"0:%.2u", seconds];
-	}
 	
 	return [[result retain] autorelease];
 }
@@ -84,12 +84,10 @@
 		[scanner scanString:@":" intoString:NULL];
 	}
 	
-	if(result && NULL != object) {
+	if(result && NULL != object)
 		*object = [NSNumber numberWithUnsignedInt:seconds];
-	}
-	else if(NULL != error) {
+	else if(NULL != error)
 		*error = @"Couldn't convert value to seconds";
-	}
 	
 	return result;
 }

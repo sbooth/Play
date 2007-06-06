@@ -128,7 +128,8 @@
             CLASS = PlayQueueTableView; 
             LANGUAGE = ObjC; 
             SUPERCLASS = AudioStreamTableView; 
-        }
+        }, 
+        {CLASS = SecondsFormatter; LANGUAGE = ObjC; SUPERCLASS = NSFormatter; }
     ); 
     IBVersion = 1; 
 }

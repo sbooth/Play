@@ -108,6 +108,8 @@ extern NSString * const		PlayQueueKey;
 	unsigned				_playbackIndex;
 	unsigned				_nextPlaybackIndex;
 	
+	BOOL					_sentNextStreamRequest;
+	
 	BrowserNode				*_libraryNode;
 	BrowserNode				*_mostPopularNode;
 	BrowserNode				*_highestRatedNode;

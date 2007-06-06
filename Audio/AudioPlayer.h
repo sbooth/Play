@@ -19,12 +19,12 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#include <AudioUnit/AudioUnit.h>
+#include <AudioToolbox/AudioToolbox.h>
 
 @class AudioLibrary;
 @class AudioStream;
-@class AudioStreamDecoder;
-@class SecondsFormatter;
+@class AudioScheduler;
+@class AudioDecoder;
 
 // ========================================
 // Error Codes
@@ -53,23 +53,34 @@ enum {
 
 @interface AudioPlayer : NSObject
 {
-	AudioUnit				_audioUnit;
-	AudioStreamDecoder		*_streamDecoder;
+	AUGraph					_auGraph;
 	
-	AudioStreamDecoder		*_nextStreamDecoder;
-	BOOL					_requestedNextStream;
+	AUNode					_outputNode;
+	
+	AudioUnit				_generatorUnit;
+	AudioUnit				_limiterUnit;
+	AudioUnit				_outputUnit;
+	
+	AudioScheduler			*_scheduler;
+	
+	SInt64					_startingFrame;
+	SInt64					_playingFrame;
+	SInt64					_totalFrames;
+	SInt64					_regionStartingFrame;
+	
+	NSTimer					*_timer;
+	
+	AudioStreamBasicDescription _format;
+	AudioChannelLayout			_channelLayout;
+//	AudioUnitUIEditor		*_audioUnitUI;
 
 	BOOL					_hasReplayGain;
 	float					_replayGain;
 	float					_preAmplification;
-	
-	AudioLibrary			*_owner;
-	
+		
 	BOOL					_playing;
 
-	SInt64					_frameCounter;
-	NSFormatter				*_secondsFormatter;
-	
+	AudioLibrary			*_owner;
 	NSRunLoop				*_runLoop;
 }
 
@@ -108,14 +119,20 @@ enum {
 - (float)			preAmplification;
 - (void)			setPreAmplification:(float)preAmplification;
 
-// UI bindings (updated approximately once per second to avoid excessive CPU loads)
+- (AudioStreamBasicDescription) format;
+- (AudioChannelLayout) channelLayout;
+
+// ========================================
+// Values available for UI binding
 - (SInt64)			totalFrames;
 
 - (SInt64)			currentFrame;
 - (void)			setCurrentFrame:(SInt64)currentFrame;
 
-- (NSString *)		totalSecondsString;
-- (NSString *)		currentSecondString;
-- (NSString *)		secondsRemainingString;
+- (SInt64)			framesRemaining;
+
+- (NSTimeInterval)	totalSeconds;
+- (NSTimeInterval)	currentSecond;
+- (NSTimeInterval)	secondsRemaining;
 
 @end

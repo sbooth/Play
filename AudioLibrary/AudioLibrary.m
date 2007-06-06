@@ -159,11 +159,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 // ========================================
 // AudioPlayer callbacks
 // ========================================
-@interface AudioLibrary (AudioPlayerCallbackMethods)
-- (void)	streamPlaybackDidStart;
-- (void)	streamPlaybackDidComplete;
-
-- (void)	requestNextStream;
+@interface AudioLibrary (AudioPlayerMethods)
+- (void) streamPlaybackDidStart;
+- (void) streamPlaybackDidComplete;
+- (void) requestNextStream;
+- (BOOL) sentNextStreamRequest;
 @end
 
 // ========================================
@@ -361,10 +361,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 + (AudioLibrary *) library
 {
 	@synchronized(self) {
-		if(nil == libraryInstance) {
+		if(nil == libraryInstance)
 			// assignment not done here
 			[[self alloc] init];
-		}
 	}
 	return libraryInstance;
 }
@@ -387,9 +386,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		// Seed random number generator
 		init_gen_rand(time(NULL));
 		
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"useInMemoryDatabase"]) {
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"useInMemoryDatabase"])
 			[[CollectionManager manager] connectToDatabase:@":memory:"];
-		}
 		else {
 			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 			NSAssert(nil != paths, NSLocalizedStringFromTable(@"Unable to locate the \"Application Support\" folder.", @"Errors", @""));
@@ -518,9 +516,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) windowWillClose:(NSNotification *)aNotification
 {
-	if([[self player] hasValidStream]) {
+	if([[self player] hasValidStream])
 		[self stop:self];
-	}
 }
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
@@ -529,65 +526,49 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[menuItem setTitle:([[self player] isPlaying] ? NSLocalizedStringFromTable(@"Pause", @"Menus", @"") : NSLocalizedStringFromTable(@"Play", @"Menus", @""))];
 		return [self playButtonEnabled];
 	}
-	else if([menuItem action] == @selector(addFiles:)) {
+	else if([menuItem action] == @selector(addFiles:))
 		return [_streamController canAdd];
-	}
 	else if([menuItem action] == @selector(skipForward:) 
 			|| [menuItem action] == @selector(skipBackward:) 
 			|| [menuItem action] == @selector(skipToEnd:) 
 			|| [menuItem action] == @selector(skipToBeginning:)) {
 		return [[self player] hasValidStream];
 	}
-	else if([menuItem action] == @selector(playNextStream:)) {
+	else if([menuItem action] == @selector(playNextStream:))
 		return [self canPlayNextStream];
-	}
-	else if([menuItem action] == @selector(playPreviousStream:)) {
+	else if([menuItem action] == @selector(playPreviousStream:))
 		return [self canPlayPreviousStream];
-	}
-	else if([menuItem action] == @selector(insertPlaylist:)) {
+	else if([menuItem action] == @selector(insertPlaylist:))
 		return [_browserController canInsert];
-	}
-	else if([menuItem action] == @selector(jumpToNowPlaying:)) {
+	else if([menuItem action] == @selector(jumpToNowPlaying:))
 		return (nil != [self nowPlaying] && 0 != [self countOfPlayQueue]);
-	}
-	else if([menuItem action] == @selector(undo:)) {
+	else if([menuItem action] == @selector(undo:))
 		return [[self undoManager] canUndo];
-	}
-	else if([menuItem action] == @selector(redo:)) {
+	else if([menuItem action] == @selector(redo:))
 		return [[self undoManager] canRedo];
-	}
-	else if([menuItem action] == @selector(add10RandomStreamsToPlayQueue:)
-			|| [menuItem action] == @selector(add25RandomStreamsToPlayQueue:)) {
+	else if([menuItem action] == @selector(add10RandomStreamsToPlayQueue:) || [menuItem action] == @selector(add25RandomStreamsToPlayQueue:))
 		return (0 != [[[[CollectionManager manager] streamManager] streams] count]);
-	}
-	else if([menuItem action] == @selector(toggleRandomPlayback:)) {
+	else if([menuItem action] == @selector(toggleRandomPlayback:))
 		return (0 != [self countOfPlayQueue] && NO == [self loopPlayback]);
-	}
-	else if([menuItem action] == @selector(toggleLoopPlayback:)) {
+	else if([menuItem action] == @selector(toggleLoopPlayback:))
 		return (0 != [self countOfPlayQueue] && NO == [self randomPlayback]);
-	}
 	else if([menuItem action] == @selector(toggleBrowser:)) {
 		int state = [_browserDrawer state];
-		if(NSDrawerClosingState == state || NSDrawerClosedState == state) {
+		if(NSDrawerClosingState == state || NSDrawerClosedState == state)
 			[menuItem setTitle:NSLocalizedStringFromTable(@"Show Browser", @"Menus", @"")];
-		}
-		else {
+		else
 			[menuItem setTitle:NSLocalizedStringFromTable(@"Hide Browser", @"Menus", @"")];
-		}
 		return YES;
 	}
 	else if([menuItem action] == @selector(togglePlayQueue:)) {
-		if([[_splitView subviewWithIdentifier:@"playQueue"] isCollapsed]) {
+		if([[_splitView subviewWithIdentifier:@"playQueue"] isCollapsed])
 			[menuItem setTitle:NSLocalizedStringFromTable(@"Show Play Queue", @"Menus", @"")];
-		}
-		else {
+		else
 			[menuItem setTitle:NSLocalizedStringFromTable(@"Hide Play Queue", @"Menus", @"")];
-		}
 		return YES;
 	}
-	else if([menuItem action] == @selector(clearPlayQueue:)) {
+	else if([menuItem action] == @selector(clearPlayQueue:))
 		return (0 != [self countOfPlayQueue]);
-	}
 	
 	return YES;
 }
@@ -602,12 +583,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (IBAction) togglePlayQueue:(id)sender
 {
 	RBSplitSubview *subView = [_splitView subviewWithIdentifier:@"playQueue"];
-	if([subView isCollapsed]) {
+	if([subView isCollapsed])
 		[subView expand];
-	}
-	else {
+	else
 		[subView collapse];
-	}
 }
 
 - (IBAction) add10RandomStreamsToPlayQueue:(id)sender
@@ -640,9 +619,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	if(nil != [self nowPlaying] && 0 != [self countOfPlayQueue]) {
 		RBSplitSubview *subView = [_splitView subviewWithIdentifier:@"playQueue"];
-		if([subView isCollapsed]) {
+		if([subView isCollapsed])
 			[subView expandWithAnimation];
-		}
 		[self scrollNowPlayingToVisible];
 		[_playQueueController setSelectionIndex:[self playbackIndex]];
 	}
@@ -688,31 +666,26 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	// If the stream already exists in the library, do nothing
 	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
-	if(nil != stream) {
+	if(nil != stream)
 		return YES;
-	}
 
 	// First read the properties
 	AudioPropertiesReader *propertiesReader = [AudioPropertiesReader propertiesReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
-	if(nil == propertiesReader) {
+	if(nil == propertiesReader)
 		return NO;
-	}
 	
 	BOOL result = [propertiesReader readProperties:&error];
-	if(NO == result) {
+	if(NO == result)
 		return NO;
-	}
 	
 	// Now read the metadata
 	AudioMetadataReader *metadataReader	= [AudioMetadataReader metadataReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
-	if(nil == metadataReader) {		
+	if(nil == metadataReader)
 		return NO;
-	}
 	
 	result = [metadataReader readMetadata:&error];
-	if(NO == result) {
+	if(NO == result)
 		return NO;
-	}
 
 	NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader valueForKey:@"properties"]];
 	[values addEntriesFromDictionary:[metadataReader valueForKey:@"metadata"]];
@@ -757,17 +730,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			while((path = [directoryEnumerator nextObject])) {
 				openSuccessful |= [self addFile:[filename stringByAppendingPathComponent:path]];
 				
-				if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+				if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession])
 					break;
-				}				
 			}
 		}
 		else {
 			openSuccessful = [self addFile:filename];
 			
-			if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession]) {
+			if(NULL != modalSession && NSRunContinuesResponse != [[NSApplication sharedApplication] runModalSession:modalSession])
 				break;
-			}				
 		}
 	}
 	
@@ -782,14 +753,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	// If the stream doesn't exist in the library, do nothing
 	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
-	if(nil == stream) {
+	if(nil == stream)
 		return YES;
-	}
 	
 	// Otherwise, remove it
-	if([stream isPlaying]) {
+	if([stream isPlaying])
 		[self stop:self];
-	}
 	
 	[[[CollectionManager manager] streamManager] deleteStream:stream];
 	
@@ -816,13 +785,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
 			directoryEnumerator	= [fileManager enumeratorAtPath:filename];
 			
-			while((path = [directoryEnumerator nextObject])) {
+			while((path = [directoryEnumerator nextObject]))
 				removeSuccessful &= [self removeFile:[filename stringByAppendingPathComponent:path]];
-			}
 		}
-		else {
+		else
 			removeSuccessful = [self removeFile:filename];
-		}
 	}
 	
 	[[CollectionManager manager] finishUpdate];
@@ -898,16 +865,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	// If it wasn't found, try and add it
 	if(nil == stream) {
 		success = [self addFile:filename];
-		if(success) {
+		if(success)
 			stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
-		}
 	}
 		
 	// Play the file, if everything worked
 	if(nil != stream) {
-		if([[self player] isPlaying]) {
+		if([[self player] isPlaying])
 			[self stop:self];
-		}
 		[self setPlayQueueFromArray:[NSArray arrayWithObject:stream]];
 		[self playStreamAtIndex:0];
 	}
@@ -945,9 +910,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 				// If it isn't, try and add it
 				if(nil == stream) {
 					addSuccessful = [self addFile:[filename stringByAppendingPathComponent:path]];
-					if(addSuccessful) {
+					if(addSuccessful)
 						stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:[filename stringByAppendingPathComponent:path]]];
-					}
 				}
 				
 				if(nil != stream) {
@@ -962,9 +926,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			// If it isn't, try and add it
 			if(nil == stream) {
 				addSuccessful = [self addFile:[filename stringByAppendingPathComponent:path]];
-				if(addSuccessful) {
+				if(addSuccessful)
 					stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
-				}
 			}
 			
 			if(nil != stream) {
@@ -976,9 +939,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 	// Replace current streams with the files, and play the first one
 	if(playSuccessful) {
-		if([[self player] isPlaying]) {
+		if([[self player] isPlaying])
 			[self stop:self];
-		}
 		[self setPlayQueueFromArray:streams];
 		[self playStreamAtIndex:0];
 
@@ -995,9 +957,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return;
 	}
 	
-	if([[self player] isPlaying]) {
+	if([[self player] isPlaying])
 		return;
-	}
 	
 	if(NO == [[self player] hasValidStream]) {
 		if(0 != [self countOfPlayQueue]) {
@@ -1034,22 +995,19 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return;
 	}
 	
-	if(NO == [[self player] hasValidStream]) {
+	if(NO == [[self player] hasValidStream])
 		[self play:sender];
-	}
 	else {
 		[[self player] playPause];
 		
-		if([[self player] isPlaying]) {
+		if([[self player] isPlaying])
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidResumeNotification 
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
-		}
-		else {
+		else
 			[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidPauseNotification
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:[self nowPlaying] forKey:AudioStreamObjectKey]];
-		}
 	}
 	
 	[self updatePlayButtonState];
@@ -1067,9 +1025,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self setPlaybackIndex:NSNotFound];
 	[self setNextPlaybackIndex:NSNotFound];
 
-	if([[self player] isPlaying]) {
+	if([[self player] isPlaying])
 		[[self player] stop];
-	}
 	
 	[[self player] reset];
 
@@ -1135,7 +1092,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSArray *streams = _playQueue;
 	
 	if(nil == stream || 0 == [streams count]) {
-		[[self player] reset];
 		[self setPlaybackIndex:NSNotFound];
 		[self updatePlayButtonState];
 	}
@@ -1155,11 +1111,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	else {
 		streamIndex = [self playbackIndex];
 		
-		if(streamIndex + 1 < [streams count]) {
+		if(streamIndex + 1 < [streams count])
 			[self playStreamAtIndex:streamIndex + 1];
-		}
 		else {
-			[[self player] reset];
 			[self setPlaybackIndex:NSNotFound];
 			[self setPlayQueueFromArray:nil];
 			[self updatePlayButtonState];
@@ -1181,10 +1135,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSArray *streams = _playQueue;
 	
-	if(nil == stream || 0 == [streams count]) {
-		[[self player] reset];	
+	if(nil == stream || 0 == [streams count])
 		[self setPlaybackIndex:NSNotFound];
-	}
 	else if([self randomPlayback]) {
 		double			randomNumber;
 		unsigned		randomIndex;
@@ -1201,13 +1153,10 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	else {
 		streamIndex = [self playbackIndex];		
 		
-		if(1 <= streamIndex) {
+		if(1 <= streamIndex)
 			[self playStreamAtIndex:streamIndex - 1];
-		}
-		else {
-			[[self player] reset];
+		else
 			[self setPlaybackIndex:NSNotFound];
-		}
 	}
 }
 
@@ -1305,13 +1254,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue insertObject:stream atIndex:index];	
 
-	if(NSNotFound != [self nextPlaybackIndex] && index >= [self nextPlaybackIndex]) {
+	if(NSNotFound != [self nextPlaybackIndex] && index >= [self nextPlaybackIndex])
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] + 1];
-	}
 
-	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex]) {
+	if(NSNotFound != [self playbackIndex] && index <= [self playbackIndex])
 		[self setPlaybackIndex:[self playbackIndex] + 1];
-	}
 	
 	[self updatePlayButtonState];
 }
@@ -1320,17 +1267,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[_playQueue removeObjectAtIndex:index];	
 
-	if(NSNotFound != [self nextPlaybackIndex] && index < [self nextPlaybackIndex]) {
+	if(NSNotFound != [self nextPlaybackIndex] && index < [self nextPlaybackIndex])
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] - 1];
-	}
 
 	if(index == [self playbackIndex]) {
 //		[self stop:self];
 		[self setPlaybackIndex:NSNotFound];
 	}
-	else if(NSNotFound != [self playbackIndex] && index < [self playbackIndex]) {
+	else if(NSNotFound != [self playbackIndex] && index < [self playbackIndex])
 		[self setPlaybackIndex:[self playbackIndex] - 1];
-	}
 
 	[self updatePlayButtonState];
 }
@@ -1399,18 +1344,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSArray		*streams	= _playQueue;
 	BOOL		result		= NO;
 	
-	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
+	if(NSNotFound == [self playbackIndex] || 0 == [streams count])
 		result = NO;
-	}
-	else if([self randomPlayback]) {
+	else if([self randomPlayback])
 		result = YES;
-	}
-	else if([self loopPlayback]) {
+	else if([self loopPlayback])
 		result = YES;
-	}
-	else {
+	else
 		result = ([self playbackIndex] + 1 < [streams count]);
-	}
 	
 	return result;
 }
@@ -1420,18 +1361,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSArray		*streams	= _playQueue;
 	BOOL		result		= NO;
 	
-	if(NSNotFound == [self playbackIndex] || 0 == [streams count]) {
+	if(NSNotFound == [self playbackIndex] || 0 == [streams count])
 		result = NO;
-	}
-	else if([self randomPlayback]) {
+	else if([self randomPlayback])
 		result = YES;
-	}
-	else if([self loopPlayback]) {
+	else if([self loopPlayback])
 		result = YES;
-	}
-	else {
+	else
 		result = (1 <= [self playbackIndex]);
-	}
 	
 	return result;
 }
@@ -1459,9 +1396,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (NSString *) tableView:(NSTableView *)tableView toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)aTableColumn row:(int)row mouseLocation:(NSPoint)mouseLocation
 {
     if([cell isKindOfClass:[NSTextFieldCell class]]) {
-        if([[cell attributedStringValue] size].width > rect->size.width) {
+        if([[cell attributedStringValue] size].width > rect->size.width)
             return [cell stringValue];
-        }
     }
 	
     return nil;
@@ -1478,9 +1414,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			BOOL				highlight			= ([stream isPlaying] && rowIndex == (int)[self playbackIndex]);
 			
 			// Icon for now playing
-			if([[aTableColumn identifier] isEqual:@"nowPlaying"]) {
+			if([[aTableColumn identifier] isEqual:@"nowPlaying"])
 				[cell setImage:(highlight ? [NSImage imageNamed:@"artsenvironment"] : nil)];
-			}
 			
 			// Bold/unbold cell font as required
 			NSFont *font = [cell font];
@@ -1492,19 +1427,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-	if([aNotification object] == _streamTable) {
+	if([aNotification object] == _streamTable)
 		[self updatePlayButtonState];
-	}
 }
 
 - (void) tableViewColumnDidMove:(NSNotification *)aNotification
 {
-	if([aNotification object] == _streamTable) {
+	if([aNotification object] == _streamTable)
 		[self saveStreamTableColumnOrder];
-	}
-	else if([aNotification object] == _playQueueTable) {
+	else if([aNotification object] == _playQueueTable)
 		[self savePlayQueueTableColumnOrder];
-	}
 }
 
 - (void) tableViewColumnDidResize:(NSNotification *)aNotification
@@ -1514,9 +1446,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
 		id						column;
 		
-		while((column = [enumerator nextObject])) {
+		while((column = [enumerator nextObject]))
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
-		}
 		
 		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
 	}
@@ -1525,9 +1456,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		NSEnumerator			*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
 		id						column;
 		
-		while((column = [enumerator nextObject])) {
+		while((column = [enumerator nextObject]))
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
-		}
 		
 		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"playQueueTableColumnSizes"];
 	}
@@ -1561,9 +1491,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (NSString *) outlineView:(NSOutlineView *)ov toolTipForCell:(NSCell *)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn *)tc item:(id)item mouseLocation:(NSPoint)mouseLocation
 {
     if([cell isKindOfClass:[NSTextFieldCell class]]) {
-        if([[cell attributedStringValue] size].width > rect->size.width) {
+        if([[cell attributedStringValue] size].width > rect->size.width)
             return [cell stringValue];
-        }
     }
 	
     return nil;
@@ -1619,14 +1548,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			// so the streams show up in the order the user might expect
 			// When switching between ordered and unordered sources, save the source descriptors to restore later
 			if(nil == oldStreamsNode) {
-				if(NO == [newStreamsNode streamsAreOrdered]) {
+				if(NO == [newStreamsNode streamsAreOrdered])
 					[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
-				}
 			}
 			else if([oldStreamsNode streamsAreOrdered]) {
-				if(NO == [newStreamsNode streamsAreOrdered]) {
+				if(NO == [newStreamsNode streamsAreOrdered])
 					[_streamController setSortDescriptors:_streamTableSavedSortDescriptors];
-				}
 			}
 			else if(NO == [oldStreamsNode streamsAreOrdered]) {
 				if([newStreamsNode streamsAreOrdered]) {
@@ -1710,9 +1637,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		
 		WatchFolder *watchFolder = [WatchFolder insertWatchFolderWithInitialValues:initialValues];
 
-		if(nil != watchFolder) {
+		if(nil != watchFolder)
 			[_browserDrawer open:self];
-		}
 		else {
 			NSBeep();
 			NSLog(@"Unable to create the watch folder.");
@@ -1729,7 +1655,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) windowWillClose:(NSNotification *)aNotification
 {
 	[self stop:self];
-	[[self player] reset];
 }
 
 - (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
@@ -1739,7 +1664,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 @end
 
-@implementation AudioLibrary (AudioPlayerCallbackMethods)
+@implementation AudioLibrary (AudioPlayerMethods)
 
 - (void) streamPlaybackDidStart
 {
@@ -1768,22 +1693,22 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[stream setPlaying:NO];
 	
+	_sentNextStreamRequest = NO;
+	
 	[[CollectionManager manager] beginUpdate];
 	
 	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
 	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
 	
-	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey]) {
+	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey])
 		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
-	}
 	
 	[[CollectionManager manager] finishUpdate];
 	
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"] && [self nextPlaybackIndex] != [self playbackIndex]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"] && [self nextPlaybackIndex] != [self playbackIndex])
 		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];	
-	}
 	
 	[self setPlaybackIndex:NSNotFound];
 
@@ -1794,15 +1719,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	// If the player isn't playing, it could be because the streams have different PCM formats
 	if(NO == [[self player] isPlaying]) {
 		
-		// Next stream was requested by player, but the PCM format differs so gapless playback was impossible
-		if(NSNotFound != [self nextPlaybackIndex]) {
+		// Next stream was requested by player, but the PCM formats differ so gapless playback was impossible
+		if(NSNotFound != [self nextPlaybackIndex])
 			[self playStreamAtIndex:[self nextPlaybackIndex]];
-		}
-		// Otherwise stop
-		else {
-			[[self player] reset];
+		// The player has already stopped, just update our state
+		else
 			[self updatePlayButtonState];
-		}
 	}	
 }
 
@@ -1813,18 +1735,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	NSArray *streams = _playQueue;
 	
-	if(nil == stream || 0 == [streams count]) {
+	if(nil == stream || 0 == [streams count])
 		[self setNextPlaybackIndex:NSNotFound];
-	}
 	else if([self randomPlayback]) {
 		double		randomNumber;
 		unsigned	randomIndex;
 		
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
 			
-			if(1 == [streams count]) {
+			if(1 == [streams count])
 				randomIndex = NSNotFound;
-			}
 			else {
 				do {
 					randomNumber	= genrand_real2();
@@ -1847,19 +1767,26 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		streamIndex = [self playbackIndex];
 		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
 	}
-	
-	
+
 	if(NSNotFound != [self nextPlaybackIndex]) {
 		NSError		*error		= nil;
 		BOOL		result		= [[self player] setNextStream:[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]] error:&error];
 
-		if(NO == result) {
-			if(nil != error) {
+		if(result)
+			_sentNextStreamRequest = YES;
+		else {
+			_sentNextStreamRequest = NO;
+			if(nil != error)
 				[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:nil contextInfo:NULL];
-			}
-//			[self setNextPlaybackIndex:NSNotFound];
 		}
 	}
+	else
+		_sentNextStreamRequest = NO;
+}
+
+- (BOOL) sentNextStreamRequest
+{
+	return _sentNextStreamRequest;
 }
 
 @end
@@ -1872,7 +1799,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		_player = [[AudioPlayer alloc] init];
 		[_player setOwner:self];
 	}
-	return _player;
+	return [[_player retain] autorelease];
 }
 
 - (void) scrollNowPlayingToVisible
@@ -1894,9 +1821,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[_playQueueTable setHighlightedRow:_playbackIndex];
 		[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	}
-	else {
+	else
 		[_playQueueTable setHighlightedRow:-1];
-	}
 
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:oldPlaybackIndex]];
 }
@@ -2090,9 +2016,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		menuIndex = 0;
 		
 		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
-			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_streamTableHeaderContextMenu itemAtIndex:menuIndex] title]])
 			menuIndex++;
-		}
 		
 		contextMenuItem = [_streamTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(streamTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
 		
@@ -2171,9 +2096,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		menuIndex = 0;
 		
 		while(menuIndex < [_playQueueTableHeaderContextMenu numberOfItems] 
-			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_playQueueTableHeaderContextMenu itemAtIndex:menuIndex] title]]) {
+			  && NSOrderedDescending == [[[obj headerCell] title] localizedCompare:[[_playQueueTableHeaderContextMenu itemAtIndex:menuIndex] title]])
 			menuIndex++;
-		}
 		
 		contextMenuItem = [_playQueueTableHeaderContextMenu insertItemWithTitle:[[obj headerCell] title] action:@selector(playQueueTableHeaderContextMenuSelected:) keyEquivalent:@"" atIndex:menuIndex];
 		
@@ -2232,9 +2156,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		NSLog(@"Unable to set thread priority");
 	}*/
 	
-	while((stream = [enumerator nextObject])) {
+	while((stream = [enumerator nextObject]))
 		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
-	}
 	
 	// Next iterate through and see what is actually in the directory
 	NSMutableSet	*physicalFilenames	= [NSMutableSet set];
@@ -2289,9 +2212,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSEnumerator	*enumerator		= [[_streamTable tableColumns] objectEnumerator];
 	id				obj;
 	
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[identifiers addObject:[obj identifier]];
-	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
 	//	[[NSUserDefaults standardUserDefaults] synchronize];
@@ -2303,9 +2225,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSEnumerator	*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
 	id				obj;
 	
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[identifiers addObject:[obj identifier]];
-	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"playQueueTableColumnOrder"];
 	//	[[NSUserDefaults standardUserDefaults] synchronize];
@@ -2330,14 +2251,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSEnumerator		*enumerator			= [_streamTableVisibleColumns objectEnumerator];
 	id					obj;
 	
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
-	}
 	
 	enumerator = [_streamTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
-	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
 	
@@ -2363,14 +2282,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSEnumerator		*enumerator			= [_playQueueTableVisibleColumns objectEnumerator];
 	id					obj;
 	
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
-	}
 	
 	enumerator = [_playQueueTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject])) {
+	while((obj = [enumerator nextObject]))
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
-	}
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"playQueueTableColumnVisibility"];
 	
@@ -2417,9 +2334,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	AudioStream				*stream			= nil;
 	
 	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject])) {
+	while((stream = [enumerator nextObject]))
 		[_playQueue removeObject:stream];
-	}
 	[self didChangeValueForKey:PlayQueueKey];
 
 	[self updatePlayButtonState];

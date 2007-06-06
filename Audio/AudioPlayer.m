@@ -19,31 +19,34 @@
  */
 
 #import "AudioPlayer.h"
+#import "AudioScheduler.h"
+#import "ScheduledAudioRegion.h"
 #import "AudioLibrary.h"
 #import "AudioStream.h"
-#import "AudioStreamDecoder.h"
+#import "AudioDecoder.h"
 
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
+
+// ========================================
+// Utility functions
+// ========================================
 static BOOL
 channelLayoutsAreEqual(AudioChannelLayout *layoutA,
 					   AudioChannelLayout *layoutB)
 {
 	// First check if the tags are equal
-	if(layoutA->mChannelLayoutTag != layoutB->mChannelLayoutTag) {
+	if(layoutA->mChannelLayoutTag != layoutB->mChannelLayoutTag)
 		return NO;
-	}
 	
 	// If the tags are equal, check for special values
-	if(kAudioChannelLayoutTag_UseChannelBitmap == layoutA->mChannelLayoutTag) {
+	if(kAudioChannelLayoutTag_UseChannelBitmap == layoutA->mChannelLayoutTag)
 		return (layoutA->mChannelBitmap == layoutB->mChannelBitmap);
-	}
 
 	if(kAudioChannelLayoutTag_UseChannelDescriptions == layoutA->mChannelLayoutTag) {
-		if(layoutA->mNumberChannelDescriptions != layoutB->mNumberChannelDescriptions) {
+		if(layoutA->mNumberChannelDescriptions != layoutB->mNumberChannelDescriptions)
 			return NO;
-		}
 		
 		unsigned bytesToCompare = layoutA->mNumberChannelDescriptions * sizeof(AudioChannelDescription);
 		return (0 == memcmp(&layoutA->mChannelDescriptions, &layoutB->mChannelDescriptions, bytesToCompare));
@@ -52,39 +55,53 @@ channelLayoutsAreEqual(AudioChannelLayout *layoutA,
 	return YES;
 }
 
+// ========================================
+// Constants
+// ========================================
 NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlayer";
 
 // ========================================
 // AudioPlayer callbacks
 // ========================================
-@interface AudioLibrary (AudioPlayerCallbackMethods)
+@interface AudioLibrary (AudioPlayerMethods)
 - (void) streamPlaybackDidStart;
 - (void) streamPlaybackDidComplete;
 - (void) requestNextStream;
+- (BOOL) sentNextStreamRequest;
 @end
 
-@interface AudioPlayer (Private)
-- (AudioUnit) audioUnit;
+// ========================================
+// AUGraph manipulation
+// ========================================
+@interface AudioPlayer (AUGraphMethods)
+- (OSStatus) setupAUGraph;
+- (OSStatus) teardownAUGraph;
+- (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format;
+- (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout;
+@end
 
-- (NSFormatter *) secondsFormatter;
+// ========================================
+// Private methods
+// ========================================
+@interface AudioPlayer (Private)
+- (AudioScheduler *) scheduler;
+
+- (BOOL) canPlay;
+- (void) uiTimerFireMethod:(NSTimer *)theTimer;
 
 - (NSRunLoop *) runLoop;
 
-- (AudioStreamDecoder *) streamDecoder;
-- (void) setStreamDecoder:(AudioStreamDecoder *)streamDecoder;
-
-- (AudioStreamDecoder *) nextStreamDecoder;
-- (void) setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder;
-
-//- (void) didReachEndOfStream:(id)arg;
-- (void) didReachEndOfStream;
-//- (void) didReadFrames:(NSNumber *)frameCount;
-- (void) didReadFrames:(UInt32)frameCount;
-
-- (void) didStartUsingNextStreamDecoder;
-- (void) currentFrameNeedsUpdate;
-
 - (void) setPlaying:(BOOL)playing;
+
+// Accessor is public
+- (void) setTotalFrames:(SInt64)totalFrames;
+
+- (SInt64) startingFrame;
+- (void) setStartingFrame:(SInt64)startingFrame;
+
+- (SInt64) playingFrame;
+- (void) setPlayingFrame:(SInt64)playingFrame;
+
 - (void) setOutputDeviceUID:(NSString *)deviceUID;
 
 - (void) setHasReplayGain:(BOOL)hasReplayGain;
@@ -93,154 +110,6 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 - (void) prepareToPlayStream:(AudioStream *)stream;
 - (NSNumber *) setReplayGainForStream:(AudioStream *)stream;
 @end
-
-#if DEBUG
-static void dumpASBD(const AudioStreamBasicDescription *asbd)
-{
-	NSLog(@"mSampleRate         %f", asbd->mSampleRate);
-	NSLog(@"mFormatID           %.4s", (const char *)(&asbd->mFormatID));
-	NSLog(@"mFormatFlags        %u", asbd->mFormatFlags);
-	NSLog(@"mBytesPerPacket     %u", asbd->mBytesPerPacket);
-	NSLog(@"mFramesPerPacket    %u", asbd->mFramesPerPacket);
-	NSLog(@"mBytesPerFrame      %u", asbd->mBytesPerFrame);
-	NSLog(@"mChannelsPerFrame   %u", asbd->mChannelsPerFrame);
-	NSLog(@"mBitsPerChannel     %u", asbd->mBitsPerChannel);
-	NSLog(@"mReserved           %u", asbd->mReserved);
-}
-#endif
-
-// ========================================
-// AudioUnit render function
-// Thin wrapper around an AudioStreamDecoder
-// This function will not be called from the main thread
-// Since bindings are not thread safe, make sure all calls back to the player
-// are done on the main thread
-OSStatus	
-MyRenderer(void							*inRefCon, 
-		   AudioUnitRenderActionFlags 	*ioActionFlags, 
-		   const AudioTimeStamp 		*inTimeStamp, 
-		   UInt32 						inBusNumber, 
-		   UInt32 						inNumberFrames, 
-		   AudioBufferList				*ioData)
-
-{
-	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
-	AudioPlayer			*player				= (AudioPlayer *)inRefCon;
-	AudioStreamDecoder	*streamDecoder		= [player streamDecoder];
-	UInt32				currentBuffer;
-	
-	if(nil == streamDecoder) {
-		*ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
-		
-		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
-			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
-		}
-
-#if DEBUG
-		NSLog(@"MyRenderer returning silence (%i frames requested, no stream available)", inNumberFrames);
-#endif
-		
-		[pool release];
-		return noErr;
-	}
-	
-	UInt32 originalBufferSize	= ioData->mBuffers[0].mDataByteSize;
-	UInt32 framesRead			= [streamDecoder readAudio:ioData frameCount:inNumberFrames];
-		
-	// If this stream is finished, roll straight into the next one if possible
-	if(framesRead != inNumberFrames && [streamDecoder atEndOfStream] && nil != [player nextStreamDecoder]) {
-		AudioBufferList			additionalData;
-		UInt32					additionalFramesRead;
-		UInt32					bufferSizeAfterFirstRead;
-
-		[player didStartUsingNextStreamDecoder];
-		
-		streamDecoder								= [player streamDecoder];
-		
-		bufferSizeAfterFirstRead					= ioData->mBuffers[0].mDataByteSize;
-		additionalData.mNumberBuffers				= 1;
-		additionalData.mBuffers[0].mData			= ioData->mBuffers[0].mData + ioData->mBuffers[0].mDataByteSize;
-		additionalData.mBuffers[0].mDataByteSize	= originalBufferSize - ioData->mBuffers[0].mDataByteSize;
-		
-		additionalFramesRead	= [streamDecoder readAudio:&additionalData frameCount:inNumberFrames - framesRead];
-		
-		ioData->mBuffers[0].mDataByteSize			= bufferSizeAfterFirstRead + additionalData.mBuffers[0].mDataByteSize;
-
-		framesRead									+= additionalFramesRead;
-	}
-
-	// Apply preamp and ReplayGain
-	if([player hasReplayGain]) {
-		float		adjustment		= [player preAmplification] + [player replayGain];
-		double		multiplier		= pow(10, adjustment / 20);
-		float		*buffer			= ioData->mBuffers[0].mData;
-		unsigned	sampleCount		= framesRead * ioData->mBuffers[0].mNumberChannels;
-		float		sample;
-		
-		unsigned i;
-		for(i = 0; i < sampleCount; ++i) {
-			sample		= buffer[i] * multiplier;
-			buffer[i]	= (float)(sample < -1.0 ? -1.0 : (sample > 1.0 ? 1.0 : sample));
-		}
-	}
-	
-#if DEBUG
-	if(framesRead != inNumberFrames && 0 != framesRead) {
-		NSLog(@"MyRenderer returning %i frames (%i requested)", framesRead, inNumberFrames);
-	}
-#endif
-	
-	if(0 == framesRead) {
-		*ioActionFlags = kAudioUnitRenderAction_OutputIsSilence;
-		
-		for(currentBuffer = 0; currentBuffer < ioData->mNumberBuffers; ++currentBuffer) {
-			memset(ioData->mBuffers[currentBuffer].mData, 0, ioData->mBuffers[currentBuffer].mDataByteSize);
-		}
-		
-		if([streamDecoder atEndOfStream]) {
-			[player didReachEndOfStream];
-//			[[player runLoop] performSelector:@selector(didReachEndOfStream:) 
-//									   target:player 
-//									 argument:nil 
-//										order:0
-//										modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
-		}
-		
-#if DEBUG
-		NSLog(@"MyRenderer returning silence (%i frames requested, none available)", inNumberFrames);
-#endif		
-	}
-	
-	[pool release];
-	
-	return noErr;
-}
-
-static OSStatus
-MyRenderNotification(void							*inRefCon, 
-					 AudioUnitRenderActionFlags      *ioActionFlags,
-					 const AudioTimeStamp            *inTimeStamp, 
-					 UInt32                          inBusNumber,
-					 UInt32                          inNumFrames, 
-					 AudioBufferList                 *ioData)
-{
-	NSAutoreleasePool	*pool		= [[NSAutoreleasePool alloc] init];
-	AudioPlayer			*player		= (AudioPlayer *)inRefCon;
-	
-	if(kAudioUnitRenderAction_PostRender & (*ioActionFlags)) {
-
-		[player didReadFrames:inNumFrames];
-//		[[player runLoop] performSelector:@selector(didReadFrames:) 
-//								   target:player 
-//								 argument:[NSNumber numberWithUnsignedInt:inNumFrames]
-//									order:0
-//									modes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];
-	}
-	
-	[pool release];
-	
-	return noErr;
-}
 
 @implementation AudioPlayer
 
@@ -255,67 +124,33 @@ MyRenderNotification(void							*inRefCon,
 	[self setKeys:[NSArray arrayWithObject:@"streamDecoder"] triggerChangeNotificationsForDependentKey:@"hasValidStream"];
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"streamSupportsSeeking"];
 
-	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
+//	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"currentFrame"];
 	[self setKeys:[NSArray arrayWithObject:@"hasValidStream"] triggerChangeNotificationsForDependentKey:@"totalFrames"];
 
-	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"currentSecondString"];
-	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"secondsRemainingString"];
-	[self setKeys:[NSArray arrayWithObject:@"totalFrames"] triggerChangeNotificationsForDependentKey:@"totalSecondsString"];
-	
+	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"currentSecond"];
+	[self setKeys:[NSArray arrayWithObject:@"currentFrame"] triggerChangeNotificationsForDependentKey:@"secondsRemaining"];
+	[self setKeys:[NSArray arrayWithObject:@"totalFrames"] triggerChangeNotificationsForDependentKey:@"totalSeconds"];
 }
 
 - (id) init
 {
 	if((self = [super init])) {
-		ComponentDescription		desc;
-		AURenderCallbackStruct		input;
+		_runLoop = [[NSRunLoop currentRunLoop] retain];
 		
-		desc.componentType			= kAudioUnitType_Output;
-		desc.componentSubType		= kAudioUnitSubType_DefaultOutput;
-		desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
-		desc.componentFlags			= 0;
-		desc.componentFlagsMask		= 0;
-		
-		Component comp = FindNextComponent(NULL, &desc);
-		if(NULL == comp) {
-			[self release];
-			return nil;
-		}
-				
-		OSStatus err = OpenAComponent(comp, &_audioUnit);
-		if(noErr != err || NULL == comp) {
-			[self release];
-			return nil;
-		}
-		
-		// Set up a callback function to generate output to the output unit
-		input.inputProc				= MyRenderer;
-		input.inputProcRefCon		= (void *)self;
-		
-		err = AudioUnitSetProperty(_audioUnit, 
-								   kAudioUnitProperty_SetRenderCallback, 
-								   kAudioUnitScope_Input,
-								   0, 
-								   &input, 
-								   sizeof(input));
-		if(noErr != err) {
-			CloseComponent(_audioUnit);
-			[self release];
-			return nil;
-		}
-			
-		ComponentResult result = AudioUnitInitialize(_audioUnit);
-		if(noErr != result) {
-			CloseComponent(_audioUnit);
-			[self release];
-			return nil;
-		}
-		
-		AudioUnitAddRenderNotify(_audioUnit, MyRenderNotification, (void *)self);
+		[self setupAUGraph];
 
-		_secondsFormatter	= [[SecondsFormatter alloc] init];
-		_runLoop			= [[NSRunLoop currentRunLoop] retain];
+		_scheduler = [[AudioScheduler alloc] init];
+		[_scheduler setAudioUnit:_generatorUnit];
+		[_scheduler setDelegate:self];
 		
+		// Set up a timer to update the UI 4 times per second
+		_timer = [NSTimer timerWithTimeInterval:0.25 target:self selector:@selector(uiTimerFireMethod:) userInfo:nil repeats:YES];
+		
+		// Add to all three run loop modes to ensure playback progress is always displayed
+		[_runLoop addTimer:_timer forMode:NSDefaultRunLoopMode];
+		[_runLoop addTimer:_timer forMode:NSModalPanelRunLoopMode];
+//		[_runLoop addTimer:_timer forMode:NSEventTrackingRunLoopMode];
+
 		// Set the output device
 		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
 
@@ -330,25 +165,16 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) dealloc
 {
-	[self stop];
+	[_timer invalidate], _timer = nil;
+
+	[[self scheduler] stopScheduling];
+	[self teardownAUGraph];
 
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self 
 																 forKeyPath:@"values.outputAudioDeviceUID"];
-	
-	ComponentResult result = AudioUnitUninitialize(_audioUnit);
-	if(noErr != result) {
-		NSLog(@"AudioUnitUninitialize failed: %ld", result);
-	}
-	
-	CloseComponent(_audioUnit), _audioUnit = NULL;
-
-	if(nil != [self streamDecoder]) {
-		[[self streamDecoder] stopDecoding:nil];
-		[_streamDecoder release],		_streamDecoder = nil;
-	}
-	
-	[_secondsFormatter release], _secondsFormatter = nil;
+		
 	[_runLoop release], _runLoop = nil;
+	[_scheduler release], _scheduler = nil;
 	
 	[super dealloc];
 }
@@ -358,11 +184,9 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	if(object == [NSUserDefaultsController sharedUserDefaultsController] && [keyPath isEqualToString:@"values.outputAudioDeviceUID"]) {
+	if(object == [NSUserDefaultsController sharedUserDefaultsController] && [keyPath isEqualToString:@"values.outputAudioDeviceUID"])
 		[self setOutputDeviceUID:[[NSUserDefaults standardUserDefaults] objectForKey:@"outputAudioDeviceUID"]];
-	}
 }
-
 
 #pragma mark Stream Management
 
@@ -370,99 +194,45 @@ MyRenderNotification(void							*inRefCon,
 {
 	NSParameterAssert(nil != stream);
 	
-	if(nil != [self nextStreamDecoder]) {
-		[[self nextStreamDecoder] stopDecoding:error];
-		[self setNextStreamDecoder:nil];
+	[[self scheduler] stopScheduling];
+	[[self scheduler] clear];
+	
+	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:error];
+	if(nil == decoder)
+		return NO;
+	
+	AudioStreamBasicDescription		newFormat			= [decoder format];
+	AudioChannelLayout				newChannelLayout	= [decoder channelLayout];
+
+	// If the sample rate or number of channels changed, change the AU formats
+	if(newFormat.mSampleRate != _format.mSampleRate || newFormat.mChannelsPerFrame != _format.mChannelsPerFrame) {
+		OSStatus err = [self setAUGraphFormat:newFormat];
+		if(noErr != err) {
+			if(nil != error) {
+				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
+				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+											 code:AudioPlayerInternalError 
+										 userInfo:errorDictionary];
+			}
+			
+			[self teardownAUGraph];
+			[self setupAUGraph];
+			[[self scheduler] setAudioUnit:_generatorUnit];
+			
+			return NO;
+		}
 	}
 
-	if(nil != [self streamDecoder]) {
-		[[self streamDecoder] stopDecoding:error];
-		[self setStreamDecoder:nil];
-	}
-	
-	_requestedNextStream = NO;
-	
-	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];
-	if(nil == streamDecoder) {
-		return NO;
-	}
-	
-	[self willChangeValueForKey:@"totalFrames"];
-	[self willChangeValueForKey:@"currentFrame"];
-	
-	[self setStreamDecoder:streamDecoder];
-	BOOL startedDecoding = [[self streamDecoder] startDecoding:error];
-	
-	[self didChangeValueForKey:@"totalFrames"];
-	[self didChangeValueForKey:@"currentFrame"];
-	
-	if(NO == startedDecoding) {
-		return NO;
-	}
-	
-	// Set the PCM format we will feed to the AudioUnit
-	AudioStreamBasicDescription		pcmFormat	= [[self streamDecoder] pcmFormat];
-	ComponentResult					result		= AudioUnitSetProperty([self audioUnit],
-																	   kAudioUnitProperty_StreamFormat,
-																	   kAudioUnitScope_Input,
-																	   0,
-																	   &pcmFormat,
-																	   sizeof(AudioStreamBasicDescription));
-	
-	if(noErr != result) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			NSString				*path				= [[stream valueForKey:StreamURLKey] path];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
-										 code:AudioPlayerInternalError 
-									 userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
+	// Schedule the region for playback, and start scheduling audio slices
+	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder]];
+	[[self scheduler] startScheduling];
 
-	// And the channel layout as well
-	if([[self streamDecoder] hasChannelLayout]) {
-		AudioChannelLayout channelLayout = [[self streamDecoder] channelLayout];
-		
-		result = AudioUnitSetProperty([self audioUnit],
-									  kAudioUnitProperty_AudioChannelLayout,
-									  kAudioUnitScope_Input,
-									  0,
-									  &channelLayout,
-									  sizeof(AudioChannelLayout));
-	}
-	else {
-		result = AudioUnitSetProperty([self audioUnit],
-									  kAudioUnitProperty_AudioChannelLayout,
-									  kAudioUnitScope_Input,
-									  0,
-									  NULL,
-									  0);
-	}
-	
-	if(noErr != result) {
-		if(nil != error) {
-			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
-			NSString				*path				= [[stream valueForKey:StreamURLKey] path];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
-										 code:AudioPlayerInternalError 
-									 userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
-	
 	[self prepareToPlayStream:stream];
 	
 	return YES;
@@ -472,102 +242,117 @@ MyRenderNotification(void							*inRefCon,
 {
 	NSParameterAssert(nil != stream);
 
-	AudioStreamBasicDescription		pcmFormat, nextPCMFormat;
-	AudioChannelLayout				channelLayout, nextChannelLayout;
-		
-	AudioStreamDecoder *streamDecoder = [AudioStreamDecoder streamDecoderForStream:stream error:error];	
-	if(nil == streamDecoder) {
+	if(NO == [self isPlaying] || NO == [[self scheduler] isScheduling])
 		return NO;
-	}
-	
-	[self setNextStreamDecoder:streamDecoder];
-	[[self nextStreamDecoder] startDecoding:error];
-	
-	pcmFormat		= [[self streamDecoder] pcmFormat];
-	nextPCMFormat	= [[self nextStreamDecoder] pcmFormat];
 
-	channelLayout		= [[self streamDecoder] channelLayout];
-	nextChannelLayout	= [[self nextStreamDecoder] channelLayout];
-
-	BOOL pcmFormatsMatch		= (0 == memcmp(&pcmFormat, &nextPCMFormat, sizeof(AudioStreamBasicDescription)));
-	BOOL channelLayoutsMatch	= channelLayoutsAreEqual(&channelLayout, &nextChannelLayout);
-
-	// We can only join the two files if they have the same formats (mSampleRate, etc) and channel layouts
-	if(NO == pcmFormatsMatch || NO == channelLayoutsMatch) {
-
-#if DEBUG
-		if(NO == pcmFormatsMatch) {
-			NSLog(@"Unable to join buffers for gapless playback, PCM formats don't match");
-//			dumpASBD(&pcmFormat);
-//			dumpASBD(&nextPCMFormat);
-		}
-
-		if(NO == channelLayoutsMatch) {
-			NSLog(@"Unable to join buffers for gapless playback, channel layouts don't match");
-		}
-#endif
-		
-		[[self nextStreamDecoder] stopDecoding:error];
-		[self setNextStreamDecoder:nil];
-		
+	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:error];
+	if(nil == decoder)
 		return NO;
-	}
 	
+	AudioStreamBasicDescription		nextFormat			= [decoder format];
+	AudioChannelLayout				nextChannelLayout	= [decoder channelLayout];
+	
+	BOOL	formatsMatch			= (nextFormat.mSampleRate == _format.mSampleRate && nextFormat.mChannelsPerFrame == _format.mChannelsPerFrame);
+	BOOL	channelLayoutsMatch		= channelLayoutsAreEqual(&nextChannelLayout, &_channelLayout);
+	
+	// The two files can be joined only if they have the same formats and channel layouts
+	if(NO == formatsMatch || NO == channelLayoutsMatch)
+		return NO;
+	
+	// They match, so schedule the region for playback
+	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder]];
+
 	return YES;
 }
 
 - (void) reset
 {
-	[self willChangeValueForKey:@"totalFrames"];
-	[self willChangeValueForKey:@"currentFrame"];
+	[self willChangeValueForKey:@"hasValidStream"];
 	
-	[self setStreamDecoder:nil];
-	[self setNextStreamDecoder:nil];
-	_requestedNextStream = NO;
+	[[self scheduler] stopScheduling];
+	[[self scheduler] clear];
 
+	[self didChangeValueForKey:@"hasValidStream"];
+	
+	[self willChangeValueForKey:@"totalFrames"];
+	[self setTotalFrames:0];
 	[self didChangeValueForKey:@"totalFrames"];
+	
+	[self willChangeValueForKey:@"currentFrame"];
+	[self setStartingFrame:0];
+	[self setPlayingFrame:0];
 	[self didChangeValueForKey:@"currentFrame"];
+
+	_regionStartingFrame = 0;
 }
 
 - (BOOL) hasValidStream
 {
-	return (nil != [self streamDecoder]);
+	return (nil != [[self scheduler] regionBeingScheduled] || nil != [[self scheduler] regionBeingRendered]);
 }
 
 - (BOOL) streamSupportsSeeking
 {
-	return ([self hasValidStream] && [[self streamDecoder] supportsSeeking]);
+	return ([self hasValidStream] && [[[self scheduler] regionBeingRendered] supportsSeeking]);
 }
 
 #pragma mark Playback Control
 
 - (void) play
 {
-	ComponentResult result = AudioOutputUnitStart([self audioUnit]);	
-	if(noErr != result) {
-		NSLog(@"Unable to start the AudioUnit");
-	}
+	if(NO == [self canPlay] || [self isPlaying])
+		return;
 	
+	if(NO == [[self scheduler] isScheduling])
+		[[self scheduler] startScheduling];
+	
+	// Start playback of the ScheduledSoundPlayer unit by setting its start time
+	AudioTimeStamp timeStamp = { 0 };
+	
+	timeStamp.mFlags		= kAudioTimeStampSampleTimeValid;
+	timeStamp.mSampleTime	= -1;
+
+	OSStatus err = AudioUnitSetProperty(_generatorUnit,
+										kAudioUnitProperty_ScheduleStartTimeStamp, 
+										kAudioUnitScope_Global, 
+										0,
+										&timeStamp, 
+										sizeof(timeStamp));
+	if(noErr != err)
+		NSLog(@"AudioUnitSetProperty failed: %s", UTCreateStringForOSType(err));
+
 	[self setPlaying:YES];
 }
 
 - (void) playPause
 {
-	if([self isPlaying]) {
+	if([self isPlaying])
 		[self stop];
-	}
-	else {
+	else
 		[self play];
-	}
 }
 
 - (void) stop
 {
-	ComponentResult result = AudioOutputUnitStop([self audioUnit]);	
-	if(noErr != result) {
-		NSLog(@"Unable to stop the AudioUnit");
+	if(NO == [self isPlaying])
+		return;
+	
+	// Don't schedule any further slices for playback
+	[[self scheduler] stopScheduling];
+	
+	// Determine the last sample that was rendered and update our internal state
+	AudioTimeStamp timeStamp = [[self scheduler] currentPlayTime];
+	if(kAudioTimeStampSampleTimeValid & timeStamp.mFlags) {
+		SInt64 lastRenderedFrame = [self startingFrame] + timeStamp.mSampleTime - _regionStartingFrame;
+		[self setStartingFrame:[[[self scheduler] regionBeingScheduled] seekToFrame:lastRenderedFrame]];
+		[self setPlayingFrame:0];
 	}
-
+	
+	// Reset the scheduler to remove any scheduled slices
+	[[self scheduler] reset];
+	
+	_regionStartingFrame = 0;
+	
 	[self setPlaying:NO];
 }
 
@@ -583,16 +368,15 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipForward:(UInt32)seconds
 {
-	AudioStreamDecoder *streamDecoder = [self streamDecoder];
+	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
-	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		SInt64 totalFrames		= [streamDecoder totalFrames];
-		SInt64 currentFrame		= [streamDecoder currentFrame];
-		SInt64 desiredFrame		= currentFrame + (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
+		SInt64 totalFrames		= [currentRegion totalFrames];
+		SInt64 currentFrame		= [currentRegion currentFrame];
+		SInt64 desiredFrame		= currentFrame + (SInt64)(seconds * [[currentRegion decoder] format].mSampleRate);
 		
-		if(totalFrames < desiredFrame) {
+		if(totalFrames < desiredFrame)
 			desiredFrame = totalFrames;
-		}
 		
 		[self setCurrentFrame:desiredFrame];
 	}	
@@ -600,15 +384,14 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipBackward:(UInt32)seconds
 {
-	AudioStreamDecoder *streamDecoder = [self streamDecoder];
+	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
-	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		SInt64 currentFrame		= [streamDecoder currentFrame];
-		SInt64 desiredFrame		= currentFrame - (SInt64)(seconds * [streamDecoder pcmFormat].mSampleRate);
+	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
+		SInt64 currentFrame		= [currentRegion currentFrame];
+		SInt64 desiredFrame		= currentFrame - (SInt64)(seconds * [[currentRegion decoder] format].mSampleRate);
 		
-		if(0 > desiredFrame) {
+		if(0 > desiredFrame)
 			desiredFrame = 0;
-		}
 		
 		[self setCurrentFrame:desiredFrame];
 	}
@@ -616,20 +399,20 @@ MyRenderNotification(void							*inRefCon,
 
 - (void) skipToEnd
 {
-	AudioStreamDecoder *streamDecoder = [self streamDecoder];
+	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
-	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
-		SInt64 totalFrames = [streamDecoder totalFrames];		
+	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
+		SInt64 totalFrames = [currentRegion totalFrames];		
 		[self setCurrentFrame:totalFrames - 1];
 	}
 }
 
 - (void) skipToBeginning
 {
-	AudioStreamDecoder *streamDecoder = [self streamDecoder];
-	if(nil != streamDecoder && [streamDecoder supportsSeeking]) {
+	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
+	
+	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking])
 		[self setCurrentFrame:0];
-	}
 }
 
 - (BOOL) isPlaying
@@ -641,16 +424,15 @@ MyRenderNotification(void							*inRefCon,
 
 - (Float32) volume
 {
-	Float32				volume		= 0;	
-	ComponentResult		result		= AudioUnitGetParameter([self audioUnit],
+	Float32				volume		= -1;
+	ComponentResult		result		= AudioUnitGetParameter(_outputUnit,
 															kHALOutputParam_Volume,
 															kAudioUnitScope_Global,
 															0,
 															&volume);
 	
-	if(noErr != result) {
+	if(noErr != result)
 		NSLog(@"Unable to determine volume");
-	}
 	
 	return volume;
 }
@@ -659,31 +441,20 @@ MyRenderNotification(void							*inRefCon,
 {
 	NSParameterAssert(0 <= volume && volume <= 1);
 	
-	ComponentResult result =  AudioUnitSetParameter([self audioUnit],
-													kHALOutputParam_Volume,
-													kAudioUnitScope_Global,
-													0,
-													volume,
-													0);
-	if(noErr != result) {
+	ComponentResult result = AudioUnitSetParameter(_outputUnit,
+												   kHALOutputParam_Volume,
+												   kAudioUnitScope_Global,
+												   0,
+												   volume,
+												   0);
+	if(noErr != result)
 		NSLog(@"Unable to set volume");
-	}
 }
 
-- (BOOL) hasReplayGain
-{
-	return _hasReplayGain;
-}
+- (BOOL)			hasReplayGain							{ return _hasReplayGain; }
+- (float)			replayGain								{ return _replayGain; }
 
-- (float) replayGain
-{
-	return _replayGain;
-}
-
-- (float) preAmplification
-{
-	return _preAmplification;
-}
+- (float)			preAmplification						{ return _preAmplification; }
 
 - (void) setPreAmplification:(float)preAmplification
 {
@@ -692,200 +463,542 @@ MyRenderNotification(void							*inRefCon,
 	_preAmplification = preAmplification;
 }
 
-- (SInt64) totalFrames
-{
-	SInt64				result				= -1;
-	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
-	
-	if(nil != streamDecoder) {
-		result = [streamDecoder totalFrames];
-	}
-	
-	return result;
-}
+- (AudioStreamBasicDescription)		format					{ return _format; }
+- (AudioChannelLayout)				channelLayout			{ return _channelLayout; }
+
+- (SInt64)			totalFrames								{ return _totalFrames; }
 
 - (SInt64) currentFrame
 {
-	SInt64				result				= -1;
-	AudioStreamDecoder	*streamDecoder		= [self streamDecoder];
-	
-	if(nil != streamDecoder) {
-		result = [streamDecoder currentFrame];
-	}
-	
-	return result;
+	return [self startingFrame] + [self playingFrame] - _regionStartingFrame;
 }
 
 - (void) setCurrentFrame:(SInt64)currentFrame
 {
-	AudioStreamDecoder *streamDecoder = [self streamDecoder];
+	NSParameterAssert(0 <= currentFrame && currentFrame <= [self totalFrames]);
 	
-	if(nil != streamDecoder) {
-		BOOL playing = [self isPlaying];
-		
-		if(playing) {
-			[self stop];
-		}
-		
-#if DEBUG
-		SInt64 seekedFrame = 
-#endif
-			[streamDecoder seekToFrame:currentFrame];
+	BOOL resume = NO;
+	
+	if([self isPlaying]) {
+		[self stop];
+		resume = YES;
+	}
+	else {
+		[[self scheduler] stopScheduling];
+		[[self scheduler] reset];
+	}
+	
+	[self setStartingFrame:[[[self scheduler] regionBeingScheduled] seekToFrame:currentFrame + _regionStartingFrame]];
+	[self setPlayingFrame:0];
 
 #if DEBUG
-		if(seekedFrame != currentFrame) {
-			NSLog(@"Seek failed: requested frame %qi, got %qi", currentFrame, seekedFrame);
-		}
+	if([self startingFrame] != currentFrame)
+		NSLog(@"Seek failed: requested frame %qi, got %qi", currentFrame, [self startingFrame]);
 #endif
 		
-		if(nil != [self nextStreamDecoder]) {
-			/*BOOL result = */ [[self nextStreamDecoder] stopDecoding:nil];
-			[self setNextStreamDecoder:nil];
-			_requestedNextStream = NO;
-		}
+	[[self scheduler] startScheduling];
+	
+	if(resume)
+		[self play];
+}
+
+- (SInt64) framesRemaining
+{
+	return [self totalFrames] - [self currentFrame];
+}
+
+- (NSTimeInterval) totalSeconds
+{
+	return (NSTimeInterval)([self totalFrames] / [self format].mSampleRate);
+}
+
+- (NSTimeInterval) currentSecond
+{
+	return (NSTimeInterval)([self currentFrame] / [self format].mSampleRate);
+}
+
+- (NSTimeInterval) secondsRemaining
+{
+	return (NSTimeInterval)([self framesRemaining] / [self format].mSampleRate);
+}
+
+#pragma mark AudioSchedulerMethods
+
+#if EXTENDED_DEBUG
+- (void) audioSchedulerStartedScheduling:(AudioScheduler *)scheduler
+{
+	NSParameterAssert(nil != scheduler);
+	NSLog(@"-audioSchedulerStartedScheduling");
+}
+
+- (void) audioSchedulerStoppedScheduling:(AudioScheduler *)scheduler
+{
+	NSParameterAssert(nil != scheduler);
+	NSLog(@"-audioSchedulerStoppedScheduling");
+}
+
+- (void) audioSchedulerStartedSchedulingRegion:(NSDictionary *)schedulerAndRegion
+{
+	NSParameterAssert(nil != schedulerAndRegion);
+	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
+	NSLog(@"-audioSchedulerStartedSchedulingRegion: %@", [[region decoder] stream]);
+}
+#endif
+
+- (void) audioSchedulerFinishedSchedulingRegion:(NSDictionary *)schedulerAndRegion
+{
+	NSParameterAssert(nil != schedulerAndRegion);
+
+#if DEBUG
+	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
+	NSLog(@"-audioSchedulerFinishedSchedulingRegion: %@", [[region decoder] stream]);
+#endif
+
+	// Request the next stream from the library, to keep playback going
+	[_owner requestNextStream];
+}
+
+- (void) audioSchedulerStartedRenderingRegion:(NSDictionary *)schedulerAndRegion
+{
+	NSParameterAssert(nil != schedulerAndRegion);
+
+	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
+
+#if DEBUG
+	NSLog(@"-audioSchedulerStartedRenderingRegion: %@", [[region decoder] stream]);
+#endif
+	
+	_format			= [[region decoder] format];
+	_channelLayout	= [[region decoder] channelLayout];
+
+	[self setTotalFrames:[region totalFrames]];
+	
+	[self willChangeValueForKey:@"hasValidStream"];
+	[self didChangeValueForKey:@"hasValidStream"];	
+
+	[self willChangeValueForKey:@"currentFrame"];
+	[self setStartingFrame:0];
+	[self setPlayingFrame:0];
+	[self didChangeValueForKey:@"currentFrame"];
+	
+	if([_owner sentNextStreamRequest])
+		[_owner streamPlaybackDidStart];
+}
+
+- (void) audioSchedulerFinishedRenderingRegion:(NSDictionary *)schedulerAndRegion
+{
+	NSParameterAssert(nil != schedulerAndRegion);
+
+	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
+
+#if DEBUG
+	NSLog(@"-audioSchedulerFinishedRenderingRegion: %@", [[region decoder] stream]);
+#endif
+	
+	memset(&_format, 0, sizeof(_format));
+	memset(&_channelLayout, 0, sizeof(_channelLayout));
+
+	// If nothing is coming up right away, stop ourselves from playing
+	if(nil == [[self scheduler] regionBeingScheduled]) {
+		[self setPlaying:NO];
+
+		_regionStartingFrame = 0;
 		
-		if(playing) {
-			[self play];
+		[self willChangeValueForKey:@"hasValidStream"];
+		[self didChangeValueForKey:@"hasValidStream"];	
+
+		// Reset play position
+		[self willChangeValueForKey:@"currentFrame"];
+		[self setStartingFrame:0];
+		[self setPlayingFrame:0];
+		[self didChangeValueForKey:@"currentFrame"];
+	}
+	else
+		_regionStartingFrame += [region framesRendered];
+
+	if(NO == [_owner sentNextStreamRequest])
+		[_owner streamPlaybackDidComplete];
+}
+
+@end
+
+@implementation AudioPlayer (AUGraphMethods)
+
+- (OSStatus) setupAUGraph
+{
+	// Set up the AUGraph
+	OSStatus err = NewAUGraph(&_auGraph);
+	if(noErr != err)
+		return err;
+	
+	// The graph will look like:
+	// Generator -> Peak Limiter -> (any effects units) -> Output
+	AUNode						generatorNode, limiterNode;
+	ComponentDescription		desc;
+	
+	// Set up the generator node
+	desc.componentType			= kAudioUnitType_Generator;
+	desc.componentSubType		= kAudioUnitSubType_ScheduledSoundPlayer;
+	desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
+	desc.componentFlags			= 0;
+	desc.componentFlagsMask		= 0;
+	
+	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &generatorNode);
+	if(noErr != err)
+		return err;
+	
+	// Set up the peak limiter node
+	desc.componentType			= kAudioUnitType_Effect;
+	desc.componentSubType		= kAudioUnitSubType_PeakLimiter;
+	desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
+	desc.componentFlags			= 0;
+	desc.componentFlagsMask		= 0;
+	
+	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &limiterNode);
+	if(noErr != err)
+		return err;
+	
+	// Set up the equalizer node
+	desc.componentType			= kAudioUnitType_Effect;
+//	desc.componentSubType		= kAudioUnitSubType_DynamicsProcessor;
+	desc.componentSubType		= kAudioUnitSubType_MatrixReverb;
+//	desc.componentSubType		= kAudioUnitSubType_GraphicEQ;
+	desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
+	desc.componentFlags			= 0;
+	desc.componentFlagsMask		= 0;
+	
+//	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &effectNode);
+//	if(noErr != err)
+//		return err;
+	
+	// Set up the output node
+	desc.componentType			= kAudioUnitType_Output;
+	desc.componentSubType		= kAudioUnitSubType_DefaultOutput;
+	desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
+	desc.componentFlags			= 0;
+	desc.componentFlagsMask		= 0;
+	
+	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_outputNode);
+	if(noErr != err)
+		return err;
+	
+	// Connect the nodes
+	err = AUGraphConnectNodeInput(_auGraph, generatorNode, 0, limiterNode, 0);
+	if(noErr != err)
+		return err;
+	
+//	err = AUGraphConnectNodeInput(_auGraph, limiterNode, 0, effectNode, 0);
+//	if(noErr != err)
+//		return err;
+	
+//	err = AUGraphConnectNodeInput(_auGraph, effectNode, 0, _outputNode, 0);
+	err = AUGraphConnectNodeInput(_auGraph, limiterNode, 0, _outputNode, 0);
+	if(noErr != err)
+		return err;
+	
+	// Open the graph
+	err = AUGraphOpen(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	// Initialize the graph
+	err = AUGraphInitialize(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	// And start it up
+	err = AUGraphStart(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	// Store the audio units for later  use
+	err = AUGraphGetNodeInfo(_auGraph, generatorNode, NULL, NULL, NULL, &_generatorUnit);
+	if(noErr != err)
+		return err;
+	
+	err = AUGraphGetNodeInfo(_auGraph, limiterNode, NULL, NULL, NULL, &_limiterUnit);
+	if(noErr != err)
+		return err;
+	
+	err = AUGraphGetNodeInfo(_auGraph, _outputNode, NULL, NULL, NULL, &_outputUnit);
+	if(noErr != err)
+		return err;
+	
+	return noErr;
+}
+
+- (OSStatus) teardownAUGraph
+{
+	Boolean graphIsRunning = NO;
+	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
+	if(noErr != err)
+		return err;
+	
+	if(graphIsRunning) {
+		err = AUGraphStop(_auGraph);
+		if(noErr != err)
+			return err;
+	}
+	
+	Boolean graphIsInitialized = NO;	
+	err = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	if(noErr != err)
+		return err;
+	
+	if(graphIsInitialized) {
+		err = AUGraphUninitialize(_auGraph);
+		if(noErr != err)
+			return err;
+	}
+	
+	err = AUGraphClose(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	err = DisposeAUGraph(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	_auGraph			= NULL;
+	_generatorUnit		= NULL;
+	_limiterUnit		= NULL;
+	_outputUnit			= NULL;
+	
+	return noErr;
+}
+
+- (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format
+{	
+	// If the graph is running, stop it
+	Boolean graphIsRunning = NO;
+	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
+	if(noErr != err)
+		return err;
+	
+	if(graphIsRunning) {
+		err = AUGraphStop(_auGraph);
+		if(noErr != err)
+			return err;
+	}
+	
+	// If the graph is initialized, uninitialize it
+	Boolean graphIsInitialized = NO;
+	err = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	if(noErr != err)
+		return err;
+	
+	if(graphIsInitialized) {
+		err = AUGraphUninitialize(_auGraph);
+		if(noErr != err)
+			return err;
+	}
+	
+	// Save the connection information and then disconnect all the graph's connections
+	UInt32 connectionCount;
+	err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	if(noErr != err)
+		return err;
+	
+	AudioUnitNodeConnection *connections = calloc(connectionCount, sizeof(AudioUnitNodeConnection));
+	NSAssert(NULL != connections, @"Unable to allocate memory");
+	
+	unsigned i;
+	for(i = 0; i < connectionCount; ++i) {
+		err = AUGraphGetConnectionInfo(_auGraph, i,
+									   &connections[i].sourceNode, &connections[i].sourceOutputNumber,
+									   &connections[i].destNode, &connections[i].destInputNumber);
+		if(noErr != err)
+			return err;
+	}
+	
+	err = AUGraphClearConnections(_auGraph);
+	if(noErr != err)
+		return err;
+	
+	UInt32 nodeCount;
+	err = AUGraphGetNodeCount(_auGraph, &nodeCount);
+	if(noErr != err)
+		return err;
+	
+	// OK - now we go through and set the sample rate on each connection...
+	for(i = 0; i < nodeCount; ++i) {
+		AUNode node;
+		err = AUGraphGetIndNode(_auGraph, i, &node);
+		if(noErr != err)
+			return err;
+		
+		AudioUnit au;
+		err = AUGraphGetNodeInfo(_auGraph, node, NULL, NULL, NULL, &au);
+		if(noErr != err)
+			return err;
+		
+		if(_outputNode == node) {
+			// this is for AUHAL as the output node. You can't set the device side here, so you just set the client side
+			err = AudioUnitSetProperty(au, 
+									   kAudioUnitProperty_StreamFormat,
+									   kAudioUnitScope_Input, 
+									   0, 
+									   &format, 
+									   sizeof(format));
+			if(noErr != err)
+				return err;
+			
+			// IO must be enabled for this to work
+			/*			err = AudioUnitSetProperty(au, 
+				kAudioUnitProperty_SampleRate,
+				kAudioUnitScope_Output, 
+				1, 
+				&sampleRate, 
+				sizeof(sampleRate));
+if(noErr != err)
+return err;	*/
+		}
+		else {
+			UInt32 elementCount = 0;
+			UInt32 dataSize = sizeof(elementCount);
+			
+			err = AudioUnitGetProperty(au, 
+									   kAudioUnitProperty_ElementCount,
+									   kAudioUnitScope_Input, 
+									   0, 
+									   &elementCount, 
+									   &dataSize);
+			if(noErr != err)
+				return err;
+			
+			unsigned j;
+			for(j = 0; j < elementCount; ++j) {
+				err = AudioUnitSetProperty(au, 
+										   kAudioUnitProperty_StreamFormat,
+										   kAudioUnitScope_Input, 
+										   j, 
+										   &format, 
+										   sizeof(format));
+				if(noErr != err)
+					return err;
+			}
+			
+			elementCount = 0;
+			dataSize = sizeof(elementCount);
+			
+			err = AudioUnitGetProperty(au, 
+									   kAudioUnitProperty_ElementCount,
+									   kAudioUnitScope_Output, 
+									   0, 
+									   &elementCount, 
+									   &dataSize);
+			if(noErr != err)
+				return err;
+			
+			for(j = 0; j < elementCount; ++j) {
+				err = AudioUnitSetProperty(au, 
+										   kAudioUnitProperty_StreamFormat,
+										   kAudioUnitScope_Output, 
+										   j, 
+										   &format, 
+										   sizeof(format));
+				if(noErr != err)
+					return err;
+			}
 		}
 	}
-}
-
-- (NSString *) totalSecondsString
-{
-	NSString			*result			= nil;
-	NSTimeInterval		timeInterval	= 0.0;
-	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
 	
-	if(nil != streamDecoder) {
-		timeInterval	= (NSTimeInterval) ([streamDecoder totalFrames] / [streamDecoder pcmFormat].mSampleRate);				
-		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+	for(i = 0; i < connectionCount; ++i) {
+		// ok, now we can connect this up again
+		err = AUGraphConnectNodeInput(_auGraph, 
+									  connections[i].sourceNode, connections[i].sourceOutputNumber,
+									  connections[i].destNode, connections[i].destInputNumber);
+		if(noErr != err)
+			return err;
 	}
 	
-	return result;
-}
-
-- (NSString *) currentSecondString
-{
-	NSString			*result			= nil;
-	NSTimeInterval		timeInterval	= 0.0;
-	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
-	
-	if(nil != streamDecoder) {
-		timeInterval	= (NSTimeInterval) ([streamDecoder currentFrame] / [streamDecoder pcmFormat].mSampleRate);		
-		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+	// If the graph was initialized, reinitialize it
+	if(graphIsInitialized) {
+		err = AUGraphInitialize(_auGraph);
+		if(noErr != err)
+			return err;
 	}
 	
-	return result;
-}
-
-- (NSString *) secondsRemainingString
-{
-	NSString			*result			= nil;
-	NSTimeInterval		timeInterval	= 0.0;
-	AudioStreamDecoder	*streamDecoder	= [self streamDecoder];
-	
-	if(nil != streamDecoder) {
-		timeInterval	= (NSTimeInterval) ([streamDecoder framesRemaining] / [streamDecoder pcmFormat].mSampleRate);
-		result			= [[self secondsFormatter] stringForObjectValue:[NSNumber numberWithDouble:timeInterval]];
+	// If the graph was running, restart it
+	if(graphIsRunning) {
+		err = AUGraphStart(_auGraph);
+		if(noErr != err)
+			return err;
 	}
 	
-	return result;
+	free(connections);
+	
+	return noErr;
+}
+
+- (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout
+{
+	return noErr;	
 }
 
 @end
 
 @implementation AudioPlayer (Private)
 
-- (AudioUnit) audioUnit
+- (AudioScheduler *) scheduler
 {
-	return _audioUnit;
+	return [[_scheduler retain] autorelease];
 }
 
-- (NSFormatter *) secondsFormatter
+- (BOOL) canPlay
 {
-	return _secondsFormatter;
+	Boolean graphIsInitialized = NO;
+	OSStatus result = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	if(noErr != result)
+		return NO;
+	
+	return (graphIsInitialized/* && [[self scheduler] isScheduling]*/);
+}
+
+- (void) uiTimerFireMethod:(NSTimer *)theTimer
+{
+	if(NO == [[self scheduler] isScheduling] || NO == [self isPlaying])
+		return;
+	
+	// Determine the last sample that was rendered
+	AudioTimeStamp timeStamp = [[self scheduler] currentPlayTime];
+	if(kAudioTimeStampSampleTimeValid & timeStamp.mFlags && -1 != timeStamp.mSampleTime) {
+		[self willChangeValueForKey:@"currentFrame"];
+		[self setPlayingFrame:timeStamp.mSampleTime];
+		[self didChangeValueForKey:@"currentFrame"];
+	}
 }
 
 - (NSRunLoop *)	runLoop
 {
-	return _runLoop;
-}
-
-- (AudioStreamDecoder *) streamDecoder
-{
-	return _streamDecoder;
-}
-
-- (void) setStreamDecoder:(AudioStreamDecoder *)streamDecoder
-{
-	[_streamDecoder release];
-	_streamDecoder = [streamDecoder retain];
-}
-
-- (AudioStreamDecoder *) nextStreamDecoder
-{
-	return _nextStreamDecoder;
-}
-
-- (void) setNextStreamDecoder:(AudioStreamDecoder *)nextStreamDecoder
-{
-	[_nextStreamDecoder release];
-	_nextStreamDecoder = [nextStreamDecoder retain];
-}
-
-//- (void) didReachEndOfStream:(id)arg
-- (void) didReachEndOfStream
-{
-	[self stop];
-//	[_owner streamPlaybackDidComplete];
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
-}
-
-//- (void) didReadFrames:(NSNumber *)frameCount
-- (void) didReadFrames:(UInt32)frameCount
-{
-	NSTimeInterval			seconds, secondsRemaining;
-	
-	// Accumulate the frames for UI updates approx. once per second
-//	_frameCounter			+= [frameCount unsignedIntValue];
-	_frameCounter			+= frameCount;
-	seconds					= (NSTimeInterval) (_frameCounter / [[self streamDecoder] pcmFormat].mSampleRate);
-	secondsRemaining		= (NSTimeInterval) ([[self streamDecoder] framesRemaining] / [[self streamDecoder] pcmFormat].mSampleRate);
-
-	if(2.0 > secondsRemaining && nil == [self nextStreamDecoder] && NO == _requestedNextStream) {
-		_requestedNextStream = YES;
-		[_owner performSelectorOnMainThread:@selector(requestNextStream) withObject:nil waitUntilDone:NO];
-	}
-	
-	if(1.0 < seconds) {
-//		[self currentFrameNeedsUpdate];
-		[self performSelectorOnMainThread:@selector(currentFrameNeedsUpdate) withObject:nil waitUntilDone:NO];
-		_frameCounter = 0;
-	}
-}
-
-
-- (void) didStartUsingNextStreamDecoder
-{
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidComplete) withObject:nil waitUntilDone:NO];
-	[self setStreamDecoder:[self nextStreamDecoder]];
-	[self setNextStreamDecoder:nil];
-	_requestedNextStream = NO;
-	
-	[self prepareToPlayStream:[[self streamDecoder] stream]];
-	
-	[_owner performSelectorOnMainThread:@selector(streamPlaybackDidStart) withObject:nil waitUntilDone:NO];
-}
-
-- (void) currentFrameNeedsUpdate
-{
-	[self willChangeValueForKey:@"currentFrame"];
-	[self didChangeValueForKey:@"currentFrame"];	
+	return [[_runLoop retain] autorelease];
 }
 
 - (void) setPlaying:(BOOL)playing
 {
 	_playing = playing;
+}
+
+- (void) setTotalFrames:(SInt64)totalFrames
+{
+	NSParameterAssert(0 <= totalFrames);
+	_totalFrames = totalFrames;
+}
+
+- (SInt64)			startingFrame					{ return _startingFrame; }
+
+- (void) setStartingFrame:(SInt64)startingFrame
+{
+	NSParameterAssert(0 <= startingFrame);
+	_startingFrame = startingFrame;
+}
+
+- (SInt64)			playingFrame					{ return _playingFrame; }
+
+- (void) setPlayingFrame:(SInt64)playingFrame
+{
+	NSParameterAssert(0 <= playingFrame);
+	_playingFrame = playingFrame;
 }
 
 - (void) setOutputDeviceUID:(NSString *)deviceUID
@@ -915,7 +1028,7 @@ MyRenderNotification(void							*inRefCon,
 	}
 
 	if(noErr == status && kAudioDeviceUnknown != deviceID) {
-		status = AudioUnitSetProperty(_audioUnit,
+		status = AudioUnitSetProperty(_outputUnit,
 									  kAudioOutputUnitProperty_CurrentDevice,
 									  kAudioUnitScope_Global,
 									  0,
@@ -923,10 +1036,8 @@ MyRenderNotification(void							*inRefCon,
 									  sizeof(deviceID));
 	}
 	
-	if(noErr != status) {
+	if(noErr != status)
 		NSLog(@"Error setting output device");
-	}
-	
 }
 
 - (void) setHasReplayGain:(BOOL)hasReplayGain
@@ -952,7 +1063,6 @@ MyRenderNotification(void							*inRefCon,
 	NSNumber *peak = [self setReplayGainForStream:stream];
 
 	// Reduce pre-amp gain, if user specified and signal would clip
-	// NOTE: Hard-limiting will be applied in the render callback, regardless of user preferences
 	if([self hasReplayGain] && nil != peak && ReducePreAmpGain == [[NSUserDefaults standardUserDefaults] integerForKey:@"clippingPrevention"]) {
 
 		float adjustment = [self preAmplification] + [self replayGain];
@@ -968,6 +1078,19 @@ MyRenderNotification(void							*inRefCon,
 				[self setPreAmplification:(20 * log10(1.0 / peakSample)) - [self replayGain]];
 			}
 		}
+	}
+	
+	if([self hasReplayGain]) {
+		AudioUnitParameter auParameter;
+		
+		auParameter.mAudioUnit		= _limiterUnit;
+		auParameter.mParameterID	= 2;
+		auParameter.mScope			= kAudioUnitScope_Global;
+		auParameter.mElement		= 0;
+		
+		OSStatus err = AUParameterSet(NULL, NULL, &auParameter, [self preAmplification] + [self replayGain], 0);
+		if(noErr != err)
+			NSLog(@"Error settting RG");
 	}
 }
 
