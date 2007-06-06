@@ -190,7 +190,7 @@ void deallocate_slice_buffer(ScheduledAudioSlice **sliceBuffer);
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame && frame <= [self totalFrames]);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	_completedLoops				= frame / [self framesToPlay];
 	_framesReadInCurrentLoop	= frame % [self framesToPlay];

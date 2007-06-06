@@ -101,7 +101,7 @@
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	int result = SELF_DECOMPRESSOR->Seek(frame);
 	if(ERROR_SUCCESS == result)

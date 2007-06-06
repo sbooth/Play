@@ -77,7 +77,7 @@
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	int result = WavpackSeekSample(_wpc, frame);
 	if(result)

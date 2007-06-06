@@ -141,7 +141,7 @@
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	mpc_bool_t result = mpc_decoder_seek_sample(&_decoder, frame);
 	if(result)

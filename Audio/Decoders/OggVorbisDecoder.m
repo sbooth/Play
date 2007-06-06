@@ -73,7 +73,7 @@
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	int result = ov_pcm_seek(&_vf, frame);
 	if(result)

@@ -150,7 +150,7 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	NSParameterAssert(0 <= frame);
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
 	FLAC__bool result = FLAC__stream_decoder_seek_absolute(_flac, frame);	
 	
