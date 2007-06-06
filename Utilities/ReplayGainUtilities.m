@@ -81,6 +81,9 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 		if(1 != [decoder format].mChannelsPerFrame && 2 != [decoder format].mChannelsPerFrame)
 			continue;
 		
+		// To avoid parameter errors from the decoders, set the number of buffer to the number of channels
+		bufferList->mNumberBuffers = [decoder format].mChannelsPerFrame;
+		
 		// Init RG analysis for the first stream to be analyzed
 		if(0 == sampleRate) {
 			sampleRate = [decoder format].mSampleRate;
@@ -124,7 +127,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 			}
 			
 			// Submit the data to the RG analysis engine
-			int result = AnalyzeSamples(rgBuffers[0], (1 == channelsToProcess ? NULL : rgBuffers[1]), framesRead, 2);
+			int result = AnalyzeSamples(rgBuffers[0], (1 == channelsToProcess ? NULL : rgBuffers[1]), framesRead, channelsToProcess);
 			if(GAIN_ANALYSIS_OK != result)
 				goto cleanup;
 			
