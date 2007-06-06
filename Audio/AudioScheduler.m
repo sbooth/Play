@@ -93,7 +93,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 #endif
 
 	// Determine if this render represents a  new region
-	if((kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) && nil == [scheduler regionBeingRendered]) {
+	if(/*(kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) &&*/ nil == [scheduler regionBeingRendered]) {
 
 		// Update the scheduler
 		[scheduler setRegionBeingRendered:[scheduler regionBeingScheduled]];
@@ -106,7 +106,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	}
 
 	// Record the number of frames rendered
-	if(kScheduledAudioSliceFlag_BeganToRender & slice->mFlags)
+//	if(kScheduledAudioSliceFlag_BeganToRender & slice->mFlags)
 		[scheduler renderedAdditionalFrames:slice->mNumberFrames];
 		
 	// Signal the scheduling thread that a slice is available for filling
