@@ -284,11 +284,14 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	if(nil == decoder)
 		return NO;
 	
+	AudioStreamBasicDescription		format				= [self format];
 	AudioStreamBasicDescription		nextFormat			= [decoder format];
+	
+	AudioChannelLayout				channelLayout		= [self channelLayout];
 	AudioChannelLayout				nextChannelLayout	= [decoder channelLayout];
 	
-	BOOL	formatsMatch			= (nextFormat.mSampleRate == [self format].mSampleRate && nextFormat.mChannelsPerFrame == [self format].mChannelsPerFrame);
-	BOOL	channelLayoutsMatch		= channelLayoutsAreEqual(&nextChannelLayout, &_channelLayout);
+	BOOL	formatsMatch			= (nextFormat.mSampleRate == format.mSampleRate && nextFormat.mChannelsPerFrame == format.mChannelsPerFrame);
+	BOOL	channelLayoutsMatch		= channelLayoutsAreEqual(&nextChannelLayout, &channelLayout);
 	
 	// The two files can be joined only if they have the same formats and channel layouts
 	if(NO == formatsMatch || NO == channelLayoutsMatch)
