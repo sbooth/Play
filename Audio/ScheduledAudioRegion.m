@@ -221,6 +221,7 @@ void deallocate_slice_buffer(ScheduledAudioSlice **sliceBuffer);
 	_framesReadInCurrentLoop	= 0;
 	_totalFramesRead			= 0;
 	_completedLoops				= 0;
+	_atEnd						= NO;
 }
 
 - (void)			clearFramesScheduled					{ _framesScheduled = 0; }
