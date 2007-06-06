@@ -295,6 +295,16 @@
 		8CE620EB0C11E8530073ADC3 /* WavPackDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE620D90C11E8530073ADC3 /* WavPackDecoder.m */; };
 		8CE621100C11E8A50073ADC3 /* AudioScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE6210C0C11E8A50073ADC3 /* AudioScheduler.m */; };
 		8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE6210E0C11E8A50073ADC3 /* ScheduledAudioRegion.m */; };
+		8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */; };
+		8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */; };
+		8CE631D00C161CD20073ADC3 /* AudioUnitUI.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */; };
+		8CE631D10C161CD20073ADC3 /* SaveAUPresetSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */; };
+		8CE631D70C161D140073ADC3 /* Drawer-List.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631D20C161D140073ADC3 /* Drawer-List.tiff */; };
+		8CE631D80C161D140073ADC3 /* fileexport.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631D30C161D140073ADC3 /* fileexport.png */; };
+		8CE631D90C161D140073ADC3 /* filesave.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631D40C161D140073ADC3 /* filesave.png */; };
+		8CE631DA0C161D140073ADC3 /* kmixdocked_error.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631D50C161D140073ADC3 /* kmixdocked_error.png */; };
+		8CE631DB0C161D140073ADC3 /* revert.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631D60C161D140073ADC3 /* revert.png */; };
+		8CE632040C161E5E0073ADC3 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */; };
 		8CF257B20BF543FA00A8520E /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A10BF543FA00A8520E /* AIPlasticButton.m */; };
 		8CF257B40BF543FA00A8520E /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */; };
 		8CF257B60BF543FA00A8520E /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */; };
@@ -775,6 +785,18 @@
 		8CE6210C0C11E8A50073ADC3 /* AudioScheduler.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScheduler.m; path = Audio/AudioScheduler.m; sourceTree = "<group>"; };
 		8CE6210D0C11E8A50073ADC3 /* ScheduledAudioRegion.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ScheduledAudioRegion.h; path = Audio/ScheduledAudioRegion.h; sourceTree = "<group>"; };
 		8CE6210E0C11E8A50073ADC3 /* ScheduledAudioRegion.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ScheduledAudioRegion.m; path = Audio/ScheduledAudioRegion.m; sourceTree = "<group>"; };
+		8CE631BA0C161CAB0073ADC3 /* AudioUnitUI.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioUnitUI.h; path = AudioUnitUI/AudioUnitUI.h; sourceTree = "<group>"; };
+		8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioUnitUI.m; path = AudioUnitUI/AudioUnitUI.m; sourceTree = "<group>"; };
+		8CE631BC0C161CAB0073ADC3 /* SaveAUPresetSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SaveAUPresetSheet.h; path = AudioUnitUI/SaveAUPresetSheet.h; sourceTree = "<group>"; };
+		8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SaveAUPresetSheet.m; path = AudioUnitUI/SaveAUPresetSheet.m; sourceTree = "<group>"; };
+		8CE631C50C161CD20073ADC3 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioUnitUI.nib; sourceTree = "<group>"; };
+		8CE631C70C161CD20073ADC3 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SaveAUPresetSheet.nib; sourceTree = "<group>"; };
+		8CE631D20C161D140073ADC3 /* Drawer-List.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = "Drawer-List.tiff"; path = "Images/Drawer-List.tiff"; sourceTree = "<group>"; };
+		8CE631D30C161D140073ADC3 /* fileexport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fileexport.png; path = Images/fileexport.png; sourceTree = "<group>"; };
+		8CE631D40C161D140073ADC3 /* filesave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = filesave.png; path = Images/filesave.png; sourceTree = "<group>"; };
+		8CE631D50C161D140073ADC3 /* kmixdocked_error.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kmixdocked_error.png; path = Images/kmixdocked_error.png; sourceTree = "<group>"; };
+		8CE631D60C161D140073ADC3 /* revert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = revert.png; path = Images/revert.png; sourceTree = "<group>"; };
+		8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		8CF257A00BF543FA00A8520E /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticButton.h; path = ThirdParty/AIPlasticButton/AIPlasticButton.h; sourceTree = "<group>"; };
 		8CF257A10BF543FA00A8520E /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticButton.m; path = ThirdParty/AIPlasticButton/AIPlasticButton.m; sourceTree = "<group>"; };
 		8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticInfoButton.h; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -819,6 +841,7 @@
 				8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */,
 				8C55786E0BBCD97C0047B89C /* QuartzCore.framework in Frameworks */,
 				8C5838750BDFD44000E43C9E /* CoreAudio.framework in Frameworks */,
+				8CE632040C161E5E0073ADC3 /* CoreAudioKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -864,6 +887,7 @@
 				8C9C3E9B0B742FCF00CE799A /* Metadata Writers */,
 				8C9C288A0B724D3200CE799A /* AudioScrobbler */,
 				29B97315FDCFA39411CA2CEA /* Application */,
+				8CE631B90C161C940073ADC3 /* AudioUnitUI */,
 				8CB3F2940BDDA72500B5E828 /* Preferences */,
 				8C5846460BE159B100E43C9E /* Value Transformers */,
 				8C9C32240B73340700CE799A /* Formatters */,
@@ -897,6 +921,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */,
+				8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */,
 				8CA83BF30BF3AE5100E98527 /* ReplayGainCalculationProgressSheet.nib */,
 				8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */,
 				8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */,
@@ -922,6 +948,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */,
 				8C58386B0BDFD44000E43C9E /* CoreAudio.framework */,
 				8C5578500BBCD97C0047B89C /* QuartzCore.framework */,
 				8C5574E10BBC1FA80047B89C /* mad.framework */,
@@ -1311,6 +1338,11 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8CE631D20C161D140073ADC3 /* Drawer-List.tiff */,
+				8CE631D30C161D140073ADC3 /* fileexport.png */,
+				8CE631D40C161D140073ADC3 /* filesave.png */,
+				8CE631D50C161D140073ADC3 /* kmixdocked_error.png */,
+				8CE631D60C161D140073ADC3 /* revert.png */,
 				8C5838200BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff */,
 				8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */,
 				8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */,
@@ -1595,6 +1627,17 @@
 			name = Preferences;
 			sourceTree = "<group>";
 		};
+		8CE631B90C161C940073ADC3 /* AudioUnitUI */ = {
+			isa = PBXGroup;
+			children = (
+				8CE631BA0C161CAB0073ADC3 /* AudioUnitUI.h */,
+				8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */,
+				8CE631BC0C161CAB0073ADC3 /* SaveAUPresetSheet.h */,
+				8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */,
+			);
+			name = AudioUnitUI;
+			sourceTree = "<group>";
+		};
 		8CF2579D0BF543E700A8520E /* AIPlasticButton */ = {
 			isa = PBXGroup;
 			children = (
@@ -1772,6 +1815,13 @@
 				8CF257BF0BF543FA00A8520E /* PlasticButtonPressed_Caps.png in Resources */,
 				8CF257C00BF543FA00A8520E /* PlasticButtonPressed_Middle.png in Resources */,
 				8CF257C10BF543FA00A8520E /* plus.png in Resources */,
+				8CE631D00C161CD20073ADC3 /* AudioUnitUI.nib in Resources */,
+				8CE631D10C161CD20073ADC3 /* SaveAUPresetSheet.nib in Resources */,
+				8CE631D70C161D140073ADC3 /* Drawer-List.tiff in Resources */,
+				8CE631D80C161D140073ADC3 /* fileexport.png in Resources */,
+				8CE631D90C161D140073ADC3 /* filesave.png in Resources */,
+				8CE631DA0C161D140073ADC3 /* kmixdocked_error.png in Resources */,
+				8CE631DB0C161D140073ADC3 /* revert.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1948,6 +1998,8 @@
 				8CE620EB0C11E8530073ADC3 /* WavPackDecoder.m in Sources */,
 				8CE621100C11E8A50073ADC3 /* AudioScheduler.m in Sources */,
 				8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */,
+				8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */,
+				8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2176,6 +2228,22 @@
 				8CB9408C0BDEF79000405DB4 /* English */,
 			);
 			name = HotKeyPreferences.nib;
+			sourceTree = "<group>";
+		};
+		8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CE631C50C161CD20073ADC3 /* English */,
+			);
+			name = AudioUnitUI.nib;
+			sourceTree = "<group>";
+		};
+		8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8CE631C70C161CD20073ADC3 /* English */,
+			);
+			name = SaveAUPresetSheet.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

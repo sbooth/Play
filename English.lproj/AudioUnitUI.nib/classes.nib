@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {loadPresetFromFile = id; savePreset = id; savePresetToFile = id; }; 
+            CLASS = AudioUnitUI; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_presetsDrawer" = NSDrawer; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}
