@@ -110,6 +110,9 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 
 - (void) prepareToPlayStream:(AudioStream *)stream;
 - (NSNumber *) setReplayGainForStream:(AudioStream *)stream;
+
+- (void) setFormat:(AudioStreamBasicDescription)format;
+- (void) setChannelLayout:(AudioChannelLayout)channelLayout;
 @end
 
 @implementation AudioPlayer
@@ -201,13 +204,18 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	if(nil == decoder)
 		return NO;
 	
+	AudioStreamBasicDescription		format				= [self format];
 	AudioStreamBasicDescription		newFormat			= [decoder format];
+	
+	AudioChannelLayout				channelLayout		= [self channelLayout];
 	AudioChannelLayout				newChannelLayout	= [decoder channelLayout];
 
 	// If the sample rate or number of channels changed, change the AU formats
-	if(newFormat.mSampleRate != _format.mSampleRate || newFormat.mChannelsPerFrame != _format.mChannelsPerFrame) {
+	if(newFormat.mSampleRate != format.mSampleRate || newFormat.mChannelsPerFrame != format.mChannelsPerFrame) {
 		OSStatus err = [self setAUGraphFormat:newFormat];
-		if(noErr != err) {
+		if(noErr == err)
+			[self setFormat:newFormat];
+		else {
 			if(nil != error) {
 				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
@@ -230,9 +238,11 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	}
 
 	// Update the AUGraph
-	if(NO == channelLayoutsAreEqual(&newChannelLayout, &_channelLayout)) {
+	if(NO == channelLayoutsAreEqual(&newChannelLayout, &channelLayout)) {
 		OSStatus err = [self setAUGraphChannelLayout:newChannelLayout];
-		if(noErr != err) {
+		if(noErr == err)
+			[self setChannelLayout:newChannelLayout];
+		else {
 			if(nil != error) {
 				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
 				NSString				*path				= [[stream valueForKey:StreamURLKey] path];
@@ -277,7 +287,7 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	AudioStreamBasicDescription		nextFormat			= [decoder format];
 	AudioChannelLayout				nextChannelLayout	= [decoder channelLayout];
 	
-	BOOL	formatsMatch			= (nextFormat.mSampleRate == _format.mSampleRate && nextFormat.mChannelsPerFrame == _format.mChannelsPerFrame);
+	BOOL	formatsMatch			= (nextFormat.mSampleRate == [self format].mSampleRate && nextFormat.mChannelsPerFrame == [self format].mChannelsPerFrame);
 	BOOL	channelLayoutsMatch		= channelLayoutsAreEqual(&nextChannelLayout, &_channelLayout);
 	
 	// The two files can be joined only if they have the same formats and channel layouts
@@ -597,9 +607,6 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	NSLog(@"-audioSchedulerStartedRenderingRegion: %@", [[region decoder] stream]);
 #endif
 	
-	_format			= [[region decoder] format];
-	_channelLayout	= [[region decoder] channelLayout];
-
 	[self setTotalFrames:[region totalFrames]];
 	
 	[self willChangeValueForKey:@"hasValidStream"];
@@ -624,9 +631,6 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	NSLog(@"-audioSchedulerFinishedRenderingRegion: %@", [[region decoder] stream]);
 #endif
 	
-	memset(&_format, 0, sizeof(_format));
-	memset(&_channelLayout, 0, sizeof(_channelLayout));
-
 	// If nothing is coming up right away, stop ourselves from playing
 	if(nil == [[self scheduler] regionBeingScheduled]) {
 		[self setPlaying:NO];
@@ -1163,6 +1167,16 @@ return err;	*/
 	[self setReplayGain:0];
 	[self setHasReplayGain:NO];
 	return nil;
+}
+
+- (void) setFormat:(AudioStreamBasicDescription)format
+{
+	_format = format;
+}
+
+- (void) setChannelLayout:(AudioChannelLayout)channelLayout
+{
+	_channelLayout = channelLayout;
 }
 
 @end
