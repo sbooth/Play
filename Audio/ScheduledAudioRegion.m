@@ -32,9 +32,21 @@
 
 - (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 
+- (ScheduledAudioSlice *) buffer;
+
 - (void) scheduledAdditionalFrames:(UInt32)frameCount;
 - (void) renderedAdditionalFrames:(UInt32)frameCount;
+
+- (BOOL) atEnd;
 @end
+
+// ========================================
+// Helper function prototypes
+// ========================================
+void allocate_slice_for_asbd(const AudioStreamBasicDescription *asbd, ScheduledAudioSlice *slice);
+void deallocate_slice(ScheduledAudioSlice *slice);
+ScheduledAudioSlice * allocate_slice_buffer_for_asbd(const AudioStreamBasicDescription *asbd);
+void deallocate_slice_buffer(ScheduledAudioSlice **sliceBuffer);
 
 @implementation ScheduledAudioRegion
 
@@ -112,6 +124,8 @@
 {
 	[_decoder release], _decoder = nil;
 	
+	deallocate_slice_buffer(&_sliceBuffer);
+	
 	[super dealloc];
 }
 
@@ -126,7 +140,7 @@
 	_startTime = startTime;
 }
 
-- (AudioDecoder *)	decoder									{ return _decoder; }
+- (AudioDecoder *)	decoder									{ return [[_decoder retain] autorelease]; }
 
 - (void) setDecoder:(AudioDecoder *)decoder
 {
@@ -136,6 +150,11 @@
 	
 	[_decoder release];
 	_decoder = [decoder retain];
+	
+	// Allocate the buffers for the AudioScheduler to use
+	deallocate_slice_buffer(&_sliceBuffer);
+	AudioStreamBasicDescription format = [[self decoder] format];
+	_sliceBuffer = allocate_slice_buffer_for_asbd(&format);
 }
 
 - (unsigned)		loopCount								{ return _loopCount; }
@@ -176,7 +195,8 @@
 	_completedLoops				= frame / [self framesToPlay];
 	_framesReadInCurrentLoop	= frame % [self framesToPlay];
 	_totalFramesRead			= frame;
-	
+	_atEnd						= NO;
+
 	[[self decoder] seekToFrame:[self startingFrame] + _framesReadInCurrentLoop];
 	
 	return [self currentFrame];
@@ -224,13 +244,21 @@
 	_framesReadInCurrentLoop	+= framesRead;
 	_totalFramesRead			+= framesRead;
 	
-	if([self framesToPlay] == _framesReadInCurrentLoop) {
+	if([self framesToPlay] == _framesReadInCurrentLoop || (0 == framesRead && 0 != framesToRead)) {
 		[[self decoder] seekToFrame:[self startingFrame]];
 		++_completedLoops;
-		_framesReadInCurrentLoop = 0;
+		_framesReadInCurrentLoop = 0;		
 	}
 	
+	if([self loopCount] < [self completedLoops])
+		_atEnd = YES;
+	
 	return framesRead;	
+}
+
+- (ScheduledAudioSlice *) buffer
+{
+	return _sliceBuffer;
 }
 
 - (void) scheduledAdditionalFrames:(UInt32)frameCount
@@ -241,6 +269,11 @@
 - (void) renderedAdditionalFrames:(UInt32)frameCount
 {
 	_framesRendered += frameCount;
+}
+
+- (BOOL) atEnd
+{
+	return _atEnd;
 }
 
 @end

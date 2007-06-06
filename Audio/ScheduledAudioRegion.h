@@ -24,6 +24,9 @@
 
 @class AudioDecoder;
 
+// This class is a bit of an amalgam- it contains all the logic for accessing a subrange of 
+// audio from a Decoder, but also the buffers and associated internal state that 
+// AudioScheduler needs to use an object of this class.
 @interface ScheduledAudioRegion : NSObject
 {
 	AudioDecoder			*_decoder;
@@ -35,7 +38,13 @@
 	UInt32					_framesReadInCurrentLoop;
 	SInt64					_totalFramesRead;
 	unsigned				_completedLoops;
+
+	BOOL					_atEnd;
 	
+	// ========================================
+	// AudioScheduler members
+	ScheduledAudioSlice		*_sliceBuffer;
+
 	SInt64					_framesScheduled;
 	SInt64					_framesRendered;
 }	

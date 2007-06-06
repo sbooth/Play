@@ -35,7 +35,6 @@ extern NSString * const		ScheduledAudioRegionObjectKey;		// ScheduledAudioRegion
 {
 	AudioUnit				_audioUnit;
 	
-	ScheduledAudioSlice		*_sliceBuffer;	
 	AudioTimeStamp			_scheduledStartTime;
 
 	SInt64					_framesScheduled;
@@ -45,7 +44,7 @@ extern NSString * const		ScheduledAudioRegionObjectKey;		// ScheduledAudioRegion
 
 	ScheduledAudioRegion	*_regionBeingScheduled;
 	ScheduledAudioRegion	*_regionBeingRendered;
-	
+
 	BOOL					_keepScheduling;
 	BOOL					_scheduling;
 	semaphore_t				_semaphore;
@@ -85,8 +84,11 @@ extern NSString * const		ScheduledAudioRegionObjectKey;		// ScheduledAudioRegion
 // YES if this object's scheduled audio is rendering, NO otherwise
 - (BOOL) isRendering;
 
-// Unschedule any scheduled audio and reset current play time
+// Unschedule any scheduled audio and reset current play time (preserves scheduling and rendering regions)
 - (void) reset;
+
+// Same as reset, but also unschedules all scheduled regions and clears the scheduling and rendering regions
+- (void) clear;
 
 // The current play time (only valid while scheduling)
 - (AudioTimeStamp) currentPlayTime;
@@ -101,9 +103,6 @@ extern NSString * const		ScheduledAudioRegionObjectKey;		// ScheduledAudioRegion
 @interface NSObject (AudioSchedulerDelegateMethods)
 - (void) audioSchedulerStartedScheduling:(AudioScheduler *)scheduler;
 - (void) audioSchedulerStoppedScheduling:(AudioScheduler *)scheduler;
-
-- (void) audioSchedulerScheduledLastFrame:(AudioScheduler *)scheduler;
-- (void) audioSchedulerRenderedLastFrame:(AudioScheduler *)scheduler;
 
 - (void) audioSchedulerStartedSchedulingRegion:(NSDictionary *)schedulerAndRegion;
 - (void) audioSchedulerFinishedSchedulingRegion:(NSDictionary *)schedulerAndRegion;
