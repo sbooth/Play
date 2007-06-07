@@ -142,9 +142,8 @@ static CollectionManager *collectionManagerInstance = nil;
 
 - (id) init
 {
-	if((self = [super init])) {
+	if((self = [super init]))
 		_sql = [[NSMutableDictionary alloc] init];
-	}
 	return self;
 }
 
@@ -170,9 +169,8 @@ static CollectionManager *collectionManagerInstance = nil;
 - (AudioStreamManager *) streamManager
 {
 	@synchronized(self) {
-		if(nil == _streamManager) {
+		if(nil == _streamManager)
 			_streamManager = [[AudioStreamManager alloc] init];
-		}
 	}
 	return _streamManager;
 }
@@ -180,9 +178,8 @@ static CollectionManager *collectionManagerInstance = nil;
 - (PlaylistManager *) playlistManager
 {
 	@synchronized(self) {
-		if(nil == _playlistManager) {
+		if(nil == _playlistManager)
 			_playlistManager = [[PlaylistManager alloc] init];
-		}
 	}
 	return _playlistManager;
 }
@@ -190,9 +187,8 @@ static CollectionManager *collectionManagerInstance = nil;
 - (SmartPlaylistManager *) smartPlaylistManager
 {
 	@synchronized(self) {
-		if(nil == _smartPlaylistManager) {
+		if(nil == _smartPlaylistManager)
 			_smartPlaylistManager = [[SmartPlaylistManager alloc] init];
-		}
 	}
 	return _smartPlaylistManager;
 }
@@ -200,9 +196,8 @@ static CollectionManager *collectionManagerInstance = nil;
 - (WatchFolderManager *) watchFolderManager
 {
 	@synchronized(self) {
-		if(nil == _watchFolderManager) {
+		if(nil == _watchFolderManager)
 			_watchFolderManager = [[WatchFolderManager alloc] init];
-		}
 	}
 	return _watchFolderManager;
 }
@@ -210,9 +205,8 @@ static CollectionManager *collectionManagerInstance = nil;
 - (NSUndoManager *) undoManager
 {
 	@synchronized(self) {
-		if(nil == _undoManager) {
+		if(nil == _undoManager)
 			_undoManager = [[NSUndoManager alloc] init];
-		}
 	}
 	return _undoManager;
 }
@@ -231,9 +225,8 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSParameterAssert(nil != databasePath);
 	
-	if([self isConnectedToDatabase]) {
+	if([self isConnectedToDatabase])
 		[self disconnectFromDatabase];
-	}
 	
 	int result = sqlite3_open([databasePath UTF8String], &_db);
 	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to open the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
@@ -340,34 +333,26 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	[[[self undoManager] prepareWithInvocationTarget:object] mySetValue:[object valueForKey:key] forKey:key];
 	
-	if([object isKindOfClass:[AudioStream class]]) {
+	if([object isKindOfClass:[AudioStream class]])
 		[[self streamManager] stream:(AudioStream *)object willChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[Playlist class]]) {
+	else if([object isKindOfClass:[Playlist class]])
 		[[self playlistManager] playlist:(Playlist *)object willChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[SmartPlaylist class]]) {
+	else if([object isKindOfClass:[SmartPlaylist class]])
 		[[self smartPlaylistManager] smartPlaylist:(SmartPlaylist *)object willChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[WatchFolder class]]) {
+	else if([object isKindOfClass:[WatchFolder class]])
 		[[self watchFolderManager] watchFolder:(WatchFolder *)object willChangeValueForKey:key];
-	}	
 }
 
 - (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key
 {
-	if([object isKindOfClass:[AudioStream class]]) {
+	if([object isKindOfClass:[AudioStream class]])
 		[[self streamManager] stream:(AudioStream *)object didChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[Playlist class]]) {
+	else if([object isKindOfClass:[Playlist class]])
 		[[self playlistManager] playlist:(Playlist *)object didChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[SmartPlaylist class]]) {
+	else if([object isKindOfClass:[SmartPlaylist class]])
 		[[self smartPlaylistManager] smartPlaylist:(SmartPlaylist *)object didChangeValueForKey:key];
-	}
-	else if([object isKindOfClass:[WatchFolder class]]) {
+	else if([object isKindOfClass:[WatchFolder class]])
 		[[self watchFolderManager] watchFolder:(WatchFolder *)object didChangeValueForKey:key];
-	}	
 }
 
 @end

@@ -98,9 +98,8 @@
 - (NSArray *) watchFolders
 {
 	@synchronized(self) {
-		if(nil == _cachedFolders) {
+		if(nil == _cachedFolders)
 			_cachedFolders = [[self fetchWatchFolders] retain];
-		}
 	}
 	return _cachedFolders;
 }
@@ -110,9 +109,8 @@
 	NSParameterAssert(nil != objectID);
 	
 	WatchFolder *folder = (WatchFolder *)NSMapGet(_registeredFolders, (void *)[objectID unsignedIntValue]);
-	if(nil != folder) {
+	if(nil != folder)
 		return folder;
-	}
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_watch_folder_by_id"];
 	int				result			= SQLITE_OK;
@@ -127,9 +125,8 @@
 	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+	while(SQLITE_ROW == (result = sqlite3_step(statement)))
 		folder = [self loadWatchFolder:statement];
-	}
 	
 	NSAssert1(SQLITE_DONE == result, @"Error while fetching folder (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
@@ -153,9 +150,8 @@
 	
 	BOOL result = YES;
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_insertedFolders addObject:folder];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([_cachedFolders count], 1)];
 		
@@ -180,13 +176,11 @@
 {
 	NSParameterAssert(nil != folder);
 	
-	if(NO == [folder hasChanges]) {
+	if(NO == [folder hasChanges])
 		return;
-	}
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_updatedFolders addObject:folder];
-	}
 	else {
 		[self doUpdateWatchFolder:folder];	
 		
@@ -202,9 +196,8 @@
 {
 	NSParameterAssert(nil != folder);
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_deletedFolders addObject:folder];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedFolders indexOfObject:folder]];
 		
@@ -225,27 +218,23 @@
 	
 	NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedFolders indexOfObject:folder]];
 	
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"watchFolders"];
-	}
 	
 	[folder revert];
 	
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"watchFolders"];
-	}
 }
 
 #pragma mark Metadata support
 
 - (id) valueForKey:(NSString *)key
 {
-	if([[self watchFolderKeys] containsObject:key]) {
+	if([[self watchFolderKeys] containsObject:key])
 		return [[self watchFolders] valueForKey:key];
-	}
-	else {
+	else
 		return [super valueForKey:key];
-	}
 }
 
 @end
@@ -294,18 +283,16 @@
 	// Process updates first
 	if(0 != [_updatedFolders count]) {
 		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		while((folder = [enumerator nextObject]))
 			[self doUpdateWatchFolder:folder];
-		}
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedFolders count]) {
 		enumerator = [_deletedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		while((folder = [enumerator nextObject]))
 			[self doDeleteWatchFolder:folder];
-		}
 	}
 	
 	// ========================================
@@ -313,9 +300,8 @@
 	if(0 != [_insertedFolders count]) {
 		enumerator = [[_insertedFolders allObjects] objectEnumerator];
 		while((folder = [enumerator nextObject])) {
-			if(NO == [self doInsertWatchFolder:folder]) {
+			if(NO == [self doInsertWatchFolder:folder])
 				[_insertedFolders removeObject:folder];
-			}
 		}
 	}	
 }
@@ -332,11 +318,10 @@
 	// Broadcast the notifications
 	if(0 != [_updatedFolders count]) {
 		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		while((folder = [enumerator nextObject]))
 			[[NSNotificationCenter defaultCenter] postNotificationName:WatchFolderDidChangeNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:folder forKey:WatchFolderObjectKey]];		
-		}		
 		
 		[_updatedFolders removeAllObjects];
 	}
@@ -345,9 +330,8 @@
 	// Handle deletes
 	if(0 != [_deletedFolders count]) {
 		enumerator = [_deletedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		while((folder = [enumerator nextObject]))
 			[indexes addIndex:[_cachedFolders indexOfObject:folder]];
-		}
 		
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"watchFolders"];
 		enumerator = [_deletedFolders objectEnumerator];
@@ -398,9 +382,8 @@
 		WatchFolder		*folder 		= nil;
 		
 		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		while((folder = [enumerator nextObject]))
 			[folder revert];
-		}
 	}
 	
 	[_insertedFolders removeAllObjects];
@@ -414,9 +397,8 @@
 {
 	unsigned index = [_cachedFolders indexOfObject:folder];
 		
-	if(NSNotFound != index) {
+	if(NSNotFound != index)
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
 }
 
 - (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key
@@ -536,9 +518,8 @@
 	objectID = sqlite3_column_int(statement, 0);
 	
 	folder = (WatchFolder *)NSMapGet(_registeredFolders, (void *)objectID);
-	if(nil != folder) {
+	if(nil != folder)
 		return folder;
-	}
 	
 	folder = [[WatchFolder alloc] init];
 	

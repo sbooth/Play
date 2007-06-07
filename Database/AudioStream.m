@@ -86,9 +86,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[[CollectionManager manager] streamManager] insertStream:stream]) {
+	if(NO == [[[CollectionManager manager] streamManager] insertStream:stream])
 		[stream release], stream = nil;
-	}
 
 	return [stream autorelease];
 }
@@ -194,16 +193,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	NSNumber	*trackNumber	= [self valueForKey:MetadataTrackNumberKey];
 	NSNumber	*trackTotal		= [self valueForKey:MetadataTrackTotalKey];
 	
-	if(nil != trackNumber && nil != trackTotal) {
+	if(nil != trackNumber && nil != trackTotal)
 		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@/%@", @"AudioStream", @""), trackNumber, trackTotal];
-	}
-	else if(nil != trackNumber) {
+	else if(nil != trackNumber)
 		return [trackNumber stringValue];
-		
-	}
-	else if(nil != trackTotal) {
+	else if(nil != trackTotal)
 		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"/%@", @"AudioStream", @""), trackTotal];
-	}
 
 	return nil;
 }
@@ -213,16 +208,12 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	NSNumber	*discNumber		= [self valueForKey:MetadataDiscNumberKey];
 	NSNumber	*discTotal		= [self valueForKey:MetadataDiscTotalKey];
 	
-	if(nil != discNumber && nil != discTotal) {
+	if(nil != discNumber && nil != discTotal)
 		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"%@/%@", @"AudioStream", @""), discNumber, discTotal];
-	}
-	else if(nil != discNumber) {
+	else if(nil != discNumber)
 		return [discNumber stringValue];
-		
-	}
-	else if(nil != discTotal) {
+	else if(nil != discTotal)
 		return [NSString stringWithFormat:NSLocalizedStringFromTable(@"/%@", @"AudioStream", @""), discTotal];
-	}
 	
 	return nil;
 }
@@ -252,22 +243,18 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"[%@] %@ (%@ - %@)", 
+	return [NSString stringWithFormat:@"[%@] %@", 
 		[self valueForKey:ObjectIDKey], 
-		[self filename], 
-		[self valueForKey:MetadataArtistKey], 
-		[self valueForKey:MetadataTitleKey]];
+		[self filename]];
 }
 
 - (NSString *) debugDescription
 {
-	return [NSString stringWithFormat:@"<%@: %x> [%@] %@ (%@ - %@)",
+	return [NSString stringWithFormat:@"<%@: %x> [%@] %@",
 		[self class], 
 		self, 
 		[self valueForKey:ObjectIDKey], 
-		[self filename], 
-		[self valueForKey:MetadataArtistKey], 
-		[self valueForKey:MetadataTitleKey]];
+		[self filename]];
 }
 
 #pragma mark Reimplementations

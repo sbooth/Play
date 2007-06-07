@@ -104,9 +104,8 @@
 - (NSArray *) smartPlaylists
 {
 	@synchronized(self) {
-		if(nil == _cachedPlaylists) {
+		if(nil == _cachedPlaylists)
 			_cachedPlaylists = [[self fetchSmartPlaylists] retain];
-		}
 	}
 	return _cachedPlaylists;
 }
@@ -116,9 +115,8 @@
 	NSParameterAssert(nil != objectID);
 	
 	SmartPlaylist *playlist = (SmartPlaylist *)NSMapGet(_registeredPlaylists, (void *)[objectID unsignedIntValue]);
-	if(nil != playlist) {
+	if(nil != playlist)
 		return playlist;
-	}
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_smart_playlist_by_id"];
 	int				result			= SQLITE_OK;
@@ -133,9 +131,8 @@
 	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+	while(SQLITE_ROW == (result = sqlite3_step(statement)))
 		playlist = [self loadSmartPlaylist:statement];
-	}
 	
 	NSAssert1(SQLITE_DONE == result, @"Error while fetching smart playlist (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
@@ -159,9 +156,8 @@
 	
 	BOOL result = YES;
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_insertedPlaylists addObject:playlist];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([_cachedPlaylists count], 1)];
 	
@@ -186,13 +182,11 @@
 {
 	NSParameterAssert(nil != playlist);
 	
-	if(NO == [playlist hasChanges]) {
+	if(NO == [playlist hasChanges])
 		return;
-	}
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_updatedPlaylists addObject:playlist];
-	}
 	else {
 		[self doUpdateSmartPlaylist:playlist];	
 		
@@ -208,9 +202,8 @@
 {
 	NSParameterAssert(nil != playlist);
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_deletedPlaylists addObject:playlist];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedPlaylists indexOfObject:playlist]];
 		
@@ -231,27 +224,23 @@
 	
 	NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedPlaylists indexOfObject:playlist]];
 	
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"smartPlaylists"];
-	}
 	
 	[playlist revert];
 	
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"smartPlaylists"];
-	}
 }
 
 #pragma mark Metadata support
 
 - (id) valueForKey:(NSString *)key
 {
-	if([[self smartPlaylistKeys] containsObject:key]) {
+	if([[self smartPlaylistKeys] containsObject:key])
 		return [[self smartPlaylists] valueForKey:key];
-	}
-	else {
+	else
 		return [super valueForKey:key];
-	}
 }
 
 @end
@@ -300,18 +289,16 @@
 	// Process updates first
 	if(0 != [_updatedPlaylists count]) {
 		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		while((playlist = [enumerator nextObject]))
 			[self doUpdateSmartPlaylist:playlist];
-		}
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedPlaylists count]) {
 		enumerator = [_deletedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		while((playlist = [enumerator nextObject]))
 			[self doDeleteSmartPlaylist:playlist];
-		}
 	}
 	
 	// ========================================
@@ -319,9 +306,8 @@
 	if(0 != [_insertedPlaylists count]) {
 		enumerator = [[_insertedPlaylists allObjects] objectEnumerator];
 		while((playlist = [enumerator nextObject])) {
-			if(NO == [self doInsertSmartPlaylist:playlist]) {
+			if(NO == [self doInsertSmartPlaylist:playlist])
 				[_insertedPlaylists removeObject:playlist];
-			}
 		}
 	}	
 }
@@ -338,11 +324,10 @@
 	// Broadcast the notifications
 	if(0 != [_updatedPlaylists count]) {
 		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		while((playlist = [enumerator nextObject]))
 			[[NSNotificationCenter defaultCenter] postNotificationName:SmartPlaylistDidChangeNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:SmartPlaylistObjectKey]];		
-		}		
 		
 		[_updatedPlaylists removeAllObjects];
 	}
@@ -351,9 +336,8 @@
 	// Handle deletes
 	if(0 != [_deletedPlaylists count]) {
 		enumerator = [_deletedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		while((playlist = [enumerator nextObject]))
 			[indexes addIndex:[_cachedPlaylists indexOfObject:playlist]];
-		}
 		
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"smartPlaylists"];
 		enumerator = [_deletedPlaylists objectEnumerator];
@@ -404,9 +388,8 @@
 		SmartPlaylist	*playlist 		= nil;
 		
 		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		while((playlist = [enumerator nextObject]))
 			[playlist revert];
-		}
 	}
 	
 	[_insertedPlaylists removeAllObjects];
@@ -420,9 +403,8 @@
 {
 	unsigned index = [_cachedPlaylists indexOfObject:playlist];
 	
-	if(NSNotFound != index) {
+	if(NSNotFound != index)
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
 }
 
 - (void) smartPlaylist:(SmartPlaylist *)playlist didChangeValueForKey:(NSString *)key
@@ -543,9 +525,8 @@
 	objectID = sqlite3_column_int(statement, 0);
 	
 	playlist = (SmartPlaylist *)NSMapGet(_registeredPlaylists, (void *)objectID);
-	if(nil != playlist) {
+	if(nil != playlist)
 		return playlist;
-	}
 	
 	playlist = [[SmartPlaylist alloc] init];
 	

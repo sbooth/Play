@@ -48,18 +48,16 @@ NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 	[playlist initValue:[NSDate date] forKey:StatisticsDateCreatedKey];
 	[playlist initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[[CollectionManager manager] smartPlaylistManager] insertSmartPlaylist:playlist]) {
+	if(NO == [[[CollectionManager manager] smartPlaylistManager] insertSmartPlaylist:playlist])
 		[playlist release], playlist = nil;
-	}
 	
 	return [playlist autorelease];
 }
 
 - (id) init
 {
-	if((self = [super init])) {
+	if((self = [super init]))
 		_streams = [[NSMutableArray alloc] init];
-	}
 	return self;
 }
 

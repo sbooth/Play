@@ -111,9 +111,8 @@
 - (NSArray *) streams
 {
 	@synchronized(self) {
-		if(nil == _cachedStreams) {
+		if(nil == _cachedStreams)
 			_cachedStreams = [[self fetchStreams] retain];
-		}
 	}
 	return _cachedStreams;
 }
@@ -158,9 +157,8 @@
 	
 	while((stream = [enumerator nextObject])) {
 		streamURL = [stream valueForKey:StreamURLKey];
-		if([[streamURL path] hasPrefix:[url path]]) {
+		if([[streamURL path] hasPrefix:[url path]])
 			[streams addObject:stream];
-		}
 	}
 	
 	return [streams autorelease];
@@ -171,9 +169,8 @@
 	NSParameterAssert(nil != objectID);
 	
 	AudioStream *stream = (AudioStream *)NSMapGet(_registeredStreams, (void *)[objectID unsignedIntValue]);
-	if(nil != stream) {
+	if(nil != stream)
 		return stream;
-	}
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"select_stream_by_id"];
 	int				result			= SQLITE_OK;
@@ -188,9 +185,8 @@
 	result = sqlite3_bind_int(statement, sqlite3_bind_parameter_index(statement, ":id"), [objectID unsignedIntValue]);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+	while(SQLITE_ROW == (result = sqlite3_step(statement)))
 		stream = [self loadStream:statement];
-	}
 	
 	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
@@ -224,9 +220,8 @@
 	result = sqlite3_bind_text(statement, sqlite3_bind_parameter_index(statement, ":url"), [[url absoluteString] UTF8String], -1, SQLITE_TRANSIENT);
 	NSAssert1(SQLITE_OK == result, @"Unable to bind parameter to sql statement (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
-	while(SQLITE_ROW == (result = sqlite3_step(statement))) {
+	while(SQLITE_ROW == (result = sqlite3_step(statement)))
 		stream = [self loadStream:statement];
-	}
 	
 	NSAssert1(SQLITE_DONE == result, @"Error while fetching streams (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 	
@@ -250,9 +245,8 @@
 
 	BOOL result = YES;
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_insertedStreams addObject:stream];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([_cachedStreams count], 1)];
 
@@ -277,13 +271,11 @@
 {
 	NSParameterAssert(nil != stream);
 	
-	if(NO == [stream hasChanges]) {
+	if(NO == [stream hasChanges])
 		return;
-	}
 	
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_updatedStreams addObject:stream];
-	}
 	else {
 		[self doUpdateStream:stream];	
 		
@@ -299,9 +291,8 @@
 {
 	NSParameterAssert(nil != stream);
 
-	if([self updateInProgress]) {
+	if([self updateInProgress])
 		[_deletedStreams addObject:stream];
-	}
 	else {
 		NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedStreams indexOfObject:stream]];
 		
@@ -322,27 +313,23 @@
 	
 	NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:[_cachedStreams indexOfObject:stream]];
 
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
-	}
 
 	[stream revert];
 	
-	if(NO == [self updateInProgress]) {
+	if(NO == [self updateInProgress])
 		[self didChange:NSKeyValueChangeSetting valuesAtIndexes:indexes forKey:@"streams"];
-	}
 }
 
 #pragma mark Metadata support
 
 - (id) valueForKey:(NSString *)key
 {
-	if([[self streamKeys] containsObject:key]) {
+	if([[self streamKeys] containsObject:key])
 		return [[self streams] valueForKey:key];
-	}
-	else {
+	else
 		return [super valueForKey:key];
-	}
 }
 
 @end
@@ -391,18 +378,16 @@
 	// Process updates first
 	if(0 != [_updatedStreams count]) {
 		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+		while((stream = [enumerator nextObject]))
 			[self doUpdateStream:stream];
-		}
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedStreams count]) {
 		enumerator = [_deletedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+		while((stream = [enumerator nextObject]))
 			[self doDeleteStream:stream];
-		}
 	}
 	
 	// ========================================
@@ -410,9 +395,8 @@
 	if(0 != [_insertedStreams count]) {
 		enumerator = [[_insertedStreams allObjects] objectEnumerator];
 		while((stream = [enumerator nextObject])) {
-			if(NO == [self doInsertStream:stream]) {
+			if(NO == [self doInsertStream:stream])
 				[_insertedStreams removeObject:stream];
-			}
 		}
 	}	
 }
@@ -442,9 +426,8 @@
 		streams		= [NSMutableArray array];
 		enumerator	= [_deletedStreams objectEnumerator];
 		
-		while((stream = [enumerator nextObject])) {
+		while((stream = [enumerator nextObject]))
 			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
-		}
 
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];
 		enumerator = [_deletedStreams objectEnumerator];
@@ -498,9 +481,8 @@
 		AudioStream 	*stream 		= nil;
 		
 		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+		while((stream = [enumerator nextObject]))
 			[stream revert];
-		}
 	}
 
 	[_insertedStreams removeAllObjects];
@@ -514,14 +496,13 @@
 {
 	unsigned index = [_cachedStreams indexOfObject:stream];
 	
-	if(NSNotFound != index) {	
+	if(NSNotFound != index)
 		[self willChange:NSKeyValueChangeSetting valuesAtIndexes:[NSIndexSet indexSetWithIndex:index] forKey:key];
-	}
 }
 
 - (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key
 {
-	unsigned	index	= [_cachedStreams indexOfObject:stream];
+	unsigned index = [_cachedStreams indexOfObject:stream];
 
 	if(NSNotFound != index) {
 		[self saveStream:stream];
@@ -599,9 +580,8 @@
 
 	while((stream = [enumerator nextObject])) {
 		streamURL = [stream valueForKey:StreamURLKey];
-		if([[streamURL path] hasPrefix:[folderURL path]]) {
+		if([[streamURL path] hasPrefix:[folderURL path]])
 			[streams addObject:stream];
-		}
 	}
 
 	return [streams autorelease];
@@ -714,9 +694,8 @@
 	objectID = sqlite3_column_int(statement, 0);
 	
 	stream = (AudioStream *)NSMapGet(_registeredStreams, (void *)objectID);
-	if(nil != stream) {
+	if(nil != stream)
 		return stream;
-	}
 	
 	stream = [[AudioStream alloc] init];
 	

@@ -43,9 +43,8 @@ NSString * const	ObjectIDKey								= @"id";
 {
 	if([[self supportedKeys] containsObject:key]) {
 		id value = [_changedValues valueForKey:key];
-		if(nil == value) {
+		if(nil == value)
 			value = [_savedValues valueForKey:key];
-		}
 		
 		return ([value isEqual:[NSNull null]] ? nil : value);
 	}
@@ -64,23 +63,19 @@ NSString * const	ObjectIDKey								= @"id";
 		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
 		
 		// Internally NSNull is used to indicate a value that was specifically set to nil
-		if(nil == value) {
+		if(nil == value)
 			value = [NSNull null];
-		}
 		
-		if([[_savedValues valueForKey:key] isEqual:value]) {
+		if([[_savedValues valueForKey:key] isEqual:value])
 			[_changedValues removeObjectForKey:key];
-		}
-		else {
+		else
 			[_changedValues setValue:value forKey:key];			
-		}
 		
 		[self didChangeValueForKey:key];
 		[[CollectionManager manager] databaseObject:self didChangeValueForKey:key];
 	}
-	else {
+	else
 		[super setValue:value forKey:key];
-	}
 }
 
 - (void) mySetValue:(id)value forKey:(NSString *)key
@@ -149,9 +144,8 @@ NSString * const	ObjectIDKey								= @"id";
 	NSEnumerator	*savedKeys		= [keyedValues keyEnumerator];
 	NSString		*key			= nil;
 	
-	while((key = [savedKeys nextObject])) {
+	while((key = [savedKeys nextObject]))
 		[self initValue:[keyedValues valueForKey:key] forKey:key];
-	}
 }
 
 - (BOOL) hasChanges
@@ -186,9 +180,8 @@ NSString * const	ObjectIDKey								= @"id";
 - (NSArray *) supportedKeys
 {
 	@synchronized(self) {
-		if(nil == _supportedKeys) {
+		if(nil == _supportedKeys)
 			_supportedKeys = [[NSArray alloc] initWithObjects:ObjectIDKey, nil];
-		}
 	}
 	return _supportedKeys;
 }

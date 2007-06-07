@@ -51,18 +51,16 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 	// Call init: methods here to avoid sending change notifications
 	[folder initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[[CollectionManager manager] watchFolderManager] insertWatchFolder:folder]) {
+	if(NO == [[[CollectionManager manager] watchFolderManager] insertWatchFolder:folder])
 		[folder release], folder = nil;
-	}
 	
 	return [folder autorelease];
 }
 
 - (id) init
 {
-	if((self = [super init])) {
+	if((self = [super init]))
 		_streams = [[NSMutableArray alloc] init];
-	}
 	return self;
 }
 

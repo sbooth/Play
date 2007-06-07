@@ -59,18 +59,16 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	[playlist initValue:[NSDate date] forKey:StatisticsDateCreatedKey];
 	[playlist initValuesForKeysWithDictionary:keyedValues];
 	
-	if(NO == [[[CollectionManager manager] playlistManager] insertPlaylist:playlist]) {
+	if(NO == [[[CollectionManager manager] playlistManager] insertPlaylist:playlist])
 		[playlist release], playlist = nil;
-	}
 	
 	return [playlist autorelease];
 }
 
 - (id) init
 {
-	if((self = [super init])) {
+	if((self = [super init]))
 		_streams = [[NSMutableArray alloc] init];
-	}
 	return self;
 }
 
@@ -113,9 +111,8 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	
 	[[CollectionManager manager] beginUpdate];
 	
-	while((stream = [enumerator nextObject])) {
+	while((stream = [enumerator nextObject]))
 		[self addStream:stream];
-	}
 	
 	[[CollectionManager manager] finishUpdate];
 }
@@ -136,9 +133,8 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	
 	[[CollectionManager manager] beginUpdate];
 
-	for(i = 0; i < [streams count]; ++i) {
+	for(i = 0; i < [streams count]; ++i)
 		[self insertObject:[streams objectAtIndex:i] inStreamsAtIndex:indexBuffer[i]];
-	}
 	
 	[[CollectionManager manager] finishUpdate];
 
@@ -192,9 +188,8 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	
 	[[CollectionManager manager] beginUpdate];
 	
-	for(i = 0; i < [objectIDs count]; ++i) {
+	for(i = 0; i < [objectIDs count]; ++i)
 		[self insertStreamWithID:[objectIDs objectAtIndex:i] atIndex:indexBuffer[i]];
-	}
 	
 	[[CollectionManager manager] finishUpdate];	
 	
