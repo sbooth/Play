@@ -1672,16 +1672,44 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 @implementation AudioLibrary (AudioPlayerMethods)
 
+// Signals the end of the stream at currentPlaybackIndex and the beginning of the stream at nextPlaybackIndex
 - (void) streamPlaybackDidStart
 {
+	AudioStream		*stream			= [self nowPlaying];	
+	NSNumber		*playCount		= [stream valueForKey:StatisticsPlayCountKey];
+	NSNumber		*newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
+	
+	[stream setPlaying:NO];
+	
+	[[CollectionManager manager] beginUpdate];
+	
+	[stream setValue:[NSDate date] forKey:StatisticsLastPlayedDateKey];
+	[stream setValue:newPlayCount forKey:StatisticsPlayCountKey];
+	
+	if(nil == [stream valueForKey:StatisticsFirstPlayedDateKey])
+		[stream setValue:[NSDate date] forKey:StatisticsFirstPlayedDateKey];
+	
+	[[CollectionManager manager] finishUpdate];
+	
+	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
+	
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"] && [self nextPlaybackIndex] != [self playbackIndex])
+		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];	
+	
+	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidCompleteNotification 
+														object:self 
+													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
+
 	[self setPlaybackIndex:[self nextPlaybackIndex]];
 	[self setNextPlaybackIndex:NSNotFound];
 	
+	_sentNextStreamRequest = NO;
+
 	[_playQueueTable setNeedsDisplayInRect:[_playQueueTable rectOfRow:[self playbackIndex]]];
 	
 	[self updatePlayQueueHistory];
 	
-	AudioStream *stream = [self objectInPlayQueueAtIndex:[self playbackIndex]];
+	stream = [self nowPlaying];
 	NSAssert(nil != stream, @"Playback started for stream index not in play queue.");
 	
 	[stream setPlaying:YES];
@@ -1691,6 +1719,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 }
 
+// Signals the end of the stream at currentPlaybackIndex
 - (void) streamPlaybackDidComplete
 {
 	AudioStream		*stream			= [self nowPlaying];	
@@ -1698,8 +1727,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSNumber		*newPlayCount	= [NSNumber numberWithUnsignedInt:[playCount unsignedIntValue] + 1];
 	
 	[stream setPlaying:NO];
-	
-	_sentNextStreamRequest = NO;
 	
 	[[CollectionManager manager] beginUpdate];
 	
@@ -1723,8 +1750,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 													  userInfo:[NSDictionary dictionaryWithObject:stream forKey:AudioStreamObjectKey]];
 	
 	// If the player isn't playing, it could be because the streams have different PCM formats
-	if(NO == [[self player] isPlaying]) {
-		
+	if(NO == [[self player] isPlaying]) {		
 		// Next stream was requested by player, but the PCM formats differ so gapless playback was impossible
 		if(NSNotFound != [self nextPlaybackIndex])
 			[self playStreamAtIndex:[self nextPlaybackIndex]];
@@ -1734,12 +1760,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}	
 }
 
+// The player sends this message to request the next stream, to allow for gapless playback
 - (void) requestNextStream
 {
 	AudioStream		*stream			= [self nowPlaying];
 	unsigned		streamIndex;
-	
-	NSArray *streams = _playQueue;
+	NSArray			*streams		= _playQueue;
 	
 	if(nil == stream || 0 == [streams count])
 		[self setNextPlaybackIndex:NSNotFound];
@@ -1748,7 +1774,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		unsigned	randomIndex;
 		
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"removeStreamsFromPlayQueueWhenFinished"]) {
-			
 			if(1 == [streams count])
 				randomIndex = NSNotFound;
 			else {
@@ -1774,12 +1799,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[self setNextPlaybackIndex:(streamIndex + 1 < [streams count] ? streamIndex + 1 : NSNotFound)];
 	}
 
+	// A valid stream exists in the table, try to queue it up
 	if(NSNotFound != [self nextPlaybackIndex]) {
 		NSError		*error		= nil;
 		BOOL		result		= [[self player] setNextStream:[self objectInPlayQueueAtIndex:[self nextPlaybackIndex]] error:&error];
 
 		if(result)
 			_sentNextStreamRequest = YES;
+		// The PCM formats or channel layouts don't match, so gapless won't work for these two streams
 		else {
 			_sentNextStreamRequest = NO;
 			if(nil != error)

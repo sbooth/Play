@@ -620,6 +620,8 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	[self setPlayingFrame:0];
 	[self didChangeValueForKey:@"currentFrame"];
 	
+	// If the owner successfully sent the next stream request, signal the end of the current stream
+	// and beginning of the next one
 	if([_owner sentNextStreamRequest])
 		[_owner streamPlaybackDidStart];
 }
@@ -655,6 +657,7 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 		[self prepareToPlayStream:[[[[self scheduler] regionBeingScheduled] decoder] stream]];
 	}
 
+	// If the owner did not successfully send the next stream request, signal the end of the current stream
 	if(NO == [_owner sentNextStreamRequest])
 		[_owner streamPlaybackDidComplete];
 }
