@@ -104,6 +104,10 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(NULL != _audioUnit)
 		[self stopListeningForParameterChangesOnAudioUnit:_audioUnit];
 
+	OSStatus err = AUListenerDispose(_auEventListener);
+	if(noErr != err)
+		NSLog(@"AudioUnitUI: AUListenerDispose failed: %i", err);
+	
 	[_auNameAndManufacturer release], _auNameAndManufacturer = nil;
 	[_auManufacturer release], _auManufacturer = nil;
 	[_auName release], _auName = nil;
@@ -154,7 +158,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	[_auView release];
 	_auView = [[AUGenericView alloc] initWithAudioUnit:audioUnit
 										  displayFlags:(AUViewTitleDisplayFlag | AUViewPropertiesDisplayFlag | AUViewParametersDisplayFlag)];
-	[_auView setShowsExpertParameters:YES];
+//	[_auView setShowsExpertParameters:YES];
 	
 	NSRect oldFrameRect = [[self window] frame];
 	NSRect newFrameRect = [[self window] frameRectForContentRect:[_auView frame]];
