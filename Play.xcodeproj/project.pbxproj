@@ -56,6 +56,9 @@
 		8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */; };
 		8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */; };
 		8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220CC70BB978C100808450 /* MostPopularNode.m */; };
+		8C2B356A0C18EEEC000E28B9 /* DSPPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2B35680C18EEEC000E28B9 /* DSPPreferencesController.m */; };
+		8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */; };
+		8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
 		8C3033A20BE6F40E00E37350 /* WatchFolderInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3033A00BE6F40D00E37350 /* WatchFolderInformationSheet.m */; };
@@ -429,6 +432,10 @@
 		8C220AC70BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/WatchFolderInformationSheet.nib; sourceTree = "<group>"; };
 		8C220CC60BB978C100808450 /* MostPopularNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MostPopularNode.h; path = Browser/MostPopularNode.h; sourceTree = "<group>"; };
 		8C220CC70BB978C100808450 /* MostPopularNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MostPopularNode.m; path = Browser/MostPopularNode.m; sourceTree = "<group>"; };
+		8C2B35670C18EEEC000E28B9 /* DSPPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DSPPreferencesController.h; path = Preferences/DSPPreferencesController.h; sourceTree = "<group>"; };
+		8C2B35680C18EEEC000E28B9 /* DSPPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DSPPreferencesController.m; path = Preferences/DSPPreferencesController.m; sourceTree = "<group>"; };
+		8C2B358F0C1903D2000E28B9 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DSPPreferences.nib; sourceTree = "<group>"; };
+		8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DSPPreferencesToolbarImage.png; path = Images/DSPPreferencesToolbarImage.png; sourceTree = "<group>"; };
 		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamCollectionNode.h; path = Browser/AudioStreamCollectionNode.h; sourceTree = "<group>"; };
@@ -797,6 +804,8 @@
 		8CE631D50C161D140073ADC3 /* kmixdocked_error.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kmixdocked_error.png; path = Images/kmixdocked_error.png; sourceTree = "<group>"; };
 		8CE631D60C161D140073ADC3 /* revert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = revert.png; path = Images/revert.png; sourceTree = "<group>"; };
 		8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
+		8CEFAC010C2097EB008DC3A0 /* QuickTimeDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuickTimeDecoder.h; path = Audio/Decoders/QuickTimeDecoder.h; sourceTree = "<group>"; };
+		8CEFAC020C2097EB008DC3A0 /* QuickTimeDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QuickTimeDecoder.m; path = Audio/Decoders/QuickTimeDecoder.m; sourceTree = "<group>"; };
 		8CF257A00BF543FA00A8520E /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticButton.h; path = ThirdParty/AIPlasticButton/AIPlasticButton.h; sourceTree = "<group>"; };
 		8CF257A10BF543FA00A8520E /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticButton.m; path = ThirdParty/AIPlasticButton/AIPlasticButton.m; sourceTree = "<group>"; };
 		8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticInfoButton.h; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -941,6 +950,7 @@
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
 				8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */,
 				8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */,
+				8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1338,6 +1348,7 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */,
 				8CE631D20C161D140073ADC3 /* Drawer-List.tiff */,
 				8CE631D30C161D140073ADC3 /* fileexport.png */,
 				8CE631D40C161D140073ADC3 /* filesave.png */,
@@ -1428,6 +1439,8 @@
 				8CE620D70C11E8530073ADC3 /* OggVorbisDecoder.m */,
 				8CE620D80C11E8530073ADC3 /* WavPackDecoder.h */,
 				8CE620D90C11E8530073ADC3 /* WavPackDecoder.m */,
+				8CEFAC010C2097EB008DC3A0 /* QuickTimeDecoder.h */,
+				8CEFAC020C2097EB008DC3A0 /* QuickTimeDecoder.m */,
 			);
 			name = Decoders;
 			sourceTree = "<group>";
@@ -1623,6 +1636,8 @@
 				8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */,
 				8CB3F2980BDDA75300B5E828 /* PreferencesController.h */,
 				8CB3F2990BDDA75300B5E828 /* PreferencesController.m */,
+				8C2B35670C18EEEC000E28B9 /* DSPPreferencesController.h */,
+				8C2B35680C18EEEC000E28B9 /* DSPPreferencesController.m */,
 			);
 			name = Preferences;
 			sourceTree = "<group>";
@@ -1822,6 +1837,8 @@
 				8CE631D90C161D140073ADC3 /* filesave.png in Resources */,
 				8CE631DA0C161D140073ADC3 /* kmixdocked_error.png in Resources */,
 				8CE631DB0C161D140073ADC3 /* revert.png in Resources */,
+				8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */,
+				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2000,6 +2017,7 @@
 				8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */,
 				8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */,
 				8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */,
+				8C2B356A0C18EEEC000E28B9 /* DSPPreferencesController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2068,6 +2086,14 @@
 				8C220AC70BB8A79E00808450 /* English */,
 			);
 			name = WatchFolderInformationSheet.nib;
+			sourceTree = "<group>";
+		};
+		8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C2B358F0C1903D2000E28B9 /* English */,
+			);
+			name = DSPPreferences.nib;
 			sourceTree = "<group>";
 		};
 		8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */ = {

@@ -576,7 +576,7 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 					}
 					
 	#if EXTENDED_DEBUG
-					NSLog(@"Scheduling slice %i to start at sample %f", i, timeStamp.mSampleTime);
+					NSLog(@"Scheduling slice %i (%i frames) to start at sample %f", i, frameCount, timeStamp.mSampleTime);
 	#endif
 
 					[self scheduledAdditionalFrames:frameCount];

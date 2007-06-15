@@ -54,7 +54,9 @@ enum {
 @interface AudioPlayer : NSObject
 {
 	AUGraph					_auGraph;
-	
+
+	AUNode					_generatorNode;
+	AUNode					_limiterNode;
 	AUNode					_outputNode;
 	
 	AudioUnit				_generatorUnit;
@@ -69,6 +71,7 @@ enum {
 	SInt64					_regionStartingFrame;
 	
 	NSTimer					*_timer;
+	AUEventListenerRef		_auEventListener;
 	
 	AudioStreamBasicDescription _format;
 	AudioChannelLayout			_channelLayout;
@@ -135,3 +138,30 @@ enum {
 - (NSTimeInterval)	secondsRemaining;
 
 @end
+
+// ========================================
+// Key names for DSP effects
+// ========================================
+extern NSString * const		AUTypeKey;
+extern NSString * const		AUSubTypeKey;
+extern NSString * const		AUManufacturerKey;
+extern NSString * const		AUNameStringKey;
+extern NSString * const		AUManufacturerStringKey;
+extern NSString * const		AUNameAndManufacturerStringKey;
+extern NSString * const		AUInformationStringKey;
+extern NSString * const		AUIconKey;
+extern NSString * const		AUClassDataKey;
+extern NSString * const		AUNodeKey;
+
+// ========================================
+// DSP effect support
+// ========================================
+@interface AudioPlayer (DSPMethods)
+- (NSArray *) currentEffects;
+- (NSArray *) availableEffects;
+
+- (AudioUnit) audioUnitForAUNode:(AUNode)node;
+- (BOOL) addEffectToAUGraph:(NSDictionary *)auDictionary newNode:(AUNode *)newNode error:(NSError **)error;
+- (BOOL) removeEffectFromAUGraph:(AUNode)effectNode error:(NSError **)error;
+@end
+

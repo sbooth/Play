@@ -20,20 +20,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-// ========================================
-// Identifiers for toolbar items
-// ========================================
-extern NSString	* const		GeneralPreferencesToolbarItemIdentifier;
-extern NSString * const		HotKeyPreferencesToolbarItemIdentifier;
-extern NSString * const		OutputPreferencesToolbarItemIdentifier;
-extern NSString * const		DSPPreferencesToolbarItemIdentifier;
+@class AudioUnitUI;
 
-@interface PreferencesController : NSWindowController
+@interface DSPPreferencesController : NSWindowController
 {
+	IBOutlet NSTableView		*_effectsTable;
+	IBOutlet NSArrayController	*_effectsArrayController;
+	IBOutlet NSButton			*_addEffectButton;
+	IBOutlet NSButton			*_removeEffectButton;
+
+	AudioUnitUI					*_audioUnitUIEditor;
+	NSMutableArray				*_effects;
 }
 
-+ (PreferencesController *)		sharedPreferences;
+- (IBAction) addEffect:(id)sender;
+- (IBAction) removeEffect:(id)sender;
 
-- (void)						selectPreferencePane:(NSString *)itemIdentifier;
+- (IBAction) editEffectParameters:(id)sender;
 
 @end

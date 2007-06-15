@@ -132,6 +132,10 @@ extern NSString * const		PlayQueueKey;
 + (AudioLibrary *) library;
 
 // ========================================
+// The workhorse
+- (AudioPlayer *) player;
+
+// ========================================
 // Playback control
 - (BOOL)		playFile:(NSString *)filename;
 - (BOOL)		playFiles:(NSArray *)filenames;

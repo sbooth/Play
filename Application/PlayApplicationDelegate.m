@@ -73,9 +73,8 @@
 
 - (AudioScrobbler *) scrobbler
 {
-	if(nil == _scrobbler) {
+	if(nil == _scrobbler)
 		_scrobbler = [[AudioScrobbler alloc] init];
-	}
 	return _scrobbler;
 }
 
@@ -121,9 +120,8 @@
 		
 		while((objectID = [enumerator nextObject])) {
 			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-			if(nil != stream) {
+			if(nil != stream)
 				[streams addObject:stream];
-			}
 		}
 		
 		[[AudioLibrary library] addStreamsToPlayQueue:streams];
@@ -175,9 +173,8 @@
 - (void) applicationWillTerminate:(NSNotification *)aNotification
 {
 	// Make sure AS receives the STOP command
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
 		[[self scrobbler] shutdown];
-	}
 
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -187,6 +184,9 @@
 		NSArray *objectIDs = [[AudioLibrary library] valueForKeyPath:[NSString stringWithFormat:@"%@.%@", PlayQueueKey, ObjectIDKey]];
 		[[NSUserDefaults standardUserDefaults] setObject:objectIDs forKey:@"savedPlayQueueStreams"];
 	}
+	
+	// FIXME: When AUEventListener code is working, remove this kludge
+	[[[AudioLibrary library] player] saveEffects];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
@@ -197,9 +197,8 @@
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
 	BOOL success = [[AudioLibrary library] addFiles:filenames];
-	if(success) {
+	if(success)
 		success = [[AudioLibrary library] playFiles:filenames];
-	}
 	
 	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
 }
@@ -287,12 +286,10 @@
 		[menuItem setTitle:([[AudioLibrary library] isPlaying] ? NSLocalizedStringFromTable(@"Pause", @"Menus", @"") : NSLocalizedStringFromTable(@"Play", @"Menus", @""))];
 		return [[AudioLibrary library] playButtonEnabled];
 	}
-	else if([menuItem action] == @selector(playNextStream:)) {
+	else if([menuItem action] == @selector(playNextStream:))
 		return [[AudioLibrary library] canPlayNextStream];
-	}
-	else if([menuItem action] == @selector(playPreviousStream:)) {
+	else if([menuItem action] == @selector(playPreviousStream:))
 		return [[AudioLibrary library] canPlayPreviousStream];
-	}
 	
 	return YES;
 }
@@ -339,31 +336,27 @@
 	
 	[self setWindowTitleForStream:stream];
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
 		[[self scrobbler] start:stream];
-	}
 }
 
 - (void) playbackDidStop:(NSNotification *)aNotification
 {
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
 		[[self scrobbler] stop];
-	}
 	[self setWindowTitleForStream:nil];
 }
 
 - (void) playbackDidPause:(NSNotification *)aNotification
 {
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
 		[[self scrobbler] pause];
-	}
 }
 
 - (void) playbackDidResume:(NSNotification *)aNotification
 {
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"]) {
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
 		[[self scrobbler] resume];
-	}
 }
 
 - (void) playbackDidComplete:(NSNotification *)aNotification
@@ -378,9 +371,8 @@
 	NSError					*error			= nil;
 	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
 
-	if([stream isPlaying]) {
+	if([stream isPlaying])
 		[self setWindowTitleForStream:stream];
-	}
 
 	if(nil != metadataWriter) {
 		BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
@@ -395,9 +387,8 @@
 	AudioStream				*stream			= nil;
 	
 	while((stream = [enumerator nextObject])) {
-		if([stream isPlaying]) {
+		if([stream isPlaying])
 			[self setWindowTitleForStream:stream];
-		}
 		
 		[stream saveMetadata:self];
 	}
@@ -415,18 +406,14 @@
 		representedFilename = [url path];
 	}
 	
-	if(nil != title && nil != artist) {
+	if(nil != title && nil != artist)
 		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
-	}
-	else if(nil != title) {
+	else if(nil != title)
 		windowTitle = title;
-	}
-	else if(nil != artist) {
+	else if(nil != artist)
 		windowTitle = artist;
-	}
-	else {
+	else
 		windowTitle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	}
 	
 	[[[AudioLibrary library] window] setTitle:windowTitle];
 	[[[AudioLibrary library] window] setRepresentedFilename:representedFilename];

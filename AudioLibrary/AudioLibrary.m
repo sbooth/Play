@@ -178,8 +178,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 // Private Methods
 // ========================================
 @interface AudioLibrary (Private)
-- (AudioPlayer *) player;
-
 - (void) scrollNowPlayingToVisible;
 
 - (void) setPlayButtonEnabled:(BOOL)playButtonEnabled;
@@ -475,6 +473,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (unsigned) 	retainCount							{ return UINT_MAX;  /* denotes an object that cannot be released */ }
 - (void) 		release								{ /* do nothing */ }
 - (id) 			autorelease							{ return self; }
+
+- (AudioPlayer *) player
+{
+	if(nil == _player) {
+		_player = [[AudioPlayer alloc] init];
+		[_player setOwner:self];
+	}
+	return [[_player retain] autorelease];
+}
 
 - (void) awakeFromNib
 {
@@ -1199,7 +1206,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	if(NO == result) {
 		[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:nil contextInfo:NULL];
-		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];
+//		[self removeObjectFromPlayQueueAtIndex:[self playbackIndex]];
 		[self setPlaybackIndex:NSNotFound];
 		return;
 	}
@@ -1825,15 +1832,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 @end
 
 @implementation AudioLibrary (Private)
-
-- (AudioPlayer *) player
-{
-	if(nil == _player) {
-		_player = [[AudioPlayer alloc] init];
-		[_player setOwner:self];
-	}
-	return [[_player retain] autorelease];
-}
 
 - (void) scrollNowPlayingToVisible
 {

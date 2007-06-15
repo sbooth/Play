@@ -30,6 +30,7 @@ static PreferencesController *sharedPreferences = nil;
 NSString * const	GeneralPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.General";
 NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.HotKey";
 NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.Output";
+NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.Preferences.Toolbar.DSP";
 
 @interface PreferencesController (Private)
 - (IBAction) selectPreferencePaneUsingToolbar:(id)sender;
@@ -91,18 +92,14 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	NSToolbar	*toolbar			= [[self window] toolbar];	
 	NSString	*itemIdentifier		= [[NSUserDefaults standardUserDefaults] stringForKey:@"selectedPreferencePane"];
 
-	if(nil != itemIdentifier) {
+	if(nil != itemIdentifier)
 		[toolbar setSelectedItemIdentifier:itemIdentifier];
-	}
-	else if(nil != [toolbar visibleItems] && 0 != [[toolbar visibleItems] count]) {
+	else if(nil != [toolbar visibleItems] && 0 != [[toolbar visibleItems] count])
 		[toolbar setSelectedItemIdentifier:[[[toolbar visibleItems] objectAtIndex:0] itemIdentifier]];
-	}
-	else if(nil != [toolbar items] && 0 != [[toolbar items] count]) {
+	else if(nil != [toolbar items] && 0 != [[toolbar items] count])
 		[toolbar setSelectedItemIdentifier:[[[toolbar items] objectAtIndex:0] itemIdentifier]];
-	}
-	else {
+	else
 		[toolbar setSelectedItemIdentifier:GeneralPreferencesToolbarItemIdentifier];
-	}	
 	[self selectPreferencePaneUsingToolbar:self];
 	
 	[self setShouldCascadeWindows:NO];
@@ -131,9 +128,8 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 	
 	
 	// Select the appropriate toolbar item if it isn't already
-	if(NO == [[[[self window] toolbar] selectedItemIdentifier] isEqualToString:itemIdentifier]) {
+	if(NO == [[[[self window] toolbar] selectedItemIdentifier] isEqualToString:itemIdentifier])
 		[[[self window] toolbar] setSelectedItemIdentifier:itemIdentifier];
-	}
 
 	// Calculate toolbar height
 	if([toolbar isVisible]) {
@@ -199,6 +195,17 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
 	}
+    else if([itemIdentifier isEqualToString:DSPPreferencesToolbarItemIdentifier]) {
+        toolbarItem = [[[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier] autorelease];
+		
+		[toolbarItem setLabel:NSLocalizedStringFromTable(@"DSP", @"Preferences", @"")];
+		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"DSP", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Set and configure the DSP effects used by Play", @"Preferences", @"")];
+		[toolbarItem setImage:[NSImage imageNamed:@"DSPPreferencesToolbarImage"]];
+		
+		[toolbarItem setTarget:self];
+		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
+	}
 	
     return toolbarItem;
 }
@@ -209,6 +216,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
+		DSPPreferencesToolbarItemIdentifier,
 		nil];
 }
 
@@ -218,6 +226,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
+		DSPPreferencesToolbarItemIdentifier,
 		NSToolbarSeparatorItemIdentifier,
 		NSToolbarSpaceItemIdentifier,
 		NSToolbarFlexibleSpaceItemIdentifier,
@@ -230,6 +239,7 @@ NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play
 		GeneralPreferencesToolbarItemIdentifier,
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
+		DSPPreferencesToolbarItemIdentifier,
 		nil];
 }
 

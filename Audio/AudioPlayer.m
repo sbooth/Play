@@ -59,7 +59,18 @@ channelLayoutsAreEqual(AudioChannelLayout *layoutA,
 // ========================================
 // Constants
 // ========================================
-NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlayer";
+NSString * const	AUTypeKey								= @"componentType";
+NSString * const	AUSubTypeKey							= @"componentSubType";
+NSString * const	AUManufacturerKey						= @"componentManufacturer";
+NSString * const	AUNameStringKey							= @"name";
+NSString * const	AUManufacturerStringKey					= @"manufacturer";
+NSString * const	AUNameAndManufacturerStringKey			= @"nameAndManufacturer";
+NSString * const	AUInformationStringKey					= @"information";
+NSString * const	AUIconKey								= @"icon";
+NSString * const	AUClassDataKey							= @"classData";
+NSString * const	AUNodeKey								= @"AUNode";
+
+NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.AudioPlayer";
 
 // ========================================
 // AudioPlayer callbacks
@@ -75,10 +86,16 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 // AUGraph manipulation
 // ========================================
 @interface AudioPlayer (AUGraphMethods)
+- (AUGraph) auGraph;
 - (OSStatus) setupAUGraph;
 - (OSStatus) teardownAUGraph;
 - (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format;
 - (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout;
+- (OSStatus) setPropertyOnAUGraphNodes:(AudioUnitPropertyID)propertyID data:(const void *)propertyData dataSize:(UInt32)propertyDataSize;
+- (AUNode) limiterNode;
+- (AUNode) outputNode;
+- (void) saveEffects;
+- (void) restoreEffects;
 @end
 
 // ========================================
@@ -115,6 +132,22 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 - (void) setChannelLayout:(AudioChannelLayout)channelLayout;
 @end
 
+// ========================================
+// AUEventListener callbacks
+// ========================================
+static void 
+myAUEventListenerProc(void						*inCallbackRefCon,
+					  void						*inObject,
+					  const AudioUnitEvent		*inEvent,
+					  UInt64					inEventHostTime,
+					  Float32					inParameterValue)
+{
+//	AudioPlayer *myself = (AudioPlayer *)inCallbackRefCon;
+	
+	if(kAudioUnitEvent_ParameterValueChange == inEvent->mEventType) {
+	}
+}
+
 @implementation AudioPlayer
 
 + (void) initialize
@@ -139,6 +172,15 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 {
 	if((self = [super init])) {
 		_runLoop = [[NSRunLoop currentRunLoop] retain];
+		
+		OSStatus err = AUEventListenerCreate(myAUEventListenerProc, self,
+											 CFRunLoopGetCurrent(), kCFRunLoopDefaultMode,
+											 0.1, 0.1,
+											 &_auEventListener);
+		if(noErr != err) {
+			[self release];
+			return nil;
+		}		
 		
 		[self setupAUGraph];
 
@@ -169,6 +211,10 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 - (void) dealloc
 {
 	[_timer invalidate], _timer = nil;
+
+	OSStatus err = AUListenerDispose(_auEventListener);
+	if(noErr != err)
+		NSLog(@"AudioPlayer: AUListenerDispose failed: %i", err);
 
 	[[self scheduler] stopScheduling];
 	[self teardownAUGraph];
@@ -222,16 +268,12 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 				
 				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The current DSP effects may not support this track's sample rate or channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 				
 				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
 											 code:AudioPlayerInternalError 
 										 userInfo:errorDictionary];
 			}
-			
-			[self teardownAUGraph];
-			[self setupAUGraph];
-			[[self scheduler] setAudioUnit:_generatorUnit];
 			
 			return NO;
 		}
@@ -249,16 +291,12 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 				
 				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" is not supported.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
 				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file contains an unsupported audio data format.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"The current DSP effects may not support this track's sample rate or channel layout.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 				
 				*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
 											 code:AudioPlayerInternalError 
 										 userInfo:errorDictionary];
 			}
-			
-			[self teardownAUGraph];
-			[self setupAUGraph];
-			[[self scheduler] setAudioUnit:_generatorUnit];
 			
 			return NO;
 		}
@@ -269,7 +307,7 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	[[self scheduler] startScheduling];
 
 	[self prepareToPlayStream:stream];
-	
+
 	return YES;
 }
 
@@ -357,7 +395,7 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 										&timeStamp, 
 										sizeof(timeStamp));
 	if(noErr != err)
-		NSLog(@"AudioUnitSetProperty failed: %s", UTCreateStringForOSType(err));
+		NSLog(@"AudioPlayer error: Unable to start AUScheduledSoundPlayer: %i", err);
 
 	[self setPlaying:YES];
 }
@@ -666,17 +704,21 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 
 @implementation AudioPlayer (AUGraphMethods)
 
+- (AUGraph) auGraph
+{
+	return _auGraph;
+}
+
 - (OSStatus) setupAUGraph
 {
 	// Set up the AUGraph
 	OSStatus err = NewAUGraph(&_auGraph);
 	if(noErr != err)
 		return err;
-	
+
 	// The graph will look like:
-	// Generator -> Peak Limiter -> (any effects units) -> Output
-	AUNode						generatorNode, limiterNode;
-	ComponentDescription		desc;
+	// Generator -> Peak Limiter -> Effects -> Output
+	ComponentDescription desc;
 	
 	// Set up the generator node
 	desc.componentType			= kAudioUnitType_Generator;
@@ -685,7 +727,7 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &generatorNode);
+	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_generatorNode);
 	if(noErr != err)
 		return err;
 	
@@ -696,22 +738,9 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &limiterNode);
+	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_limiterNode);
 	if(noErr != err)
 		return err;
-	
-	// Set up the equalizer node
-	desc.componentType			= kAudioUnitType_Effect;
-//	desc.componentSubType		= kAudioUnitSubType_DynamicsProcessor;
-	desc.componentSubType		= kAudioUnitSubType_MatrixReverb;
-//	desc.componentSubType		= kAudioUnitSubType_GraphicEQ;
-	desc.componentManufacturer	= kAudioUnitManufacturer_Apple;
-	desc.componentFlags			= 0;
-	desc.componentFlagsMask		= 0;
-	
-//	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &effectNode);
-//	if(noErr != err)
-//		return err;
 	
 	// Set up the output node
 	desc.componentType			= kAudioUnitType_Output;
@@ -725,16 +754,11 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 		return err;
 	
 	// Connect the nodes
-	err = AUGraphConnectNodeInput(_auGraph, generatorNode, 0, limiterNode, 0);
+	err = AUGraphConnectNodeInput(_auGraph, _generatorNode, 0, _limiterNode, 0);
 	if(noErr != err)
 		return err;
 	
-//	err = AUGraphConnectNodeInput(_auGraph, limiterNode, 0, effectNode, 0);
-//	if(noErr != err)
-//		return err;
-	
-//	err = AUGraphConnectNodeInput(_auGraph, effectNode, 0, _outputNode, 0);
-	err = AUGraphConnectNodeInput(_auGraph, limiterNode, 0, _outputNode, 0);
+	err = AUGraphConnectNodeInput(_auGraph, _limiterNode, 0, _outputNode, 0);
 	if(noErr != err)
 		return err;
 	
@@ -754,11 +778,11 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 		return err;
 	
 	// Store the audio units for later  use
-	err = AUGraphGetNodeInfo(_auGraph, generatorNode, NULL, NULL, NULL, &_generatorUnit);
+	err = AUGraphGetNodeInfo(_auGraph, _generatorNode, NULL, NULL, NULL, &_generatorUnit);
 	if(noErr != err)
 		return err;
 	
-	err = AUGraphGetNodeInfo(_auGraph, limiterNode, NULL, NULL, NULL, &_limiterUnit);
+	err = AUGraphGetNodeInfo(_auGraph, _limiterNode, NULL, NULL, NULL, &_limiterUnit);
 	if(noErr != err)
 		return err;
 	
@@ -766,11 +790,15 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	if(noErr != err)
 		return err;
 	
+	[self restoreEffects];
+	
 	return noErr;
 }
 
 - (OSStatus) teardownAUGraph
-{
+{	
+//	[self saveEffects];
+	
 	Boolean graphIsRunning = NO;
 	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
 	if(noErr != err)
@@ -809,8 +837,63 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 	return noErr;
 }
 
+- (void) saveEffects
+{
+	// Save the effects
+	UInt32 connectionCount;
+	OSStatus err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	if(noErr != err)
+		return;
+	
+	NSMutableArray *effects = [NSMutableArray array];
+	
+	unsigned i;
+	for(i = 0; i < connectionCount; ++i) {
+		AUNode node;
+		err = AUGraphGetConnectionInfo([self auGraph], i, &node, NULL, NULL, NULL);
+		if(noErr != err)
+			return;
+		
+		// Skip the Generator and Peak Limiter nodes
+		if(node == _generatorNode || node == _limiterNode)
+			continue;
+		
+		ComponentDescription desc;
+		CFPropertyListRef classData;
+		err = AUGraphGetNodeInfo(_auGraph, node, &desc, NULL, (void **)&classData, NULL);
+		if(noErr != err)
+			return;
+		
+		NSDictionary *auDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithUnsignedLong:desc.componentType], AUTypeKey,
+			[NSNumber numberWithUnsignedLong:desc.componentSubType], AUSubTypeKey,
+			[NSNumber numberWithUnsignedLong:desc.componentManufacturer], AUManufacturerKey,
+			classData, AUClassDataKey,
+			nil];
+		
+		[effects addObject:auDictionary];
+	}
+	
+	[[NSUserDefaults standardUserDefaults] setObject:effects forKey:@"playerDSPEffects"];
+}
+
+- (void) restoreEffects
+{
+	NSArray			*effects		= [[NSUserDefaults standardUserDefaults] arrayForKey:@"playerDSPEffects"];
+	NSEnumerator	*enumerator		= [effects objectEnumerator];
+	NSDictionary	*auDictionary	= nil;
+	
+	while((auDictionary = [enumerator nextObject])) {
+		AUNode node;
+		/*BOOL result =*/ [self addEffectToAUGraph:auDictionary newNode:&node error:nil];
+	}
+}
+
 - (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format
-{	
+{
+	OSStatus result = noErr;
+	AudioUnitNodeConnection *connections = NULL;
+	
 	// If the graph is running, stop it
 	Boolean graphIsRunning = NO;
 	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
@@ -835,124 +918,59 @@ NSString *const AudioPlayerErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPlay
 			return err;
 	}
 	
-	// Save the connection information and then disconnect all the graph's connections
+	// Save the connection information and then disconnect all the connections
 	UInt32 connectionCount;
 	err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
 	if(noErr != err)
 		return err;
 	
-	AudioUnitNodeConnection *connections = calloc(connectionCount, sizeof(AudioUnitNodeConnection));
-	NSAssert(NULL != connections, @"Unable to allocate memory");
+	connections = calloc(connectionCount, sizeof(AudioUnitNodeConnection));
+	if(NULL == connections)
+		return memFullErr;
 	
 	unsigned i;
 	for(i = 0; i < connectionCount; ++i) {
 		err = AUGraphGetConnectionInfo(_auGraph, i,
 									   &connections[i].sourceNode, &connections[i].sourceOutputNumber,
 									   &connections[i].destNode, &connections[i].destInputNumber);
-		if(noErr != err)
+		if(noErr != err) {
+			free(connections);
 			return err;
+		}
 	}
 	
 	err = AUGraphClearConnections(_auGraph);
-	if(noErr != err)
+	if(noErr != err) {
+		free(connections);
 		return err;
-	
-	UInt32 nodeCount;
-	err = AUGraphGetNodeCount(_auGraph, &nodeCount);
-	if(noErr != err)
-		return err;
-	
-	// OK - now we go through and set the sample rate on each connection...
-	for(i = 0; i < nodeCount; ++i) {
-		AUNode node;
-		err = AUGraphGetIndNode(_auGraph, i, &node);
-		if(noErr != err)
-			return err;
-		
-		AudioUnit au;
-		err = AUGraphGetNodeInfo(_auGraph, node, NULL, NULL, NULL, &au);
-		if(noErr != err)
-			return err;
-		
-		if(_outputNode == node) {
-			// this is for AUHAL as the output node. You can't set the device side here, so you just set the client side
-			err = AudioUnitSetProperty(au, 
-									   kAudioUnitProperty_StreamFormat,
-									   kAudioUnitScope_Input, 
-									   0, 
-									   &format, 
-									   sizeof(format));
-			if(noErr != err)
-				return err;
-			
-			// IO must be enabled for this to work
-			/*			err = AudioUnitSetProperty(au, 
-				kAudioUnitProperty_SampleRate,
-				kAudioUnitScope_Output, 
-				1, 
-				&sampleRate, 
-				sizeof(sampleRate));
-if(noErr != err)
-return err;	*/
-		}
-		else {
-			UInt32 elementCount = 0;
-			UInt32 dataSize = sizeof(elementCount);
-			
-			err = AudioUnitGetProperty(au, 
-									   kAudioUnitProperty_ElementCount,
-									   kAudioUnitScope_Input, 
-									   0, 
-									   &elementCount, 
-									   &dataSize);
-			if(noErr != err)
-				return err;
-			
-			unsigned j;
-			for(j = 0; j < elementCount; ++j) {
-				err = AudioUnitSetProperty(au, 
-										   kAudioUnitProperty_StreamFormat,
-										   kAudioUnitScope_Input, 
-										   j, 
-										   &format, 
-										   sizeof(format));
-				if(noErr != err)
-					return err;
-			}
-			
-			elementCount = 0;
-			dataSize = sizeof(elementCount);
-			
-			err = AudioUnitGetProperty(au, 
-									   kAudioUnitProperty_ElementCount,
-									   kAudioUnitScope_Output, 
-									   0, 
-									   &elementCount, 
-									   &dataSize);
-			if(noErr != err)
-				return err;
-			
-			for(j = 0; j < elementCount; ++j) {
-				err = AudioUnitSetProperty(au, 
-										   kAudioUnitProperty_StreamFormat,
-										   kAudioUnitScope_Output, 
-										   j, 
-										   &format, 
-										   sizeof(format));
-				if(noErr != err)
-					return err;
-			}
-		}
 	}
 	
+	// Attempt to set the new stream format
+	err = [self setPropertyOnAUGraphNodes:kAudioUnitProperty_StreamFormat data:&format dataSize:sizeof(format)];
+	if(noErr != err) {
+		// If the new format could not be set, restore the old format to ensure a working graph
+		format = [self format];
+		OSStatus newErr = [self setPropertyOnAUGraphNodes:kAudioUnitProperty_StreamFormat data:&format dataSize:sizeof(format)];
+		if(noErr != newErr)
+			NSLog(@"AudioPlayer error: Unable to restore AUGraph format: %i", newErr);
+
+		// Do not free connections here, so graph can be rebuilt
+		result = err;
+	}
+	
+	// Restore the graph's connections
 	for(i = 0; i < connectionCount; ++i) {
-		// ok, now we can connect this up again
 		err = AUGraphConnectNodeInput(_auGraph, 
 									  connections[i].sourceNode, connections[i].sourceOutputNumber,
 									  connections[i].destNode, connections[i].destInputNumber);
-		if(noErr != err)
+		if(noErr != err) {
+			NSLog(@"AudioPlayer error: Unable to restore AUGraph connection: %i", err);
+			free(connections);
 			return err;
+		}
 	}
+	
+	free(connections);
 	
 	// If the graph was initialized, reinitialize it
 	if(graphIsInitialized) {
@@ -968,14 +986,547 @@ return err;	*/
 			return err;
 	}
 	
-	free(connections);
+	// If an error occurred above setting the stream format, return the error now
+	if(noErr != result)
+		return result;
 	
 	return noErr;
 }
 
 - (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout
 {
-	return noErr;	
+	/*
+	// Attempt to set the new channel layout
+//	OSStatus err = [self setPropertyOnAUGraphNodes:kAudioUnitProperty_AudioChannelLayout data:&channelLayout dataSize:sizeof(channelLayout)];
+	OSStatus err = AudioUnitSetProperty(_outputUnit, kAudioUnitProperty_AudioChannelLayout, kAudioUnitScope_Input, 0, &channelLayout, sizeof(channelLayout));
+	if(noErr != err) {
+		// If the new format could not be set, restore the old format to ensure a working graph
+		channelLayout = [self channelLayout];
+//		OSStatus newErr = [self setPropertyOnAUGraphNodes:kAudioUnitProperty_AudioChannelLayout data:&channelLayout dataSize:sizeof(channelLayout)];
+		OSStatus newErr = AudioUnitSetProperty(_outputUnit, kAudioUnitProperty_AudioChannelLayout, kAudioUnitScope_Input, 0, &channelLayout, sizeof(channelLayout));
+		if(noErr != newErr)
+			NSLog(@"AudioPlayer error: Unable to restore AUGraph channel layout: %i", newErr);
+		
+		return err;
+	}*/
+	
+	return noErr;
+}
+
+- (OSStatus) setPropertyOnAUGraphNodes:(AudioUnitPropertyID)propertyID data:(const void *)propertyData dataSize:(UInt32)propertyDataSize
+{
+	NSParameterAssert(NULL != propertyData);
+	NSParameterAssert(0 < propertyDataSize);
+	
+	UInt32 nodeCount;
+	OSStatus err = AUGraphGetNodeCount(_auGraph, &nodeCount);
+	if(noErr != err)
+		return err;
+
+	// Iterate through the nodes and attempt to set the property
+	unsigned i;
+	for(i = 0; i < nodeCount; ++i) {
+		AUNode node;
+		err = AUGraphGetIndNode([self auGraph], i, &node);
+		if(noErr != err)
+			return err;
+		
+		AudioUnit au;
+		err = AUGraphGetNodeInfo([self auGraph], node, NULL, NULL, NULL, &au);
+		if(noErr != err)
+			return err;
+		
+		if([self outputNode] == node) {
+			// For AUHAL as the output node, you can't set the device side, so just set the client side
+			err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Input, 0, propertyData, propertyDataSize);
+			if(noErr != err)
+				return err;
+			
+			// IO must be enabled for this to work
+//			err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Output, 1, propertyData, propertyDataSize);
+//			if(noErr != err)
+//				return err;
+		}
+		else {
+			UInt32 elementCount = 0;
+			UInt32 dataSize = sizeof(elementCount);
+			err = AudioUnitGetProperty(au, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &elementCount, &dataSize);
+			if(noErr != err)
+				return err;
+			
+			unsigned j;
+			for(j = 0; j < elementCount; ++j) {
+				err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Input, j, propertyData, propertyDataSize);
+				if(noErr != err)
+					return err;
+			}
+			
+			elementCount = 0;
+			dataSize = sizeof(elementCount);
+			err = AudioUnitGetProperty(au, kAudioUnitProperty_ElementCount, kAudioUnitScope_Output, 0, &elementCount, &dataSize);
+			if(noErr != err)
+				return err;
+			
+			for(j = 0; j < elementCount; ++j) {
+				err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Output, j, propertyData, propertyDataSize);
+				if(noErr != err)
+					return err;
+			}
+		}
+	}
+	
+	return noErr;
+}
+
+- (AUNode) limiterNode
+{
+	return _limiterNode;
+}
+
+- (AUNode) outputNode
+{
+	return _outputNode;
+}
+
+- (void) startListeningForParameterChangesOnAudioUnit:(AudioUnit)audioUnit
+{
+	NSParameterAssert(NULL != audioUnit);
+	
+	AudioUnitEvent parameterEvent;
+    parameterEvent.mEventType							= kAudioUnitEvent_ParameterValueChange;
+    parameterEvent.mArgument.mParameter.mAudioUnit		= audioUnit;
+    parameterEvent.mArgument.mParameter.mParameterID	= kAUParameterListener_AnyParameter;
+    parameterEvent.mArgument.mParameter.mScope			= kAudioUnitScope_Global;
+    parameterEvent.mArgument.mParameter.mElement		= 0;
+	
+	OSStatus err = AUEventListenerAddEventType(_auEventListener, NULL, &parameterEvent);	
+	if(noErr != err)
+		NSLog(@"AudioPlayer error: AUEventListenerAddEventType failed: %i", err);	
+}
+
+- (void) stopListeningForParameterChangesOnAudioUnit:(AudioUnit)audioUnit
+{
+	NSParameterAssert(NULL != audioUnit);
+	
+	AudioUnitEvent parameterEvent;
+    parameterEvent.mEventType							= kAudioUnitEvent_ParameterValueChange;
+    parameterEvent.mArgument.mParameter.mAudioUnit		= audioUnit;
+    parameterEvent.mArgument.mParameter.mParameterID	= kAUParameterListener_AnyParameter;
+    parameterEvent.mArgument.mParameter.mScope			= kAudioUnitScope_Global;
+    parameterEvent.mArgument.mParameter.mElement		= 0;
+	
+	OSStatus err = AUEventListenerRemoveEventType(_auEventListener, NULL, &parameterEvent);	
+	if(noErr != err)
+		NSLog(@"AudioPlayer error: AUEventListenerRemoveEventType failed: %i", err);	
+}
+
+@end
+
+@implementation AudioPlayer (DSPMethods)
+
+- (NSArray *) currentEffects
+{
+	// Save the effects
+	UInt32 connectionCount;
+	OSStatus err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	if(noErr != err)
+		return nil;
+	
+	NSMutableArray *effects = [[NSMutableArray alloc] init];
+	
+	unsigned i;
+	for(i = 0; i < connectionCount; ++i) {
+		AUNode node;
+		err = AUGraphGetConnectionInfo([self auGraph], i, &node, NULL, NULL, NULL);
+		if(noErr != err)
+			continue;
+		
+		// Skip the Generator and Peak Limiter nodes
+		if(node == _generatorNode || node == _limiterNode)
+			continue;
+		
+		ComponentDescription	desc;
+		CFPropertyListRef		classData;
+		AudioUnit				au;
+		
+		err = AUGraphGetNodeInfo(_auGraph, node, &desc, NULL, (void **)&classData, &au);
+		if(noErr != err)
+			continue;
+		
+		Handle componentNameHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentNameHandle, @"Unable to allocate memory");
+
+		Handle componentInformationHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentInformationHandle, @"Unable to allocate memory");
+		
+		Handle componentIconHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentIconHandle, @"Unable to allocate memory");
+		
+		NSMutableDictionary *auDictionary = [NSMutableDictionary dictionary];
+		
+		OSErr err = GetComponentInfo((Component)au, &desc, componentNameHandle, componentInformationHandle, componentIconHandle);
+		if(noErr == err) {
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:desc.componentType] forKey:AUTypeKey];
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:desc.componentSubType] forKey:AUSubTypeKey];
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:desc.componentManufacturer] forKey:AUManufacturerKey];
+
+			NSString *auNameAndManufacturer = (NSString *)CFStringCreateWithPascalString(kCFAllocatorDefault, (ConstStr255Param)(*componentNameHandle), kCFStringEncodingUTF8);
+			[auDictionary setValue:[auNameAndManufacturer autorelease] forKey:AUNameAndManufacturerStringKey];
+
+			NSString *auInformation = (NSString *)CFStringCreateWithPascalString(kCFAllocatorDefault, (ConstStr255Param)(*componentInformationHandle), kCFStringEncodingUTF8);
+			[auDictionary setValue:[auInformation autorelease] forKey:AUInformationStringKey];
+
+			unsigned int index = [auNameAndManufacturer rangeOfString:@":" options:NSLiteralSearch].location;
+			if(NSNotFound != index) {
+				[auDictionary setValue:[auNameAndManufacturer substringToIndex:index] forKey:AUManufacturerStringKey];
+				
+				// Skip colon
+				++index;
+				
+				// Skip whitespace
+				NSCharacterSet *whitespaceCharacters = [NSCharacterSet whitespaceCharacterSet];
+				while([whitespaceCharacters characterIsMember:[auNameAndManufacturer characterAtIndex:index]])
+					++index;
+				
+				[auDictionary setValue:[auNameAndManufacturer substringFromIndex:index] forKey:AUNameStringKey];
+			}
+			
+			NSImage *iconImage = nil;
+			
+			// Use the AU icon if present
+			NSURL *auURL = nil;
+			UInt32 dataSize = sizeof(auURL);
+			OSStatus err = AudioUnitGetProperty(au, kAudioUnitProperty_IconLocation, kAudioUnitScope_Global, 0, &auURL, &dataSize);
+			if(noErr == err && nil != auURL) {
+				iconImage = [[NSImage alloc] initByReferencingURL:auURL];
+				[iconImage setSize:NSMakeSize(16, 16)];
+			}
+			
+			// Fallback to the component's icon
+			if(nil == iconImage) {
+				iconImage = [[NSImage alloc] initWithData:[NSData dataWithBytes:*componentIconHandle length:GetHandleSize(componentIconHandle)]];
+				[iconImage setSize:NSMakeSize(16, 16)];
+			}
+			
+			if(nil != iconImage)
+				[auDictionary setValue:[iconImage autorelease] forKey:AUIconKey];
+		}
+
+		DisposeHandle(componentNameHandle);
+		DisposeHandle(componentInformationHandle);
+		DisposeHandle(componentIconHandle);
+
+		[auDictionary setValue:(id)classData forKey:AUClassDataKey];
+		[auDictionary setValue:[NSNumber numberWithInt:node] forKey:AUNodeKey];
+		
+		[effects addObject:auDictionary];
+	}
+	
+	return [effects autorelease];
+}
+
+- (NSArray *) availableEffects
+{
+	NSMutableArray *effects = [[NSMutableArray alloc] init];
+	ComponentDescription desc;
+	
+//    desc.componentType			= kAudioUnitType_FormatConverter;
+    desc.componentType			= kAudioUnitType_Effect;
+    desc.componentSubType		= 0;
+    desc.componentManufacturer	= 0;
+    desc.componentFlags			= 0;
+    desc.componentFlagsMask		= 0;
+    	
+	Component effectAU = FindNextComponent(NULL, &desc);
+    while(NULL != effectAU) {
+		Handle componentNameHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentNameHandle, @"Unable to allocate memory");
+		
+		Handle componentInformationHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentInformationHandle, @"Unable to allocate memory");
+		
+		Handle componentIconHandle = NewHandle(sizeof(void *));
+		NSAssert(NULL != componentIconHandle, @"Unable to allocate memory");
+		
+		NSMutableDictionary *auDictionary = [NSMutableDictionary dictionary];
+		
+		ComponentDescription cd;
+		OSErr err = GetComponentInfo(effectAU, &cd, componentNameHandle, componentInformationHandle, componentIconHandle);
+		if(noErr == err) {
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:cd.componentType] forKey:AUTypeKey];
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:cd.componentSubType] forKey:AUSubTypeKey];
+			[auDictionary setValue:[NSNumber numberWithUnsignedLong:cd.componentManufacturer] forKey:AUManufacturerKey];
+			
+			NSString *auNameAndManufacturer = (NSString *)CFStringCreateWithPascalString(kCFAllocatorDefault, (ConstStr255Param)(*componentNameHandle), kCFStringEncodingUTF8);
+			[auDictionary setValue:[auNameAndManufacturer autorelease] forKey:AUNameAndManufacturerStringKey];
+			
+			NSString *auInformation = (NSString *)CFStringCreateWithPascalString(kCFAllocatorDefault, (ConstStr255Param)(*componentInformationHandle), kCFStringEncodingUTF8);
+			[auDictionary setValue:[auInformation autorelease] forKey:AUInformationStringKey];
+			
+			unsigned int index = [auNameAndManufacturer rangeOfString:@":" options:NSLiteralSearch].location;
+			if(NSNotFound != index) {
+				[auDictionary setValue:[auNameAndManufacturer substringToIndex:index] forKey:AUManufacturerStringKey];
+				
+				// Skip colon
+				++index;
+				
+				// Skip whitespace
+				NSCharacterSet *whitespaceCharacters = [NSCharacterSet whitespaceCharacterSet];
+				while([whitespaceCharacters characterIsMember:[auNameAndManufacturer characterAtIndex:index]])
+					++index;
+				
+				[auDictionary setValue:[auNameAndManufacturer substringFromIndex:index] forKey:AUNameStringKey];
+			}
+			
+			NSImage *iconImage = nil;
+			
+			// Use the AU icon if present
+			NSURL *auURL = nil;
+			UInt32 dataSize = sizeof(auURL);
+			OSStatus err = AudioUnitGetProperty((AudioUnit)effectAU, kAudioUnitProperty_IconLocation, kAudioUnitScope_Global, 0, &auURL, &dataSize);
+			if(noErr == err && nil != auURL) {
+				iconImage = [[NSImage alloc] initByReferencingURL:auURL];
+				[iconImage setSize:NSMakeSize(16, 16)];
+			}
+
+			// Fallback to the component's icon
+			if(nil == iconImage) {
+				iconImage = [[NSImage alloc] initWithData:[NSData dataWithBytes:*componentIconHandle length:GetHandleSize(componentIconHandle)]];
+				[iconImage setSize:NSMakeSize(16, 16)];
+			}
+			
+			if(nil != iconImage)
+				[auDictionary setValue:[iconImage autorelease] forKey:AUIconKey];
+		}
+		
+		DisposeHandle(componentNameHandle);
+		DisposeHandle(componentInformationHandle);
+		DisposeHandle(componentIconHandle);
+		
+		[effects addObject:auDictionary];
+		
+		effectAU = FindNextComponent(effectAU, &desc);
+	}
+
+	return [effects autorelease];
+}
+
+- (AudioUnit) audioUnitForAUNode:(AUNode)node
+{
+	AudioUnit au;
+	OSStatus err = AUGraphGetNodeInfo([self auGraph], node, NULL, NULL, NULL, &au);
+	if(noErr != err)
+		return NULL;
+	
+	return au;
+}
+
+- (BOOL) addEffectToAUGraph:(NSDictionary *)auDictionary newNode:(AUNode *)newNode error:(NSError **)error
+{
+	NSParameterAssert(NULL != auDictionary);
+	NSParameterAssert(NULL != newNode);
+	
+	// Get the current input node for the graph's outputNode
+	UInt32 numConnections = 0;
+	OSStatus err = AUGraphCountNodeConnections([self auGraph], [self outputNode], &numConnections);
+	if(noErr != err)
+		return NO;
+	
+	AudioUnitNodeConnection *connections = calloc(numConnections, sizeof(AudioUnitNodeConnection));
+	if(NULL == connections)
+		return NO;
+	
+	err = AUGraphGetNodeConnections([self auGraph], [self outputNode], connections, &numConnections);
+	if(noErr != err) {
+		free(connections), connections = NULL;
+		return NO;
+	}
+	
+	AUNode previousNode = -1;
+	UInt32 i;
+	for(i = 0; i < numConnections; ++i) {
+		AudioUnitNodeConnection connection = connections[i];
+		if([self outputNode] == connection.destNode) {
+			previousNode = connection.sourceNode;
+			break;
+		}
+	}
+	
+	free(connections), connections = NULL;
+
+	if(-1 == previousNode)
+		return NO;
+	
+	AudioUnit au = NULL;	
+	err = AUGraphGetNodeInfo([self auGraph], previousNode, NULL, NULL, NULL, &au);
+	if(noErr != err)
+		return NO;
+	
+	AudioStreamBasicDescription inputASBD;
+	UInt32 dataSize = sizeof(inputASBD);
+	err = AudioUnitGetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &inputASBD, &dataSize);
+	if(noErr != err)
+		return NO;
+	
+	AudioStreamBasicDescription outputASBD;
+	dataSize = sizeof(outputASBD);
+	err = AudioUnitGetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, &outputASBD, &dataSize);
+	if(noErr != err)
+		return NO;
+	
+	// Create a new node of the specified type
+	ComponentDescription componentDescription;
+	
+	componentDescription.componentType			= [[auDictionary valueForKey:AUTypeKey] unsignedLongValue];
+	componentDescription.componentSubType		= [[auDictionary valueForKey:AUSubTypeKey] unsignedLongValue];
+	componentDescription.componentManufacturer	= [[auDictionary valueForKey:AUManufacturerKey] unsignedLongValue];
+	componentDescription.componentFlags			= 0;
+	componentDescription.componentFlagsMask		= 0;
+	
+	CFPropertyListRef	classData				= [auDictionary valueForKey:AUClassDataKey];
+
+	err = AUGraphNewNode([self auGraph], &componentDescription, 0, classData, newNode);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphGetNodeInfo([self auGraph], *newNode, NULL, NULL, NULL, &au);
+	if(noErr != err)
+		return NO;
+	
+	err = AudioUnitSetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &inputASBD, sizeof(inputASBD));
+	if(noErr != err) {
+		// If the property couldn't be set (the AU may not support this format), remove the new node
+		err = AUGraphRemoveNode([self auGraph], *newNode);
+		if(noErr != err)
+			NSLog(@"AudioPlayer error: Unable to remove node: %i", err);
+		
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The DSP effect \"%@\" does not support this format.", @"Errors", @""), [auDictionary valueForKey:AUNameStringKey]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"DSP Effect Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The current track's sample rate or channel layout is not supported by this DSP effect.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+										 code:AudioPlayerInternalError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+	
+	err = AudioUnitSetProperty(au, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, &outputASBD, sizeof(outputASBD));
+	if(noErr != err) {
+		// If the property couldn't be set (the AU may not support this format), remove the new node
+		err = AUGraphRemoveNode([self auGraph], *newNode);
+		if(noErr != err)
+			NSLog(@"AudioPlayer error: Unable to remove node: %i", err);
+		
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The DSP effect \"%@\" does not support this format.", @"Errors", @""), [auDictionary valueForKey:AUNameStringKey]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"DSP Effect Not Supported", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The current track's sample rate or channel layout is not supported by this DSP effect.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:AudioPlayerErrorDomain 
+										 code:AudioPlayerInternalError 
+									 userInfo:errorDictionary];
+		}
+
+		return NO;
+	}
+	
+	// Insert the new node just before the outputNode
+	err = AUGraphDisconnectNodeInput([self auGraph], [self outputNode], 0);
+	if(noErr != err)
+		return NO;
+	
+	// Reconnect the nodes
+	err = AUGraphConnectNodeInput([self auGraph], previousNode, 0, *newNode, 0);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphConnectNodeInput([self auGraph], *newNode, 0, [self outputNode], 0);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphUpdate([self auGraph], NULL);
+	if(noErr != err) {
+		// If the update failed, restore the previous node state
+		err = AUGraphConnectNodeInput([self auGraph], previousNode, 0, [self outputNode], 0);
+		if(noErr != err)
+			return NO;
+	}
+
+//	[self startListeningForParameterChangesOnAudioUnit:[self audioUnitForAUNode:*newNode]];
+	
+//	[self saveEffects];
+	
+	return YES;
+}
+
+- (BOOL) removeEffectFromAUGraph:(AUNode)effectNode error:(NSError **)error
+{
+	AudioUnit au = NULL;
+	OSStatus err = AUGraphGetNodeInfo([self auGraph], effectNode, NULL, NULL, NULL, &au);
+	if(noErr != err)
+		return NO;
+	
+//	[self stopListeningForParameterChangesOnAudioUnit:au];
+	
+	// Get the current input and output nodes for the node to delete
+	UInt32 numConnections = 0;
+	err = AUGraphCountNodeConnections([self auGraph], effectNode, &numConnections);
+	if(noErr != err)
+		return NO;
+	
+	AudioUnitNodeConnection *connections = calloc(numConnections, sizeof(AudioUnitNodeConnection));
+	if(NULL == connections)
+		return NO;
+	
+	err = AUGraphGetNodeConnections([self auGraph], effectNode, connections, &numConnections);
+	if(noErr != err) {
+		free(connections), connections = NULL;
+		return NO;
+	}
+	
+	AUNode previousNode, nextNode;
+	UInt32 i;
+	for(i = 0; i < numConnections; ++i) {
+		AudioUnitNodeConnection connection = connections[i];
+		if(effectNode == connection.destNode)
+			previousNode = connection.sourceNode;
+		else if(effectNode == connection.sourceNode)
+			nextNode = connection.destNode;
+	}
+
+	free(connections), connections = NULL;
+
+	err = AUGraphDisconnectNodeInput([self auGraph], effectNode, 0);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphDisconnectNodeInput([self auGraph], nextNode, 0);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphRemoveNode([self auGraph], effectNode);
+	if(noErr != err)
+		return NO;
+	
+	// Reconnect the nodes
+	err = AUGraphConnectNodeInput([self auGraph], previousNode, 0, nextNode, 0);
+	if(noErr != err)
+		return NO;
+	
+	err = AUGraphUpdate([self auGraph], NULL);
+	if(noErr != err)
+		return NO;
+	
+//	[self saveEffects];
+
+	return YES;
 }
 
 @end
@@ -990,7 +1541,7 @@ return err;	*/
 - (BOOL) canPlay
 {
 	Boolean graphIsInitialized = NO;
-	OSStatus result = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	OSStatus result = AUGraphIsInitialized([self auGraph], &graphIsInitialized);
 	if(noErr != result)
 		return NO;
 	
@@ -1135,7 +1686,7 @@ return err;	*/
 	
 	OSStatus err = AUParameterSet(NULL, NULL, &auParameter, preGain, 0);
 	if(noErr != err)
-		NSLog(@"Error settting ReplayGain");
+		NSLog(@"AudioPlayer error: Unable to set ReplayGain: %i", err);
 }
 
 - (NSNumber *) setReplayGainForStream:(AudioStream *)stream
