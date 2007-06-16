@@ -339,13 +339,13 @@ audio_linear_round(unsigned int bits,
 		// Synthesize the frame into PCM
 		mad_synth_frame(&_mad_synth, &_mad_frame);
 		
-		i = 0;
+		unsigned startingSample = 0;
 		// Skip the Xing header (it contains empty audio)
 		if(_foundXingHeader && 1 == _mpegFramesDecoded)
 			continue;
 		// Adjust the first real audio frame for gapless playback
 		else if(_foundLAMEHeader && 2 == _mpegFramesDecoded)
-			i = _encoderDelay;
+			startingSample = _encoderDelay;
 		
 		// If a LAME header was found, the total number of audio frames (AKA samples) 
 		// is known.  Ensure only that many are output
@@ -358,7 +358,7 @@ audio_linear_round(unsigned int bits,
 		for(channel = 0; channel < MAD_NCHANNELS(&_mad_frame.header); ++channel) {
 			float *floatBuffer = _bufferList->mBuffers[channel].mData;
 			
-			for(sample = 0; sample < sampleCount; ++sample) {
+			for(sample = startingSample; sample < sampleCount; ++sample) {
 				audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[channel][sample]);
 				
 				if(0 <= audioSample)
@@ -368,10 +368,10 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			_bufferList->mBuffers[channel].mNumberChannels	= 1;
-			_bufferList->mBuffers[channel].mDataByteSize	= sampleCount * sizeof(float);			
+			_bufferList->mBuffers[channel].mDataByteSize	= (sampleCount - startingSample) * sizeof(float);
 		}
 		
-		_samplesDecoded += sampleCount;		
+		_samplesDecoded += (sampleCount - startingSample);
 	}
 	
 	_currentFrame += framesRead;
