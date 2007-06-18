@@ -239,7 +239,6 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 		memset(bufferList->mBuffers[channel].mData, 0, frameCount * sizeof(float));
 	
 	return frameCount;
-	
 }
 
 - (SInt64)			totalFrames								{ return -1; }
@@ -248,6 +247,8 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 
 - (BOOL)			supportsSeeking							{ return NO; }
 - (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
+
+- (NSString *)		description								{ return [[self stream] description]; }
 
 // ========================================
 // Subclass stubs
