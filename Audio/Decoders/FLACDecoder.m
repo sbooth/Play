@@ -176,12 +176,10 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	
 	UInt32 framesRead = 0;
 	
-	// Zero output buffers
+	// Reset output buffer data size
 	unsigned i;
-	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
+	for(i = 0; i < bufferList->mNumberBuffers; ++i)
 		bufferList->mBuffers[i].mDataByteSize = 0;
-		bufferList->mBuffers[i].mNumberChannels = 1;
-	}
 	
 	for(;;) {
 		UInt32	framesRemaining	= frameCount - framesRead;

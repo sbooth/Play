@@ -210,13 +210,11 @@ audio_linear_round(unsigned int bits,
 	float			scaleFactor				= (1L << (BIT_RESOLUTION - 1));
 	
 	UInt32			framesRead				= 0;
-	
-	// Zero output buffers
+
+	// Reset output buffer data size
 	unsigned i;
-	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
+	for(i = 0; i < bufferList->mNumberBuffers; ++i)
 		bufferList->mBuffers[i].mDataByteSize = 0;
-		bufferList->mBuffers[i].mNumberChannels = 1;
-	}
 	
 	for(;;) {
 		
@@ -241,7 +239,7 @@ audio_linear_round(unsigned int bits,
 		}
 		
 		framesRead += framesToCopy;
-		
+
 		// All requested frames were read
 		if(framesRead == frameCount)
 			break;
@@ -350,7 +348,7 @@ audio_linear_round(unsigned int bits,
 		// If a LAME header was found, the total number of audio frames (AKA samples) 
 		// is known.  Ensure only that many are output
 		unsigned sampleCount = _mad_synth.pcm.length;
-		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + sampleCount)
+		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + (sampleCount - startingSample))
 			sampleCount = [self totalFrames] - _samplesDecoded;
 		
 		// Output samples in 32-bit float PCM
