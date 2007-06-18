@@ -101,18 +101,16 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	
 	// Seek to the vorbis comment block if it exists
 	while(FLAC__METADATA_TYPE_VORBIS_COMMENT != FLAC__metadata_iterator_get_block_type(iterator)) {
-		if(NO == FLAC__metadata_iterator_next(iterator)) {
+		if(NO == FLAC__metadata_iterator_next(iterator))
 			break; // Already at end
-		}
 	}
 	
 	// If there isn't a vorbis comment block add one
 	if(FLAC__METADATA_TYPE_VORBIS_COMMENT != FLAC__metadata_iterator_get_block_type(iterator)) {
 		
 		// The padding block will be the last block if it exists; add the comment block before it
-		if(FLAC__METADATA_TYPE_PADDING == FLAC__metadata_iterator_get_block_type(iterator)) {
+		if(FLAC__METADATA_TYPE_PADDING == FLAC__metadata_iterator_get_block_type(iterator))
 			FLAC__metadata_iterator_prev(iterator);
-		}
 		
 		block = FLAC__metadata_object_new(FLAC__METADATA_TYPE_VORBIS_COMMENT);
 		NSAssert(NULL != block, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
@@ -139,9 +137,8 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 			return NO;
 		}
 	}
-	else {
+	else
 		block = FLAC__metadata_iterator_get_block(iterator);
-	}
 	
 	// Album title
 	setVorbisComment(block, @"ALBUM", [metadata valueForKey:MetadataAlbumTitleKey]);

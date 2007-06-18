@@ -78,9 +78,8 @@
 	do {
 		block = FLAC__metadata_iterator_get_block(iterator);
 		
-		if(NULL == block) {
+		if(NULL == block)
 			break;
-		}
 		
 		switch(block->type) {					
 			case FLAC__METADATA_TYPE_STREAMINFO:

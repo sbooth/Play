@@ -94,21 +94,17 @@
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.sample_freq] forKey:PropertiesSampleRateKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)mpc_streaminfo_get_length_samples(&streaminfo) / streaminfo.sample_freq] forKey:PropertiesDurationKey];
 
-	if(0 != streaminfo.gain_title) {
+	if(0 != streaminfo.gain_title)
 		[propertiesDictionary setValue:[NSNumber numberWithShort:streaminfo.gain_title] forKey:ReplayGainTrackGainKey];
-	}
 
-	if(0 != streaminfo.gain_album) {
+	if(0 != streaminfo.gain_album)
 		[propertiesDictionary setValue:[NSNumber numberWithShort:streaminfo.gain_album] forKey:ReplayGainAlbumGainKey];
-	}
 
-	if(0 != streaminfo.peak_title) {
+	if(0 != streaminfo.peak_title)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedShort:streaminfo.peak_title] forKey:ReplayGainTrackPeakKey];
-	}
 
-	if(0 != streaminfo.peak_album) {
+	if(0 != streaminfo.peak_album)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedShort:streaminfo.peak_album] forKey:ReplayGainAlbumPeakKey];
-	}
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	

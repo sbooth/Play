@@ -26,12 +26,12 @@
 
 - (BOOL) readProperties:(NSError **)error
 {
-	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path;
-    WavpackContext					*wpc;
-	char							errorMsg [80];
+	NSMutableDictionary		*propertiesDictionary;
+	NSString				*path;
+    WavpackContext			*wpc;
+	char					errorMsg [80];
 
-	path							= [[self valueForKey:StreamURLKey] path];
+	path = [[self valueForKey:StreamURLKey] path];
 
 	wpc = WavpackOpenFileInput([path fileSystemRepresentation], errorMsg, 0, 0);
 	if(NULL == wpc) {
@@ -50,7 +50,7 @@
 		return NO;
 	}
 	
-	propertiesDictionary			= [NSMutableDictionary dictionary];
+	propertiesDictionary = [NSMutableDictionary dictionary];
 
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:PropertiesFileTypeKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"WavPack", @"Formats", @"") forKey:PropertiesDataFormatKey];

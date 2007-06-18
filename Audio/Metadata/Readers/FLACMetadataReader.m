@@ -103,54 +103,38 @@
 					key		= [[NSString alloc] initWithBytesNoCopy:fieldName length:strlen(fieldName) encoding:NSASCIIStringEncoding freeWhenDone:YES];
 					value	= [[NSString alloc] initWithBytesNoCopy:fieldValue length:strlen(fieldValue) encoding:NSUTF8StringEncoding freeWhenDone:YES];
 				
-					if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUM"]) {
+					if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUM"])
 						[metadataDictionary setValue:value forKey:MetadataAlbumTitleKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ARTIST"])
 						[metadataDictionary setValue:value forKey:MetadataArtistKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUMARTIST"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ALBUMARTIST"])
 						[metadataDictionary setValue:value forKey:MetadataAlbumArtistKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPOSER"])
 						[metadataDictionary setValue:value forKey:MetadataComposerKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"GENRE"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"GENRE"])
 						[metadataDictionary setValue:value forKey:MetadataGenreKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DATE"])
 						[metadataDictionary setValue:value forKey:MetadataDateKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DESCRIPTION"])
 						[metadataDictionary setValue:value forKey:MetadataCommentKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TITLE"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TITLE"])
 						[metadataDictionary setValue:value forKey:MetadataTitleKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKNUMBER"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKNUMBER"])
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataTrackNumberKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKTOTAL"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"TRACKTOTAL"])
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataTrackTotalKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"COMPILATION"])
 						[metadataDictionary setValue:[NSNumber numberWithBool:(BOOL)[value intValue]] forKey:MetadataCompilationKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCNUMBER"])
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataDiscNumberKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCTOTAL"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"DISCTOTAL"])
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataDiscTotalKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ISRC"]) {
-						[metadataDictionary setValue:value forKey:MetadataISRCKey];;
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"ISRC"])
+						[metadataDictionary setValue:value forKey:MetadataISRCKey];
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MCN"])
 						[metadataDictionary setValue:value forKey:MetadataMCNKey];
-					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"BPM"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"BPM"])
 						[metadataDictionary setValue:[NSNumber numberWithUnsignedInt:(UInt32)[value intValue]] forKey:MetadataBPMKey];
-					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_REFERENCE_LOUDNESS"]) {
 						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 						double		doubleValue		= 0.0;
@@ -178,9 +162,8 @@
 							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
 						}
 					}
-					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_PEAK"]) {
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_PEAK"])
 						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
-					}
 					
 					[key release];
 					[value release];

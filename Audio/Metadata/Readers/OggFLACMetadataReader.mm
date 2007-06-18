@@ -162,9 +162,8 @@
 			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 			double		doubleValue		= 0.0;
 			
-			if([scanner scanDouble:&doubleValue]) {
+			if([scanner scanDouble:&doubleValue])
 				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainReferenceLoudnessKey];
-			}						
 		}					
 
 		tag = "REPLAYGAIN_TRACK_GAIN";
@@ -174,9 +173,8 @@
 			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 			double		doubleValue		= 0.0;
 			
-			if([scanner scanDouble:&doubleValue]) {
+			if([scanner scanDouble:&doubleValue])
 				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
-			}						
 		}					
 
 		tag = "REPLAYGAIN_TRACK_PEAK";
@@ -192,9 +190,8 @@
 			NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 			double		doubleValue		= 0.0;
 			
-			if([scanner scanDouble:&doubleValue]) {
+			if([scanner scanDouble:&doubleValue])
 				[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
-			}						
 		}					
 
 		tag = "REPLAYGAIN_ALBUM_PEAK";

@@ -55,43 +55,36 @@
 	
 	// Album title
 	s = f.tag()->album();
-	if(false == s.isNull()) {
+	if(false == s.isNull())
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataAlbumTitleKey];
-	}
 	
 	// Artist
 	s = f.tag()->artist();
-	if(false == s.isNull()) {
+	if(false == s.isNull())
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataArtistKey];
-	}
 	
 	// Genre
 	s = f.tag()->genre();
-	if(false == s.isNull()) {
+	if(false == s.isNull())
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataGenreKey];
-	}
 	
 	// Year
-	if(0 != f.tag()->year()) {
+	if(0 != f.tag()->year())
 		[metadataDictionary setValue:[[NSNumber numberWithInt:f.tag()->year()] stringValue] forKey:MetadataDateKey];
-	}
 	
 	// Comment
 	s = f.tag()->comment();
-	if(false == s.isNull()) {
+	if(false == s.isNull())
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataCommentKey];
-	}
 	
 	// Track title
 	s = f.tag()->title();
-	if(false == s.isNull()) {
+	if(false == s.isNull())
 		[metadataDictionary setValue:[NSString stringWithUTF8String:s.toCString(true)] forKey:MetadataTitleKey];
-	}
 	
 	// Track number
-	if(0 != f.tag()->track()) {
+	if(0 != f.tag()->track())
 		[metadataDictionary setValue:[NSNumber numberWithInt:f.tag()->track()] forKey:MetadataTrackNumberKey];
-	}
 			
 	id3v1Tag = f.ID3v1Tag();
 	if(NULL != id3v1Tag) {

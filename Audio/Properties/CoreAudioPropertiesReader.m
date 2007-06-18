@@ -96,25 +96,16 @@
 	result			= AudioFileGetProperty(audioFileID, kAudioFilePropertyDataFormat, &specifierSize, &asbd);
 	NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
 	
-	if(0 != asbd.mBitsPerChannel) {
+	if(0 != asbd.mBitsPerChannel)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:PropertiesBitsPerChannelKey];
-	}
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData & asbd.mFormatFlags) {
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData & asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
-		
-	}
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData & asbd.mFormatFlags) {
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData & asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:20] forKey:PropertiesBitsPerChannelKey];
-		
-	}
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData & asbd.mFormatFlags) {
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData & asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:24] forKey:PropertiesBitsPerChannelKey];
-		
-	}
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData & asbd.mFormatFlags) {
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData & asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:32] forKey:PropertiesBitsPerChannelKey];
-		
-	}
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:PropertiesSampleRateKey];
 	
@@ -137,12 +128,10 @@
 	[propertiesDictionary setValue:dataFormat forKey:PropertiesDataFormatKey];
 
 	// For container formats the description should be the dataFormat
-	if(kAudioFileMPEG4Type == audioFileTypeID || kAudioFileM4AType == audioFileTypeID || kAudioFileCAFType == audioFileTypeID) {
+	if(kAudioFileMPEG4Type == audioFileTypeID || kAudioFileM4AType == audioFileTypeID || kAudioFileCAFType == audioFileTypeID)
 		[propertiesDictionary setValue:dataFormat forKey:PropertiesFormatDescriptionKey];
-	}
-	else {
+	else
 		[propertiesDictionary setValue:fileType forKey:PropertiesFormatDescriptionKey];
-	}
 
 	// Open as an ExtAudioFile to count frames	
 	result = ExtAudioFileWrapAudioFileID(audioFileID, NO, &extAudioFile);

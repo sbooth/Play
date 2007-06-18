@@ -92,12 +92,10 @@
 		NSAssert(NULL != frame, @"Unable to allocate memory.");
 		
 		// Only use numbers for the original ID3v1 genre list
-		if(NSNotFound == index) {
+		if(NSNotFound == index)
 			frame->setText(TagLib::String([genre UTF8String], TagLib::String::UTF8));
-		}
-		else {
+		else
 			frame->setText(TagLib::String([[NSString stringWithFormat:@"(%u)", index] UTF8String], TagLib::String::UTF8));
-		}
 		
 		f.ID3v2Tag()->addFrame(frame);	
 	}
@@ -154,9 +152,8 @@
 		frame->setText(TagLib::String([[NSString stringWithFormat:@"/%@", trackTotal] UTF8String], TagLib::String::UTF8));
 		f.ID3v2Tag()->addFrame(frame);
 	}
-	else if(nil != trackNumber) {
+	else if(nil != trackNumber)
 		f.tag()->setTrack([trackNumber unsignedIntValue]);
-	}
 		
 	// Compilation
 	// iTunes uses the TCMP frame for this, which isn't in the standard, but we'll use it for compatibility
@@ -203,32 +200,28 @@
 	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
 	
 	// Write TXXX frames
-	TagLib::ID3v2::UserTextIdentificationFrame *trackGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_GAIN");
-	TagLib::ID3v2::UserTextIdentificationFrame *trackPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_TRACK_PEAK");
-	TagLib::ID3v2::UserTextIdentificationFrame *albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_GAIN");
-	TagLib::ID3v2::UserTextIdentificationFrame *albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "REPLAYGAIN_ALBUM_PEAK");
+	TagLib::ID3v2::UserTextIdentificationFrame *trackGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_track_gain");
+	TagLib::ID3v2::UserTextIdentificationFrame *trackPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_track_peak");
+	TagLib::ID3v2::UserTextIdentificationFrame *albumGainFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_album_gain");
+	TagLib::ID3v2::UserTextIdentificationFrame *albumPeakFrame = TagLib::ID3v2::UserTextIdentificationFrame::find(f.ID3v2Tag(), "replaygain_album_peak");
 
-	if(NULL != trackGainFrame) {
+	if(NULL != trackGainFrame)
 		f.ID3v2Tag()->removeFrame(trackGainFrame);
-	}
 
-	if(NULL != trackPeakFrame) {
+	if(NULL != trackPeakFrame)
 		f.ID3v2Tag()->removeFrame(trackPeakFrame);
-	}
 
-	if(NULL != albumGainFrame) {
+	if(NULL != albumGainFrame)
 		f.ID3v2Tag()->removeFrame(albumGainFrame);
-	}
 
-	if(NULL != albumPeakFrame) {
+	if(NULL != albumPeakFrame)
 		f.ID3v2Tag()->removeFrame(albumPeakFrame);
-	}
 	
 	if(nil != trackGain) {
 		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
 		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
 
-		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_TRACK_GAIN", TagLib::String::Latin1));
+		userTextFrame->setDescription(TagLib::String("replaygain_track_gain", TagLib::String::Latin1));
 		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]] UTF8String], TagLib::String::UTF8));
 		
 		f.ID3v2Tag()->addFrame(userTextFrame);
@@ -238,7 +231,7 @@
 		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
 		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
 		
-		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_TRACK_PEAK", TagLib::String::Latin1));
+		userTextFrame->setDescription(TagLib::String("replaygain_track_peak", TagLib::String::Latin1));
 		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%1.8f dB", [trackPeak doubleValue]] UTF8String], TagLib::String::UTF8));
 		
 		f.ID3v2Tag()->addFrame(userTextFrame);
@@ -248,7 +241,7 @@
 		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
 		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
 		
-		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_ALBUM_GAIN", TagLib::String::Latin1));
+		userTextFrame->setDescription(TagLib::String("replaygain_album_gain", TagLib::String::Latin1));
 		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]] UTF8String], TagLib::String::UTF8));
 		
 		f.ID3v2Tag()->addFrame(userTextFrame);
@@ -258,7 +251,7 @@
 		TagLib::ID3v2::UserTextIdentificationFrame *userTextFrame = new TagLib::ID3v2::UserTextIdentificationFrame();
 		NSAssert(NULL != userTextFrame, @"Unable to allocate memory.");
 		
-		userTextFrame->setDescription(TagLib::String("REPLAYGAIN_ALBUM_PEAK", TagLib::String::Latin1));
+		userTextFrame->setDescription(TagLib::String("replaygain_album_peak", TagLib::String::Latin1));
 		userTextFrame->setText(TagLib::String([[NSString stringWithFormat:@"%1.8f dB", [albumPeak doubleValue]] UTF8String], TagLib::String::UTF8));
 		
 		f.ID3v2Tag()->addFrame(userTextFrame);
@@ -270,12 +263,10 @@
 		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
 		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
 		
-		if(nil != trackGain) {
+		if(nil != trackGain)
 			relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
-		}
-		else if(nil != albumGain) {
+		else if(nil != albumGain)
 			relativeVolume->setVolumeAdjustment([albumGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
-		}
 		
 		f.ID3v2Tag()->addFrame(relativeVolume);
 	}

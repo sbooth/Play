@@ -26,12 +26,12 @@
 
 - (BOOL) writeMetadata:(id)metadata error:(NSError **)error
 {
-	NSString						*path				= [_url path];
-    WavpackContext					*wpc				= NULL;
-	char							errorBuf [80];
-	int								result;
+	NSString			*path				= [_url path];
+    WavpackContext		*wpc				= NULL;
+	char				errorBuf [80];
+	int					result;
 	
-	wpc		= WavpackOpenFileInput([path fileSystemRepresentation], errorBuf, OPEN_EDIT_TAGS, 0);
+	wpc = WavpackOpenFileInput([path fileSystemRepresentation], errorBuf, OPEN_EDIT_TAGS, 0);
 
 	if(NULL == wpc) {
 		if(nil != error) {
@@ -52,114 +52,98 @@
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
 	WavpackDeleteTagItem(wpc, "ALBUM");
-	if(nil != album) {
+	if(nil != album)
 		WavpackAppendTagItem(wpc, "ALBUM", [album UTF8String], strlen([album UTF8String]));
-	}
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
 	WavpackDeleteTagItem(wpc, "ARTIST");
-	if(nil != artist) {
+	if(nil != artist)
 		WavpackAppendTagItem(wpc, "ARTIST", [artist UTF8String], strlen([artist UTF8String]));
-	}
 
 	// Album Artist
 	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
 	WavpackDeleteTagItem(wpc, "ALBUMARTIST");
-	if(nil != albumArtist) {
+	if(nil != albumArtist)
 		WavpackAppendTagItem(wpc, "ALBUMARTIST", [albumArtist UTF8String], strlen([albumArtist UTF8String]));
-	}
 	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
 	WavpackDeleteTagItem(wpc, "COMPOSER");
-	if(nil != composer) {
+	if(nil != composer)
 		WavpackAppendTagItem(wpc, "COMPOSER", [composer UTF8String], strlen([composer UTF8String]));
-	}
 	
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
 	WavpackDeleteTagItem(wpc, "GENRE");
-	if(nil != genre) {
+	if(nil != genre)
 		WavpackAppendTagItem(wpc, "GENRE", [genre UTF8String], strlen([genre UTF8String]));
-	}
 	
 	// Date
 	NSString *year = [metadata valueForKey:MetadataDateKey];
 	WavpackDeleteTagItem(wpc, "YEAR");
-	if(nil != year) {
+	if(nil != year)
 		WavpackAppendTagItem(wpc, "YEAR", [year UTF8String], strlen([year UTF8String]));
-	}
 	
 	// Comment
 	NSString *comment = [metadata valueForKey:MetadataCommentKey];
 	WavpackDeleteTagItem(wpc, "COMMENT");
-	if(nil != comment) {
+	if(nil != comment)
 		WavpackAppendTagItem(wpc, "COMMENT", [comment UTF8String], strlen([comment UTF8String]));
-	}
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
 	WavpackDeleteTagItem(wpc, "TITLE");
-	if(nil != title) {
+	if(nil != title)
 		WavpackAppendTagItem(wpc, "TITLE", [title UTF8String], strlen([title UTF8String]));
-	}
 	
 	// Track number
 	NSNumber *trackNumber = [metadata valueForKey:MetadataTrackNumberKey];
 	WavpackDeleteTagItem(wpc, "TRACK");
-	if(nil != trackNumber) {
+	if(nil != trackNumber)
 		WavpackAppendTagItem(wpc, "TRACK", [[trackNumber stringValue] UTF8String], strlen([[trackNumber stringValue] UTF8String]));
-	}
 	
 	// Track total
 	NSNumber *trackTotal = [metadata valueForKey:MetadataTrackTotalKey];
 	WavpackDeleteTagItem(wpc, "TRACKTOTAL");
-	if(nil != trackTotal) {
+	if(nil != trackTotal)
 		WavpackAppendTagItem(wpc, "TRACKTOTAL", [[trackTotal stringValue] UTF8String], strlen([[trackTotal stringValue] UTF8String]));
-	}
 	
 	// Compilation
 	NSNumber *compilation	= [metadata valueForKey:MetadataCompilationKey];
 	WavpackDeleteTagItem(wpc, "COMPILATION");
-	if(nil != compilation) {
+	if(nil != compilation)
 		WavpackAppendTagItem(wpc, "COMPILATION", [[compilation stringValue] UTF8String], strlen([[compilation stringValue] UTF8String]));
-	}
 	
 	// Disc number
 	NSNumber *discNumber = [metadata valueForKey:MetadataDiscNumberKey];
 	WavpackDeleteTagItem(wpc, "DISCNUMBER");
-	if(nil != discNumber) {
+	if(nil != discNumber)
 		WavpackAppendTagItem(wpc, "DISCNUMBER", [[discNumber stringValue] UTF8String], strlen([[discNumber stringValue] UTF8String]));
-	}
 	
 	// Discs in set
 	NSNumber *discTotal	= [metadata valueForKey:MetadataDiscTotalKey];
 	WavpackDeleteTagItem(wpc, "DISCTOTAL");
-	if(nil != discTotal) {
+	if(nil != discTotal)
 		WavpackAppendTagItem(wpc, "DISCTOTAL", [[discTotal stringValue] UTF8String], strlen([[discTotal stringValue] UTF8String]));
-	}
 	
 	// ISRC
 	NSString *isrc = [metadata valueForKey:MetadataISRCKey];
 	WavpackDeleteTagItem(wpc, "ISRC");
-	if(nil != isrc) {
+	if(nil != isrc)
 		WavpackAppendTagItem(wpc, "ISRC", [isrc UTF8String], strlen([isrc UTF8String]));
-	}
 	
 	// MCN
 	NSString *mcn = [metadata valueForKey:MetadataMCNKey];
 	WavpackDeleteTagItem(wpc, "MCN");
-	if(nil != mcn) {
+	if(nil != mcn)
 		WavpackAppendTagItem(wpc, "MCN", [mcn UTF8String], strlen([mcn UTF8String]));
-	}
 
 	// BPM
 	NSNumber *bpm	= [metadata valueForKey:MetadataBPMKey];
 	WavpackDeleteTagItem(wpc, "BPM");
-	if(nil != bpm) {
+	if(nil != bpm)
 		WavpackAppendTagItem(wpc, "BPM", [[bpm stringValue] UTF8String], strlen([[bpm stringValue] UTF8String]));
-	}
 
 	// ReplayGain
 	NSNumber *referenceLoudness = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
