@@ -89,6 +89,7 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (AUGraph) auGraph;
 - (OSStatus) setupAUGraph;
 - (OSStatus) teardownAUGraph;
+- (OSStatus) resetAUGraph;
 - (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format;
 - (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout;
 - (OSStatus) setPropertyOnAUGraphNodes:(AudioUnitPropertyID)propertyID data:(const void *)propertyData dataSize:(UInt32)propertyDataSize;
@@ -246,6 +247,10 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	[[self scheduler] stopScheduling];
 	[[self scheduler] clear];
 	
+	OSStatus err = [self resetAUGraph];
+	if(noErr != err)
+		NSLog(@"AudioPlayer error: Unable to reset AUGraph AudioUnits: %i", err);
+	
 	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:error];
 	if(nil == decoder)
 		return NO;
@@ -381,7 +386,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	if(NO == [[self scheduler] isScheduling])
 		[[self scheduler] startScheduling];
-	
+
 	// Start playback of the ScheduledSoundPlayer unit by setting its start time
 	AudioTimeStamp timeStamp = { 0 };
 	
@@ -397,6 +402,11 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		NSLog(@"AudioPlayer error: Unable to start AUScheduledSoundPlayer: %i", err);
 
+/*	UInt32 dataSize = sizeof(timeStamp);
+	err = AudioUnitGetProperty(_generatorUnit, kAudioUnitProperty_ScheduleStartTimeStamp, kAudioUnitScope_Global, 0, &timeStamp, &dataSize);
+	if(noErr == err)
+		NSLog(@"started at time: %f", timeStamp.mSampleTime);*/
+	
 	[self setPlaying:YES];
 }
 
@@ -604,27 +614,6 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 
 #pragma mark AudioSchedulerMethods
 
-#if EXTENDED_DEBUG
-- (void) audioSchedulerStartedScheduling:(AudioScheduler *)scheduler
-{
-	NSParameterAssert(nil != scheduler);
-	NSLog(@"-audioSchedulerStartedScheduling");
-}
-
-- (void) audioSchedulerStoppedScheduling:(AudioScheduler *)scheduler
-{
-	NSParameterAssert(nil != scheduler);
-	NSLog(@"-audioSchedulerStoppedScheduling");
-}
-
-- (void) audioSchedulerStartedSchedulingRegion:(NSDictionary *)schedulerAndRegion
-{
-	NSParameterAssert(nil != schedulerAndRegion);
-	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
-	NSLog(@"-audioSchedulerStartedSchedulingRegion: %@", [[region decoder] stream]);
-}
-#endif
-
 - (void) audioSchedulerFinishedSchedulingRegion:(NSDictionary *)schedulerAndRegion
 {
 	NSParameterAssert(nil != schedulerAndRegion);
@@ -727,7 +716,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_generatorNode);
+	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_generatorNode);
 	if(noErr != err)
 		return err;
 	
@@ -738,7 +727,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_limiterNode);
+	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_limiterNode);
 	if(noErr != err)
 		return err;
 	
@@ -749,44 +738,44 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode(_auGraph, &desc, 0, NULL, &_outputNode);
+	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_outputNode);
 	if(noErr != err)
 		return err;
 	
 	// Connect the nodes
-	err = AUGraphConnectNodeInput(_auGraph, _generatorNode, 0, _limiterNode, 0);
+	err = AUGraphConnectNodeInput([self auGraph], _generatorNode, 0, _limiterNode, 0);
 	if(noErr != err)
 		return err;
-	
-	err = AUGraphConnectNodeInput(_auGraph, _limiterNode, 0, _outputNode, 0);
+
+	err = AUGraphConnectNodeInput([self auGraph], _limiterNode, 0, _outputNode, 0);
 	if(noErr != err)
 		return err;
 	
 	// Open the graph
-	err = AUGraphOpen(_auGraph);
+	err = AUGraphOpen([self auGraph]);
 	if(noErr != err)
 		return err;
 	
 	// Initialize the graph
-	err = AUGraphInitialize(_auGraph);
+	err = AUGraphInitialize([self auGraph]);
 	if(noErr != err)
 		return err;
 	
 	// And start it up
-	err = AUGraphStart(_auGraph);
+	err = AUGraphStart([self auGraph]);
 	if(noErr != err)
 		return err;
 	
 	// Store the audio units for later  use
-	err = AUGraphGetNodeInfo(_auGraph, _generatorNode, NULL, NULL, NULL, &_generatorUnit);
+	err = AUGraphGetNodeInfo([self auGraph], _generatorNode, NULL, NULL, NULL, &_generatorUnit);
 	if(noErr != err)
 		return err;
 	
-	err = AUGraphGetNodeInfo(_auGraph, _limiterNode, NULL, NULL, NULL, &_limiterUnit);
+	err = AUGraphGetNodeInfo([self auGraph], _limiterNode, NULL, NULL, NULL, &_limiterUnit);
 	if(noErr != err)
 		return err;
 	
-	err = AUGraphGetNodeInfo(_auGraph, _outputNode, NULL, NULL, NULL, &_outputUnit);
+	err = AUGraphGetNodeInfo([self auGraph], _outputNode, NULL, NULL, NULL, &_outputUnit);
 	if(noErr != err)
 		return err;
 	
@@ -800,32 +789,32 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 //	[self saveEffects];
 	
 	Boolean graphIsRunning = NO;
-	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
+	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
 	if(noErr != err)
 		return err;
 	
 	if(graphIsRunning) {
-		err = AUGraphStop(_auGraph);
+		err = AUGraphStop([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
 	
 	Boolean graphIsInitialized = NO;	
-	err = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	err = AUGraphIsInitialized([self auGraph], &graphIsInitialized);
 	if(noErr != err)
 		return err;
 	
 	if(graphIsInitialized) {
-		err = AUGraphUninitialize(_auGraph);
+		err = AUGraphUninitialize([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
 	
-	err = AUGraphClose(_auGraph);
+	err = AUGraphClose([self auGraph]);
 	if(noErr != err)
 		return err;
 	
-	err = DisposeAUGraph(_auGraph);
+	err = DisposeAUGraph([self auGraph]);
 	if(noErr != err)
 		return err;
 	
@@ -837,11 +826,38 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	return noErr;
 }
 
+- (OSStatus) resetAUGraph
+{
+	UInt32 nodeCount;
+	OSStatus err = AUGraphGetNodeCount([self auGraph], &nodeCount);
+	if(noErr != err)
+		return err;
+	
+	UInt32 i;
+	for(i = 0; i < nodeCount; ++i) {
+		AUNode node;
+		err = AUGraphGetIndNode([self auGraph], i, &node);
+		if(noErr != err)
+			return err;
+		
+		AudioUnit au;
+		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		if(noErr != err)
+			return err;
+		
+		err = AudioUnitReset(au, kAudioUnitScope_Global, 0);
+		if(noErr != err)
+			return err;
+	}
+	
+	return noErr;
+}
+
 - (void) saveEffects
 {
 	// Save the effects
 	UInt32 connectionCount;
-	OSStatus err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	OSStatus err = AUGraphGetNumberOfConnections([self auGraph], &connectionCount);
 	if(noErr != err)
 		return;
 	
@@ -860,7 +876,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		
 		ComponentDescription desc;
 		CFPropertyListRef classData;
-		err = AUGraphGetNodeInfo(_auGraph, node, &desc, NULL, (void **)&classData, NULL);
+		err = AUGraphGetNodeInfo([self auGraph], node, &desc, NULL, (void **)&classData, NULL);
 		if(noErr != err)
 			return;
 		
@@ -896,31 +912,31 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	// If the graph is running, stop it
 	Boolean graphIsRunning = NO;
-	OSStatus err = AUGraphIsRunning(_auGraph, &graphIsRunning);
+	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
 	if(noErr != err)
 		return err;
 	
 	if(graphIsRunning) {
-		err = AUGraphStop(_auGraph);
+		err = AUGraphStop([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
 	
 	// If the graph is initialized, uninitialize it
 	Boolean graphIsInitialized = NO;
-	err = AUGraphIsInitialized(_auGraph, &graphIsInitialized);
+	err = AUGraphIsInitialized([self auGraph], &graphIsInitialized);
 	if(noErr != err)
 		return err;
 	
 	if(graphIsInitialized) {
-		err = AUGraphUninitialize(_auGraph);
+		err = AUGraphUninitialize([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
 	
 	// Save the connection information and then disconnect all the connections
 	UInt32 connectionCount;
-	err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	err = AUGraphGetNumberOfConnections([self auGraph], &connectionCount);
 	if(noErr != err)
 		return err;
 	
@@ -930,7 +946,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	unsigned i;
 	for(i = 0; i < connectionCount; ++i) {
-		err = AUGraphGetConnectionInfo(_auGraph, i,
+		err = AUGraphGetConnectionInfo([self auGraph], i,
 									   &connections[i].sourceNode, &connections[i].sourceOutputNumber,
 									   &connections[i].destNode, &connections[i].destInputNumber);
 		if(noErr != err) {
@@ -939,7 +955,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		}
 	}
 	
-	err = AUGraphClearConnections(_auGraph);
+	err = AUGraphClearConnections([self auGraph]);
 	if(noErr != err) {
 		free(connections);
 		return err;
@@ -960,7 +976,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	// Restore the graph's connections
 	for(i = 0; i < connectionCount; ++i) {
-		err = AUGraphConnectNodeInput(_auGraph, 
+		err = AUGraphConnectNodeInput([self auGraph], 
 									  connections[i].sourceNode, connections[i].sourceOutputNumber,
 									  connections[i].destNode, connections[i].destInputNumber);
 		if(noErr != err) {
@@ -974,14 +990,14 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	// If the graph was initialized, reinitialize it
 	if(graphIsInitialized) {
-		err = AUGraphInitialize(_auGraph);
+		err = AUGraphInitialize([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
 	
 	// If the graph was running, restart it
 	if(graphIsRunning) {
-		err = AUGraphStart(_auGraph);
+		err = AUGraphStart([self auGraph]);
 		if(noErr != err)
 			return err;
 	}
@@ -1019,7 +1035,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	NSParameterAssert(0 < propertyDataSize);
 	
 	UInt32 nodeCount;
-	OSStatus err = AUGraphGetNodeCount(_auGraph, &nodeCount);
+	OSStatus err = AUGraphGetNodeCount([self auGraph], &nodeCount);
 	if(noErr != err)
 		return err;
 
@@ -1128,7 +1144,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 {
 	// Save the effects
 	UInt32 connectionCount;
-	OSStatus err = AUGraphGetNumberOfConnections(_auGraph, &connectionCount);
+	OSStatus err = AUGraphGetNumberOfConnections([self auGraph], &connectionCount);
 	if(noErr != err)
 		return nil;
 	
@@ -1149,7 +1165,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		CFPropertyListRef		classData;
 		AudioUnit				au;
 		
-		err = AUGraphGetNodeInfo(_auGraph, node, &desc, NULL, (void **)&classData, &au);
+		err = AUGraphGetNodeInfo([self auGraph], node, &desc, NULL, (void **)&classData, &au);
 		if(noErr != err)
 			continue;
 		
@@ -1552,6 +1568,11 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 {
 	if(NO == [[self scheduler] isScheduling] || NO == [self isPlaying])
 		return;
+
+/*	Float32 averageCPULoad;
+	OSStatus err = AUGraphGetCPULoad([self auGraph], &averageCPULoad);
+	if(noErr == err)
+		NSLog(@"Average CPU load = %f", averageCPULoad);*/
 	
 	// Determine the last sample that was rendered
 	AudioTimeStamp timeStamp = [[self scheduler] currentPlayTime];
