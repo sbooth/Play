@@ -207,7 +207,7 @@ void deallocate_slice_buffer(ScheduledAudioSlice **sliceBuffer);
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%qi / %qi", [self framesRendered], [self framesScheduled]];
+	return [NSString stringWithFormat:@"%@ (%qi, %qi)", [self decoder], [self framesRendered], [self framesScheduled]];
 }
 
 @end
