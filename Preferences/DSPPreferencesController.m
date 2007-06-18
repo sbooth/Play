@@ -60,7 +60,7 @@
 		while((auDictionary = [enumerator nextObject])) {
 			NSMenuItem *menuItem = [[NSMenuItem alloc] init];
 			[menuItem setTitle:[auDictionary valueForKey:AUNameStringKey]];
-			[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
+//			[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
 			[menuItem setToolTip:[auDictionary valueForKey:AUInformationStringKey]];
 			[menuItem setRepresentedObject:auDictionary];
 			[menuItem setTarget:self];
@@ -85,7 +85,7 @@
 			while((auDictionary = [enumerator nextObject])) {
 				NSMenuItem *menuItem = [[NSMenuItem alloc] init];
 				[menuItem setTitle:[auDictionary valueForKey:AUNameStringKey]];
-				[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
+//				[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
 				[menuItem setToolTip:[auDictionary valueForKey:AUInformationStringKey]];
 				[menuItem setRepresentedObject:auDictionary];
 				[menuItem setTarget:self];
