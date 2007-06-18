@@ -23,6 +23,14 @@
 #import "AudioScrobblerClient.h"
 #import "AudioStream.h"
 
+// ========================================
+// Symbolic Constants
+// ========================================
+NSString * const	AudioScrobblerRunLoopMode			= @"org.sbooth.Play.AudioScrobbler.RunLoopMode";
+
+// ========================================
+// Helpers
+// ========================================
 static NSString * 
 escapeForLastFM(NSString *string)
 {
@@ -63,9 +71,8 @@ escapeForLastFM(NSString *string)
 
 		_pluginID = @"pla";
 
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"]) {
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallyLaunchLastFM"])
 			[[NSWorkspace sharedWorkspace] launchApplication:@"Last.fm.app"];
-		}
 		
 		_keepProcessingAudioScrobblerCommands = YES;
 
@@ -85,9 +92,8 @@ escapeForLastFM(NSString *string)
 
 - (void) dealloc
 {
-	if([self keepProcessingAudioScrobblerCommands] || NO == [self audioScrobblerThreadCompleted]) {
+	if([self keepProcessingAudioScrobblerCommands] || NO == [self audioScrobblerThreadCompleted])
 		[self shutdown];
-	}
 	
 	[_queue release], _queue = nil;
 	
@@ -130,9 +136,8 @@ escapeForLastFM(NSString *string)
 	semaphore_signal([self semaphore]);
 
 	// Wait for the thread to terminate
-	while(NO == [self audioScrobblerThreadCompleted]) {
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
-	}
+	while(NO == [self audioScrobblerThreadCompleted])
+		[[NSRunLoop currentRunLoop] runMode:AudioScrobblerRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
 }
 
 @end
@@ -141,9 +146,8 @@ escapeForLastFM(NSString *string)
 
 - (NSMutableArray *) queue
 {
-	if(nil == _queue) {
+	if(nil == _queue)
 		_queue = [[NSMutableArray alloc] init];
-	}
 	
 	return _queue;
 }
@@ -200,7 +204,6 @@ escapeForLastFM(NSString *string)
 
 		// Get the first command to be sent
 		@synchronized([myself queue]) {
-			
 			enumerator	= [[myself queue] objectEnumerator];
 			command		= [[enumerator nextObject] retain];
 		
@@ -215,9 +218,8 @@ escapeForLastFM(NSString *string)
 					[command release];
 					
 					response = [client receive];
-					if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
+					if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)])
 						NSLog(@"AudioScrobbler error: %@", response);
-					}
 					
 					[client shutdown];
 				}
@@ -239,9 +241,8 @@ escapeForLastFM(NSString *string)
 			[client send:[NSString stringWithFormat:@"STOP c=%@\n", [myself pluginID]]];
 			
 			response = [client receive];
-			if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)]) {
+			if(2 > [response length] || NSOrderedSame != [response compare:@"OK" options:NSLiteralSearch range:NSMakeRange(0,2)])
 				NSLog(@"AudioScrobbler error: %@", response);
-			}
 			
 			[client shutdown];
 		}
@@ -252,9 +253,9 @@ escapeForLastFM(NSString *string)
 	}
 	
 	[client release];
-	[pool release];
-
 	[myself setAudioScrobblerThreadCompleted:YES];
+	
+	[pool release];
 }
 
 @end
