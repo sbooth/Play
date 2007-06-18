@@ -89,7 +89,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 
 #if DEBUG
 	if(kScheduledAudioSliceFlag_BeganToRenderLate & slice->mFlags)
-		printf("AudioScheduler error: kScheduledAudioSliceFlag_BeganToRenderLate (starting sample %qi)\n", (SInt64)slice->mTimeStamp.mSampleTime);
+		NSLog(@"AudioScheduler error: kScheduledAudioSliceFlag_BeganToRenderLate (starting sample %qi)", (SInt64)slice->mTimeStamp.mSampleTime);
 #endif
 
 	// Determine if this render represents a  new region
@@ -97,7 +97,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 
 		// Update the scheduler
 		[scheduler setRegionBeingRendered:[scheduler regionBeingScheduled]];
-		
+
 		// Notify the delegate
 		if(nil != [scheduler delegate] && [[scheduler delegate] respondsToSelector:@selector(audioSchedulerStartedRenderingRegion:)])
 			[[scheduler delegate] performSelectorOnMainThread:@selector(audioSchedulerStartedRenderingRegion:)
@@ -108,7 +108,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	// Record the number of frames rendered
 //	if(kScheduledAudioSliceFlag_BeganToRender & slice->mFlags)
 		[scheduler renderedAdditionalFrames:slice->mNumberFrames];
-		
+
 	// Signal the scheduling thread that a slice is available for filling
 	semaphore_signal([scheduler semaphore]);
 
@@ -148,6 +148,7 @@ allocate_slice_for_asbd(const AudioStreamBasicDescription *asbd, ScheduledAudioS
 		slice->mBufferList->mBuffers[i].mData = calloc(FRAMES_PER_SLICE, sizeof(float));
 		NSCAssert(NULL != slice->mBufferList->mBuffers[i].mData, @"Unable to allocate memory");
 		slice->mBufferList->mBuffers[i].mDataByteSize = FRAMES_PER_SLICE * sizeof(float);
+		slice->mBufferList->mBuffers[i].mNumberChannels = 1;
 	}
 
 	// Set the complete flag so the scheduler knows this slice can be filled and scheduled
@@ -236,8 +237,8 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 			return nil;
 		}
 		
-		_scheduledStartTime.mSampleTime	= 0;
 		_scheduledStartTime.mFlags		= kAudioTimeStampSampleTimeValid;
+		_scheduledStartTime.mSampleTime	= 0;
 	}
 	return self;
 }
@@ -395,7 +396,6 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 		clear_slice_buffer([[self regionBeingRendered] buffer]);
 }
 
-
 - (void) clear
 {
 	if([self isScheduling])
@@ -509,8 +509,8 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 
 			// If a new region was found, notify the delegate
 			if(nil != [self regionBeingScheduled]) {
-				allFramesScheduled = NO;			
-				
+				allFramesScheduled = NO;
+
 				// Notify the delegate that the scheduling has been started for the current region
 				if(nil != [self delegate] && [[self delegate] respondsToSelector:@selector(audioSchedulerStartedSchedulingRegion:)])
 					[[self delegate] performSelectorOnMainThread:@selector(audioSchedulerStartedSchedulingRegion:)
@@ -551,14 +551,9 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 						break;
 					}
 					
-					// Time stamp for this slice
-					AudioTimeStamp timeStamp;
-					
-					timeStamp.mFlags		= kAudioTimeStampSampleTimeValid;
-					timeStamp.mSampleTime	= [self scheduledStartTime].mSampleTime + [self framesScheduled];
-					
 					// Schedule it
-					slice->mTimeStamp				= timeStamp;
+					slice->mTimeStamp.mFlags		= kAudioTimeStampSampleTimeValid;
+					slice->mTimeStamp.mSampleTime	= [self scheduledStartTime].mSampleTime + [self framesScheduled];
 					slice->mCompletionProc			= scheduledAudioSliceCompletionProc;
 					slice->mCompletionProcUserData	= (void *)self;
 					slice->mFlags					= 0;
@@ -571,13 +566,14 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 															   slice, 
 															   sizeof(ScheduledAudioSlice));
 					if(noErr != err) {
-						NSLog(@"AudioUnitSetProperty failed: %d", err);
+						NSLog(@"AudioScheduler: Unable to schedule audio slice: %i", err);
+						slice->mFlags = kScheduledAudioSliceFlag_Complete;
 						continue;
 					}
-					
-	#if EXTENDED_DEBUG
-					NSLog(@"Scheduling slice %i (%i frames) to start at sample %f", i, frameCount, timeStamp.mSampleTime);
-	#endif
+
+#if EXTENDED_DEBUG
+					NSLog(@"AudioScheduler: Scheduling slice %i (%i frames) to start at sample %qi", i, frameCount, (SInt64)slice->mTimeStamp.mSampleTime);
+#endif
 
 					[self scheduledAdditionalFrames:frameCount];
 				}
