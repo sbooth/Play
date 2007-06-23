@@ -54,6 +54,7 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;
 
+- (IBAction)	convert:(id)sender;
 - (IBAction)	convertWithMax:(id)sender;
 
 - (IBAction)	openWith:(id)sender;

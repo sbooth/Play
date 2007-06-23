@@ -82,6 +82,8 @@
 		return [_streamController canRemove];
 	else if([menuItem action] == @selector(insertPlaylistWithSelection:))
 		return (/*[_browserController canInsert] && */0 != [[_streamController selectedObjects] count]);
+	else if([menuItem action] == @selector(convert:))
+		return (1 == [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(convertWithMax:))
 		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(revealInFinder:)
@@ -369,6 +371,14 @@
 	while((stream = [enumerator nextObject])) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
+	}
+}
+
+- (IBAction) convert:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
 	}
 }
 
