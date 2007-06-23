@@ -28,8 +28,6 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
 
-#define kAUPeakLimiterParameter_PreGain 2
-
 // ========================================
 // Utility functions
 // ========================================
@@ -90,6 +88,8 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (OSStatus) setupAUGraph;
 - (OSStatus) teardownAUGraph;
 - (OSStatus) resetAUGraph;
+- (OSStatus) getAUGraphLatency:(Float64 *)graphLatency;
+- (OSStatus) getAUGraphTailTime:(Float64 *)graphTailTime;
 - (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format;
 - (OSStatus) setAUGraphChannelLayout:(AudioChannelLayout)channelLayout;
 - (OSStatus) setPropertyOnAUGraphNodes:(AudioUnitPropertyID)propertyID data:(const void *)propertyData dataSize:(UInt32)propertyDataSize;
@@ -562,11 +562,11 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 - (void) setCurrentFrame:(SInt64)currentFrame
 {
 //	NSParameterAssert(0 <= currentFrame && currentFrame < [self totalFrames]);
-	if(0 > currentFrame)
+/*	if(0 > currentFrame)
 		currentFrame = 0;
 	else if([self totalFrames] <= currentFrame)
-		currentFrame = [self totalFrames ] - 1;
-	
+		currentFrame = [self totalFrames ] - 1;*/
+
 	BOOL resume = NO;
 	
 	if([self isPlaying]) {
@@ -578,9 +578,32 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[[self scheduler] reset];
 	}
 	
+	OSStatus err = [self resetAUGraph];
+	if(noErr != err)
+		NSLog(@"AudioPlayer error: Unable to reset AUGraph AudioUnits: %i", err);
+
+	Float64 graphLatency;
+	err = [self getAUGraphLatency:&graphLatency];
+	if(noErr != err)
+		NSLog(@"AudioPlayer error: Unable to determine AUGraph latency: %i", err);
+	
+	UInt32 graphLatencyFrames = graphLatency * [self format].mSampleRate;
+
+	currentFrame -= graphLatencyFrames;
+		
+	if(0 > currentFrame)
+		currentFrame = 0;
+	else if([self totalFrames] <= currentFrame)
+		currentFrame = [self totalFrames ] - 1;
+	
 	[self setStartingFrame:[[[self scheduler] regionBeingScheduled] seekToFrame:currentFrame + _regionStartingFrame]];
 	[self setPlayingFrame:0];
 
+	AudioTimeStamp timeStamp = [[self scheduler] scheduledStartTime];
+	timeStamp.mSampleTime -= graphLatencyFrames;
+	
+	[[self scheduler] setScheduledStartTime:timeStamp];
+	
 #if DEBUG
 	if([self startingFrame] != currentFrame)
 		NSLog(@"Seek failed: requested frame %qi, got %qi", currentFrame, [self startingFrame]);
@@ -853,6 +876,76 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	return noErr;
 }
 
+- (OSStatus) getAUGraphLatency:(Float64 *)graphLatency
+{
+	NSParameterAssert(NULL != graphLatency);
+	
+	*graphLatency = 0;
+	
+	UInt32 nodeCount;
+	OSStatus err = AUGraphGetNodeCount([self auGraph], &nodeCount);
+	if(noErr != err)
+		return err;
+	
+	UInt32 i;
+	for(i = 0; i < nodeCount; ++i) {
+		AUNode node;
+		err = AUGraphGetIndNode([self auGraph], i, &node);
+		if(noErr != err)
+			return err;
+		
+		AudioUnit au;
+		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		if(noErr != err)
+			return err;
+		
+		Float64 latency;
+		UInt32 dataSize = sizeof(latency);
+		err = AudioUnitGetProperty(au, kAudioUnitProperty_Latency, kAudioUnitScope_Global, 0, &latency, &dataSize);
+		if(noErr != err)
+			return err;
+		
+		*graphLatency += latency;
+	}
+	
+	return noErr;
+}
+
+- (OSStatus) getAUGraphTailTime:(Float64 *)graphTailTime
+{
+	NSParameterAssert(NULL != graphTailTime);
+	
+	*graphTailTime = 0;
+	
+	UInt32 nodeCount;
+	OSStatus err = AUGraphGetNodeCount([self auGraph], &nodeCount);
+	if(noErr != err)
+		return err;
+	
+	UInt32 i;
+	for(i = 0; i < nodeCount; ++i) {
+		AUNode node;
+		err = AUGraphGetIndNode([self auGraph], i, &node);
+		if(noErr != err)
+			return err;
+		
+		AudioUnit au;
+		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		if(noErr != err)
+			return err;
+		
+		Float64 tailTime;
+		UInt32 dataSize = sizeof(tailTime);
+		err = AudioUnitGetProperty(au, kAudioUnitProperty_TailTime, kAudioUnitScope_Global, 0, &tailTime, &dataSize);
+		if(noErr != err)
+			return err;
+		
+		*graphTailTime += tailTime;
+	}
+	
+	return noErr;
+}
+
 - (void) saveEffects
 {
 	// Save the effects
@@ -1024,8 +1117,8 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			NSLog(@"AudioPlayer error: Unable to restore AUGraph channel layout: %i", newErr);
 		
 		return err;
-	}*/
-	
+	}
+	*/
 	return noErr;
 }
 
@@ -1072,6 +1165,14 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			
 			unsigned j;
 			for(j = 0; j < elementCount; ++j) {
+/*				Boolean writable;
+				err = AudioUnitGetPropertyInfo(au, propertyID, kAudioUnitScope_Input, j, &dataSize, &writable);
+				if(noErr != err && kAudioUnitErr_InvalidProperty != err)
+					return err;
+				
+				if(kAudioUnitErr_InvalidProperty == err || !writable)
+					continue;*/
+				
 				err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Input, j, propertyData, propertyDataSize);
 				if(noErr != err)
 					return err;
@@ -1084,6 +1185,14 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 				return err;
 			
 			for(j = 0; j < elementCount; ++j) {
+/*				Boolean writable;
+				err = AudioUnitGetPropertyInfo(au, propertyID, kAudioUnitScope_Output, j, &dataSize, &writable);
+				if(noErr != err && kAudioUnitErr_InvalidProperty != err)
+					return err;
+				
+				if(kAudioUnitErr_InvalidProperty == err || !writable)
+					continue;*/
+				
 				err = AudioUnitSetProperty(au, propertyID, kAudioUnitScope_Output, j, propertyData, propertyDataSize);
 				if(noErr != err)
 					return err;
@@ -1701,7 +1810,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	AudioUnitParameter auParameter;
 	
 	auParameter.mAudioUnit		= _limiterUnit;
-	auParameter.mParameterID	= kAUPeakLimiterParameter_PreGain;
+	auParameter.mParameterID	= kLimiterParam_PreGain;
 	auParameter.mScope			= kAudioUnitScope_Global;
 	auParameter.mElement		= 0;
 	
