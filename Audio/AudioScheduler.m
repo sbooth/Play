@@ -394,6 +394,9 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 		clear_slice_buffer([[self regionBeingScheduled] buffer]);
 	if(nil != [self regionBeingRendered])
 		clear_slice_buffer([[self regionBeingRendered] buffer]);
+	
+	_scheduledStartTime.mFlags			= kAudioTimeStampSampleTimeValid;
+	_scheduledStartTime.mSampleTime		= 0;
 }
 
 - (void) clear
