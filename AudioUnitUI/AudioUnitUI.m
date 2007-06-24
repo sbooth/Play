@@ -21,6 +21,9 @@
 #import "AudioUnitUI.h"
 #import "SaveAUPresetSheet.h"
 
+#include <CoreAudioKit/CoreAudioKit.h>
+#include <AudioUnit/AUCocoaUIView.h>
+
 // ========================================
 // Toolbar item identifiers
 // ========================================
@@ -51,6 +54,8 @@ static NSString * const ImportPresetToolbarItemIdentifier				= @"org.sbooth.Play
 - (void) updateBypassEffectToolbarItem;
 - (void) startListeningForParameterChangesOnAudioUnit:(AudioUnit)audioUnit;
 - (void) stopListeningForParameterChangesOnAudioUnit:(AudioUnit)audioUnit;
+- (BOOL) hasCocoaView;
+- (NSView *) getCocoaView;
 @end
 
 // ========================================
@@ -149,32 +154,36 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	if(NULL != _audioUnit)
 		[self stopListeningForParameterChangesOnAudioUnit:_audioUnit];
-//	[[self window] setContentView:nil];
 
 	// Update the AU
 	_audioUnit = audioUnit;
 
-	// Create the new AUGenericView and resize appropriately
-	[_auView release];
-	_auView = [[AUGenericView alloc] initWithAudioUnit:audioUnit
-										  displayFlags:(AUViewTitleDisplayFlag | AUViewPropertiesDisplayFlag | AUViewParametersDisplayFlag)];
-//	[_auView setShowsExpertParameters:YES];
-	
+	[[self window] setContentView:nil];
+	[_auView release], _auView = nil;
+
+	// Determine if there is a Cocoa view for this AU
+	if([self hasCocoaView])
+		_auView = [[self getCocoaView] retain];
+	else
+		_auView = [[AUGenericView alloc] initWithAudioUnit:audioUnit
+											  displayFlags:(AUViewTitleDisplayFlag | AUViewPropertiesDisplayFlag | AUViewParametersDisplayFlag)];
+	//	[_auView setShowsExpertParameters:YES];
+
 	NSRect oldFrameRect = [[self window] frame];
 	NSRect newFrameRect = [[self window] frameRectForContentRect:[_auView frame]];
 	
 	newFrameRect.origin.x = oldFrameRect.origin.x + (oldFrameRect.size.width - newFrameRect.size.width);
 	newFrameRect.origin.y = oldFrameRect.origin.y + (oldFrameRect.size.height - newFrameRect.size.height);
 	
-	[[self window] setContentView:_auView];
 	[[self window] setFrame:newFrameRect display:YES];
-
+	[[self window] setContentView:_auView];
+	
 	// Register for notifications and AUEvents for the new AudioUnit
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(auViewFrameDidChange:) 
 												 name:NSViewFrameDidChangeNotification 
 											   object:_auView];
-
+	
 	[self startListeningForParameterChangesOnAudioUnit:_audioUnit];
 
 	// Scan the presets for the new AudioUnit
@@ -760,6 +769,71 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	err = AUEventListenerRemoveEventType(_auEventListener, NULL, &propertyEvent);	
 	if(noErr != err)
 		NSLog(@"Unable to remove AUEventListenerEvent");	
+}
+
+- (BOOL) hasCocoaView
+{
+	UInt32 dataSize = 0;
+	Boolean writable = 0;
+	
+	ComponentResult err = AudioUnitGetPropertyInfo([self audioUnit],
+												   kAudioUnitProperty_CocoaUI, 
+												   kAudioUnitScope_Global,
+												   0, 
+												   &dataSize, 
+												   &writable);
+
+	return (0 < dataSize && noErr == err);
+}
+
+- (NSView *) getCocoaView
+{
+	NSView *theView = nil;
+	UInt32 dataSize = 0;
+	Boolean writable = 0;
+
+	ComponentResult err = AudioUnitGetPropertyInfo([self audioUnit],
+												   kAudioUnitProperty_CocoaUI, 
+												   kAudioUnitScope_Global, 
+												   0,
+												   &dataSize,
+												   &writable);
+
+	if(noErr != err)
+		return nil;
+
+	// If we have the property, then allocate storage for it.
+	AudioUnitCocoaViewInfo *cocoaViewInfo = (AudioUnitCocoaViewInfo*) malloc(dataSize);
+	err = AudioUnitGetProperty([self audioUnit], 
+							   kAudioUnitProperty_CocoaUI, 
+							   kAudioUnitScope_Global, 
+							   0, 
+							   cocoaViewInfo, 
+							   &dataSize);
+
+	// Extract useful data.
+	unsigned	numberOfClasses		= (dataSize - sizeof(CFURLRef)) / sizeof(CFStringRef);
+	NSString	*viewClassName		= (NSString *)(cocoaViewInfo->mCocoaAUViewClass[0]);
+	NSString	*path				= (NSString *)(CFURLCopyPath(cocoaViewInfo->mCocoaAUViewBundleLocation));
+	NSBundle	*viewBundle			= [NSBundle bundleWithPath:[path autorelease]];
+	Class		viewClass			= [viewBundle classNamed:viewClassName];
+
+	if([viewClass conformsToProtocol:@protocol(AUCocoaUIBase)]) {
+		id factory = [[[viewClass alloc] init] autorelease];
+		theView = [factory uiViewForAudioUnit:[self audioUnit] withSize:NSZeroSize];
+	}
+
+	// Delete the cocoa view info stuff.
+	if(cocoaViewInfo) {
+		unsigned i;
+		for(i = 0; i < numberOfClasses; ++i)
+			CFRelease(cocoaViewInfo->mCocoaAUViewClass[i]);
+
+		CFRelease(cocoaViewInfo->mCocoaAUViewBundleLocation);
+		free(cocoaViewInfo);
+	}
+
+	return theView;
 }
 
 @end

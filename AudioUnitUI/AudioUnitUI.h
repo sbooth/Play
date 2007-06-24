@@ -20,7 +20,6 @@
 
 #import <Cocoa/Cocoa.h>
 #include <AudioToolbox/AudioToolbox.h>
-#include <CoreAudioKit/CoreAudioKit.h>
 
 @interface AudioUnitUI : NSWindowController
 {
@@ -35,7 +34,7 @@
 	
 	NSString *_auPresentPresetName;
 	
-	AUGenericView *_auView;
+	NSView *_auView;
 	NSMutableArray *_presetsTree;
 }
 
