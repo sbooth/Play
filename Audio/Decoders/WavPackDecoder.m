@@ -23,20 +23,20 @@
 
 @implementation WavPackDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
+	if((self = [super initWithURL:url error:error])) {
 		char errorBuf [80];
 		
 		// Setup converter
-		_wpc = WavpackOpenFileInput([[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation], errorBuf, OPEN_NORMALIZE, 0);
+		_wpc = WavpackOpenFileInput([[[self URL] path] fileSystemRepresentation], errorBuf, OPEN_NORMALIZE, 0);
 		if(NULL == _wpc) {
 			if(nil != error) {
 				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 				
-				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be found.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:[[[self stream] valueForKey:StreamURLKey] path]]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be found.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:[[self URL] path]]] forKey:NSLocalizedDescriptionKey];
 				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Not Found", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
 				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file may have been renamed or deleted, or exist on removable media.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
 				
@@ -50,6 +50,18 @@
 		
 		_format.mSampleRate			= WavpackGetSampleRate(_wpc);
 		_format.mChannelsPerFrame	= WavpackGetNumChannels(_wpc);
+		
+		// The source's PCM format
+		_sourceFormat.mFormatID				= kAudioFormatLinearPCM;
+		_sourceFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagsNativeEndian;
+		
+		_sourceFormat.mSampleRate			= WavpackGetSampleRate(_wpc);
+		_sourceFormat.mChannelsPerFrame		= WavpackGetNumChannels(_wpc);
+		_sourceFormat.mBitsPerChannel		= WavpackGetBitsPerSample(_wpc);
+		
+		_sourceFormat.mBytesPerPacket		= ((_sourceFormat.mBitsPerChannel + 7) / 8) * _sourceFormat.mChannelsPerFrame;
+		_sourceFormat.mFramesPerPacket		= 1;
+		_sourceFormat.mBytesPerFrame		= _sourceFormat.mBytesPerPacket * _sourceFormat.mFramesPerPacket;		
 		
 		_totalFrames = WavpackGetNumSamples(_wpc);
 		

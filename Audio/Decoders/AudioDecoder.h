@@ -33,24 +33,24 @@ enum {
 	AudioDecoderInputOutputError				= 3
 };
 
-@class AudioStream;
-
 // A decoder reads audio data in some format and provides it as 32-bit float non-interleaved PCM
 @interface AudioDecoder : NSObject
 {
-	AudioStream						*_stream;			// The stream to be decoded
+	NSURL							*_url;				// The location of the stream to be decoded
 	
 	AudioStreamBasicDescription		_format;			// The type of PCM data provided by this decoder
 	AudioChannelLayout				_channelLayout;		// The channel layout for the PCM data	
+
+	AudioStreamBasicDescription		_sourceFormat;		// The native (PCM) format of the source file
 }
 
-+ (AudioDecoder *) audioDecoderForStream:(AudioStream *)stream error:(NSError **)error;
++ (AudioDecoder *) audioDecoderForURL:(NSURL *)url error:(NSError **)error;
 
 // Designated initializer
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error;
+- (id) initWithURL:(NSURL *)url error:(NSError **)error;
 
 // The stream this decoder will process
-- (AudioStream *) stream;
+- (NSURL *) URL;
 
 // The type of PCM data provided by this AudioDecoder
 - (AudioStreamBasicDescription) format;
@@ -63,6 +63,10 @@ enum {
 // Attempt to read frameCount frames of audio, returning the actual number of frames read
 - (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 
+// The native (PCM) format of the source file
+- (AudioStreamBasicDescription) sourceFormat;
+- (NSString *) sourceFormatDescription;
+
 // ========================================
 // Input audio information
 // ========================================
@@ -72,12 +76,5 @@ enum {
 
 - (BOOL) supportsSeeking;
 - (SInt64) seekToFrame:(SInt64)frame;
-
-// ========================================
-// Subclasses must implement these methods!
-// ========================================
-
-// The format of audio data contained in the raw stream at _url
-- (NSString *) sourceFormatDescription;
 
 @end

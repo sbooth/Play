@@ -85,15 +85,15 @@ audio_linear_round(unsigned int bits,
 
 @implementation MPEGDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
+	if((self = [super initWithURL:url error:error])) {
 		_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
 		NSAssert(NULL != _inputBuffer, @"Unable to allocate memory");
 		
-		_fd = open([[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation], O_RDONLY);
+		_fd = open([[[self URL] path] fileSystemRepresentation], O_RDONLY);
 		if(-1 == _fd) {
 			if(nil != error) {
 				
@@ -112,6 +112,18 @@ audio_linear_round(unsigned int bits,
 			[self release];
 			return nil;
 		}
+		
+		// The source's PCM format
+		_sourceFormat.mFormatID				= kAudioFormatLinearPCM;
+		_sourceFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagsNativeEndian;
+		
+		_sourceFormat.mSampleRate			= _format.mSampleRate;
+		_sourceFormat.mChannelsPerFrame		= _format.mChannelsPerFrame;
+		_sourceFormat.mBitsPerChannel		= 16;
+		
+		_sourceFormat.mBytesPerPacket		= ((_sourceFormat.mBitsPerChannel + 7) / 8) * _sourceFormat.mChannelsPerFrame;
+		_sourceFormat.mFramesPerPacket		= 1;
+		_sourceFormat.mBytesPerFrame		= _sourceFormat.mBytesPerPacket * _sourceFormat.mFramesPerPacket;		
 		
 		// Allocate the buffer list
 		_bufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (_format.mChannelsPerFrame - 1)), 1);

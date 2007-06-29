@@ -24,15 +24,15 @@
 
 @implementation CoreAudioDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
+	if((self = [super initWithURL:url error:error])) {
 		
 		// Open the input file
 		FSRef ref;
-		NSString *path = [[stream valueForKey:StreamURLKey] path];
+		NSString *path = [[self URL] path];
 		
 		OSStatus result = FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, NULL);
 		if(noErr != result) {
@@ -69,14 +69,13 @@
 		}
 		
 		// Query file format
-		AudioStreamBasicDescription asbd;
-		UInt32 dataSize = sizeof(asbd);
-		result = ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileDataFormat, &dataSize, &asbd);
+		UInt32 dataSize = sizeof(_sourceFormat);
+		result = ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileDataFormat, &dataSize, &_sourceFormat);
 		NSAssert1(noErr == result, @"AudioFileGetProperty failed: %@", UTCreateStringForOSType(result));
-		
+				
 		// Tell the ExtAudioFile the format in which we'd like our data
-		_format.mSampleRate			= asbd.mSampleRate;
-		_format.mChannelsPerFrame	= asbd.mChannelsPerFrame;
+		_format.mSampleRate			= _sourceFormat.mSampleRate;
+		_format.mChannelsPerFrame	= _sourceFormat.mChannelsPerFrame;
 		
 		result = ExtAudioFileSetProperty(_extAudioFile, kExtAudioFileProperty_ClientDataFormat, sizeof(_format), &_format);
 		NSAssert1(noErr == result, @"ExtAudioFileSetProperty failed: %@", UTCreateStringForOSType(result));
@@ -151,25 +150,6 @@
 		NSLog(@"Error reading from ExtAudioFile: %i",result);
 	
 	return frameCount;
-}
-
-- (NSString *) sourceFormatDescription
-{
-	AudioStreamBasicDescription asbd;
-	UInt32 specifierSize = sizeof(asbd);
-	
-	OSStatus err = ExtAudioFileGetProperty(_extAudioFile, kExtAudioFileProperty_FileDataFormat, &specifierSize, &asbd);
-	if(noErr != err)
-		return nil;
-	
-	NSString *fileFormat = nil;
-	specifierSize = sizeof(fileFormat);
-
-	err = AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(asbd), &asbd, &specifierSize, &fileFormat);
-	if(noErr != err)
-		return nil;	
-	
-	return [fileFormat autorelease];
 }
 
 @end

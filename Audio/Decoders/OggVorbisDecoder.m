@@ -23,12 +23,12 @@
 
 @implementation OggVorbisDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
-		FILE *file = fopen([[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation], "r");
+	if((self = [super initWithURL:url error:error])) {
+		FILE *file = fopen([[[self URL] path] fileSystemRepresentation], "r");
 		NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
 		
 		int result = ov_test(file, &_vf, NULL, 0);

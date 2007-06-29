@@ -78,18 +78,18 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 
 @implementation FLACDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
+	if((self = [super initWithURL:url error:error])) {
 		// Create FLAC decoder
 		_flac = FLAC__stream_decoder_new();
 		NSAssert(NULL != _flac, NSLocalizedStringFromTable(@"Unable to create the FLAC decoder.", @"Exceptions", @""));
 		
 		// Initialize decoder
 		FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_file(_flac, 
-																			  [[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation],
+																			  [[[self URL] path] fileSystemRepresentation],
 																			  writeCallback, 
 																			  metadataCallback, 
 																			  errorCallback,
@@ -102,6 +102,18 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		
 		_format.mSampleRate			= _streamInfo.sample_rate;
 		_format.mChannelsPerFrame	= _streamInfo.channels;
+		
+		// The source's PCM format
+		_sourceFormat.mFormatID				= kAudioFormatLinearPCM;
+		_sourceFormat.mFormatFlags			= kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked | kAudioFormatFlagsNativeEndian;
+
+		_sourceFormat.mSampleRate			= _streamInfo.sample_rate;
+		_sourceFormat.mChannelsPerFrame		= _streamInfo.channels;
+		_sourceFormat.mBitsPerChannel		= _streamInfo.bits_per_sample;
+
+		_sourceFormat.mBytesPerPacket		= ((_sourceFormat.mBitsPerChannel + 7) / 8) * _sourceFormat.mChannelsPerFrame;
+		_sourceFormat.mFramesPerPacket		= 1;
+		_sourceFormat.mBytesPerFrame		= _sourceFormat.mBytesPerPacket * _sourceFormat.mFramesPerPacket;		
 		
 		switch(_streamInfo.channels) {
 			// TODO: FLAC doesn't have default channel layouts

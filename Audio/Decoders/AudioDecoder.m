@@ -46,12 +46,12 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	[self setKeys:[NSArray arrayWithObjects:@"currentFrame", @"totalFrames", nil] triggerChangeNotificationsForDependentKey:@"framesRemaining"];
 }
 
-+ (AudioDecoder *) audioDecoderForStream:(AudioStream *)stream error:(NSError **)error
++ (AudioDecoder *) audioDecoderForURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
+	NSParameterAssert([url isFileURL]);
 	
 	AudioDecoder		*result				= nil;
-	NSURL				*url				= [stream valueForKey:StreamURLKey];
 	NSString			*path				= [url path];
 	NSString			*pathExtension		= [[path pathExtension] lowercaseString];
 
@@ -82,7 +82,7 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	}
 	
 	if([pathExtension isEqualToString:@"flac"])
-		result = [[FLACDecoder alloc] initWithStream:stream error:error];
+		result = [[FLACDecoder alloc] initWithURL:url error:error];
 	else if([pathExtension isEqualToString:@"ogg"] || [pathExtension isEqualToString:@"oga"]) {
 		OggStreamType type = oggStreamType(url);
 		
@@ -120,22 +120,22 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 		}
 		
 		switch(type) {
-			case kOggStreamTypeVorbis:		result = [[OggVorbisDecoder alloc] initWithStream:stream error:error];				break;
-			case kOggStreamTypeFLAC:		result = [[OggFLACDecoder alloc] initWithStream:stream error:error];				break;
-//			case kOggStreamTypeSpeex:		result = [[AudioDecoder alloc] initWithStream:stream error:error];					break;
+			case kOggStreamTypeVorbis:		result = [[OggVorbisDecoder alloc] initWithURL:url error:error];				break;
+			case kOggStreamTypeFLAC:		result = [[OggFLACDecoder alloc] initWithURL:url error:error];				break;
+//			case kOggStreamTypeSpeex:		result = [[AudioDecoder alloc] initWithURL:url error:error];					break;
 			default:						result = nil;												break;
 		}
 	}
 	else if([pathExtension isEqualToString:@"mpc"])
-		result = [[MusepackDecoder alloc] initWithStream:stream error:error];
+		result = [[MusepackDecoder alloc] initWithURL:url error:error];
 	else if([pathExtension isEqualToString:@"wv"])
-		result = [[WavPackDecoder alloc] initWithStream:stream error:error];
+		result = [[WavPackDecoder alloc] initWithURL:url error:error];
 	else if([pathExtension isEqualToString:@"ape"])
-		result = [[MonkeysAudioDecoder alloc] initWithStream:stream error:error];
+		result = [[MonkeysAudioDecoder alloc] initWithURL:url error:error];
 	else if([pathExtension isEqualToString:@"mp3"])
-		result = [[MPEGDecoder alloc] initWithStream:stream error:error];
+		result = [[MPEGDecoder alloc] initWithURL:url error:error];
 	else if([getCoreAudioExtensions() containsObject:pathExtension])
-		result = [[CoreAudioDecoder alloc] initWithStream:stream error:error];
+		result = [[CoreAudioDecoder alloc] initWithURL:url error:error];
 	else {
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -157,15 +157,15 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 - (id) init
 {
 	// This will fail on purpose
-	return [self initWithStream:nil error:nil];
+	return [self initWithURL:nil error:nil];
 }
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error;
+- (id) initWithURL:(NSURL *)url error:(NSError **)error;
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
 	if((self = [super init])) {
-		_stream = [stream retain];
+		_url = [url retain];
 
 		// Canonical Core Audio format
 		_format.mFormatID			= kAudioFormatLinearPCM;
@@ -182,12 +182,12 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 
 - (void) dealloc
 {
-	[_stream release], _stream = nil;
+	[_url release], _url = nil;
 
 	[super dealloc];
 }
 
-- (AudioStream *)					stream				{ return [[_stream retain] autorelease]; }
+- (NSURL *)							URL					{ return [[_url retain] autorelease]; }
 - (AudioStreamBasicDescription)		format				{ return _format; }
 - (AudioChannelLayout)				channelLayout		{ return _channelLayout; }
 
@@ -241,6 +241,21 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	return frameCount;
 }
 
+- (AudioStreamBasicDescription)		sourceFormat		{ return _sourceFormat; }
+
+- (NSString *) sourceFormatDescription
+{
+	AudioStreamBasicDescription		sourceFormat			= [self sourceFormat];	
+	NSString						*sourceFormatName		= nil;
+	UInt32							sourceFormatNameSize	= sizeof(sourceFormatName);
+	
+	OSStatus err = AudioFormatGetProperty(kAudioFormatProperty_FormatName, sizeof(sourceFormat), &sourceFormat, &sourceFormatNameSize, &sourceFormatName);
+	if(noErr != err)
+		return nil;	
+	
+	return [sourceFormatName autorelease];
+}
+
 - (SInt64)			totalFrames								{ return -1; }
 - (SInt64)			currentFrame							{ return -1; }
 - (SInt64)			framesRemaining 						{ return ([self totalFrames] - [self currentFrame]); }
@@ -248,11 +263,6 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 - (BOOL)			supportsSeeking							{ return NO; }
 - (SInt64)			seekToFrame:(SInt64)frame				{ return -1; }
 
-- (NSString *)		description								{ return [[self stream] description]; }
-
-// ========================================
-// Subclass stubs
-// ========================================
-- (NSString *)		sourceFormatDescription					{ return nil; }
+- (NSString *)		description								{ return [[[self URL] path] lastPathComponent]; }
 
 @end

@@ -30,14 +30,14 @@
 
 @implementation MonkeysAudioDecoder
 
-- (id) initWithStream:(AudioStream *)stream error:(NSError **)error
+- (id) initWithURL:(NSURL *)url error:(NSError **)error
 {
-	NSParameterAssert(nil != stream);
+	NSParameterAssert(nil != url);
 	
-	if((self = [super initWithStream:stream error:error])) {
+	if((self = [super initWithURL:url error:error])) {
 		
 		// Setup converter
-		str_utf16 *chars = GetUTF16FromANSI([[[stream valueForKey:StreamURLKey] path] fileSystemRepresentation]);
+		str_utf16 *chars = GetUTF16FromANSI([[[self URL] path] fileSystemRepresentation]);
 		NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 		
 		int result;
@@ -48,7 +48,11 @@
 		
 		_format.mSampleRate			= SELF_DECOMPRESSOR->GetInfo(APE_INFO_SAMPLE_RATE);
 		_format.mChannelsPerFrame	= SELF_DECOMPRESSOR->GetInfo(APE_INFO_CHANNELS);
-		
+
+		_sourceFormat.mSampleRate			= SELF_DECOMPRESSOR->GetInfo(APE_INFO_SAMPLE_RATE);
+		_sourceFormat.mChannelsPerFrame		= SELF_DECOMPRESSOR->GetInfo(APE_INFO_CHANNELS);
+		_sourceFormat.mBitsPerChannel		= SELF_DECOMPRESSOR->GetInfo(APE_INFO_BITS_PER_SAMPLE);
+
 		_totalFrames = SELF_DECOMPRESSOR->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS);
 		
 		// Setup the channel layout
