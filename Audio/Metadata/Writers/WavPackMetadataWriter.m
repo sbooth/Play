@@ -181,7 +181,7 @@
 		WavpackAppendTagItem(wpc, "REPLAYGAIN_ALBUM_PEAK", [albumPeakString UTF8String], strlen([albumPeakString UTF8String]));
 	}
 	
-	result	= WavpackWriteTag(wpc);
+	result = WavpackWriteTag(wpc);
 
 	if(NO == result) {
 		if(nil != error) {
@@ -200,7 +200,7 @@
 		return NO;
 	}
 	
-	wpc		= WavpackCloseFile(wpc);
+	wpc = WavpackCloseFile(wpc);
 	if(NULL != wpc) {
 		if(nil != error) {
 			NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
