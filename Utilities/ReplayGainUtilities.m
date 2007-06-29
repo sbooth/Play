@@ -71,7 +71,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 		clock_t track_start = clock();
 #endif
 		
-		AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:nil];
+		AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:nil];
 		
 		// Skip this stream if any errors occurred
 		if(nil == decoder)

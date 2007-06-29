@@ -164,6 +164,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (void) streamPlaybackDidComplete;
 - (void) requestNextStream;
 - (BOOL) sentNextStreamRequest;
+- (AudioStream *) nextStream;
 @end
 
 // ========================================
@@ -1827,6 +1828,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (BOOL) sentNextStreamRequest
 {
 	return _sentNextStreamRequest;
+}
+
+- (AudioStream *) nextStream
+{
+	return [self objectInPlayQueueAtIndex:[self nextPlaybackIndex]];
 }
 
 @end

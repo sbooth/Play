@@ -78,6 +78,7 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (void) streamPlaybackDidComplete;
 - (void) requestNextStream;
 - (BOOL) sentNextStreamRequest;
+- (AudioStream *) nextStream;
 @end
 
 // ========================================
@@ -251,10 +252,10 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		NSLog(@"AudioPlayer error: Unable to reset AUGraph AudioUnits: %i", err);
 	
-	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:error];
+	AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:error];
 	if(nil == decoder)
 		return NO;
-	
+
 	AudioStreamBasicDescription		format				= [self format];
 	AudioStreamBasicDescription		newFormat			= [decoder format];
 	
@@ -323,10 +324,10 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(NO == [self isPlaying] || NO == [[self scheduler] isScheduling])
 		return NO;
 
-	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:stream error:error];
+	AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:error];
 	if(nil == decoder)
 		return NO;
-	
+
 	AudioStreamBasicDescription		format				= [self format];
 	AudioStreamBasicDescription		nextFormat			= [decoder format];
 	
@@ -643,7 +644,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 
 #if DEBUG
 	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
-	NSLog(@"-audioSchedulerFinishedSchedulingRegion: %@", [[region decoder] stream]);
+	NSLog(@"-audioSchedulerFinishedSchedulingRegion: %@", region);
 #endif
 
 	// Request the next stream from the library, to keep playback going
@@ -657,7 +658,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
 
 #if DEBUG
-	NSLog(@"-audioSchedulerStartedRenderingRegion: %@", [[region decoder] stream]);
+	NSLog(@"-audioSchedulerStartedRenderingRegion: %@", region);
 #endif
 	
 	[self setTotalFrames:[region totalFrames]];
@@ -683,7 +684,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	ScheduledAudioRegion *region = [schedulerAndRegion valueForKey:ScheduledAudioRegionObjectKey];
 
 #if DEBUG
-	NSLog(@"-audioSchedulerFinishedRenderingRegion: %@", [[region decoder] stream]);
+	NSLog(@"-audioSchedulerFinishedRenderingRegion: %@", region);
 #endif
 	
 	// If nothing is coming up right away, stop ourselves from playing
@@ -704,7 +705,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	// Otherwise set up for the next stream
 	else {
 		_regionStartingFrame += [region framesRendered];
-		[self prepareToPlayStream:[[[[self scheduler] regionBeingScheduled] decoder] stream]];
+		[self prepareToPlayStream:[_owner nextStream]];
 	}
 
 	// If the owner did not successfully send the next stream request, signal the end of the current stream
