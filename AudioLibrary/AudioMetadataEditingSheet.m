@@ -52,7 +52,7 @@
 
 - (NSWindow *) sheet
 {
-	return _sheet;
+	return [[_sheet retain] autorelease];
 }
 
 - (IBAction) ok:(id)sender
