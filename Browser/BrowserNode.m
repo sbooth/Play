@@ -58,9 +58,8 @@
 
 - (id) init
 {
-	if((self = [super init])) {
+	if((self = [super init]))
 		_children = [[NSMutableArray alloc] init];
-	}
 	return self;
 }
 
@@ -96,7 +95,7 @@
 
 - (NSString *) name
 {
-	return _name;
+	return [[_name retain] autorelease];
 }
 
 - (void) setName:(NSString *)name
@@ -112,7 +111,7 @@
 
 - (NSImage *) icon
 {
-	return _icon;
+	return [[_icon retain] autorelease];
 }
 
 - (void) setIcon:(NSImage *)icon
@@ -126,15 +125,14 @@
 - (BrowserNode *) root
 {
 	BrowserNode *node = [self parent];
-	while(nil != node) {
+	while(nil != node)
 		node = [node parent];
-	}
 	return node;
 }
 
 - (BrowserNode *) parent
 {
-	return _parent;
+	return [[_parent retain] autorelease];
 }
 
 - (unsigned) childCount
@@ -178,19 +176,17 @@
 	BrowserNode 	*child 		= nil;
 	BrowserNode 	*match 		= nil;
 	
-	while(match == nil && (child = [enumerator nextObject])) {
-		if([[child name] isEqualToString:name]) {
+	while(nil == match && (child = [enumerator nextObject])) {
+		if([[child name] isEqualToString:name])
 			match = child;
-		}
 	}
 	
 	if(nil == match) {
 		enumerator 	= [_children objectEnumerator];
 		child 		= nil;
 
-		while(match == nil && (child = [enumerator nextObject])) {
+		while(match == nil && (child = [enumerator nextObject]))
 			match = [child findChildNamed:name];
-		}
 	}
 	
 	return match;
@@ -199,18 +195,16 @@
 - (BrowserNode *) nextSibling
 {
 	unsigned myIndex = [[self parent] indexOfChild:self];
-	if(myIndex + 1 < [[self parent] childCount]) {
+	if(myIndex + 1 < [[self parent] childCount])
 		return [[self parent] childAtIndex:myIndex + 1];
-	}
 	return nil;
 }
 
 - (BrowserNode *) previousSibling
 {
 	unsigned myIndex = [[self parent] indexOfChild:self];
-	if(0 < myIndex - 1 > [[self parent] childCount]) {
+	if(0 < myIndex - 1 && myIndex - 1 > [[self parent] childCount])
 		return [[self parent] childAtIndex:myIndex - 1];
-	}
 	return nil;
 }
 
