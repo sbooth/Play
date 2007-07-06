@@ -185,8 +185,11 @@
 		[[NSUserDefaults standardUserDefaults] setObject:objectIDs forKey:@"savedPlayQueueStreams"];
 	}
 	
+	// Save the browser drawer state
+	[[AudioLibrary library] saveBrowserStateToDefaults];
+	
 	// FIXME: When AUEventListener code is working, remove this kludge
-	[[[AudioLibrary library] player] saveEffects];
+	[[[AudioLibrary library] player] saveEffectsToDefaults];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication

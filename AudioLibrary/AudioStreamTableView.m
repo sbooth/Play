@@ -23,9 +23,11 @@
 #import "AudioStream.h"
 #import "Playlist.h"
 #import "AudioLibrary.h"
+#import "AudioDecoder.h"
 
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
+#import "FileConversionSheet.h"
 
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
@@ -37,7 +39,27 @@
 
 #import "CTBadge.h"
 
+#import <AudioToolbox/AudioToolbox.h>
+#import <QuickTime/QuickTime.h>
+
 #define kMaximumStreamsForContextMenuAction 10
+#define BUFFER_LENGTH 4096
+
+#if DEBUG
+static void 
+dumpASBD(const AudioStreamBasicDescription *asbd)
+{
+	NSLog(@"mSampleRate         %f", asbd->mSampleRate);
+	NSLog(@"mFormatID           %.4s", (const char *)(&asbd->mFormatID));
+	NSLog(@"mFormatFlags        %u", asbd->mFormatFlags);
+	NSLog(@"mBytesPerPacket     %u", asbd->mBytesPerPacket);
+	NSLog(@"mFramesPerPacket    %u", asbd->mFramesPerPacket);
+	NSLog(@"mBytesPerFrame      %u", asbd->mBytesPerFrame);
+	NSLog(@"mChannelsPerFrame   %u", asbd->mChannelsPerFrame);
+	NSLog(@"mBitsPerChannel     %u", asbd->mBitsPerChannel);
+	NSLog(@"mReserved           %u", asbd->mReserved);
+}
+#endif
 
 @interface AudioStreamTableView (Private)
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
@@ -80,6 +102,66 @@
 		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
+	else if([menuItem action] == @selector(showTracksWithSameArtist:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *artist = [[_streamController selection] valueForKey:MetadataArtistKey];
+			if(nil == artist)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No artist", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks by %@", @"Menus", @""), artist]];
+			
+			return (nil != artist);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks by this artist", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(showTracksWithSameAlbum:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *albumTitle = [[_streamController selection] valueForKey:MetadataAlbumTitleKey];
+			if(nil == albumTitle)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No album", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks from \"%@\"", @"Menus", @""), albumTitle]];
+
+			return (nil != albumTitle);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks from this album", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(showTracksWithSameComposer:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *composer = [[_streamController selection] valueForKey:MetadataComposerKey];
+			if(nil == composer)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No composer", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks by %@", @"Menus", @""), composer]];
+			
+			return (nil != composer);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks by this composer", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(showTracksWithSameGenre:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *genre = [[_streamController selection] valueForKey:MetadataGenreKey];
+			if(nil == genre)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No genre", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"%@ tracks", @"Menus", @""), genre]];
+				
+			return (nil != genre);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks of this genre", @"Menus", @"")];
+			return NO;
+		}
+	}
 	else if([menuItem action] == @selector(insertPlaylistWithSelection:))
 		return (/*[_browserController canInsert] && */0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(convert:))
@@ -350,6 +432,46 @@
 	[[CollectionManager manager] finishUpdate];
 }
 
+- (IBAction) showTracksWithSameArtist:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+
+	[[AudioLibrary library] browseTracksByArtist:[[_streamController selection] valueForKey:MetadataArtistKey]];
+}
+
+- (IBAction) showTracksWithSameAlbum:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+
+	[[AudioLibrary library] browseTracksByAlbum:[[_streamController selection] valueForKey:MetadataAlbumTitleKey]];
+}
+
+- (IBAction) showTracksWithSameComposer:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] browseTracksByComposer:[[_streamController selection] valueForKey:MetadataComposerKey]];
+}
+
+- (IBAction) showTracksWithSameGenre:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] browseTracksByGenre:[[_streamController selection] valueForKey:MetadataGenreKey]];
+}
+
 - (IBAction) openWithFinder:(id)sender
 {
 	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
@@ -380,6 +502,347 @@
 		NSBeep();
 		return;
 	}
+	
+	FileConversionSheet *fileConversionSheet = [[FileConversionSheet alloc] init];
+
+	[[NSApplication sharedApplication] beginSheet:[fileConversionSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showFileConversionSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:fileConversionSheet];
+#if 0
+	// Create a decoder for the desired stream
+	NSError *error = nil;
+	AudioDecoder *decoder = [AudioDecoder audioDecoderForStream:[_streamController selection] error:&error];
+
+	if(nil == decoder) {
+		if(nil != error)
+			[self presentError:error modalForWindow:[self window] delegate:nil didPresentSelector:NULL contextInfo:NULL];
+		return;
+	}
+	
+	ComponentInstance	component				= 0;
+	AudioConverterRef	myAudioConverter		= NULL;	
+	CFArrayRef			codecSpecificSettings	= NULL;
+	UInt32				magicCookieSize			= 0;
+	void				*magicCookie			= NULL;	
+	UInt32				flags;
+	
+	// open StdAudio (added in QuickTime 7.0)
+	OSErr err = OpenADefaultComponent(StandardCompressionType, 
+									  StandardCompressionSubTypeAudio, 
+									  &component);
+	if(noErr != err)
+		goto bail;
+	
+	AudioStreamBasicDescription		format			= [decoder sourceFormat];
+	AudioChannelLayout				channelLayout	= [decoder channelLayout];
+
+	err = QTSetComponentProperty(component, 
+								 kQTPropertyClass_SCAudio,
+								 kQTSCAudioPropertyID_InputBasicDescription,
+								 sizeof(format), 
+								 &format);
+	if(noErr != err)
+		goto bail;
+
+	err = QTSetComponentProperty(component, 
+								 kQTPropertyClass_SCAudio,
+								 kQTSCAudioPropertyID_InputChannelLayout,
+								 sizeof(channelLayout), 
+								 &channelLayout);
+	if(noErr != err)
+		goto bail;
+
+	// Show the configuration dialog
+	err = SCRequestImageSettings(component);
+	if(noErr != err)
+		goto bail;
+
+	AudioStreamBasicDescription		outputFormat;
+	AudioChannelLayout				*outputChannelLayout = NULL;
+
+	// Get the configuration properties from the dialog
+	err = QTGetComponentPropertyInfo(component,
+									 kQTPropertyClass_SCAudio,
+									 kQTSCAudioPropertyID_BasicDescription,
+									 NULL, 
+									 NULL, 
+									 &flags);
+	   
+   if(noErr == err && (kComponentPropertyFlagCanGetNow & flags)) {	
+	   err = QTGetComponentProperty(component, 
+									kQTPropertyClass_SCAudio,
+									kQTSCAudioPropertyID_BasicDescription,
+									sizeof(outputFormat), 
+									&outputFormat, 
+									NULL);
+	   
+	   if(noErr != err)
+		   goto bail;
+	}
+
+/*   UInt32 propValueSize = 0;
+   err = QTGetComponentPropertyInfo(component,
+									kQTPropertyClass_SCAudio,
+									kQTSCAudioPropertyID_ChannelLayout,
+									NULL, 
+									&propValueSize, 
+									&flags);
+   
+   if(noErr == err && (kComponentPropertyFlagCanGetNow & flags)) {
+	   outputChannelLayout = malloc(propValueSize);
+	   
+	   err = QTGetComponentProperty(component, 
+									kQTPropertyClass_SCAudio,
+									kQTSCAudioPropertyID_ChannelLayout,
+									sizeof(outputChannelLayout), 
+									&outputChannelLayout, 
+									NULL);
+	   
+	   if(noErr != err)
+		   goto bail;
+   }*/
+   
+	// Get the codec specific settings (if available)
+	err = QTGetComponentPropertyInfo(component,
+									 kQTPropertyClass_SCAudio,
+									 kQTSCAudioPropertyID_CodecSpecificSettingsArray,
+									 NULL, 
+									 NULL, 
+									 &flags);
+   
+   if(noErr == err && (kComponentPropertyFlagCanGetNow & flags)) {	
+	   err = QTGetComponentProperty(component,
+									kQTPropertyClass_SCAudio,
+									kQTSCAudioPropertyID_CodecSpecificSettingsArray,
+									sizeof(CFArrayRef), 
+									&codecSpecificSettings, 
+									NULL);
+	   if(noErr != err)
+		   goto bail;
+	}
+	
+	// Get the magic cookie (if available)
+	err = QTGetComponentPropertyInfo(component,
+									 kQTPropertyClass_SCAudio,
+									 kQTSCAudioPropertyID_MagicCookie,
+									 NULL, 
+									 &magicCookieSize, 
+									 NULL);
+
+	if(noErr == err && 0 != magicCookieSize) {
+
+		magicCookie = calloc(1, magicCookieSize);
+		if(NULL == magicCookie) {
+			err = memFullErr; 
+			goto bail;
+		}
+
+		err = QTGetComponentProperty(component,
+									 kQTPropertyClass_SCAudio,
+									 kQTSCAudioPropertyID_MagicCookie,
+									 magicCookieSize, 
+									 magicCookie, 
+									 &magicCookieSize);
+		if(noErr != err)
+			goto bail;
+	}
+
+	// Once we have all the required properties close StdAudio
+	CloseComponent(component), component = 0;
+	
+	// Determine the allowed file types for this ASBD
+	
+	// First, get the writable types
+	UInt32 writableTypeSize;
+	err = AudioFileGetGlobalInfoSize(kAudioFileGlobalInfo_WritableTypes, 0, NULL, &writableTypeSize);
+	
+	UInt32 *writableTypes = malloc(writableTypeSize);
+	
+	UInt32 numWritableTypes = writableTypeSize / sizeof(UInt32);
+	err = AudioFileGetGlobalInfo(kAudioFileGlobalInfo_WritableTypes, 0, NULL, &writableTypeSize, writableTypes);
+
+	if(noErr != err)
+		goto bail;
+	
+	AudioFileTypeID outputTypeID;
+	
+	// Iterate through them and determine which support this format
+	unsigned i;
+	for(i = 0; i < numWritableTypes; ++i) {
+		AudioFileTypeAndFormatID typeAndFormatID;
+		
+		typeAndFormatID.mFileType = writableTypes[i];
+		typeAndFormatID.mFormatID = outputFormat.mFormatID;
+		
+		UInt32 availableStreamDescriptionsSize;
+		err = AudioFileGetGlobalInfoSize(kAudioFileGlobalInfo_AvailableStreamDescriptionsForFormat, sizeof(typeAndFormatID), &typeAndFormatID, &availableStreamDescriptionsSize);
+		if(noErr != err)
+			continue;
+		
+		AudioStreamBasicDescription *availableStreamDescriptions = malloc(availableStreamDescriptionsSize);
+		
+		UInt32 numAvailableStreamDescriptions = availableStreamDescriptionsSize / sizeof(AudioStreamBasicDescription);
+		err = AudioFileGetGlobalInfo(kAudioFileGlobalInfo_AvailableStreamDescriptionsForFormat, sizeof(typeAndFormatID), &typeAndFormatID, &availableStreamDescriptionsSize, availableStreamDescriptions);
+		
+		unsigned j;
+		for(j = 0; j < numAvailableStreamDescriptions; ++j) {
+			AudioFileTypeID		typeID				= typeAndFormatID.mFileType;
+			CFStringRef			fileTypeName		= nil;
+			UInt32				fileTypeNameSize	= sizeof(fileTypeName);
+			
+			err = AudioFileGetGlobalInfo(kAudioFileGlobalInfo_FileTypeName, sizeof(typeID), &typeID, &fileTypeNameSize, &fileTypeName);
+
+			NSLog(@"Match: %@",fileTypeName);
+						
+			CFArrayRef			fileTypeExtensions		= nil;
+			UInt32				fileTypeExtensionsSize	= sizeof(fileTypeExtensions);
+			
+			err = AudioFileGetGlobalInfo(kAudioFileGlobalInfo_ExtensionsForType, sizeof(typeID), &typeID, &fileTypeExtensionsSize, &fileTypeExtensions);
+			
+			NSLog(@"Extensions: %@", fileTypeExtensions);
+			
+			outputTypeID = typeID;
+				
+		}
+		
+		free(availableStreamDescriptions), availableStreamDescriptions = NULL;
+	}
+	
+	free(writableTypes), writableTypes = NULL;
+	
+	NSSavePanel *savePanel = [NSSavePanel savePanel];
+	
+	NSPopUpButton *view = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(0,0,100,50)];
+	
+	[view addItemWithTitle:@"foo"];
+	[view addItemWithTitle:@"bar"];
+	[view addItemWithTitle:@"fnord"];
+	
+	[savePanel setAccessoryView:[view autorelease]];
+	
+	if(NSOKButton == [savePanel runModal]) {
+		
+		ExtAudioFileRef outputExtAudioFile;
+		
+		NSURL		*fileURL		= [savePanel URL];
+		NSString	*filePath		= [fileURL path];
+		NSString	*fileDirectory	= [filePath stringByDeletingLastPathComponent];
+		NSString	*fileName		= [filePath lastPathComponent];
+		
+		FSRef fileDirectoryFSRef;
+		err = FSPathMakeRef([fileDirectory UTF8String], &fileDirectoryFSRef, NULL);
+		if(noErr != err)
+			goto bail;
+		
+		err = ExtAudioFileCreateNew(&fileDirectoryFSRef, fileName, outputTypeID, &outputFormat, NULL, &outputExtAudioFile);
+		if(noErr != err)
+			goto bail;
+		
+		AudioStreamBasicDescription clientFormat = [decoder format];
+		err = ExtAudioFileSetProperty(outputExtAudioFile, kExtAudioFileProperty_ClientDataFormat, sizeof(clientFormat), &clientFormat);
+		if(noErr != err)
+			goto bail;
+
+//		AudioConverterRef audioConverter;
+//		UInt32 dataSize = sizeof(audioConverter);
+//		err = ExtAudioFileGetProperty(outputExtAudioFile, kExtAudioFileProperty_AudioConverter, &dataSize, &audioConverter);
+//		if(noErr != err)
+//			goto bail;
+		
+		if(NULL != codecSpecificSettings) {
+			err = ExtAudioFileSetProperty(outputExtAudioFile, kExtAudioFileProperty_ConverterConfig, sizeof(codecSpecificSettings), &codecSpecificSettings);
+			if(noErr != err)
+				goto bail;
+			
+			CFRelease(codecSpecificSettings);
+		}
+		
+		// Allocate the AudioBufferList for the decoder
+		AudioBufferList *bufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (clientFormat.mChannelsPerFrame - 1)), 1);
+		NSAssert(NULL != bufferList, @"Unable to allocate memory");
+		
+		bufferList->mNumberBuffers = clientFormat.mChannelsPerFrame;
+		
+		for(i = 0; i < bufferList->mNumberBuffers; ++i) {
+			bufferList->mBuffers[i].mData = calloc(BUFFER_LENGTH, sizeof(float));
+			NSCAssert(NULL != bufferList->mBuffers[i].mData, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
+			bufferList->mBuffers[i].mDataByteSize = BUFFER_LENGTH * sizeof(float);
+			bufferList->mBuffers[i].mNumberChannels = 1;
+		}
+				
+		// Process the file
+		for(;;) {
+			// Reset read parameters
+			for(i = 0; i < bufferList->mNumberBuffers; ++i)
+				bufferList->mBuffers[i].mDataByteSize = BUFFER_LENGTH * sizeof(float);
+			
+			// Read some audio
+			UInt32 framesRead = [decoder readAudio:bufferList frameCount:BUFFER_LENGTH];
+			if(0 == framesRead)
+				break;
+
+			// Write it out
+			err = ExtAudioFileWrite(outputExtAudioFile, framesRead, bufferList);
+			if(noErr != err)
+				goto bail;
+		}			
+		
+		for(i = 0; i < bufferList->mNumberBuffers; ++i)
+			free(bufferList->mBuffers[i].mData);
+		free(bufferList);
+		
+		err = ExtAudioFileDispose(outputExtAudioFile);
+		if(noErr != err)
+			goto bail;
+	}
+	
+	// create an AudioConverter
+	//		err = AudioConverterNew(&myInputASBD, &myOutputASBD, &myAudioConverter);
+	//		if (err) goto bail;
+	
+	// set other Audio Converter properties such as channel layout and so on
+	//		...
+	
+	// a codec that has CodecSpecificSettings may have a MagicCookie
+	// prefer the CodecSpecificSettingsArray if you have both
+	/*			if (NULL != codecSpecificSettings) {
+		
+		err = AudioConverterSetProperty(myAudioConverter,
+										kAudioConverterPropertySettings,
+										sizeof(CFArray),
+										codecSpecificSettings);
+				if (err) goto bail;
+				
+				CFRelease(codecSpecificSettings);
+				
+	} else if (NULL != magicCookie) {
+		err = AudioConverterSetProperty(myAudioConverter,
+										kAudioConverterCompressionMagicCookie,
+										magicCookieSize,
+										magicCookie);
+		if (err) goto bail;
+		
+		// we may need the magic cookie later if we're going to write the data to a file
+		// but make sure and remember to free it when we're done!
+	}
+	*/
+	// continue with any other required setup
+	//		...
+	
+bail:
+	if(noErr != err) {
+		if(codecSpecificSettings) 
+			CFRelease(codecSpecificSettings);
+		if(magicCookie) 
+			free(magicCookie);
+		if(component) 
+			CloseComponent(component);
+		if(myAudioConverter) 
+			AudioConverterDispose(myAudioConverter);
+	}
+#endif
 }
 
 - (IBAction) convertWithMax:(id)sender
@@ -517,6 +980,14 @@
 		[[CollectionManager manager] cancelUpdate];
 	
 	[metadataEditingSheet release];
+}
+
+- (void) showFileConversionSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	FileConversionSheet *fileConversionSheet = (FileConversionSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	[fileConversionSheet release];
 }
 
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain

@@ -96,8 +96,8 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (OSStatus) setPropertyOnAUGraphNodes:(AudioUnitPropertyID)propertyID data:(const void *)propertyData dataSize:(UInt32)propertyDataSize;
 - (AUNode) limiterNode;
 - (AUNode) outputNode;
-- (void) saveEffects;
-- (void) restoreEffects;
+- (void) saveEffectsToDefaults;
+- (void) restoreEffectsFromDefaults;
 @end
 
 // ========================================
@@ -803,14 +803,14 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		return err;
 	
-	[self restoreEffects];
+	[self restoreEffectsFromDefaults];
 	
 	return noErr;
 }
 
 - (OSStatus) teardownAUGraph
 {	
-//	[self saveEffects];
+//	[self saveEffectsToDefaults];
 	
 	Boolean graphIsRunning = NO;
 	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
@@ -947,7 +947,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	return noErr;
 }
 
-- (void) saveEffects
+- (void) saveEffectsToDefaults
 {
 	// Save the effects
 	UInt32 connectionCount;
@@ -987,7 +987,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	[[NSUserDefaults standardUserDefaults] setObject:effects forKey:@"playerDSPEffects"];
 }
 
-- (void) restoreEffects
+- (void) restoreEffectsFromDefaults
 {
 	NSArray			*effects		= [[NSUserDefaults standardUserDefaults] arrayForKey:@"playerDSPEffects"];
 	NSEnumerator	*enumerator		= [effects objectEnumerator];

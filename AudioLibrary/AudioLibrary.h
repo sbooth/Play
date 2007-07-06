@@ -90,10 +90,10 @@ extern NSString * const		PlayQueueKey;
 	IBOutlet BrowserOutlineView				*_browserOutlineView;
 	IBOutlet RBSplitView					*_splitView;
 	
-	IBOutlet NSButton		*_playPauseButton;
+	IBOutlet NSButton						*_playPauseButton;
 	
-	IBOutlet NSImageView	*_albumArtImageView;
-	IBOutlet NSDrawer		*_browserDrawer;
+	IBOutlet NSImageView					*_albumArtImageView;
+	IBOutlet NSDrawer						*_browserDrawer;
 	
 	@private
 	AudioPlayer				*_player;
@@ -112,11 +112,17 @@ extern NSString * const		PlayQueueKey;
 	BOOL					_sentNextStreamRequest;
 	
 	BrowserNode				*_libraryNode;
+	BrowserNode				*_artistsNode;
+	BrowserNode				*_albumsNode;
+	BrowserNode				*_composersNode;
+	BrowserNode				*_genresNode;
 	BrowserNode				*_mostPopularNode;
 	BrowserNode				*_highestRatedNode;
 	BrowserNode				*_recentlyAddedNode;
 	BrowserNode				*_recentlyPlayedNode;
 	BrowserNode				*_recentlySkippedNode;
+	BrowserNode				*_playlistsNode;
+	BrowserNode				*_smartPlaylistsNode;
 	
 	NSMutableSet			*_streamTableVisibleColumns;
 	NSMutableSet			*_streamTableHiddenColumns;
@@ -178,23 +184,38 @@ extern NSString * const		PlayQueueKey;
 
 // ========================================
 // Action methods
-- (IBAction)	toggleBrowser:(id)sender;
-- (IBAction)	togglePlayQueue:(id)sender;
-
-- (IBAction)	add10RandomStreamsToPlayQueue:(id)sender;
-- (IBAction)	add25RandomStreamsToPlayQueue:(id)sender;
-
 - (IBAction)	jumpToNowPlaying:(id)sender;
 
-- (IBAction)	selectLibrary:(id)sender;
-- (IBAction)	selectMostPopular:(id)sender;
-- (IBAction)	selectHighestRated:(id)sender;
-- (IBAction)	selectRecentlyAdded:(id)sender;
-- (IBAction)	selectRecentlyPlayed:(id)sender;
-- (IBAction)	selectRecentlySkipped:(id)sender;
+// ========================================
+// Browser methods
+- (IBAction)	openBrowser:(id)sender;
+- (IBAction)	closeBrowser:(id)sender;
+- (IBAction)	toggleBrowser:(id)sender;
+
+- (void)		saveBrowserStateToDefaults;
+
+- (IBAction)	browseLibrary:(id)sender;
+- (IBAction)	browseMostPopular:(id)sender;
+- (IBAction)	browseHighestRated:(id)sender;
+- (IBAction)	browseRecentlyAdded:(id)sender;
+- (IBAction)	browseRecentlyPlayed:(id)sender;
+- (IBAction)	browseRecentlySkipped:(id)sender;
+
+- (BOOL)		browseTracksByArtist:(NSString *)artist;
+- (BOOL)		browseTracksByAlbum:(NSString *)album;
+- (BOOL)		browseTracksByComposer:(NSString *)composer;
+- (BOOL)		browseTracksByGenre:(NSString *)genre;
+
+- (BOOL)		browseTracksByPlaylist:(NSString *)playlistName;
+- (BOOL)		browseTracksBySmartPlaylist:(NSString *)smartPlaylistName;
 
 // ========================================
 // Play Queue management
+- (IBAction)		togglePlayQueue:(id)sender;
+
+- (IBAction)		add10RandomStreamsToPlayQueue:(id)sender;
+- (IBAction)		add25RandomStreamsToPlayQueue:(id)sender;
+
 - (unsigned)		countOfPlayQueue;
 - (AudioStream *)	objectInPlayQueueAtIndex:(unsigned)index;
 - (void)			getPlayQueue:(id *)buffer range:(NSRange)aRange;

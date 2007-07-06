@@ -51,6 +51,11 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	remove:(id)sender;
 
+- (IBAction)	showTracksWithSameArtist:(id)sender;
+- (IBAction)	showTracksWithSameAlbum:(id)sender;
+- (IBAction)	showTracksWithSameComposer:(id)sender;
+- (IBAction)	showTracksWithSameGenre:(id)sender;
+
 - (IBAction)	openWithFinder:(id)sender;
 - (IBAction)	revealInFinder:(id)sender;
 

@@ -460,11 +460,17 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[_playQueue release], _playQueue = nil;
 	
 	[_libraryNode release], _libraryNode = nil;
+	[_artistsNode release], _artistsNode = nil;
+	[_albumsNode release], _albumsNode = nil;
+	[_composersNode release], _composersNode = nil;
+	[_genresNode release], _genresNode = nil;
 	[_mostPopularNode release], _mostPopularNode = nil;
 	[_highestRatedNode release], _highestRatedNode = nil;
 	[_recentlyAddedNode release], _recentlyAddedNode = nil;
 	[_recentlyPlayedNode release], _recentlyPlayedNode = nil;
 	[_recentlySkippedNode release], _recentlySkippedNode = nil;
+	[_playlistsNode release], _playlistsNode = nil;
+	[_smartPlaylistsNode release], _smartPlaylistsNode = nil;
 	
 	[super dealloc];
 }
@@ -494,7 +500,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	// Set sort descriptors
 	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
-		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
+//		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
 		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
@@ -513,6 +519,23 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self setupPlayQueueTableColumns];
 	
 	[self scanWatchFolders];
+	
+	// Restore the browser's state
+	switch([[NSUserDefaults standardUserDefaults] integerForKey:@"browserDrawerState"]) {
+		case NSDrawerOpenState:			[_browserDrawer open];		break;
+		case NSDrawerOpeningState:		[_browserDrawer open];		break;
+	}
+
+	// and selected node
+	NSData *archivedIndexPath = [[NSUserDefaults standardUserDefaults] dataForKey:@"browserSelectionIndexPathArchive"];
+	if(nil != archivedIndexPath) {
+		NSIndexPath *selectedNodeIndexPath = [NSKeyedUnarchiver unarchiveObjectWithData:archivedIndexPath];
+		if(nil != selectedNodeIndexPath) {
+			BOOL nodeSelected = [_browserController setSelectionIndexPath:selectedNodeIndexPath];
+			if(NO == nodeSelected)
+				[self browseLibrary:self];
+		}
+	}
 }
 
 - (void) windowDidLoad
@@ -583,9 +606,25 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 #pragma mark Action Methods
 
+- (IBAction) openBrowser:(id)sender
+{
+	[_browserDrawer open:sender];
+}
+
+- (IBAction) closeBrowser:(id)sender
+{
+	[_browserDrawer close:sender];
+}
+
 - (IBAction) toggleBrowser:(id)sender
 {
 	[_browserDrawer toggle:sender];
+}
+
+- (void) saveBrowserStateToDefaults;
+{
+	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:[_browserDrawer state]] forKey:@"browserDrawerState"];
+	[[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:[_browserController selectionIndexPath]] forKey:@"browserSelectionIndexPathArchive"];
 }
 
 - (IBAction) togglePlayQueue:(id)sender
@@ -634,34 +673,102 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 }
 
-- (IBAction) selectLibrary:(id)sender
+#pragma mark Browser methods
+
+- (IBAction) browseLibrary:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
 }
 
-- (IBAction) selectMostPopular:(id)sender
+- (IBAction) browseMostPopular:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_mostPopularNode]];
 }
 
-- (IBAction) selectHighestRated:(id)sender
+- (IBAction) browseHighestRated:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_highestRatedNode]];
 }
 
-- (IBAction) selectRecentlyAdded:(id)sender
+- (IBAction) browseRecentlyAdded:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyAddedNode]];
 }
 
-- (IBAction) selectRecentlyPlayed:(id)sender
+- (IBAction) browseRecentlyPlayed:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyPlayedNode]];
 }
 
-- (IBAction) selectRecentlySkipped:(id)sender
+- (IBAction) browseRecentlySkipped:(id)sender
 {
 	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlySkippedNode]];
+}
+
+- (BOOL) browseTracksByArtist:(NSString *)artist
+{
+	NSParameterAssert(nil != artist);
+	
+	BrowserNode *artistNode = [_artistsNode findChildNamed:artist];
+	if(nil != artistNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:artistNode]];
+	else
+		return NO;
+}
+
+- (BOOL) browseTracksByAlbum:(NSString *)album
+{
+	NSParameterAssert(nil != album);
+	
+	BrowserNode *albumNode = [_albumsNode findChildNamed:album];
+	if(nil != albumNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:albumNode]];
+	else
+		return NO;
+}
+
+- (BOOL) browseTracksByComposer:(NSString *)composer
+{
+	NSParameterAssert(nil != composer);
+	
+	BrowserNode *composerNode = [_composersNode findChildNamed:composer];
+	if(nil != composerNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:composerNode]];
+	else
+		return NO;
+}
+
+- (BOOL) browseTracksByGenre:(NSString *)genre
+{
+	NSParameterAssert(nil != genre);
+	
+	BrowserNode *genreNode = [_genresNode findChildNamed:genre];
+	if(nil != genreNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:genreNode]];
+	else	
+		return NO;
+}
+
+- (BOOL) browseTracksByPlaylist:(NSString *)playlistName
+{
+	NSParameterAssert(nil != playlistName);
+	
+	BrowserNode *playlistNode = [_playlistsNode findChildNamed:playlistName];
+	if(nil != playlistNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:playlistNode]];
+	else	
+		return NO;
+}
+
+- (BOOL) browseTracksBySmartPlaylist:(NSString *)smartPlaylistName
+{
+	NSParameterAssert(nil != smartPlaylistName);
+	
+	BrowserNode *smartPlaylistNode = [_smartPlaylistsNode findChildNamed:smartPlaylistName];
+	if(nil != smartPlaylistNode)
+		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:smartPlaylistName]];
+	else	
+		return NO;
 }
 
 #pragma mark File Addition and Removal
@@ -1593,6 +1700,70 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 @end
 
+@implementation AudioLibrary (NSBrowserDelegateMethods)
+
+- (int) browser:(NSBrowser *)sender numberOfRowsInColumn:(int)column
+{
+	if(0 == column) {
+		NSString	*keyName	= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
+		NSArray		*streams	= [[[CollectionManager manager] streamManager] streams];
+		NSArray		*artists	= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+		
+		return [artists count];
+	}
+	else if(1 == column) {
+		id			selectedArtist	= [sender selectedCellInColumn:0];
+		NSArray		*streams		= [[[CollectionManager manager] streamManager] streamsForArtist:[selectedArtist stringValue]];
+		NSString	*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataAlbumTitleKey];
+		NSArray		*albums			= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+		
+		return [albums count];
+	}
+	
+	return 0;
+}
+
+/*- (BOOL) browser:(NSBrowser *)sender isColumnValid:(int)column
+{
+	if(0 == column)
+		return YES;
+	else if(1 == column) {
+		
+	}
+	
+	return NO;
+}*/
+
+/*- (NSString *) browser:(NSBrowser *)sender titleOfColumn:(int)column
+{
+	if(0 == column)
+		return NSLocalizedStringFromTable(@"Artists", @"Browser", @"");
+	
+	return nil;
+}*/
+
+- (void) browser:(NSBrowser *)sender willDisplayCell:(id)cell atRow:(int)row column:(int)column
+{
+	if(0 == column) {
+		NSString	*keyName	= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
+		NSArray		*streams	= [[[CollectionManager manager] streamManager] streams];
+		NSArray		*artists	= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+
+		[cell setStringValue:[artists objectAtIndex:row]];
+	}
+	else if(1 == column) {
+		id			selectedArtist	= [sender selectedCellInColumn:0];
+		NSArray		*streams		= [[[CollectionManager manager] streamManager] streamsForArtist:[selectedArtist stringValue]];
+		NSString	*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataAlbumTitleKey];
+		NSArray		*albums			= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
+		
+		[cell setStringValue:[albums objectAtIndex:row]];
+	}
+	
+}
+
+@end
+
 @implementation AudioLibrary (CallbackMethods)
 
 - (void) openDocumentSheetDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void *)contextInfo
@@ -1955,23 +2126,23 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	_recentlyPlayedNode		= [[RecentlyPlayedNode alloc] init];
 	_recentlySkippedNode	= [[RecentlySkippedNode alloc] init];
 	
-	ArtistsNode *artistsNode = [[ArtistsNode alloc] init];
-	[artistsNode setIcon:folderIcon];
+	_artistsNode = [[ArtistsNode alloc] init];
+	[_artistsNode setIcon:folderIcon];
 
-	AlbumsNode *albumsNode = [[AlbumsNode alloc] init];
-	[albumsNode setIcon:folderIcon];
+	_albumsNode = [[AlbumsNode alloc] init];
+	[_albumsNode setIcon:folderIcon];
 
-	ComposersNode *composersNode = [[ComposersNode alloc] init];
-	[composersNode setIcon:folderIcon];
+	_composersNode = [[ComposersNode alloc] init];
+	[_composersNode setIcon:folderIcon];
 	
-	GenresNode *genresNode = [[GenresNode alloc] init];
-	[genresNode setIcon:folderIcon];
+	_genresNode = [[GenresNode alloc] init];
+	[_genresNode setIcon:folderIcon];
 
-	PlaylistsNode *playlistsNode = [[PlaylistsNode alloc] init];
-	[playlistsNode setIcon:folderIcon];
+	_playlistsNode = [[PlaylistsNode alloc] init];
+	[_playlistsNode setIcon:folderIcon];
 
-	SmartPlaylistsNode *smartPlaylistsNode = [[SmartPlaylistsNode alloc] init];
-	[smartPlaylistsNode setIcon:folderIcon];
+	_smartPlaylistsNode = [[SmartPlaylistsNode alloc] init];
+	[_smartPlaylistsNode setIcon:folderIcon];
 
 	WatchFoldersNode *watchFoldersNode = [[WatchFoldersNode alloc] init];
 	[watchFoldersNode setIcon:folderIcon];
@@ -1983,18 +2154,18 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[browserRoot addChild:_recentlyAddedNode];
 	[browserRoot addChild:_recentlyPlayedNode];
 	[browserRoot addChild:_recentlySkippedNode];
-	[browserRoot addChild:[artistsNode autorelease]];
-	[browserRoot addChild:[albumsNode autorelease]];
-	[browserRoot addChild:[composersNode autorelease]];
-	[browserRoot addChild:[genresNode autorelease]];
-	[browserRoot addChild:[playlistsNode autorelease]];
-	[browserRoot addChild:[smartPlaylistsNode autorelease]];
+	[browserRoot addChild:_artistsNode];
+	[browserRoot addChild:_albumsNode];
+	[browserRoot addChild:_composersNode];
+	[browserRoot addChild:_genresNode];
+	[browserRoot addChild:_playlistsNode];
+	[browserRoot addChild:_smartPlaylistsNode];
 	[browserRoot addChild:[watchFoldersNode autorelease]];
 
 	[_browserController setContent:[browserRoot autorelease]];
 
 	// Select the LibraryNode
-	[self selectLibrary:self];
+	[self browseLibrary:self];
 	
 	// Setup the custom data cell
 	NSTableColumn		*tableColumn		= [_browserOutlineView tableColumnWithIdentifier:@"name"];

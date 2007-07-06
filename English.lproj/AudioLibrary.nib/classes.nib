@@ -4,6 +4,11 @@
             ACTIONS = {
                 add10RandomStreamsToPlayQueue = id; 
                 add25RandomStreamsToPlayQueue = id; 
+                browseLibrary = id; 
+                browseMostPopular = id; 
+                browseRecentlyAdded = id; 
+                browseRecentlyPlayed = id; 
+                browseRecentlySkipped = id; 
                 clearPlayQueue = id; 
                 insertPlaylist = id; 
                 insertSmartPlaylist = id; 
@@ -15,11 +20,6 @@
                 playPause = id; 
                 playPreviousStream = id; 
                 selectHighestRated = id; 
-                selectLibrary = id; 
-                selectMostPopular = id; 
-                selectRecentlyAdded = id; 
-                selectRecentlyPlayed = id; 
-                selectRecentlySkipped = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
@@ -101,6 +101,7 @@
                 calculateTrackAndAlbumReplayGain = id; 
                 calculateTrackReplayGain = id; 
                 clearReplayGain = id; 
+                convert = id; 
                 convertWithMax = id; 
                 editMetadata = id; 
                 openWith = id; 
@@ -112,6 +113,10 @@
                 resetSkipCount = id; 
                 revealInFinder = id; 
                 saveMetadata = id; 
+                showTracksWithSameAlbum = id; 
+                showTracksWithSameArtist = id; 
+                showTracksWithSameComposer = id; 
+                showTracksWithSameGenre = id; 
                 streamInformation = id; 
                 watchFolderInformation = id; 
             }; 
