@@ -294,7 +294,7 @@
 	<key>CFBundleSignature</key>
 	<string>plaY</string>
 	<key>CFBundleVersion</key>
-	<string>0.1.2</string>
+	<string>SVN_REVISION</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>YES</string>
 	<key>NSMainNibFile</key>
