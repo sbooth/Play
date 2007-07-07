@@ -27,7 +27,7 @@
 
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
-#import "FileConversionSheet.h"
+//#import "FileConversionSheet.h"
 
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
@@ -503,6 +503,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
+#if 0
 	FileConversionSheet *fileConversionSheet = [[FileConversionSheet alloc] init];
 
 	[[NSApplication sharedApplication] beginSheet:[fileConversionSheet sheet] 
@@ -510,6 +511,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 									modalDelegate:self 
 								   didEndSelector:@selector(showFileConversionSheetDidEnd:returnCode:contextInfo:) 
 									  contextInfo:fileConversionSheet];
+#endif
 #if 0
 	// Create a decoder for the desired stream
 	NSError *error = nil;
@@ -982,6 +984,7 @@ bail:
 	[metadataEditingSheet release];
 }
 
+#if 0
 - (void) showFileConversionSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	FileConversionSheet *fileConversionSheet = (FileConversionSheet *)contextInfo;
@@ -989,6 +992,7 @@ bail:
 	[sheet orderOut:self];
 	[fileConversionSheet release];
 }
+#endif
 
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain
 {
