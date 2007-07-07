@@ -361,7 +361,6 @@
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		32CA4F630368D1EE00C91783 /* Play_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Play_Prefix.pch; sourceTree = "<group>"; };
 		8C06F0210B866F1900E8ADB6 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ThirdParty/CTGradient/CTGradient.h; sourceTree = "<group>"; };
 		8C06F0220B866F1900E8ADB6 /* CTGradient.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CTGradient.m; path = ThirdParty/CTGradient/CTGradient.m; sourceTree = "<group>"; };
 		8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_1.pdf; sourceTree = "<group>"; };
@@ -478,7 +477,6 @@
 		8C58468B0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IntegerToDoubleRoundingValueTransformer.h; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.h; sourceTree = "<group>"; };
 		8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IntegerToDoubleRoundingValueTransformer.m; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.m; sourceTree = "<group>"; };
 		8C5849C10BE1A47200E43C9E /* shell.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = shell.c; path = src/shell.c; sourceTree = "<group>"; };
-		8C5849C20BE1A47200E43C9E /* test_hexio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = test_hexio.c; path = src/test_hexio.c; sourceTree = "<group>"; };
 		8C5849CB0BE1A59800E43C9E /* RecentlySkippedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlySkippedNode.h; path = Browser/RecentlySkippedNode.h; sourceTree = "<group>"; };
 		8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlySkippedNode.m; path = Browser/RecentlySkippedNode.m; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
@@ -549,21 +547,6 @@
 		8C9C256B0B724B0F00CE799A /* sqliteInt.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = sqliteInt.h; sourceTree = "<group>"; };
 		8C9C256C0B724B0F00CE799A /* table.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = table.c; sourceTree = "<group>"; };
 		8C9C256D0B724B0F00CE799A /* tclsqlite.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = tclsqlite.c; sourceTree = "<group>"; };
-		8C9C256E0B724B0F00CE799A /* test1.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test1.c; sourceTree = "<group>"; };
-		8C9C256F0B724B0F00CE799A /* test2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test2.c; sourceTree = "<group>"; };
-		8C9C25700B724B0F00CE799A /* test3.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test3.c; sourceTree = "<group>"; };
-		8C9C25710B724B0F00CE799A /* test4.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test4.c; sourceTree = "<group>"; };
-		8C9C25720B724B0F00CE799A /* test5.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test5.c; sourceTree = "<group>"; };
-		8C9C25730B724B0F00CE799A /* test6.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test6.c; sourceTree = "<group>"; };
-		8C9C25740B724B0F00CE799A /* test7.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test7.c; sourceTree = "<group>"; };
-		8C9C25750B724B0F00CE799A /* test8.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test8.c; sourceTree = "<group>"; };
-		8C9C25760B724B0F00CE799A /* test_async.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_async.c; sourceTree = "<group>"; };
-		8C9C25770B724B0F00CE799A /* test_autoext.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_autoext.c; sourceTree = "<group>"; };
-		8C9C25780B724B0F00CE799A /* test_loadext.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_loadext.c; sourceTree = "<group>"; };
-		8C9C25790B724B0F00CE799A /* test_md5.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_md5.c; sourceTree = "<group>"; };
-		8C9C257A0B724B0F00CE799A /* test_schema.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_schema.c; sourceTree = "<group>"; };
-		8C9C257B0B724B0F00CE799A /* test_server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_server.c; sourceTree = "<group>"; };
-		8C9C257C0B724B0F00CE799A /* test_tclvar.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = test_tclvar.c; sourceTree = "<group>"; };
 		8C9C257D0B724B0F00CE799A /* tokenize.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = tokenize.c; sourceTree = "<group>"; };
 		8C9C257E0B724B0F00CE799A /* trigger.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = trigger.c; sourceTree = "<group>"; };
 		8C9C257F0B724B0F00CE799A /* update.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = update.c; sourceTree = "<group>"; };
@@ -927,7 +910,6 @@
 				8C30A0740B74F8630007204B /* main.m */,
 				8C30A0750B74F8630007204B /* PlayApplicationDelegate.h */,
 				8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */,
-				32CA4F630368D1EE00C91783 /* Play_Prefix.pch */,
 				8C30A0510B74F6220007204B /* ServicesProvider.h */,
 				8C30A0520B74F6220007204B /* ServicesProvider.m */,
 			);
@@ -1204,7 +1186,6 @@
 				8C37CD0D0C3ED16900A29D13 /* malloc.c */,
 				8C37CD0E0C3ED16900A29D13 /* vdbeblob.c */,
 				8C5849C10BE1A47200E43C9E /* shell.c */,
-				8C5849C20BE1A47200E43C9E /* test_hexio.c */,
 				8C9C25230B724B0E00CE799A /* keywordhash.h */,
 				8C9C25340B724B0E00CE799A /* opcodes.c */,
 				8C9C25350B724B0E00CE799A /* opcodes.h */,
@@ -1258,21 +1239,6 @@
 				8C9C256B0B724B0F00CE799A /* sqliteInt.h */,
 				8C9C256C0B724B0F00CE799A /* table.c */,
 				8C9C256D0B724B0F00CE799A /* tclsqlite.c */,
-				8C9C256E0B724B0F00CE799A /* test1.c */,
-				8C9C256F0B724B0F00CE799A /* test2.c */,
-				8C9C25700B724B0F00CE799A /* test3.c */,
-				8C9C25710B724B0F00CE799A /* test4.c */,
-				8C9C25720B724B0F00CE799A /* test5.c */,
-				8C9C25730B724B0F00CE799A /* test6.c */,
-				8C9C25740B724B0F00CE799A /* test7.c */,
-				8C9C25750B724B0F00CE799A /* test8.c */,
-				8C9C25760B724B0F00CE799A /* test_async.c */,
-				8C9C25770B724B0F00CE799A /* test_autoext.c */,
-				8C9C25780B724B0F00CE799A /* test_loadext.c */,
-				8C9C25790B724B0F00CE799A /* test_md5.c */,
-				8C9C257A0B724B0F00CE799A /* test_schema.c */,
-				8C9C257B0B724B0F00CE799A /* test_server.c */,
-				8C9C257C0B724B0F00CE799A /* test_tclvar.c */,
 				8C9C257D0B724B0F00CE799A /* tokenize.c */,
 				8C9C257E0B724B0F00CE799A /* trigger.c */,
 				8C9C257F0B724B0F00CE799A /* update.c */,
