@@ -6,7 +6,7 @@
 #***********************************************************************
 # This file runs all tests.
 #
-# $Id: quick.test,v 1.52 2007/04/16 17:07:55 drh Exp $
+# $Id: quick.test,v 1.59 2007/06/18 12:22:43 drh Exp $
 
 proc lshift {lvar} {
   upvar $lvar l
@@ -18,6 +18,9 @@ while {[set arg [lshift argv]] != ""} {
   switch -- $arg {
     -sharedpagercache {
       sqlite3_enable_shared_cache 1
+    }
+    -soak {
+       set SOAKTEST 1
     }
     default {
       set argv [linsert $argv 0 $arg]
@@ -45,6 +48,9 @@ set EXCLUDE {
   crash.test
   crash2.test
   exclusive3.test
+  fuzz.test
+  fuzz_malloc.test
+  in2.test
   loadext.test
   malloc.test
   malloc2.test
@@ -53,9 +59,12 @@ set EXCLUDE {
   misc7.test
   misuse.test
   quick.test
+  soak.test
   speed1.test
   speed2.test
+  sqllimits1.test
 
+  incrvacuum_ioerr.test
   autovacuum_crash.test
   btree8.test
   utf16.test

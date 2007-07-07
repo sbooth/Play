@@ -75,9 +75,9 @@ TEMP_STORE = -DTEMP_STORE=1
 
 # Version numbers and release number for the SQLite being compiled.
 #
-VERSION = 3.3
-VERSION_NUMBER = 3003017
-RELEASE = 3.3.17
+VERSION = 3.4
+VERSION_NUMBER = 3004000
+RELEASE = 3.4.0
 
 # Filename extensions
 #
@@ -123,11 +123,11 @@ TCC += -DSQLITE_OMIT_LOAD_EXTENSION=1
 LIBOBJ = alter.lo analyze.lo attach.lo auth.lo btree.lo build.lo \
          callback.lo complete.lo date.lo \
          delete.lo expr.lo func.lo hash.lo insert.lo loadext.lo \
-         main.lo opcodes.lo os.lo os_unix.lo os_win.lo os_os2.lo \
+         main.lo malloc.lo opcodes.lo os.lo os_unix.lo os_win.lo os_os2.lo \
          pager.lo parse.lo pragma.lo prepare.lo printf.lo random.lo \
          select.lo table.lo tokenize.lo trigger.lo update.lo \
          util.lo vacuum.lo \
-         vdbe.lo vdbeapi.lo vdbeaux.lo vdbefifo.lo vdbemem.lo \
+         vdbe.lo vdbeapi.lo vdbeaux.lo vdbeblob.lo vdbefifo.lo vdbemem.lo \
          where.lo utf.lo legacy.lo vtab.lo
 
 # All of the source code files.
@@ -152,6 +152,7 @@ SRC = \
   $(TOP)/src/legacy.c \
   $(TOP)/src/loadext.c \
   $(TOP)/src/main.c \
+  $(TOP)/src/malloc.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_unix.c \
   $(TOP)/src/os_win.c \
@@ -179,6 +180,7 @@ SRC = \
   $(TOP)/src/vdbe.h \
   $(TOP)/src/vdbeapi.c \
   $(TOP)/src/vdbeaux.c \
+  $(TOP)/src/vdbeblob.c \
   $(TOP)/src/vdbefifo.c \
   $(TOP)/src/vdbemem.c \
   $(TOP)/src/vdbeInt.h \
@@ -204,6 +206,7 @@ TESTSRC = \
   $(TOP)/src/date.c \
   $(TOP)/src/func.c \
   $(TOP)/src/insert.c \
+  $(TOP)/src/malloc.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_os2.c \
   $(TOP)/src/os_unix.c \
@@ -222,6 +225,8 @@ TESTSRC = \
   $(TOP)/src/test9.c \
   $(TOP)/src/test_autoext.c \
   $(TOP)/src/test_async.c \
+  $(TOP)/src/test_btree.c \
+  $(TOP)/src/test_config.c \
   $(TOP)/src/test_hexio.c \
   $(TOP)/src/test_md5.c \
   $(TOP)/src/test_schema.c \
@@ -238,7 +243,9 @@ TESTSRC = \
 HDR = \
    sqlite3.h  \
    $(TOP)/src/btree.h \
+   $(TOP)/src/btreeInt.h \
    $(TOP)/src/hash.h \
+   $(TOP)/src/limits.h \
    opcodes.h \
    $(TOP)/src/os.h \
    $(TOP)/src/os_common.h \
@@ -366,6 +373,9 @@ loadext.lo:	$(TOP)/src/loadext.c $(HDR)
 main.lo:	$(TOP)/src/main.c $(HDR)
 	$(LTCOMPILE) $(TEMP_STORE) -c $(TOP)/src/main.c
 
+malloc.lo:	$(TOP)/src/malloc.c $(HDR)
+	$(LTCOMPILE) $(TEMP_STORE) -c $(TOP)/src/malloc.c
+
 pager.lo:	$(TOP)/src/pager.c $(HDR) $(TOP)/src/pager.h
 	$(LTCOMPILE) -c $(TOP)/src/pager.c
 
@@ -457,6 +467,9 @@ vdbeapi.lo:	$(TOP)/src/vdbeapi.c $(VDBEHDR)
 vdbeaux.lo:	$(TOP)/src/vdbeaux.c $(VDBEHDR)
 	$(LTCOMPILE) -c $(TOP)/src/vdbeaux.c
 
+vdbeblob.lo:	$(TOP)/src/vdbeblob.c $(VDBEHDR)
+	$(LTCOMPILE) -c $(TOP)/src/vdbeblob.c
+
 vdbefifo.lo:	$(TOP)/src/vdbefifo.c $(VDBEHDR)
 	$(LTCOMPILE) -c $(TOP)/src/vdbefifo.c
 
@@ -522,8 +535,8 @@ c_interface.html:	$(TOP)/www/c_interface.tcl
 capi3.html:	$(TOP)/www/capi3.tcl
 	tclsh $(TOP)/www/capi3.tcl >capi3.html
 
-capi3ref.html:	$(TOP)/www/capi3ref.tcl
-	tclsh $(TOP)/www/capi3ref.tcl >capi3ref.html
+capi3ref.html:	$(TOP)/www/mkapidoc.tcl sqlite3.h
+	tclsh $(TOP)/www/mkapidoc.tcl <sqlite3.h >capi3ref.html
 
 changes.html:	$(TOP)/www/changes.tcl
 	tclsh $(TOP)/www/changes.tcl >changes.html
@@ -570,6 +583,9 @@ formatchng.html:	$(TOP)/www/formatchng.tcl
 
 index.html:	$(TOP)/www/index.tcl last_change
 	tclsh $(TOP)/www/index.tcl >index.html
+
+limits.html:	$(TOP)/www/limits.tcl last_change
+	tclsh $(TOP)/www/limits.tcl >limits.html
 
 lang.html:	$(TOP)/www/lang.tcl
 	tclsh $(TOP)/www/lang.tcl >lang.html
@@ -644,6 +660,7 @@ DOC = \
   formatchng.html \
   index.html \
   lang.html \
+  limits.html \
   lockingv3.html \
   mingw.html \
   nulls.html \

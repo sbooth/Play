@@ -14,7 +14,7 @@
 ** the parser.  Lemon will also generate a header file containing
 ** numeric codes for all of the tokens.
 **
-** @(#) $Id: parse.y,v 1.218 2007/04/06 15:02:14 drh Exp $
+** @(#) $Id: parse.y,v 1.230 2007/06/15 17:03:14 drh Exp $
 */
 
 // All token codes are small integers with #defines that begin with "TK_"
@@ -174,8 +174,8 @@ id(A) ::= ID(X).         {A = X;}
 %fallback ID
   ABORT AFTER ANALYZE ASC ATTACH BEFORE BEGIN CASCADE CAST CONFLICT
   DATABASE DEFERRED DESC DETACH EACH END EXCLUSIVE EXPLAIN FAIL FOR
-  IGNORE IMMEDIATE INITIALLY INSTEAD LIKE_KW MATCH PLAN QUERY KEY
-  OF OFFSET PRAGMA RAISE REPLACE RESTRICT ROW
+  IGNORE IMMEDIATE INITIALLY INSTEAD LIKE_KW MATCH PLAN
+  QUERY KEY OF OFFSET PRAGMA RAISE REPLACE RESTRICT ROW
   TEMP TRIGGER VACUUM VIEW VIRTUAL
 %ifdef SQLITE_OMIT_COMPOUND_SELECT
   EXCEPT INTERSECT UNION
@@ -381,6 +381,8 @@ select(A) ::= select(X) multiselect_op(Y) oneselect(Z).  {
   if( Z ){
     Z->op = Y;
     Z->pPrior = X;
+  }else{
+    sqlite3SelectDelete(X);
   }
   A = Z;
 }
@@ -573,8 +575,10 @@ where_opt(A) ::= WHERE expr(X).       {A = X;}
 
 ////////////////////////// The UPDATE command ////////////////////////////////
 //
-cmd ::= UPDATE orconf(R) fullname(X) SET setlist(Y) where_opt(Z).
-    {sqlite3Update(pParse,X,Y,Z,R);}
+cmd ::= UPDATE orconf(R) fullname(X) SET setlist(Y) where_opt(Z).  {
+  sqlite3ExprListCheckLength(pParse,Y,SQLITE_MAX_COLUMN,"set list"); 
+  sqlite3Update(pParse,X,Y,Z,R);
+}
 
 %type setlist {ExprList*}
 %destructor setlist {sqlite3ExprListDelete($$);}
@@ -657,6 +661,9 @@ expr(A) ::= CAST(X) LP expr(E) AS typetoken(T) RP(Y). {
 }
 %endif  SQLITE_OMIT_CAST
 expr(A) ::= ID(X) LP distinct(D) exprlist(Y) RP(E). {
+  if( Y && Y->nExpr>SQLITE_MAX_FUNCTION_ARG ){
+    sqlite3ErrorMsg(pParse, "too many arguments on function %T", &X);
+  }
   A = sqlite3ExprFunction(Y, &X);
   sqlite3ExprSpan(A,&X,&E);
   if( D && A ){
@@ -758,6 +765,7 @@ expr(A) ::= expr(W) between_op(N) expr(X) AND expr(Y). [BETWEEN] {
     A = sqlite3Expr(TK_IN, X, 0, 0);
     if( A ){
       A->pList = Y;
+      sqlite3ExprSetHeight(A);
     }else{
       sqlite3ExprListDelete(Y);
     }
@@ -768,6 +776,7 @@ expr(A) ::= expr(W) between_op(N) expr(X) AND expr(Y). [BETWEEN] {
     A = sqlite3Expr(TK_SELECT, 0, 0, 0);
     if( A ){
       A->pSelect = X;
+      sqlite3ExprSetHeight(A);
     }else{
       sqlite3SelectDelete(X);
     }
@@ -777,6 +786,7 @@ expr(A) ::= expr(W) between_op(N) expr(X) AND expr(Y). [BETWEEN] {
     A = sqlite3Expr(TK_IN, X, 0, 0);
     if( A ){
       A->pSelect = Y;
+      sqlite3ExprSetHeight(A);
     }else{
       sqlite3SelectDelete(Y);
     }
@@ -788,6 +798,7 @@ expr(A) ::= expr(W) between_op(N) expr(X) AND expr(Y). [BETWEEN] {
     A = sqlite3Expr(TK_IN, X, 0, 0);
     if( A ){
       A->pSelect = sqlite3SelectNew(0,pSrc,0,0,0,0,0,0,0);
+      sqlite3ExprSetHeight(A);
     }else{
       sqlite3SrcListDelete(pSrc);
     }
@@ -799,6 +810,7 @@ expr(A) ::= expr(W) between_op(N) expr(X) AND expr(Y). [BETWEEN] {
     if( p ){
       p->pSelect = Y;
       sqlite3ExprSpan(p,&B,&E);
+      sqlite3ExprSetHeight(A);
     }else{
       sqlite3SelectDelete(Y);
     }
@@ -810,6 +822,7 @@ expr(A) ::= CASE(C) case_operand(X) case_exprlist(Y) case_else(Z) END(E). {
   A = sqlite3Expr(TK_CASE, X, Z, 0);
   if( A ){
     A->pList = Y;
+    sqlite3ExprSetHeight(A);
   }else{
     sqlite3ExprListDelete(Y);
   }
@@ -872,6 +885,7 @@ idxlist(A) ::= idxlist(X) COMMA idxitem(Y) collate(C) sortorder(Z).  {
     if( p ) p->pColl = sqlite3LocateCollSeq(pParse, (char*)C.z, C.n);
   }
   A = sqlite3ExprListAppend(X, p, &Y);
+  sqlite3ExprListCheckLength(pParse, A, SQLITE_MAX_COLUMN, "index");
   if( A ) A->a[A->nExpr-1].sortOrder = Z;
 }
 idxlist(A) ::= idxitem(Y) collate(C) sortorder(Z). {
@@ -881,6 +895,7 @@ idxlist(A) ::= idxitem(Y) collate(C) sortorder(Z). {
     if( p ) p->pColl = sqlite3LocateCollSeq(pParse, (char*)C.z, C.n);
   }
   A = sqlite3ExprListAppend(0, p, &Y);
+  sqlite3ExprListCheckLength(pParse, A, SQLITE_MAX_COLUMN, "index");
   if( A ) A->a[A->nExpr-1].sortOrder = Z;
 }
 idxitem(A) ::= nm(X).              {A = X;}

@@ -27,10 +27,8 @@ Features include:
 <li>A complete database is stored in a single disk file.</li>
 <li>Database files can be freely shared between machines with
     different byte orders.</li>
-<li>Supports databases up to 2 tebibytes
-    (2<sup><small>41</small></sup> bytes) in size.</li>
-<li>Strings and BLOBs up to 2 gibibytes (2<sup><small>31</small></sup> bytes)
-    in size.</li>
+<li>Supports terabyte-sized databases and gigabyte-sized strings
+    and blobs.  (See <a href="limits.html">limits.html</a>.)
 <li>Small code footprint: 
     <a href="http://www.sqlite.org/cvstrac/wiki?p=SizeOfSqlite">
     less than 250KiB</a> fully configured or less
@@ -73,6 +71,31 @@ proc newsitem {date title text} {
   puts "<hr width=\"50%\">"
 }
 
+newsitem {2007-Jun-18} {Version 3.4.0} {
+  This release fixes two separate bugs either of which 
+  can lead to database corruption.  Upgrading
+  is strongly recommended.  If you must continue using an older version
+  of SQLite, please at least read about how to avoid these bugs
+  at
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=CorruptionFollowingBusyError">
+  CorruptionFollowingBusyError</a> and
+  <a href="http://www.sqlite.org/cvstrac/tktview?tn=2418">ticket #2418</a>
+  <p>
+  This release also adds explicit <a href="limits.html">limits</a> on the
+  sizes and quantities of things SQLite will handle.  The new limits might
+  causes compatibility problems for existing applications that
+  use excessively large strings, BLOBs, tables, or SQL statements. 
+  The new limits can be increased at compile-time to work around any problems
+  that arise.  Nevertheless, the version number of this release is
+  3.4.0 instead of 3.3.18 in order to call attention to the possible
+  incompatibility.
+  </p>
+  There are also new features, including
+  <a href="capi3ref.html#sqlite3_blob_open">incremental BLOB I/O</a> and
+  <a href="pragma.html#pragma_incremental_vacuum">incremental vacuum</a>.
+  See the <a href="changes.html">change log</a> for additional information.
+}
+
 newsitem {2007-Apr-25} {Version 3.3.17} {
   This version fixes a bug in the forwards-compatibility logic of SQLite
   that was causing a database to become unreadable when it should have
@@ -87,39 +110,8 @@ newsitem {2007-Apr-18} {Version 3.3.16} {
   VACUUM from running if a NULL value was in a UNIQUE column.
 }
 
-newsitem {2007-Apr-09} {Version 3.3.15} {
-  An annoying bug introduced in 3.3.14 has been fixed.  There are
-  also many enhancements to the test suite.  
-}
-
-newsitem {2007-Apr-02} {Version 3.3.14} {
-  This version focuses on performance improvements.  If you recompile
-  <a href="http://www.sqlite.org/cvstrac/wiki?p=TheAmalgamation">
-  the amalgamation</a> using GCC option -O3 (the precompiled binaries
-  use -O2) you may see performance
-  improvements of 35% or more over version 3.3.13 depending on your
-  workload.  This version also
-  adds support for <a href="pragma.html#pragma_locking_mode">
-  exclusive access mode</a>.
-}
-
-newsitem {2007-Feb-13} {Version 3.3.13} {
-  This version fixes a subtle bug in the ORDER BY optimizer that can 
-  occur when using joins.  There are also a few minor enhancements.
-  Upgrading is recommended.
-}
-
-newsitem {2007-Jan-27} {Version 3.3.12} {
-  The first published build of the previous version used the wrong
-  set of source files.  Consequently, many people downloaded a build
-  that was labeled as "3.3.11" but was really 3.3.10.  Version 3.3.12
-  is released to clear up the ambiguity.  A couple more bugs have
-  also been fixed and <a href="pragma.html#pragma_integrity_check">
-  PRAGMA integrity_check</a> has been enhanced.
-}
-
 puts {
 <p align="right"><a href="oldnews.html">Old news...</a></p>
 </td></tr></table>
 }
-footer {$Id: index.tcl,v 1.154 2007/04/25 11:42:33 drh Exp $}
+footer {$Id: index.tcl,v 1.157 2007/06/18 12:22:43 drh Exp $}

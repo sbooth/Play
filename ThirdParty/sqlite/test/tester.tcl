@@ -11,7 +11,7 @@
 # This file implements some common TCL routines used for regression
 # testing the SQLite library
 #
-# $Id: tester.tcl,v 1.79 2007/04/19 12:30:54 drh Exp $
+# $Id: tester.tcl,v 1.81 2007/05/04 12:05:56 danielk1977 Exp $
 
 # Make sure tclsqlite3 was compiled correctly.  Abort now with an
 # error message if not.
@@ -399,6 +399,7 @@ proc do_ioerr_test {testname args} {
 
   set ::go 1
   for {set n $::ioerropts(-start)} {$::go} {incr n} {
+    set ::TN $n
     incr ::ioerropts(-count) -1
     if {$::ioerropts(-count)<0} break
  
@@ -479,6 +480,7 @@ proc do_ioerr_test {testname args} {
       #   1.  We never hit the IO error and the SQL returned OK
       #   2.  An IO error was hit and the SQL failed
       #
+#puts "$s $r $::go - $msg"
       expr { ($s && !$r && !$::go) || (!$s && $r && $::go) }
     } {1}
 

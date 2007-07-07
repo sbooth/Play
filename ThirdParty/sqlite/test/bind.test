@@ -11,7 +11,7 @@
 # This file implements regression tests for SQLite library.  The
 # focus of this script testing the sqlite_bind API.
 #
-# $Id: bind.test,v 1.38 2006/06/27 20:06:45 drh Exp $
+# $Id: bind.test,v 1.40 2007/05/10 17:23:12 drh Exp $
 #
 
 set testdir [file dirname $argv0]
@@ -211,6 +211,24 @@ do_test bind-4.3 {
     DELETE FROM t1;
   }
 } {}
+do_test bind-4.4 {
+  sqlite3_bind_double $VM 1 NaN
+  sqlite3_bind_double $VM 2 1e300
+  sqlite3_bind_double $VM 3 -1e-300
+  sqlite_step $VM N VALUES COLNAMES
+  sqlite3_reset $VM
+  set x [execsql {SELECT rowid, * FROM t1}]
+  regsub {1e-005} $x {1e-05} y
+  set y
+} {1 {} 1e+300 -1e-300}
+do_test bind-4.5 {
+  execsql {SELECT typeof(a), typeof(b), typeof(c) FROM t1}
+} {null real real}
+do_test bind-4.6 {
+  execsql {
+    DELETE FROM t1;
+  }
+} {}
 
 # NULL
 do_test bind-5.1 {
@@ -358,16 +376,16 @@ catch {sqlite3_finalize $VM}
 do_test bind-9.4 {
   set VM [
     sqlite3_prepare $DB {
-      INSERT INTO t2(a,b,c,d) VALUES(?1,?999,?,?)
+      INSERT INTO t2(a,b,c,d) VALUES(?1,?997,?,?)
     } -1 TAIL
   ]
   sqlite3_bind_parameter_count $VM
-} {1001}
+} {999}
 do_test bind-9.5 {
   sqlite3_bind_int $VM 1 1
-  sqlite3_bind_int $VM 999 999
-  sqlite3_bind_int $VM 1000 1000
-  sqlite3_bind_int $VM 1001 1001
+  sqlite3_bind_int $VM 997 999
+  sqlite3_bind_int $VM 998 1000
+  sqlite3_bind_int $VM 999 1001
   sqlite3_step $VM
 } SQLITE_DONE
 do_test bind-9.6 {

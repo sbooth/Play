@@ -1,7 +1,7 @@
 #
 # Run this Tcl script to generate the lang-*.html files.
 #
-set rcsid {$Id: lang.tcl,v 1.128 2007/04/06 11:26:00 drh Exp $}
+set rcsid {$Id: lang.tcl,v 1.131 2007/06/15 18:59:09 drh Exp $}
 source common.tcl
 
 if {[llength $argv]>0} {
@@ -1455,8 +1455,9 @@ that is running.  Example:  "2.8.0"</td>
 with the <i>Y</i>-th character and which is <i>Z</i> characters long.
 The left-most character of <i>X</i> is number 1.  If <i>Y</i> is negative
 the the first character of the substring is found by counting from the
-right rather than the left.  If SQLite is configured to support UTF-8,
-then characters indices refer to actual UTF-8 characters, not bytes.</td>
+right rather than the left.  If <i>X</i> is string
+then characters indices refer to actual UTF-8 characters.  If
+<i>X</i> is a BLOB then the indices refer to bytes.</td>
 </tr>
 
 <tr>
@@ -1484,6 +1485,16 @@ upper-case letters.  The implementation of this function uses the C library
 routine <b>toupper()</b> which means it may not work correctly on 
 UTF-8 strings.</td>
 </tr>
+
+<tr>
+<td valign="top" align="right">zeroblob(<i>N</i>)</td>
+<td valign="top"><a name="zeroblob">
+Return a BLOB consisting of N bytes of 0x00.  SQLite
+manages these zeroblobs very efficiently.  Zeroblobs can be used to
+reserve space for a BLOB that is later written using 
+<a href="capi3ref.html#sqlite3_blob_open">incremental BLOB I/O</a>.</td>
+</tr>
+
 </table>
 
 <b>Date And Time Functions</b>

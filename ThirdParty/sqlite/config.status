@@ -504,14 +504,14 @@ s,@LIBS@,|#_!!_#|,g
 s,@build_alias@,|#_!!_#|,g
 s,@host_alias@,|#_!!_#|,g
 s,@target_alias@,|#_!!_#|,g
-s,@build@,|#_!!_#|powerpc-apple-darwin8.9.0,g
+s,@build@,|#_!!_#|powerpc-apple-darwin8.10.0,g
 s,@build_cpu@,|#_!!_#|powerpc,g
 s,@build_vendor@,|#_!!_#|apple,g
-s,@build_os@,|#_!!_#|darwin8.9.0,g
-s,@host@,|#_!!_#|powerpc-apple-darwin8.9.0,g
+s,@build_os@,|#_!!_#|darwin8.10.0,g
+s,@host@,|#_!!_#|powerpc-apple-darwin8.10.0,g
 s,@host_cpu@,|#_!!_#|powerpc,g
 s,@host_vendor@,|#_!!_#|apple,g
-s,@host_os@,|#_!!_#|darwin8.9.0,g
+s,@host_os@,|#_!!_#|darwin8.10.0,g
 s,@CC@,|#_!!_#|gcc,g
 s,@CFLAGS@,|#_!!_#|-g -O2,g
 s,@LDFLAGS@,|#_!!_#|,g
@@ -540,9 +540,9 @@ s,@INSTALL_SCRIPT@,|#_!!_#|${INSTALL},g
 s,@INSTALL_DATA@,|#_!!_#|${INSTALL} -m 644,g
 s,@AWK@,|#_!!_#|awk,g
 s,@program_prefix@,|#_!!_#|,g
-s,@VERSION@,|#_!!_#|3.3,g
-s,@RELEASE@,|#_!!_#|3.3.17,g
-s,@VERSION_NUMBER@,|#_!!_#|3003017,g
+s,@VERSION@,|#_!!_#|3.4,g
+s,@RELEASE@,|#_!!_#|3.4.0,g
+s,@VERSION_NUMBER@,|#_!!_#|3004000,g
 s,@BUILD_CC@,|#_!!_#|gcc,g
 s,@BUILD_CFLAGS@,|#_!!_#|-g -O2,g
 s,@THREADSAFE@,|#_!!_#|0,g

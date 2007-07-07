@@ -66,13 +66,13 @@ fast_install=needless
 
 # The host system.
 host_alias=
-host=powerpc-apple-darwin8.9.0
-host_os=darwin8.9.0
+host=powerpc-apple-darwin8.10.0
+host_os=darwin8.10.0
 
 # The build system.
 build_alias=
-build=powerpc-apple-darwin8.9.0
-build_os=darwin8.9.0
+build=powerpc-apple-darwin8.10.0
+build_os=darwin8.10.0
 
 # An echo program that does not interpret backslashes.
 echo="echo"
@@ -7342,13 +7342,13 @@ fast_install=needless
 
 # The host system.
 host_alias=
-host=powerpc-apple-darwin8.9.0
-host_os=darwin8.9.0
+host=powerpc-apple-darwin8.10.0
+host_os=darwin8.10.0
 
 # The build system.
 build_alias=
-build=powerpc-apple-darwin8.9.0
-build_os=darwin8.9.0
+build=powerpc-apple-darwin8.10.0
+build_os=darwin8.10.0
 
 # An echo program that does not interpret backslashes.
 echo="echo"

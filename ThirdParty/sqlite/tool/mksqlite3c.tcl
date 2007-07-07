@@ -26,6 +26,11 @@
 # in this file and extract the version number.  That information will be
 # needed in order to generate the header of the amalgamation.
 #
+if {[lsearch $argv --nostatic]>=0} {
+  set addstatic 0
+} else {
+  set addstatic 1
+}
 set in [open tsrc/sqlite3.h]
 set cnt 0
 set VERSION ?????
@@ -72,8 +77,10 @@ puts $out [subst \
 #
 foreach hdr {
    btree.h
+   btreeInt.h
    hash.h
    keywordhash.h
+   limits.h
    opcodes.h
    os_common.h
    os.h
@@ -109,10 +116,15 @@ proc section_comment {text} {
 # process them approprately.
 #
 proc copy_file {filename} {
-  global seen_hdr available_hdr out
+  global seen_hdr available_hdr out addstatic
   set tail [file tail $filename]
   section_comment "Begin file $tail"
   set in [open $filename r]
+  if {[file extension $filename]==".h"} {
+    set declpattern {^ *[a-zA-Z][a-zA-Z_0-9 ]+ \*?sqlite3[A-Z][a-zA-Z0-9]+\(}
+  } else {
+    set declpattern {^[a-zA-Z][a-zA-Z_0-9 ]+ \*?sqlite3[A-Z][a-zA-Z0-9]+\(}
+  }
   while {![eof $in]} {
     set line [gets $in]
     if {[regexp {^#\s*include\s+["<]([^">]+)[">]} $line all hdr]} {
@@ -133,6 +145,10 @@ proc copy_file {filename} {
       puts $out "#if 0"
     } elseif {[regexp {^#line} $line]} {
       # Skip #line directives.
+    } elseif {$addstatic && [regexp $declpattern $line] 
+                  && ![regexp {^static} $line]} {
+      # Add the "static" keyword before internal functions.
+      puts $out "static $line"
     } else {
       puts $out $line
     }
@@ -152,6 +168,7 @@ foreach file {
    date.c
    os.c
 
+   malloc.c
    printf.c
    random.c
    utf.c
@@ -172,6 +189,7 @@ foreach file {
    vdbeaux.c
    vdbeapi.c
    vdbe.c
+   vdbeblob.c
 
    expr.c
    alter.c
@@ -203,33 +221,6 @@ foreach file {
    main.c
 } {
   copy_file tsrc/$file
-}
-
-if 0 {
-puts $out "#ifdef SQLITE_TEST"
-foreach file {
-   test1.c
-   test2.c
-   test3.c
-   test4.c
-   test5.c
-   test6.c
-   test7.c
-   test8.c
-   test_async.c
-   test_autoext.c
-   test_loadext.c
-   test_md5.c
-   test_schema.c
-   test_server.c
-   test_tclvar.c
-} {
-  copy_file ../sqlite/src/$file
-}
-puts $out "#endif /* SQLITE_TEST */"
-puts $out "#ifdef SQLITE_TCL"
-copy_file ../sqlite/src/tclsqlite.c
-puts $out "#endif /* SQLITE_TCL */"
 }
 
 close $out

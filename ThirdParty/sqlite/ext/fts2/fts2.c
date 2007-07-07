@@ -708,6 +708,7 @@ static void docListValidate(DocListType iType, const char *pData, int nData,
 ** dlwInit - initialize to write a given type doclistto a buffer.
 ** dlwDestroy - clear the writer's memory.  Does not free buffer.
 ** dlwAppend - append raw doclist data to buffer.
+** dlwCopy - copy next doclist from reader to writer.
 ** dlwAdd - construct doclist element and append to buffer.
 **    Only apply dlwAdd() to DL_DOCIDS doclists (else use PLWriter).
 */
@@ -715,12 +716,18 @@ typedef struct DLWriter {
   DocListType iType;
   DataBuffer *b;
   sqlite_int64 iPrevDocid;
+#ifndef NDEBUG
+  int has_iPrevDocid;
+#endif
 } DLWriter;
 
 static void dlwInit(DLWriter *pWriter, DocListType iType, DataBuffer *b){
   pWriter->b = b;
   pWriter->iType = iType;
   pWriter->iPrevDocid = 0;
+#ifndef NDEBUG
+  pWriter->has_iPrevDocid = 0;
+#endif
 }
 static void dlwDestroy(DLWriter *pWriter){
   SCRAMBLE(pWriter);
@@ -771,15 +778,23 @@ static void dlwAppend(DLWriter *pWriter,
   }
   pWriter->iPrevDocid = iLastDocid;
 }
+static void dlwCopy(DLWriter *pWriter, DLReader *pReader){
+  dlwAppend(pWriter, dlrDocData(pReader), dlrDocDataBytes(pReader),
+            dlrDocid(pReader), dlrDocid(pReader));
+}
 static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid){
   char c[VARINT_MAX];
   int n = putVarint(c, iDocid-pWriter->iPrevDocid);
 
-  assert( pWriter->iPrevDocid<iDocid );
+  /* Docids must ascend. */
+  assert( !pWriter->has_iPrevDocid || iDocid>pWriter->iPrevDocid );
   assert( pWriter->iType==DL_DOCIDS );
 
   dataBufferAppend(pWriter->b, c, n);
   pWriter->iPrevDocid = iDocid;
+#ifndef NDEBUG
+  pWriter->has_iPrevDocid = 1;
+#endif
 }
 
 /*******************************************************************/
@@ -886,6 +901,7 @@ static void plrDestroy(PLReader *pReader){
 ** plwInit - init for writing a document's poslist.
 ** plwDestroy - clear a writer.
 ** plwAdd - append position and offset information.
+** plwCopy - copy next position's data from reader to writer.
 ** plwTerminate - add any necessary doclist terminator.
 **
 ** Calling plwAdd() after plwTerminate() may result in a corrupt
@@ -945,16 +961,24 @@ static void plwAdd(PLWriter *pWriter, int iColumn, int iPos,
   }
   dataBufferAppend(pWriter->dlw->b, c, n);
 }
+static void plwCopy(PLWriter *pWriter, PLReader *pReader){
+  plwAdd(pWriter, plrColumn(pReader), plrPosition(pReader),
+         plrStartOffset(pReader), plrEndOffset(pReader));
+}
 static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid){
   char c[VARINT_MAX];
   int n;
 
   pWriter->dlw = dlw;
 
-  assert( iDocid>pWriter->dlw->iPrevDocid );
+  /* Docids must ascend. */
+  assert( !pWriter->dlw->has_iPrevDocid || iDocid>pWriter->dlw->iPrevDocid );
   n = putVarint(c, iDocid-pWriter->dlw->iPrevDocid);
   dataBufferAppend(pWriter->dlw->b, c, n);
   pWriter->dlw->iPrevDocid = iDocid;
+#ifndef NDEBUG
+  pWriter->dlw->has_iPrevDocid = 1;
+#endif
 
   pWriter->iColumn = 0;
   pWriter->iPos = 0;
@@ -1218,6 +1242,122 @@ static void docListMerge(DataBuffer *out,
   dlwDestroy(&writer);
 }
 
+/* Helper function for posListUnion().  Compares the current position
+** between left and right, returning as standard C idiom of <0 if
+** left<right, >0 if left>right, and 0 if left==right.  "End" always
+** compares greater.
+*/
+static int posListCmp(PLReader *pLeft, PLReader *pRight){
+  assert( pLeft->iType==pRight->iType );
+  if( pLeft->iType==DL_DOCIDS ) return 0;
+
+  if( plrAtEnd(pLeft) ) return plrAtEnd(pRight) ? 0 : 1;
+  if( plrAtEnd(pRight) ) return -1;
+
+  if( plrColumn(pLeft)<plrColumn(pRight) ) return -1;
+  if( plrColumn(pLeft)>plrColumn(pRight) ) return 1;
+
+  if( plrPosition(pLeft)<plrPosition(pRight) ) return -1;
+  if( plrPosition(pLeft)>plrPosition(pRight) ) return 1;
+  if( pLeft->iType==DL_POSITIONS ) return 0;
+
+  if( plrStartOffset(pLeft)<plrStartOffset(pRight) ) return -1;
+  if( plrStartOffset(pLeft)>plrStartOffset(pRight) ) return 1;
+
+  if( plrEndOffset(pLeft)<plrEndOffset(pRight) ) return -1;
+  if( plrEndOffset(pLeft)>plrEndOffset(pRight) ) return 1;
+
+  return 0;
+}
+
+/* Write the union of position lists in pLeft and pRight to pOut.
+** "Union" in this case meaning "All unique position tuples".  Should
+** work with any doclist type, though both inputs and the output
+** should be the same type.
+*/
+static void posListUnion(DLReader *pLeft, DLReader *pRight, DLWriter *pOut){
+  PLReader left, right;
+  PLWriter writer;
+
+  assert( dlrDocid(pLeft)==dlrDocid(pRight) );
+  assert( pLeft->iType==pRight->iType );
+  assert( pLeft->iType==pOut->iType );
+
+  plrInit(&left, pLeft);
+  plrInit(&right, pRight);
+  plwInit(&writer, pOut, dlrDocid(pLeft));
+
+  while( !plrAtEnd(&left) || !plrAtEnd(&right) ){
+    int c = posListCmp(&left, &right);
+    if( c<0 ){
+      plwCopy(&writer, &left);
+      plrStep(&left);
+    }else if( c>0 ){
+      plwCopy(&writer, &right);
+      plrStep(&right);
+    }else{
+      plwCopy(&writer, &left);
+      plrStep(&left);
+      plrStep(&right);
+    }
+  }
+
+  plwTerminate(&writer);
+  plwDestroy(&writer);
+  plrDestroy(&left);
+  plrDestroy(&right);
+}
+
+/* Write the union of doclists in pLeft and pRight to pOut.  For
+** docids in common between the inputs, the union of the position
+** lists is written.  Inputs and outputs are always type DL_DEFAULT.
+*/
+static void docListUnion(
+  const char *pLeft, int nLeft,
+  const char *pRight, int nRight,
+  DataBuffer *pOut      /* Write the combined doclist here */
+){
+  DLReader left, right;
+  DLWriter writer;
+
+  if( nLeft==0 ){
+    dataBufferAppend(pOut, pRight, nRight);
+    return;
+  }
+  if( nRight==0 ){
+    dataBufferAppend(pOut, pLeft, nLeft);
+    return;
+  }
+
+  dlrInit(&left, DL_DEFAULT, pLeft, nLeft);
+  dlrInit(&right, DL_DEFAULT, pRight, nRight);
+  dlwInit(&writer, DL_DEFAULT, pOut);
+
+  while( !dlrAtEnd(&left) || !dlrAtEnd(&right) ){
+    if( dlrAtEnd(&right) ){
+      dlwCopy(&writer, &left);
+      dlrStep(&left);
+    }else if( dlrAtEnd(&left) ){
+      dlwCopy(&writer, &right);
+      dlrStep(&right);
+    }else if( dlrDocid(&left)<dlrDocid(&right) ){
+      dlwCopy(&writer, &left);
+      dlrStep(&left);
+    }else if( dlrDocid(&left)>dlrDocid(&right) ){
+      dlwCopy(&writer, &right);
+      dlrStep(&right);
+    }else{
+      posListUnion(&left, &right, &writer);
+      dlrStep(&left);
+      dlrStep(&right);
+    }
+  }
+
+  dlrDestroy(&left);
+  dlrDestroy(&right);
+  dlwDestroy(&writer);
+}
+
 /* pLeft and pRight are DLReaders positioned to the same docid.
 **
 ** If there are no instances in pLeft or pRight where the position
@@ -1230,7 +1370,8 @@ static void docListMerge(DataBuffer *out,
 ** include the positions from pRight that are one more than a
 ** position in pLeft.  In other words:  pRight.iPos==pLeft.iPos+1.
 */
-static void mergePosList(DLReader *pLeft, DLReader *pRight, DLWriter *pOut){
+static void posListPhraseMerge(DLReader *pLeft, DLReader *pRight,
+                               DLWriter *pOut){
   PLReader left, right;
   PLWriter writer;
   int match = 0;
@@ -1302,7 +1443,7 @@ static void docListPhraseMerge(
     }else if( dlrDocid(&right)<dlrDocid(&left) ){
       dlrStep(&right);
     }else{
-      mergePosList(&left, &right, &writer);
+      posListPhraseMerge(&left, &right, &writer);
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1520,6 +1661,7 @@ typedef struct QueryTerm {
   short int iColumn; /* Column of the index that must match this term */
   signed char isOr;  /* this term is preceded by "OR" */
   signed char isNot; /* this term is preceded by "-" */
+  signed char isPrefix; /* this term is followed by "*" */
   char *pTerm;       /* text of the term.  '\000' terminated.  malloced */
   int nTerm;         /* Number of bytes in pTerm[] */
 } QueryTerm;
@@ -1634,7 +1776,8 @@ static const char *const fulltext_zStatement[MAX_STMT] = {
   "select min(start_block), max(end_block) from %_segdir "
   " where level = ? and start_block <> 0",
   /* SEGDIR_DELETE */ "delete from %_segdir where level = ?",
-  /* SEGDIR_SELECT_ALL */ "select root from %_segdir order by level desc, idx",
+  /* SEGDIR_SELECT_ALL */
+  "select root, leaves_end_block from %_segdir order by level desc, idx",
 };
 
 /*
@@ -2927,8 +3070,10 @@ static void snippetOffsetsOfColumn(
       int iCol;
       iCol = aTerm[i].iColumn;
       if( iCol>=0 && iCol<nColumn && iCol!=iColumn ) continue;
-      if( aTerm[i].nTerm!=nToken ) continue;
-      if( memcmp(aTerm[i].pTerm, zToken, nToken) ) continue;
+      if( aTerm[i].nTerm>nToken ) continue;
+      if( !aTerm[i].isPrefix && aTerm[i].nTerm<nToken ) continue;
+      assert( aTerm[i].nTerm<=nToken );
+      if( memcmp(aTerm[i].pTerm, zToken, aTerm[i].nTerm) ) continue;
       if( aTerm[i].iPhrase>1 && (prevMatch & (1<<i))==0 ) continue;
       match |= 1<<i;
       if( i==nTerm-1 || aTerm[i+1].iPhrase==1 ){
@@ -3231,7 +3376,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
 ** docListOfTerm().
 */
 static int termSelect(fulltext_vtab *v, int iColumn,
-                      const char *pTerm, int nTerm,
+                      const char *pTerm, int nTerm, int isPrefix,
                       DocListType iType, DataBuffer *out);
 
 /* Return a DocList corresponding to the query term *pTerm.  If *pTerm
@@ -3257,13 +3402,13 @@ static int docListOfTerm(
   assert( v->nPendingData<0 );
 
   dataBufferInit(&left, 0);
-  rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm,
+  rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm, pQTerm->isPrefix,
                   0<pQTerm->nPhrase ? DL_POSITIONS : DL_DOCIDS, &left);
   if( rc ) return rc;
   for(i=1; i<=pQTerm->nPhrase && left.nData>0; i++){
     dataBufferInit(&right, 0);
     rc = termSelect(v, iColumn, pQTerm[i].pTerm, pQTerm[i].nTerm,
-                    DL_POSITIONS, &right);
+                    pQTerm[i].isPrefix, DL_POSITIONS, &right);
     if( rc ){
       dataBufferDestroy(&left);
       return rc;
@@ -3296,6 +3441,7 @@ static void queryAdd(Query *q, const char *pTerm, int nTerm){
   t->pTerm[nTerm] = 0;
   t->nTerm = nTerm;
   t->isOr = q->nextIsOr;
+  t->isPrefix = 0;
   q->nextIsOr = 0;
   t->iColumn = q->nextColumn;
   q->nextColumn = q->dfltColumn;
@@ -3369,6 +3515,9 @@ static int tokenizeSegment(
     queryAdd(pQuery, pToken, nToken);
     if( !inPhrase && iBegin>0 && pSegment[iBegin-1]=='-' ){
       pQuery->pTerms[pQuery->nTerms-1].isNot = 1;
+    }
+    if( iEnd<nSegment && pSegment[iEnd]=='*' ){
+      pQuery->pTerms[pQuery->nTerms-1].isPrefix = 1;
     }
     pQuery->pTerms[pQuery->nTerms-1].iPhrase = nTerm;
     if( inPhrase ){
@@ -4105,6 +4254,9 @@ static void interiorReaderDestroy(InteriorReader *pReader){
   SCRAMBLE(pReader);
 }
 
+/* TODO(shess) The assertions are great, but what if we're in NDEBUG
+** and the blob is empty or otherwise contains suspect data?
+*/
 static void interiorReaderInit(const char *pData, int nData,
                                InteriorReader *pReader){
   int n, nTerm;
@@ -4181,10 +4333,10 @@ static void interiorReaderStep(InteriorReader *pReader){
 }
 
 /* Compare the current term to pTerm[nTerm], returning strcmp-style
-** results.
+** results.  If isPrefix, equality means equal through nTerm bytes.
 */
 static int interiorReaderTermCmp(InteriorReader *pReader,
-                                 const char *pTerm, int nTerm){
+                                 const char *pTerm, int nTerm, int isPrefix){
   const char *pReaderTerm = interiorReaderTerm(pReader);
   int nReaderTerm = interiorReaderTermBytes(pReader);
   int c, n = nReaderTerm<nTerm ? nReaderTerm : nTerm;
@@ -4197,6 +4349,7 @@ static int interiorReaderTermCmp(InteriorReader *pReader,
 
   c = memcmp(pReaderTerm, pTerm, n);
   if( c!=0 ) return c;
+  if( isPrefix && n==nTerm ) return 0;
   return nReaderTerm - nTerm;
 }
 
@@ -4753,9 +4906,11 @@ static void leafReaderStep(LeafReader *pReader){
   }
 }
 
-/* strcmp-style comparison of pReader's current term against pTerm. */
+/* strcmp-style comparison of pReader's current term against pTerm.
+** If isPrefix, equality means equal through nTerm bytes.
+*/
 static int leafReaderTermCmp(LeafReader *pReader,
-                             const char *pTerm, int nTerm){
+                             const char *pTerm, int nTerm, int isPrefix){
   int c, n = pReader->term.nData<nTerm ? pReader->term.nData : nTerm;
   if( n==0 ){
     if( pReader->term.nData>0 ) return -1;
@@ -4765,6 +4920,7 @@ static int leafReaderTermCmp(LeafReader *pReader,
 
   c = memcmp(pReader->term.pData, pTerm, n);
   if( c!=0 ) return c;
+  if( isPrefix && n==nTerm ) return 0;
   return pReader->term.nData - nTerm;
 }
 
@@ -4805,6 +4961,23 @@ static const char *leavesReaderData(LeavesReader *pReader){
 
 static int leavesReaderAtEnd(LeavesReader *pReader){
   return pReader->eof;
+}
+
+/* loadSegmentLeaves() may not read all the way to SQLITE_DONE, thus
+** leaving the statement handle open, which locks the table.
+*/
+/* TODO(shess) This "solution" is not satisfactory.  Really, there
+** should be check-in function for all statement handles which
+** arranges to call sqlite3_reset().  This most likely will require
+** modification to control flow all over the place, though, so for now
+** just punt.
+**
+** Note the the current system assumes that segment merges will run to
+** completion, which is why this particular probably hasn't arisen in
+** this case.  Probably a brittle assumption.
+*/
+static int leavesReaderReset(LeavesReader *pReader){
+  return sqlite3_reset(pReader->pStmt);
 }
 
 static void leavesReaderDestroy(LeavesReader *pReader){
@@ -4895,7 +5068,8 @@ static int leavesReaderTermCmp(LeavesReader *lr1, LeavesReader *lr2){
   if( leavesReaderAtEnd(lr2) ) return -1;
 
   return leafReaderTermCmp(&lr1->leafReader,
-                           leavesReaderTerm(lr2), leavesReaderTermBytes(lr2));
+                           leavesReaderTerm(lr2), leavesReaderTermBytes(lr2),
+                           0);
 }
 
 /* Similar to leavesReaderTermCmp(), with additional ordering by idx
@@ -5079,116 +5253,280 @@ static int segmentMerge(fulltext_vtab *v, int iLevel){
   return rc;
 }
 
-/* Read pData[nData] as a leaf node, and if the doclist for
-** pTerm[nTerm] is present, merge it over *out (any duplicate doclists
-** read from pData will overwrite those in *out).
+/* Scan pReader for pTerm/nTerm, and merge the term's doclist over
+** *out (any doclists with duplicate docids overwrite those in *out).
+** Internal function for loadSegmentLeaf().
 */
-static int loadSegmentLeaf(fulltext_vtab *v, const char *pData, int nData,
-                           const char *pTerm, int nTerm, DataBuffer *out){
-  LeafReader reader;
-  assert( nData>1 );
-  assert( *pData=='\0' );
+static int loadSegmentLeavesInt(fulltext_vtab *v, LeavesReader *pReader,
+                                const char *pTerm, int nTerm, int isPrefix,
+                                DataBuffer *out){
+  assert( nTerm>0 );
 
-  /* This code should never be called with buffered updates. */
-  assert( v->nPendingData<0 );
-
-  leafReaderInit(pData, nData, &reader);
-  while( !leafReaderAtEnd(&reader) ){
-    int c = leafReaderTermCmp(&reader, pTerm, nTerm);
+  /* Process while the prefix matches. */
+  while( !leavesReaderAtEnd(pReader) ){
+    /* TODO(shess) Really want leavesReaderTermCmp(), but that name is
+    ** already taken to compare the terms of two LeavesReaders.  Think
+    ** on a better name.  [Meanwhile, break encapsulation rather than
+    ** use a confusing name.]
+    */
+    int rc;
+    int c = leafReaderTermCmp(&pReader->leafReader, pTerm, nTerm, isPrefix);
     if( c==0 ){
+      const char *pData = leavesReaderData(pReader);
+      int nData = leavesReaderDataBytes(pReader);
       if( out->nData==0 ){
-        dataBufferReplace(out,
-                          leafReaderData(&reader), leafReaderDataBytes(&reader));
+        dataBufferReplace(out, pData, nData);
       }else{
-        DLReader readers[2];
         DataBuffer result;
-        dlrInit(&readers[0], DL_DEFAULT, out->pData, out->nData);
-        dlrInit(&readers[1], DL_DEFAULT,
-                leafReaderData(&reader), leafReaderDataBytes(&reader));
-        dataBufferInit(&result, out->nData+leafReaderDataBytes(&reader));
-        docListMerge(&result, readers, 2);
+        dataBufferInit(&result, out->nData+nData);
+        docListUnion(out->pData, out->nData, pData, nData, &result);
         dataBufferDestroy(out);
         *out = result;
+        /* TODO(shess) Rather than destroy out, we could retain it for
+        ** later reuse.
+        */
       }
     }
-    if( c>=0 ) break;
-    leafReaderStep(&reader);
+    if( c>0 ) break;      /* Past any possible matches. */
+
+    rc = leavesReaderStep(v, pReader);
+    if( rc!=SQLITE_OK ) return rc;
   }
-  leafReaderDestroy(&reader);
+  return SQLITE_OK;
+}
+
+/* Call loadSegmentLeavesInt() with pData/nData as input. */
+static int loadSegmentLeaf(fulltext_vtab *v, const char *pData, int nData,
+                           const char *pTerm, int nTerm, int isPrefix,
+                           DataBuffer *out){
+  LeavesReader reader;
+  int rc;
+
+  assert( nData>1 );
+  assert( *pData=='\0' );
+  rc = leavesReaderInit(v, 0, 0, 0, pData, nData, &reader);
+  if( rc!=SQLITE_OK ) return rc;
+
+  rc = loadSegmentLeavesInt(v, &reader, pTerm, nTerm, isPrefix, out);
+  leavesReaderReset(&reader);
+  leavesReaderDestroy(&reader);
+  return rc;
+}
+
+/* Call loadSegmentLeavesInt() with the leaf nodes from iStartLeaf to
+** iEndLeaf (inclusive) as input, and merge the resulting doclist into
+** out.
+*/
+static int loadSegmentLeaves(fulltext_vtab *v,
+                             sqlite_int64 iStartLeaf, sqlite_int64 iEndLeaf,
+                             const char *pTerm, int nTerm, int isPrefix,
+                             DataBuffer *out){
+  int rc;
+  LeavesReader reader;
+
+  assert( iStartLeaf<=iEndLeaf );
+  rc = leavesReaderInit(v, 0, iStartLeaf, iEndLeaf, NULL, 0, &reader);
+  if( rc!=SQLITE_OK ) return rc;
+
+  rc = loadSegmentLeavesInt(v, &reader, pTerm, nTerm, isPrefix, out);
+  leavesReaderReset(&reader);
+  leavesReaderDestroy(&reader);
+  return rc;
+}
+
+/* Taking pData/nData as an interior node, find the sequence of child
+** nodes which could include pTerm/nTerm/isPrefix.  Note that the
+** interior node terms logically come between the blocks, so there is
+** one more blockid than there are terms (that block contains terms >=
+** the last interior-node term).
+*/
+/* TODO(shess) The calling code may already know that the end child is
+** not worth calculating, because the end may be in a later sibling
+** node.  Consider whether breaking symmetry is worthwhile.  I suspect
+** it's not worthwhile.
+*/
+static void getChildrenContaining(const char *pData, int nData,
+                                  const char *pTerm, int nTerm, int isPrefix,
+                                  sqlite_int64 *piStartChild,
+                                  sqlite_int64 *piEndChild){
+  InteriorReader reader;
+
+  assert( nData>1 );
+  assert( *pData!='\0' );
+  interiorReaderInit(pData, nData, &reader);
+
+  /* Scan for the first child which could contain pTerm/nTerm. */
+  while( !interiorReaderAtEnd(&reader) ){
+    if( interiorReaderTermCmp(&reader, pTerm, nTerm, 0)>0 ) break;
+    interiorReaderStep(&reader);
+  }
+  *piStartChild = interiorReaderCurrentBlockid(&reader);
+
+  /* Keep scanning to find a term greater than our term, using prefix
+  ** comparison if indicated.  If isPrefix is false, this will be the
+  ** same blockid as the starting block.
+  */
+  while( !interiorReaderAtEnd(&reader) ){
+    if( interiorReaderTermCmp(&reader, pTerm, nTerm, isPrefix)>0 ) break;
+    interiorReaderStep(&reader);
+  }
+  *piEndChild = interiorReaderCurrentBlockid(&reader);
+
+  interiorReaderDestroy(&reader);
+
+  /* Children must ascend, and if !prefix, both must be the same. */
+  assert( *piEndChild>=*piStartChild );
+  assert( isPrefix || *piStartChild==*piEndChild );
+}
+
+/* Read block at iBlockid and pass it with other params to
+** getChildrenContaining().
+*/
+static int loadAndGetChildrenContaining(
+  fulltext_vtab *v,
+  sqlite_int64 iBlockid,
+  const char *pTerm, int nTerm, int isPrefix,
+  sqlite_int64 *piStartChild, sqlite_int64 *piEndChild
+){
+  sqlite3_stmt *s = NULL;
+  int rc;
+
+  assert( iBlockid!=0 );
+  assert( pTerm!=NULL );
+  assert( nTerm!=0 );        /* TODO(shess) Why not allow this? */
+  assert( piStartChild!=NULL );
+  assert( piEndChild!=NULL );
+
+  rc = sql_get_statement(v, BLOCK_SELECT_STMT, &s);
+  if( rc!=SQLITE_OK ) return rc;
+
+  rc = sqlite3_bind_int64(s, 1, iBlockid);
+  if( rc!=SQLITE_OK ) return rc;
+
+  rc = sql_step_statement(v, BLOCK_SELECT_STMT, &s);
+  if( rc==SQLITE_DONE ) return SQLITE_ERROR;
+  if( rc!=SQLITE_ROW ) return rc;
+
+  getChildrenContaining(sqlite3_column_blob(s, 0), sqlite3_column_bytes(s, 0),
+                        pTerm, nTerm, isPrefix, piStartChild, piEndChild);
+
+  /* We expect only one row.  We must execute another sqlite3_step()
+   * to complete the iteration; otherwise the table will remain
+   * locked. */
+  rc = sqlite3_step(s);
+  if( rc==SQLITE_ROW ) return SQLITE_ERROR;
+  if( rc!=SQLITE_DONE ) return rc;
+
   return SQLITE_OK;
 }
 
 /* Traverse the tree represented by pData[nData] looking for
-** pTerm[nTerm], merging its doclist over *out if found (any duplicate
-** doclists read from the segment rooted at pData will overwrite those
-** in *out).
+** pTerm[nTerm], placing its doclist into *out.  This is internal to
+** loadSegment() to make error-handling cleaner.
+*/
+static int loadSegmentInt(fulltext_vtab *v, const char *pData, int nData,
+                          sqlite_int64 iLeavesEnd,
+                          const char *pTerm, int nTerm, int isPrefix,
+                          DataBuffer *out){
+  /* Special case where root is a leaf. */
+  if( *pData=='\0' ){
+    return loadSegmentLeaf(v, pData, nData, pTerm, nTerm, isPrefix, out);
+  }else{
+    int rc;
+    sqlite_int64 iStartChild, iEndChild;
+
+    /* Process pData as an interior node, then loop down the tree
+    ** until we find the set of leaf nodes to scan for the term.
+    */
+    getChildrenContaining(pData, nData, pTerm, nTerm, isPrefix,
+                          &iStartChild, &iEndChild);
+    while( iStartChild>iLeavesEnd ){
+      sqlite_int64 iNextStart, iNextEnd;
+      rc = loadAndGetChildrenContaining(v, iStartChild, pTerm, nTerm, isPrefix,
+                                        &iNextStart, &iNextEnd);
+      if( rc!=SQLITE_OK ) return rc;
+
+      /* If we've branched, follow the end branch, too. */
+      if( iStartChild!=iEndChild ){
+        sqlite_int64 iDummy;
+        rc = loadAndGetChildrenContaining(v, iEndChild, pTerm, nTerm, isPrefix,
+                                          &iDummy, &iNextEnd);
+        if( rc!=SQLITE_OK ) return rc;
+      }
+
+      assert( iNextStart<=iNextEnd );
+      iStartChild = iNextStart;
+      iEndChild = iNextEnd;
+    }
+    assert( iStartChild<=iLeavesEnd );
+    assert( iEndChild<=iLeavesEnd );
+
+    /* Scan through the leaf segments for doclists. */
+    return loadSegmentLeaves(v, iStartChild, iEndChild,
+                             pTerm, nTerm, isPrefix, out);
+  }
+}
+
+/* Call loadSegmentInt() to collect the doclist for pTerm/nTerm, then
+** merge its doclist over *out (any duplicate doclists read from the
+** segment rooted at pData will overwrite those in *out).
+*/
+/* TODO(shess) Consider changing this to determine the depth of the
+** leaves using either the first characters of interior nodes (when
+** ==1, we're one level above the leaves), or the first character of
+** the root (which will describe the height of the tree directly).
+** Either feels somewhat tricky to me.
+*/
+/* TODO(shess) The current merge is likely to be slow for large
+** doclists (though it should process from newest/smallest to
+** oldest/largest, so it may not be that bad).  It might be useful to
+** modify things to allow for N-way merging.  This could either be
+** within a segment, with pairwise merges across segments, or across
+** all segments at once.
 */
 static int loadSegment(fulltext_vtab *v, const char *pData, int nData,
-                       const char *pTerm, int nTerm, DataBuffer *out){
+                       sqlite_int64 iLeavesEnd,
+                       const char *pTerm, int nTerm, int isPrefix,
+                       DataBuffer *out){
+  DataBuffer result;
   int rc;
-  sqlite3_stmt *s = NULL;
 
   assert( nData>1 );
 
   /* This code should never be called with buffered updates. */
   assert( v->nPendingData<0 );
 
-  /* Process data as an interior node until we reach a leaf. */
-  while( *pData!='\0' ){
-    sqlite_int64 iBlockid;
-    InteriorReader reader;
+  dataBufferInit(&result, 0);
+  rc = loadSegmentInt(v, pData, nData, iLeavesEnd,
+                      pTerm, nTerm, isPrefix, &result);
+  if( rc==SQLITE_OK && result.nData>0 ){
+    if( out->nData==0 ){
+      DataBuffer tmp = *out;
+      *out = result;
+      result = tmp;
+    }else{
+      DataBuffer merged;
+      DLReader readers[2];
 
-    /* Scan the node data until we find a term greater than our term.
-    ** Our target child will be in the blockid under that term, or in
-    ** the last blockid in the node if we never find such a term.
-    */
-    interiorReaderInit(pData, nData, &reader);
-    while( !interiorReaderAtEnd(&reader) ){
-      if( interiorReaderTermCmp(&reader, pTerm, nTerm)>0 ) break;
-      interiorReaderStep(&reader);
+      dlrInit(&readers[0], DL_DEFAULT, out->pData, out->nData);
+      dlrInit(&readers[1], DL_DEFAULT, result.pData, result.nData);
+      dataBufferInit(&merged, out->nData+result.nData);
+      docListMerge(&merged, readers, 2);
+      dataBufferDestroy(out);
+      *out = merged;
+      dlrDestroy(&readers[0]);
+      dlrDestroy(&readers[1]);
     }
-
-    /* Grab the child blockid before calling sql_get_statement(),
-    ** because sql_get_statement() may reset our data out from under
-    ** us.
-    */
-    iBlockid = interiorReaderCurrentBlockid(&reader);
-    interiorReaderDestroy(&reader);
-
-    rc = sql_get_statement(v, BLOCK_SELECT_STMT, &s);
-    if( rc!=SQLITE_OK ) return rc;
-
-    rc = sqlite3_bind_int64(s, 1, iBlockid);
-    if( rc!=SQLITE_OK ) return rc;
-
-    rc = sql_step_statement(v, BLOCK_SELECT_STMT, &s);
-    if( rc==SQLITE_DONE ) return SQLITE_ERROR;
-    if( rc!=SQLITE_ROW ) return rc;
-
-    pData = sqlite3_column_blob(s, 0);
-    nData = sqlite3_column_bytes(s, 0);
   }
-
-  rc = loadSegmentLeaf(v, pData, nData, pTerm, nTerm, out);
-  if( rc!=SQLITE_OK ) return rc;
-
-  /* If we selected a child node, we need to finish that select. */
-  if( s!=NULL ){
-    /* We expect only one row.  We must execute another sqlite3_step()
-     * to complete the iteration; otherwise the table will remain
-     * locked. */
-    rc = sqlite3_step(s);
-    if( rc==SQLITE_ROW ) return SQLITE_ERROR;
-    if( rc!=SQLITE_DONE ) return rc;
-  }
-  return SQLITE_OK;
+  dataBufferDestroy(&result);
+  return rc;
 }
 
 /* Scan the database and merge together the posting lists for the term
 ** into *out.
 */
 static int termSelect(fulltext_vtab *v, int iColumn,
-                      const char *pTerm, int nTerm,
+                      const char *pTerm, int nTerm, int isPrefix,
                       DocListType iType, DataBuffer *out){
   DataBuffer doclist;
   sqlite3_stmt *s;
@@ -5204,8 +5542,11 @@ static int termSelect(fulltext_vtab *v, int iColumn,
   ** elements for given docids overwrite older elements.
   */
   while( (rc=sql_step_statement(v, SEGDIR_SELECT_ALL_STMT, &s))==SQLITE_ROW ){
-    rc = loadSegment(v, sqlite3_column_blob(s, 0), sqlite3_column_bytes(s, 0),
-                     pTerm, nTerm, &doclist);
+    const char *pData = sqlite3_column_blob(s, 0);
+    const int nData = sqlite3_column_bytes(s, 0);
+    const sqlite_int64 iLeavesEnd = sqlite3_column_int64(s, 1);
+    rc = loadSegment(v, pData, nData, iLeavesEnd, pTerm, nTerm, isPrefix,
+                     &doclist);
     if( rc!=SQLITE_OK ) goto err;
   }
   if( rc==SQLITE_DONE ){

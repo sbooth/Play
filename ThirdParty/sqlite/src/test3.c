@@ -13,7 +13,7 @@
 ** is not included in the SQLite library.  It is used for automated
 ** testing of the SQLite library.
 **
-** $Id: test3.c,v 1.73 2007/03/29 05:51:49 drh Exp $
+** $Id: test3.c,v 1.75 2007/05/17 14:45:13 danielk1977 Exp $
 */
 #include "sqliteInt.h"
 #include "pager.h"
@@ -750,7 +750,7 @@ static int btree_delete(
 }
 
 /*
-** Usage:   btree_insert ID KEY DATA
+** Usage:   btree_insert ID KEY DATA ?NZERO?
 **
 ** Create a new entry with the given key and data.  If an entry already
 ** exists with the same key the old entry is overwritten.
@@ -763,19 +763,25 @@ static int btree_insert(
 ){
   BtCursor *pCur;
   int rc;
+  int nZero;
 
-  if( objc!=4 ){
-    Tcl_WrongNumArgs(interp, 1, objv, "ID KEY DATA");
+  if( objc!=4 && objc!=5 ){
+    Tcl_WrongNumArgs(interp, 1, objv, "ID KEY DATA ?NZERO?");
     return TCL_ERROR;
   }
   pCur = sqlite3TextToPtr(Tcl_GetString(objv[1]));
+  if( objc==5 ){
+    if( Tcl_GetIntFromObj(interp, objv[4], &nZero) ) return TCL_ERROR;
+  }else{
+    nZero = 0;
+  }
   if( sqlite3BtreeFlags(pCur) & BTREE_INTKEY ){
     i64 iKey;
     int len;
     unsigned char *pBuf;
     if( Tcl_GetWideIntFromObj(interp, objv[2], &iKey) ) return TCL_ERROR;
     pBuf = Tcl_GetByteArrayFromObj(objv[3], &len);
-    rc = sqlite3BtreeInsert(pCur, 0, iKey, pBuf, len, 0);
+    rc = sqlite3BtreeInsert(pCur, 0, iKey, pBuf, len, nZero, 0);
   }else{
     int keylen;
     int dlen;
@@ -783,7 +789,7 @@ static int btree_insert(
     unsigned char *pDBuf;
     pKBuf = Tcl_GetByteArrayFromObj(objv[2], &keylen);
     pDBuf = Tcl_GetByteArrayFromObj(objv[3], &dlen);
-    rc = sqlite3BtreeInsert(pCur, pKBuf, keylen, pDBuf, dlen, 0);
+    rc = sqlite3BtreeInsert(pCur, pKBuf, keylen, pDBuf, dlen, nZero, 0);
   }
   if( rc ){
     Tcl_AppendResult(interp, errorName(rc), 0);
@@ -1419,10 +1425,11 @@ static int btree_from_db(
   Tcl_CmdInfo info;
   sqlite3 *db;
   Btree *pBt;
+  int iDb = 0;
 
-  if( argc!=2 ){
+  if( argc!=2 && argc!=3 ){
     Tcl_AppendResult(interp, "wrong # args: should be \"", argv[0],
-       " DB-HANDLE\"", 0);
+       " DB-HANDLE ?N?\"", 0);
     return TCL_ERROR;
   }
 
@@ -1430,10 +1437,14 @@ static int btree_from_db(
     Tcl_AppendResult(interp, "No such db-handle: \"", argv[1], "\"", 0);
     return TCL_ERROR;
   }
+  if( argc==3 ){
+    iDb = atoi(argv[2]);
+  }
+
   db = *((sqlite3 **)info.objClientData);
   assert( db );
 
-  pBt = db->aDb[0].pBt;
+  pBt = db->aDb[iDb].pBt;
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%p", pBt);
   Tcl_SetResult(interp, zBuf, TCL_VOLATILE);
   return TCL_OK;

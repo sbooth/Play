@@ -58,11 +58,11 @@ TCCX = $(TCC) $(OPTS) $(THREADSAFE) $(USLEEP) -I. -I$(TOP)/src
 LIBOBJ+= alter.o analyze.o attach.o auth.o btree.o build.o \
          callback.o complete.o date.o delete.o \
          expr.o func.o hash.o insert.o loadext.o \
-         main.o opcodes.o os.o os_os2.o os_unix.o os_win.o \
+         main.o malloc.o opcodes.o os.o os_os2.o os_unix.o os_win.o \
          pager.o parse.o pragma.o prepare.o printf.o random.o \
          select.o table.o tclsqlite.o tokenize.o trigger.o \
          update.o util.o vacuum.o \
-         vdbe.o vdbeapi.o vdbeaux.o vdbefifo.o vdbemem.o \
+         vdbe.o vdbeapi.o vdbeaux.o vdbeblob.o vdbefifo.o vdbemem.o \
          where.o utf.o legacy.o vtab.o
 
 # All of the source code files.
@@ -87,6 +87,7 @@ SRC = \
   $(TOP)/src/legacy.c \
   $(TOP)/src/loadext.c \
   $(TOP)/src/main.c \
+  $(TOP)/src/malloc.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_os2.c \
   $(TOP)/src/os_unix.c \
@@ -115,6 +116,7 @@ SRC = \
   $(TOP)/src/vdbe.h \
   $(TOP)/src/vdbeapi.c \
   $(TOP)/src/vdbeaux.c \
+  $(TOP)/src/vdbeblob.c \
   $(TOP)/src/vdbefifo.c \
   $(TOP)/src/vdbemem.c \
   $(TOP)/src/vdbeInt.h \
@@ -159,6 +161,7 @@ TESTSRC = \
   $(TOP)/src/func.c \
   $(TOP)/src/insert.c \
   $(TOP)/src/main.c \
+  $(TOP)/src/malloc.c \
   $(TOP)/src/os.c \
   $(TOP)/src/os_os2.c \
   $(TOP)/src/os_unix.c \
@@ -177,6 +180,8 @@ TESTSRC = \
   $(TOP)/src/test9.c \
   $(TOP)/src/test_autoext.c \
   $(TOP)/src/test_async.c \
+  $(TOP)/src/test_btree.c \
+  $(TOP)/src/test_config.c \
   $(TOP)/src/test_hexio.c \
   $(TOP)/src/test_md5.c \
   $(TOP)/src/test_schema.c \
@@ -193,7 +198,9 @@ TESTSRC = \
 HDR = \
    sqlite3.h  \
    $(TOP)/src/btree.h \
+   $(TOP)/src/btreeInt.h \
    $(TOP)/src/hash.h \
+   $(TOP)/src/limits.h \
    opcodes.h \
    $(TOP)/src/os.h \
    $(TOP)/src/os_common.h \
@@ -306,6 +313,9 @@ func.o:	$(TOP)/src/func.c $(HDR)
 hash.o:	$(TOP)/src/hash.c $(HDR)
 	$(TCCX) -c $(TOP)/src/hash.c
 
+icu.o:	$(TOP)/ext/icu/icu.c $(HDR)
+	$(TCCX) -c $(TOP)/ext/icu/icu.c
+
 insert.o:	$(TOP)/src/insert.c $(HDR)
 	$(TCCX) -c $(TOP)/src/insert.c
 
@@ -317,6 +327,9 @@ loadext.o:	$(TOP)/src/loadext.c $(HDR)
 
 main.o:	$(TOP)/src/main.c $(HDR)
 	$(TCCX) -c $(TOP)/src/main.c
+
+malloc.o:	$(TOP)/src/malloc.c $(HDR)
+	$(TCCX) -c $(TOP)/src/malloc.c
 
 pager.o:	$(TOP)/src/pager.c $(HDR) $(TOP)/src/pager.h
 	$(TCCX) -c $(TOP)/src/pager.c
@@ -410,6 +423,9 @@ vdbeapi.o:	$(TOP)/src/vdbeapi.c $(VDBEHDR) $(HDR)
 vdbeaux.o:	$(TOP)/src/vdbeaux.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbeaux.c
 
+vdbeblob.o:	$(TOP)/src/vdbeblob.c $(VDBEHDR) $(HDR)
+	$(TCCX) -c $(TOP)/src/vdbeblob.c
+
 vdbefifo.o:	$(TOP)/src/vdbefifo.c $(VDBEHDR) $(HDR)
 	$(TCCX) -c $(TOP)/src/vdbefifo.c
 
@@ -436,6 +452,9 @@ testfixture$(EXE):	$(TOP)/src/tclsqlite.c libsqlite3.a $(TESTSRC)
 
 fulltest:	testfixture$(EXE) sqlite3$(EXE)
 	./testfixture$(EXE) $(TOP)/test/all.test
+
+soaktest:	testfixture$(EXE) sqlite3$(EXE)
+	./testfixture$(EXE) $(TOP)/test/all.test -soak 1
 
 test:	testfixture$(EXE) sqlite3$(EXE)
 	./testfixture$(EXE) $(TOP)/test/quick.test
@@ -474,8 +493,8 @@ c_interface.html:	$(TOP)/www/c_interface.tcl
 capi3.html:	$(TOP)/www/capi3.tcl
 	tclsh $(TOP)/www/capi3.tcl >capi3.html
 
-capi3ref.html:	$(TOP)/www/capi3ref.tcl
-	tclsh $(TOP)/www/capi3ref.tcl >capi3ref.html
+capi3ref.html:	$(TOP)/www/mkapidoc.tcl sqlite3.h
+	tclsh $(TOP)/www/mkapidoc.tcl <sqlite3.h >capi3ref.html
 
 changes.html:	$(TOP)/www/changes.tcl
 	tclsh $(TOP)/www/changes.tcl >changes.html
@@ -525,6 +544,9 @@ formatchng.html:	$(TOP)/www/formatchng.tcl
 
 index.html:	$(TOP)/www/index.tcl last_change
 	tclsh $(TOP)/www/index.tcl >index.html
+
+limits.html:	$(TOP)/www/limits.tcl last_change
+	tclsh $(TOP)/www/limits.tcl >limits.html
 
 lang.html:	$(TOP)/www/lang.tcl
 	tclsh $(TOP)/www/lang.tcl doc >lang.html
@@ -607,6 +629,7 @@ DOC = \
   fileformat.html \
   formatchng.html \
   index.html \
+  limits.html \
   lang.html \
   lockingv3.html \
   mingw.html \
