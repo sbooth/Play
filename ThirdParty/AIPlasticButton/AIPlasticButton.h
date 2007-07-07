@@ -6,6 +6,8 @@
 //  Copyright (c) 2003-2005 The Adium Team. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
+
 /*!
  * @class AIPlasticButton
  * @brief Abstract NSButton subclass for implementing a "plastic" Aqua button with a given image
