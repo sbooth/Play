@@ -6,6 +6,20 @@
 	objectVersion = 42;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		8CDE3D870C40136A008E66EB /* Generate SVNRevision */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 8CDE3D8A0C40138B008E66EB /* Build configuration list for PBXAggregateTarget "Generate SVNRevision" */;
+			buildPhases = (
+				8CDE3D860C40136A008E66EB /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "Generate SVNRevision";
+			productName = "Generate SVNRevision";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F0220B866F1900E8ADB6 /* CTGradient.m */; };
 		8C06F02C0B866F2D00E8ADB6 /* CTBadge_1.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */; };
@@ -329,6 +343,16 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8CDE3D920C4013B1008E66EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8CDE3D870C40136A008E66EB /* Generate SVNRevision */;
+			remoteInfo = "Generate SVNRevision";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8C9C2ECA0B73138500CE799A /* Copy Frameworks */ = {
@@ -759,6 +783,7 @@
 		8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseObject.h; path = Database/DatabaseObject.h; sourceTree = "<group>"; };
 		8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseObject.m; path = Database/DatabaseObject.m; sourceTree = "<group>"; };
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
+		8CDE3D8F0C4013A4008E66EB /* generate_svn_revision.sh */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; name = generate_svn_revision.sh; path = Scripts/generate_svn_revision.sh; sourceTree = "<group>"; };
 		8CDF26D00BEBF8FF00D82E81 /* HighestRatedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = HighestRatedNode.h; path = Browser/HighestRatedNode.h; sourceTree = "<group>"; };
 		8CDF26D10BEBF8FF00D82E81 /* HighestRatedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = HighestRatedNode.m; path = Browser/HighestRatedNode.m; sourceTree = "<group>"; };
 		8CE620C80C11E8530073ADC3 /* AudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioDecoder.h; path = Audio/Decoders/AudioDecoder.h; sourceTree = "<group>"; };
@@ -893,6 +918,7 @@
 				8C9C31D80B732F0000CE799A /* Utilities */,
 				8C9C28870B724D1600CE799A /* AppleScript */,
 				8C9C377C0B739C9800CE799A /* SQL */,
+				8CDE3D890C40138B008E66EB /* Scripts */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				8C8E3D200BDF266F00605141 /* Strings */,
 				8C9C2E920B7310D100CE799A /* Icons */,
@@ -1618,6 +1644,14 @@
 			name = Preferences;
 			sourceTree = "<group>";
 		};
+		8CDE3D890C40138B008E66EB /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				8CDE3D8F0C4013A4008E66EB /* generate_svn_revision.sh */,
+			);
+			name = Scripts;
+			sourceTree = "<group>";
+		};
 		8CE631B90C161C940073ADC3 /* AudioUnitUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -1660,7 +1694,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Play" */;
 			buildPhases = (
-				8CDE3A840C400AE7008E66EB /* ShellScript */,
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
@@ -1669,6 +1702,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				8CDE3D930C4013B1008E66EB /* PBXTargetDependency */,
 			);
 			name = Play;
 			productInstallPath = "$(HOME)/Applications";
@@ -1686,6 +1720,7 @@
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Play */;
 			projectDirPath = "";
 			targets = (
+				8CDE3D870C40136A008E66EB /* Generate SVNRevision */,
 				8D1107260486CEB800E47090 /* Play */,
 			);
 		};
@@ -1822,7 +1857,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8CDE3A840C400AE7008E66EB /* ShellScript */ = {
+		8CDE3D860C40136A008E66EB /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1830,11 +1865,11 @@
 			inputPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/SVNRevision.h",
+				"$(SRCROOT)/SVNRevision.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = $SRCROOT/Scripts/generate_svn_revision.sh;
+			shellScript = "PATH=\"$PATH:/opt/local/bin:/usr/local/bin:/usr/local/subversion/bin:/sw/bin\"\nREVISION=`svnversion .`\n\n## SVN_REVISION is a string because it may look like \"4168M\" or \"4123:4168MS\"\necho \"/* This file is automatically generated */\" > $SCRIPT_OUTPUT_FILE_0\necho \"#define SVN_REVISION \\\"$REVISION\\\"\" >> $SCRIPT_OUTPUT_FILE_0\necho \"#define SVN_REVISION_UNQUOTED $REVISION\" >> $SCRIPT_OUTPUT_FILE_0\n\nexit 0";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2018,6 +2053,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8CDE3D930C4013B1008E66EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8CDE3D870C40136A008E66EB /* Generate SVNRevision */;
+			targetProxy = 8CDE3D920C4013B1008E66EB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -2271,6 +2314,28 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		8CDE3D8B0C40138B008E66EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "Generate SVNRevision";
+			};
+			name = Debug;
+		};
+		8CDE3D8C0C40138B008E66EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = "Generate SVNRevision";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2302,7 +2367,7 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = $DERIVED_FILE_DIR/SVNRevision.h;
+				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
@@ -2341,7 +2406,7 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = $DERIVED_FILE_DIR/SVNRevision.h;
+				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
@@ -2373,6 +2438,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8CDE3D8A0C40138B008E66EB /* Build configuration list for PBXAggregateTarget "Generate SVNRevision" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CDE3D8B0C40138B008E66EB /* Debug */,
+				8CDE3D8C0C40138B008E66EB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Play" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
