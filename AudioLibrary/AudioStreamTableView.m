@@ -168,6 +168,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return (1 == [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(convertWithMax:))
 		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Max"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
+	else if([menuItem action] == @selector(editWithTag:))
+		return (nil != [[NSWorkspace sharedWorkspace] fullPathForApplication:@"Tag"] && kMaximumStreamsForContextMenuAction >= [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(revealInFinder:)
 			|| [menuItem action] == @selector(openWithFinder:)
 			|| [menuItem action] == @selector(openWith:))
@@ -856,6 +858,18 @@ bail:
 	while((stream = [enumerator nextObject])) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
+	}
+}
+
+- (IBAction) editWithTag:(id)sender
+{
+	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
+	AudioStream		*stream			= nil;
+	NSString		*path			= nil;
+	
+	while((stream = [enumerator nextObject])) {
+		path = [[stream valueForKey:StreamURLKey] path];
+		[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Tag"];
 	}
 }
 

@@ -104,6 +104,7 @@
                 convert = id; 
                 convertWithMax = id; 
                 editMetadata = id; 
+                editWithTag = id; 
                 openWith = id; 
                 openWithFinder = id; 
                 playlistInformation = id; 

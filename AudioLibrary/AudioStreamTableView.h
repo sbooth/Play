@@ -62,6 +62,8 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	convert:(id)sender;
 - (IBAction)	convertWithMax:(id)sender;
 
+- (IBAction)	editWithTag:(id)sender;
+
 - (IBAction)	openWith:(id)sender;
 
 - (IBAction)	insertPlaylistWithSelection:(id)sender;
