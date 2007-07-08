@@ -1,9 +1,6 @@
 In no particular order:
 =======================
-- ReplayGain support
 - Gapless AAC playback using iTunSMPB atoms
 - Rename files based on tags
 - Guess tags based on filenames
-- Output device selection
-- AudioUnit support for effects
 - Plugin architecture
