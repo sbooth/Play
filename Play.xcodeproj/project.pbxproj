@@ -1664,6 +1664,7 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				8C9C2ECA0B73138500CE799A /* Copy Frameworks */,
+				8CDE3A840C400AE7008E66EB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1819,6 +1820,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8CDE3A840C400AE7008E66EB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/SVNRevision.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = $SRCROOT/Scripts/generate_svn_revision.sh;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
@@ -2283,6 +2301,9 @@
 					"$(SRCROOT)/Frameworks/mp4v2.framework/Headers",
 				);
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
+				INFOPLIST_PREFIX_HEADER = $DERIVED_FILE_DIR/SVNRevision.h;
+				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
 				WRAPPER_EXTENSION = app;
@@ -2319,6 +2340,9 @@
 					"$(SRCROOT)/Frameworks/mp4v2.framework/Headers",
 				);
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
+				INFOPLIST_PREFIX_HEADER = $DERIVED_FILE_DIR/SVNRevision.h;
+				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
 				WRAPPER_EXTENSION = app;
