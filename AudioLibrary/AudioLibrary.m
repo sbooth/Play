@@ -262,6 +262,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"filename",
 		[NSNumber numberWithBool:NO], @"rating",
 		[NSNumber numberWithBool:NO], @"bpm",
+		[NSNumber numberWithBool:NO], @"bitrate",
 		nil];
 	
 	NSDictionary *streamTableColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -286,6 +287,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:64], @"filename",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
+		[NSNumber numberWithFloat:72], @"bitrate",
 		nil];
 	
 	NSDictionary *streamTableColumnOrderArray = [NSArray arrayWithObjects:
@@ -315,6 +317,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithBool:NO], @"filename",
 		[NSNumber numberWithBool:NO], @"rating",
 		[NSNumber numberWithBool:NO], @"bpm",
+		[NSNumber numberWithBool:NO], @"bitrate",
 		nil];
 	
 	NSDictionary *playQueueColumnSizesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -340,6 +343,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[NSNumber numberWithFloat:64], @"filename",
 		[NSNumber numberWithFloat:68], @"rating",
 		[NSNumber numberWithFloat:72], @"bpm",
+		[NSNumber numberWithFloat:72], @"bitrate",
 		nil];
 	
 	NSDictionary *playQueueColumnOrderArray = [NSArray arrayWithObjects:
@@ -2212,6 +2216,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[[[_streamTable tableColumnWithIdentifier:@"playCount"] dataCell] setFormatter:numberFormatter];
 	[[[_streamTable tableColumnWithIdentifier:@"skipCount"] dataCell] setFormatter:numberFormatter];
 	[[[_streamTable tableColumnWithIdentifier:@"bpm"] dataCell] setFormatter:numberFormatter];
+	[[[_streamTable tableColumnWithIdentifier:@"bitrate"] dataCell] setFormatter:numberFormatter];
 	
 	[numberFormatter release];
 
@@ -2292,6 +2297,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[[[_playQueueTable tableColumnWithIdentifier:@"playCount"] dataCell] setFormatter:numberFormatter];
 	[[[_playQueueTable tableColumnWithIdentifier:@"skipCount"] dataCell] setFormatter:numberFormatter];
 	[[[_playQueueTable tableColumnWithIdentifier:@"bpm"] dataCell] setFormatter:numberFormatter];
+	[[[_playQueueTable tableColumnWithIdentifier:@"bitrate"] dataCell] setFormatter:numberFormatter];
 	
 	[numberFormatter release];
 	
