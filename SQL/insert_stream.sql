@@ -41,7 +41,10 @@ INSERT INTO 'streams' (
 		sample_rate,
 		total_frames,
 		duration,
-		bitrate
+		bitrate,
+		
+		musicdns_puid,
+		musicbrainz_id
 		
 	) 
 	
@@ -88,6 +91,9 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
+		?,
+		
+		?,
 		?
 		
 	);

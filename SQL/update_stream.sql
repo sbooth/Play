@@ -40,6 +40,9 @@ UPDATE 'streams' SET
 		sample_rate = :sample_rate,
 		total_frames = :total_frames,
 		duration = :duration,
-		bitrate = :bitrate
+		bitrate = :bitrate,
+		
+		musicdns_puid = :musicdns_puid,
+		musicbrainz_id = :musicbrainz_id
 		
 	WHERE id == :id;

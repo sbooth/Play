@@ -42,6 +42,9 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'sample_rate'				REAL,
 	'total_frames'				INTEGER,
 	'duration'					REAL,
-	'bitrate'					REAL
+	'bitrate'					REAL,
+	
+	'musicdns_puid'				TEXT,
+	'musicbrainz_id'			TEXT
 	
 );
