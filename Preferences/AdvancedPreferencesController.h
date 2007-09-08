@@ -20,21 +20,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-// ========================================
-// Identifiers for toolbar items
-// ========================================
-extern NSString	* const		GeneralPreferencesToolbarItemIdentifier;
-extern NSString * const		HotKeyPreferencesToolbarItemIdentifier;
-extern NSString * const		OutputPreferencesToolbarItemIdentifier;
-extern NSString * const		DSPPreferencesToolbarItemIdentifier;
-extern NSString * const		AdvancedPreferencesToolbarItemIdentifier;
-
-@interface PreferencesController : NSWindowController
+@interface AdvancedPreferencesController : NSWindowController
 {
+	IBOutlet NSTextField	*_audioSlicesInBufferTextField;
+	IBOutlet NSTextField	*_audioFramesPerSliceTextField;
 }
-
-+ (PreferencesController *)		sharedPreferences;
-
-- (void)						selectPreferencePane:(NSString *)itemIdentifier;
 
 @end

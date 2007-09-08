@@ -31,6 +31,7 @@ NSString * const	GeneralPreferencesToolbarItemIdentifier						= @"org.sbooth.Pla
 NSString * const	HotKeyPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.HotKey";
 NSString * const	OutputPreferencesToolbarItemIdentifier						= @"org.sbooth.Play.Preferences.Toolbar.Output";
 NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.Preferences.Toolbar.DSP";
+NSString * const	AdvancedPreferencesToolbarItemIdentifier					= @"org.sbooth.Play.Preferences.Toolbar.Advanced";
 
 @interface PreferencesController (Private)
 - (IBAction) selectPreferencePaneUsingToolbar:(id)sender;
@@ -206,6 +207,17 @@ NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.P
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
 	}
+    else if([itemIdentifier isEqualToString:AdvancedPreferencesToolbarItemIdentifier]) {
+        toolbarItem = [[[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier] autorelease];
+		
+		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Advanced", @"Preferences", @"")];
+		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Advanced", @"Preferences", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Control the size of the audio buffers used by Play", @"Preferences", @"")];
+		[toolbarItem setImage:[NSImage imageNamed:@"AdvancedPreferencesToolbarImage"]];
+		
+		[toolbarItem setTarget:self];
+		[toolbarItem setAction:@selector(selectPreferencePaneUsingToolbar:)];
+	}
 	
     return toolbarItem;
 }
@@ -217,6 +229,7 @@ NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.P
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
 		DSPPreferencesToolbarItemIdentifier,
+		AdvancedPreferencesToolbarItemIdentifier,
 		nil];
 }
 
@@ -227,6 +240,7 @@ NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.P
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
 		DSPPreferencesToolbarItemIdentifier,
+		AdvancedPreferencesToolbarItemIdentifier,
 		NSToolbarSeparatorItemIdentifier,
 		NSToolbarSpaceItemIdentifier,
 		NSToolbarFlexibleSpaceItemIdentifier,
@@ -240,6 +254,7 @@ NSString * const	DSPPreferencesToolbarItemIdentifier							= @"org.sbooth.Play.P
 		HotKeyPreferencesToolbarItemIdentifier,
 		OutputPreferencesToolbarItemIdentifier,
 		DSPPreferencesToolbarItemIdentifier,
+		AdvancedPreferencesToolbarItemIdentifier,
 		nil];
 }
 
