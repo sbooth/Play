@@ -76,8 +76,8 @@ TEMP_STORE = -DTEMP_STORE=1
 # Version numbers and release number for the SQLite being compiled.
 #
 VERSION = 3.4
-VERSION_NUMBER = 3004000
-RELEASE = 3.4.0
+VERSION_NUMBER = 3004002
+RELEASE = 3.4.2
 
 # Filename extensions
 #
@@ -108,7 +108,7 @@ ALLOWRELEASE =
 
 # libtool compile/link/install
 LTCOMPILE = $(LIBTOOL) --mode=compile --tag=CC $(TCC)
-LTLINK = $(LIBTOOL) --mode=link $(TCC)
+LTLINK = $(LIBTOOL) --mode=link $(TCC) 
 LTINSTALL = $(LIBTOOL) --mode=install $(INSTALL)
 
 # nawk compatible awk.
@@ -245,7 +245,7 @@ HDR = \
    $(TOP)/src/btree.h \
    $(TOP)/src/btreeInt.h \
    $(TOP)/src/hash.h \
-   $(TOP)/src/limits.h \
+   $(TOP)/src/sqliteLimit.h \
    opcodes.h \
    $(TOP)/src/os.h \
    $(TOP)/src/os_common.h \
@@ -409,7 +409,7 @@ parse.c:	$(TOP)/src/parse.y lemon$(BEXE) $(TOP)/addopcodes.awk
 	cp $(TOP)/src/parse.y .
 	./lemon$(BEXE) $(OPTS) parse.y
 	mv parse.h parse.h.temp
-	awk -f $(TOP)/addopcodes.awk parse.h.temp >parse.h
+	$(NAWK) -f $(TOP)/addopcodes.awk parse.h.temp >parse.h
 
 pragma.lo:	$(TOP)/src/pragma.c $(HDR)
 	$(LTCOMPILE) -c $(TOP)/src/pragma.c

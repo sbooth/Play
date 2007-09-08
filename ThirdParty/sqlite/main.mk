@@ -65,6 +65,9 @@ LIBOBJ+= alter.o analyze.o attach.o auth.o btree.o build.o \
          vdbe.o vdbeapi.o vdbeaux.o vdbeblob.o vdbefifo.o vdbemem.o \
          where.o utf.o legacy.o vtab.o
 
+EXTOBJ = icu.o fts2.o fts2_hash.o fts2_icu.o fts2_porter.o       \
+         fts2_tokenizer.o fts2_tokenizer1.o
+
 # All of the source code files.
 #
 SRC = \
@@ -138,9 +141,14 @@ SRC += \
   $(TOP)/ext/fts2/fts2.h \
   $(TOP)/ext/fts2/fts2_hash.c \
   $(TOP)/ext/fts2/fts2_hash.h \
+  $(TOP)/ext/fts2/fts2_icu.c \
   $(TOP)/ext/fts2/fts2_porter.c \
   $(TOP)/ext/fts2/fts2_tokenizer.h \
+  $(TOP)/ext/fts2/fts2_tokenizer.c \
   $(TOP)/ext/fts2/fts2_tokenizer1.c
+SRC += \
+  $(TOP)/ext/icu/icu.c
+
 
 # Generated source code files
 #
@@ -191,7 +199,8 @@ TESTSRC = \
   $(TOP)/src/util.c \
   $(TOP)/src/vdbe.c \
   $(TOP)/src/vdbeaux.c \
-  $(TOP)/src/where.c
+  $(TOP)/src/where.c \
+  $(TOP)/ext/fts2/fts2_tokenizer.c
 
 # Header files used by all library source files.
 #
@@ -200,7 +209,7 @@ HDR = \
    $(TOP)/src/btree.h \
    $(TOP)/src/btreeInt.h \
    $(TOP)/src/hash.h \
-   $(TOP)/src/limits.h \
+   $(TOP)/src/sqliteLimit.h \
    opcodes.h \
    $(TOP)/src/os.h \
    $(TOP)/src/os_common.h \
@@ -238,12 +247,13 @@ last_change:	$(SRC)
 	cat $(SRC) | grep '$$Id: ' | sort -k 5 | tail -1 \
           | $(NAWK) '{print $$5,$$6}' >last_change
 
-libsqlite3.a:	$(LIBOBJ)
-	$(AR) libsqlite3.a $(LIBOBJ)
+libsqlite3.a:	$(LIBOBJ) $(EXTOBJ)
+	$(AR) libsqlite3.a $(LIBOBJ) $(EXTOBJ)
 	$(RANLIB) libsqlite3.a
 
 sqlite3$(EXE):	$(TOP)/src/shell.c libsqlite3.a sqlite3.h
-	$(TCCX) $(READLINE_FLAGS) -o sqlite3$(EXE) $(TOP)/src/shell.c \
+	$(TCCX) $(READLINE_FLAGS) -o sqlite3$(EXE)                  \
+		$(TOP)/src/shell.c                                  \
 		libsqlite3.a $(LIBREADLINE) $(TLIBS) $(THREADLIB)
 
 objects: $(LIBOBJ_ORIG)
@@ -265,6 +275,9 @@ sqlite3.c:	target_source $(TOP)/tool/mksqlite3c.tcl
 	cp sqlite3.c tclsqlite3.c
 	cat $(TOP)/src/tclsqlite.c >>tclsqlite3.c
 	tclsh $(TOP)/tool/mksqlite3internalh.tcl
+
+fts2amal.c:	target_source $(TOP)/ext/fts2/mkfts2amal.tcl
+	tclsh $(TOP)/ext/fts2/mkfts2amal.tcl
 
 # Rules to build the LEMON compiler generator
 #
@@ -312,9 +325,6 @@ func.o:	$(TOP)/src/func.c $(HDR)
 
 hash.o:	$(TOP)/src/hash.c $(HDR)
 	$(TCCX) -c $(TOP)/src/hash.c
-
-icu.o:	$(TOP)/ext/icu/icu.c $(HDR)
-	$(TCCX) -c $(TOP)/ext/icu/icu.c
 
 insert.o:	$(TOP)/src/insert.c $(HDR)
 	$(TCCX) -c $(TOP)/src/insert.c
@@ -438,6 +448,30 @@ vtab.o:	$(TOP)/src/vtab.c $(VDBEHDR) $(HDR)
 where.o:	$(TOP)/src/where.c $(HDR)
 	$(TCCX) -c $(TOP)/src/where.c
 
+# Rules to build the extension objects.
+#
+icu.o:	$(TOP)/ext/icu/icu.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/icu/icu.c
+
+fts2.o:	$(TOP)/ext/fts2/fts2.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2.c
+
+fts2_hash.o:	$(TOP)/ext/fts2/fts2_hash.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2_hash.c
+
+fts2_icu.o:	$(TOP)/ext/fts2/fts2_icu.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2_icu.c
+
+fts2_porter.o:	$(TOP)/ext/fts2/fts2_porter.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2_porter.c
+
+fts2_tokenizer.o:	$(TOP)/ext/fts2/fts2_tokenizer.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2_tokenizer.c
+
+fts2_tokenizer1.o:	$(TOP)/ext/fts2/fts2_tokenizer1.c $(HDR) $(EXTHDR)
+	$(TCCX) -DSQLITE_CORE -c $(TOP)/ext/fts2/fts2_tokenizer1.c
+
+
 # Rules for building test programs and for running tests
 #
 tclsqlite3:	$(TOP)/src/tclsqlite.c libsqlite3.a
@@ -447,7 +481,7 @@ tclsqlite3:	$(TOP)/src/tclsqlite.c libsqlite3.a
 testfixture$(EXE):	$(TOP)/src/tclsqlite.c libsqlite3.a $(TESTSRC)
 	$(TCCX) $(TCL_FLAGS) -DTCLSH=1 -DSQLITE_TEST=1 -DSQLITE_CRASH_TEST=1 \
 		-DSQLITE_SERVER=1 -o testfixture$(EXE) \
-		$(TESTSRC) $(TOP)/src/tclsqlite.c \
+		-DSQLITE_CORE $(TESTSRC) $(TOP)/src/tclsqlite.c \
 		libsqlite3.a $(LIBTCL) $(THREADLIB)
 
 fulltest:	testfixture$(EXE) sqlite3$(EXE)
@@ -469,7 +503,7 @@ sqlite3_analyzer$(EXE):	$(TOP)/src/tclsqlite.c libsqlite3.a $(TESTSRC) \
 	  -e 's,$$,\\n",' \
 	  $(TOP)/tool/spaceanal.tcl >spaceanal_tcl.h
 	$(TCCX) $(TCL_FLAGS) -DTCLSH=2 -DSQLITE_TEST=1 -DSQLITE_DEBUG=1 -o \
- 		sqlite3_analyzer$(EXE) $(TESTSRC) $(TOP)/src/tclsqlite.c \
+		sqlite3_analyzer$(EXE) $(TESTSRC) $(TOP)/src/tclsqlite.c \
 		libsqlite3.a $(LIBTCL) $(THREADLIB)
 
 TEST_EXTENSION = $(SHPREFIX)testloadext.$(SO)

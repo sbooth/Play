@@ -1,7 +1,7 @@
 #
 # Run this script to generate the limits.html output file
 #
-set rcsid {$Id: limits.tcl,v 1.3 2007/06/18 12:22:43 drh Exp $}
+set rcsid {$Id: limits.tcl,v 1.5 2007/08/09 00:00:26 drh Exp $}
 source common.tcl
 header {Implementation Limits For SQLite}
 puts {
@@ -27,9 +27,9 @@ it should work.
 
 <p>
 Unfortunately, the no-limits policy has been shown to create
-problems.  Because the upper bounds where not well
+problems.  Because the upper bounds were not well
 defined, they were not tested, and bugs (including possible
-security exploits) where often found when pushing SQLite to
+security exploits) were often found when pushing SQLite to
 extremes.  For this reason, newer versions of SQLite have
 well-defined limits and those limits are tested as part of
 the test suite.
@@ -79,7 +79,7 @@ possible.
 <p>
 During part of SQLite's INSERT and SELECT processing, the complete
 content of each row in the database is encoded as a single BLOB.
-So the SQLTIE_MAX_LENGTH parameter also determines the maximum
+So the SQLITE_MAX_LENGTH parameter also determines the maximum
 number of bytes in a row.
 </p>
 }

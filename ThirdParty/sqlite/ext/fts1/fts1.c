@@ -19,11 +19,7 @@
 #endif
 
 #include <assert.h>
-#if !defined(__APPLE__)
-#include <malloc.h>
-#else
 #include <stdlib.h>
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -1193,25 +1189,18 @@ static int sql_step_statement(fulltext_vtab *v, fulltext_statement iStmt,
   assert( s==v->pFulltextStatements[iStmt] );
 
   while( (rc=sqlite3_step(s))!=SQLITE_DONE && rc!=SQLITE_ROW ){
-    sqlite3_stmt *pNewStmt;
-
     if( rc==SQLITE_BUSY ) continue;
     if( rc!=SQLITE_ERROR ) return rc;
 
-    rc = sqlite3_reset(s);
-    if( rc!=SQLITE_SCHEMA ) return SQLITE_ERROR;
-
-    v->pFulltextStatements[iStmt] = NULL;   /* Still in s */
-    rc = sql_get_statement(v, iStmt, &pNewStmt);
-    if( rc!=SQLITE_OK ) goto err;
-    *ppStmt = pNewStmt;
-
-    rc = sqlite3_transfer_bindings(s, pNewStmt);
-    if( rc!=SQLITE_OK ) goto err;
-
+    /* If an SQLITE_SCHEMA error has occured, then finalizing this
+     * statement is going to delete the fulltext_vtab structure. If
+     * the statement just executed is in the pFulltextStatements[]
+     * array, it will be finalized twice. So remove it before
+     * calling sqlite3_finalize().
+     */
+    v->pFulltextStatements[iStmt] = NULL;
     rc = sqlite3_finalize(s);
-    if( rc!=SQLITE_OK ) return rc;
-    s = pNewStmt;
+    break;
   }
   return rc;
 
@@ -1564,6 +1553,7 @@ static int getToken(const char *z, int *tokenType){
       *tokenType = TOKEN_SPACE;
       return i;
     }
+    case '`':
     case '\'':
     case '"': {
       int delim = z[0];
@@ -2279,7 +2269,7 @@ static void snippetAllOffsets(fulltext_cursor *p){
   if( p->q.nTerms==0 ) return;
   pFts = p->q.pFts;
   nColumn = pFts->nColumn;
-  iColumn = p->iCursorType;
+  iColumn = p->iCursorType - QUERY_FULLTEXT;
   if( iColumn<0 || iColumn>=nColumn ){
     iFirst = 0;
     iLast = nColumn-1;
@@ -3268,6 +3258,28 @@ static int fulltextFindFunction(
   return 0;
 }
 
+/*
+** Rename an fts1 table.
+*/
+static int fulltextRename(
+  sqlite3_vtab *pVtab,
+  const char *zName
+){
+  fulltext_vtab *p = (fulltext_vtab *)pVtab;
+  int rc = SQLITE_NOMEM;
+  char *zSql = sqlite3_mprintf(
+    "ALTER TABLE %Q.'%q_content'  RENAME TO '%q_content';"
+    "ALTER TABLE %Q.'%q_term' RENAME TO '%q_term';"
+    , p->zDb, p->zName, zName
+    , p->zDb, p->zName, zName
+  );
+  if( zSql ){
+    rc = sqlite3_exec(p->db, zSql, 0, 0, 0);
+    sqlite3_free(zSql);
+  }
+  return rc;
+}
+
 static const sqlite3_module fulltextModule = {
   /* iVersion      */ 0,
   /* xCreate       */ fulltextCreate,
@@ -3288,6 +3300,7 @@ static const sqlite3_module fulltextModule = {
   /* xCommit       */ 0,
   /* xRollback     */ 0,
   /* xFindFunction */ fulltextFindFunction,
+  /* xRename       */ fulltextRename,
 };
 
 int sqlite3Fts1Init(sqlite3 *db){

@@ -12,7 +12,7 @@
 ** A TCL Interface to SQLite.  Append this file to sqlite3.c and
 ** compile the whole thing to build a TCL-enabled version of SQLite.
 **
-** $Id: tclsqlite.c,v 1.189 2007/06/15 18:53:14 drh Exp $
+** $Id: tclsqlite.c,v 1.194 2007/08/07 17:13:04 drh Exp $
 */
 #include "tcl.h"
 #include <errno.h>
@@ -721,15 +721,15 @@ static void tclSqlFunc(sqlite3_context *context, int argc, sqlite3_value**argv){
       ** has no string representation. */
       data = Tcl_GetByteArrayFromObj(pVar, &n);
       sqlite3_result_blob(context, data, n, SQLITE_TRANSIENT);
-    }else if( (c=='b' && strcmp(zType,"boolean")==0) ||
-          (c=='i' && strcmp(zType,"int")==0) ){
+    }else if( c=='b' && strcmp(zType,"boolean")==0 ){
       Tcl_GetIntFromObj(0, pVar, &n);
       sqlite3_result_int(context, n);
     }else if( c=='d' && strcmp(zType,"double")==0 ){
       double r;
       Tcl_GetDoubleFromObj(0, pVar, &r);
       sqlite3_result_double(context, r);
-    }else if( c=='w' && strcmp(zType,"wideInt")==0 ){
+    }else if( (c=='w' && strcmp(zType,"wideInt")==0) ||
+          (c=='i' && strcmp(zType,"int")==0) ){
       Tcl_WideInt v;
       Tcl_GetWideIntFromObj(0, pVar, &v);
       sqlite3_result_int64(context, v);
@@ -910,12 +910,12 @@ static int DbObjCmd(void *cd, Tcl_Interp *interp, int objc,Tcl_Obj *const*objv){
     "collation_needed",   "commit_hook",       "complete",
     "copy",               "enable_load_extension","errorcode",
     "eval",               "exists",            "function",
-    "incrblob",
-    "interrupt",          "last_insert_rowid", "nullvalue",
-    "onecolumn",          "profile",           "progress",
-    "rekey",              "rollback_hook",     "timeout",
-    "total_changes",      "trace",             "transaction",
-    "update_hook",        "version",           0
+    "incrblob",           "interrupt",         "last_insert_rowid",
+    "nullvalue",          "onecolumn",         "profile",
+    "progress",           "rekey",             "rollback_hook",
+    "timeout",            "total_changes",     "trace",
+    "transaction",        "update_hook",       "version",
+    0                    
   };
   enum DB_enum {
     DB_AUTHORIZER,        DB_BUSY,             DB_CACHE,
@@ -923,12 +923,11 @@ static int DbObjCmd(void *cd, Tcl_Interp *interp, int objc,Tcl_Obj *const*objv){
     DB_COLLATION_NEEDED,  DB_COMMIT_HOOK,      DB_COMPLETE,
     DB_COPY,              DB_ENABLE_LOAD_EXTENSION,DB_ERRORCODE,
     DB_EVAL,              DB_EXISTS,           DB_FUNCTION,
-    DB_INCRBLOB,
-    DB_INTERRUPT,         DB_LAST_INSERT_ROWID,DB_NULLVALUE,
-    DB_ONECOLUMN,         DB_PROFILE,          DB_PROGRESS,
-    DB_REKEY,             DB_ROLLBACK_HOOK,    DB_TIMEOUT,
-    DB_TOTAL_CHANGES,     DB_TRACE,            DB_TRANSACTION,
-    DB_UPDATE_HOOK,       DB_VERSION,          
+    DB_INCRBLOB,          DB_INTERRUPT,        DB_LAST_INSERT_ROWID,
+    DB_NULLVALUE,         DB_ONECOLUMN,        DB_PROFILE,
+    DB_PROGRESS,          DB_REKEY,            DB_ROLLBACK_HOOK,
+    DB_TIMEOUT,           DB_TOTAL_CHANGES,    DB_TRACE,
+    DB_TRANSACTION,       DB_UPDATE_HOOK,      DB_VERSION
   };
   /* don't leave trailing commas on DB_enum, it confuses the AIX xlc compiler */
 
@@ -1587,29 +1586,31 @@ static int DbObjCmd(void *cd, Tcl_Interp *interp, int objc,Tcl_Obj *const*objv){
       }
       for(i=1; i<=nVar; i++){
         const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
-        if( zVar!=0 && (zVar[0]=='$' || zVar[0]==':') ){
+        if( zVar!=0 && (zVar[0]=='$' || zVar[0]==':' || zVar[0]=='@') ){
           Tcl_Obj *pVar = Tcl_GetVar2Ex(interp, &zVar[1], 0, 0);
           if( pVar ){
             int n;
             u8 *data;
             char *zType = pVar->typePtr ? pVar->typePtr->name : "";
             char c = zType[0];
-            if( c=='b' && strcmp(zType,"bytearray")==0 && pVar->bytes==0 ){
-              /* Only load a BLOB type if the Tcl variable is a bytearray and
-              ** has no string representation. */
+            if( zVar[0]=='@' ||
+               (c=='b' && strcmp(zType,"bytearray")==0 && pVar->bytes==0) ){
+              /* Load a BLOB type if the Tcl variable is a bytearray and
+              ** it has no string representation or the host
+              ** parameter name begins with "@". */
               data = Tcl_GetByteArrayFromObj(pVar, &n);
               sqlite3_bind_blob(pStmt, i, data, n, SQLITE_STATIC);
               Tcl_IncrRefCount(pVar);
               apParm[nParm++] = pVar;
-            }else if( (c=='b' && strcmp(zType,"boolean")==0) ||
-                  (c=='i' && strcmp(zType,"int")==0) ){
+            }else if( c=='b' && strcmp(zType,"boolean")==0 ){
               Tcl_GetIntFromObj(interp, pVar, &n);
               sqlite3_bind_int(pStmt, i, n);
             }else if( c=='d' && strcmp(zType,"double")==0 ){
               double r;
               Tcl_GetDoubleFromObj(interp, pVar, &r);
               sqlite3_bind_double(pStmt, i, r);
-            }else if( c=='w' && strcmp(zType,"wideInt")==0 ){
+            }else if( (c=='w' && strcmp(zType,"wideInt")==0) ||
+                  (c=='i' && strcmp(zType,"int")==0) ){
               Tcl_WideInt v;
               Tcl_GetWideIntFromObj(interp, pVar, &v);
               sqlite3_bind_int64(pStmt, i, v);
@@ -1979,7 +1980,7 @@ static int DbObjCmd(void *cd, Tcl_Interp *interp, int objc,Tcl_Obj *const*objv){
       int len;
       int N;
       if( TCL_OK!=Tcl_GetIntFromObj(interp, objv[2], &N) ){
-	return TCL_ERROR;
+        return TCL_ERROR;
       };
       if( pDb->zProgress ){
         Tcl_Free(pDb->zProgress);

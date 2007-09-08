@@ -1,7 +1,7 @@
 #
 # Run this Tcl script to generate the pragma.html file.
 #
-set rcsid {$Id: pragma.tcl,v 1.25 2007/06/18 12:22:43 drh Exp $}
+set rcsid {$Id: pragma.tcl,v 1.27 2007/07/24 10:22:58 drh Exp $}
 source common.tcl
 header {Pragma statements supported by SQLite}
 
@@ -105,11 +105,7 @@ puts {
     but autovacuuming does not occur automatically at each commit as it
     does with auto_vacuum==full.  In incremental mode, the separate
     <a href="#pragma_incremental_vacuum">incremental_vacuum</a> pragma must
-    be invoked to cause the vacuum to occur.  The incremental vacuum mode
-    is not persistent.  It must be set anew with each new database 
-    connection.  When a database with incremental vacuum is closed and
-    reopened, it comes up in auto_vacuum==full mode until explicitly
-    changed to incremental mode using this pragma.</p>
+    be invoked to cause the vacuum to occur.</p>
 
     <p>The database connection can be changed between full and incremental
     autovacuum mode at will.  However, the connection cannot be changed
@@ -525,6 +521,13 @@ puts {
     table, invoke the callback function with information about that
     foreign key. The callback function will be invoked once for each
     column in each foreign key.</p></li>
+
+<a name="pragma_freelist_count"></a>
+<li><p><b>PRAGMA [database].freelist_count;</b></p>
+    <p>Return the number of unused pages in the database file. Running
+    a <a href="#pragma_incremental_vacuum">"PRAGMA incremental_vaccum(N);"</a> 
+    command with a large value of N will shrink the database file by this
+    number of pages. </p></li>
 
 <a name="pragma_index_info"></a>
 <li><p><b>PRAGMA index_info(</b><i>index-name</i><b>);</b></p>

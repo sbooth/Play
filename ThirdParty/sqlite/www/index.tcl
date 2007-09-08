@@ -71,6 +71,30 @@ proc newsitem {date title text} {
   puts "<hr width=\"50%\">"
 }
 
+newsitem {2007-Aug-13} {Version 3.4.2} {
+  While stress-testing the 
+  <a href="capi3ref.html#sqlite3_soft_heap_limit">soft_heap_limit</a>
+  feature, a bug that could lead to
+  <a href="http://www.sqlite.org/cvstrac/wiki?p=DatabaseCorruption">database
+  corruption</a> was <a href="http://www.sqlite.org/cvstrac/tktview?tn=2565">
+  discovered and fixed</a>.
+  Though the consequences of this bug are severe, the chances of hitting 
+  it in a typical application are remote.  Upgrading is recommended
+  only if you use the 
+  <a href="capi3ref.html#sqlite3_soft_heap_limit">sqlite3_soft_heap_limit</a>
+  interface.
+}
+
+newsitem {2007-Jly-20} {Version 3.4.1} {
+  This release fixes a bug in <a href="lang_vacuum.html">VACUUM</a> that
+  can lead to <a href="http://www.sqlite.org/cvstrac/wiki?p=DatabaseCorruption">
+  database corruption</a>.  The bug was introduced in version 
+  <a href="changes.html#version_3_3_14">3.3.14</a>.
+  Upgrading is recommended for all users.  Also included are a slew of
+  other more routine
+  <a href="changes.html#version_3_4_1">enhancements and bug fixes</a>.
+}
+
 newsitem {2007-Jun-18} {Version 3.4.0} {
   This release fixes two separate bugs either of which 
   can lead to database corruption.  Upgrading
@@ -93,25 +117,12 @@ newsitem {2007-Jun-18} {Version 3.4.0} {
   There are also new features, including
   <a href="capi3ref.html#sqlite3_blob_open">incremental BLOB I/O</a> and
   <a href="pragma.html#pragma_incremental_vacuum">incremental vacuum</a>.
-  See the <a href="changes.html">change log</a> for additional information.
-}
-
-newsitem {2007-Apr-25} {Version 3.3.17} {
-  This version fixes a bug in the forwards-compatibility logic of SQLite
-  that was causing a database to become unreadable when it should have
-  been read-only.  Upgrade from 3.3.16 only if you plan to deploy into
-  a product that might need to be upgraded in the future.  For day to day
-  use, it probably does not matter.
-}
-
-newsitem {2007-Apr-18} {Version 3.3.16} {
-  Performance improvements added in 3.3.14 but mistakenly turned off
-  in 3.3.15 have been reinstated.  A bug has been fixed that prevented 
-  VACUUM from running if a NULL value was in a UNIQUE column.
+  See the <a href="changes.html#version_3_4_0">change log</a> 
+  for additional information.
 }
 
 puts {
 <p align="right"><a href="oldnews.html">Old news...</a></p>
 </td></tr></table>
 }
-footer {$Id: index.tcl,v 1.157 2007/06/18 12:22:43 drh Exp $}
+footer {$Id: index.tcl,v 1.159 2007/08/13 16:15:29 drh Exp $}

@@ -12,7 +12,7 @@
 # This file implements regression tests for SQLite library.  The
 # focus of this script is collation sequences in concert with triggers.
 #
-# $Id: collate6.test,v 1.2 2004/11/04 04:42:28 drh Exp $
+# $Id: collate6.test,v 1.4 2007/07/30 14:40:48 danielk1977 Exp $
 
 set testdir [file dirname $argv0]
 source $testdir/tester.tcl
@@ -104,6 +104,48 @@ do_test collate6-1.8 {
 do_test collate6-1.9 {
   execsql {
     DROP TABLE collate6tab;
+  }
+} {}
+
+# Test that an explicit collation sequence overrides an implicit 
+# one attached to a 'new' reference.
+#
+do_test collate6-2.1 {
+  execsql {
+    CREATE TABLE abc(a COLLATE binary, b, c);
+    CREATE TABLE def(a, b, c);
+    CREATE TRIGGER abc_t1 AFTER INSERT ON abc BEGIN
+      INSERT INTO def SELECT * FROM abc WHERE a < new.a COLLATE nocase;
+    END
+  }
+} {}
+do_test collate6-2.2 {
+  execsql {
+    INSERT INTO abc VALUES('One', 'Two', 'Three');
+    INSERT INTO abc VALUES('one', 'two', 'three');
+    SELECT * FROM def;
+  }
+} {}
+do_test collate6-2.3 {
+  execsql {
+    UPDATE abc SET a = 'four' WHERE a = 'one';
+    CREATE TRIGGER abc_t2 AFTER UPDATE ON abc BEGIN
+      INSERT INTO def SELECT * FROM abc WHERE a < new.a COLLATE nocase;
+    END;
+    SELECT * FROM def;
+  }
+} {}
+
+# At one point the 6-3.2 (but not 6-3.1) was causing an assert() to fail.
+#
+do_test collate6-3.1 {
+  execsql {
+    SELECT 1 FROM sqlite_master WHERE name COLLATE nocase = 'hello';
+  }
+} {}
+do_test collate6-3.2 {
+  execsql {
+    SELECT 1 FROM sqlite_master WHERE 'hello' = name COLLATE nocase;
   }
 } {}
 

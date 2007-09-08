@@ -70,6 +70,15 @@ puts $out [subst \
 ** This amalgamation was generated on $today.
 */
 #define SQLITE_AMALGAMATION 1}]
+if {$addstatic} {
+  puts $out \
+{#ifndef SQLITE_PRIVATE
+# define SQLITE_PRIVATE static
+#endif
+#ifndef SQLITE_API
+# define SQLITE_API
+#endif}
+}
 
 # These are the header files used by SQLite.  The first time any of these 
 # files are seen in a #include statement in the C code, include the complete
@@ -80,7 +89,6 @@ foreach hdr {
    btreeInt.h
    hash.h
    keywordhash.h
-   limits.h
    opcodes.h
    os_common.h
    os.h
@@ -90,6 +98,7 @@ foreach hdr {
    sqlite3ext.h
    sqlite3.h
    sqliteInt.h
+   sqliteLimit.h
    vdbe.h
    vdbeInt.h
 } {
@@ -120,11 +129,12 @@ proc copy_file {filename} {
   set tail [file tail $filename]
   section_comment "Begin file $tail"
   set in [open $filename r]
+  set varpattern {^[a-zA-Z][a-zA-Z_0-9 *]+(sqlite3[_a-zA-Z0-9]+)(\[|;| =)}
+  set declpattern {[a-zA-Z][a-zA-Z_0-9 ]+ \*?(sqlite3[_a-zA-Z0-9]+)\(}
   if {[file extension $filename]==".h"} {
-    set declpattern {^ *[a-zA-Z][a-zA-Z_0-9 ]+ \*?sqlite3[A-Z][a-zA-Z0-9]+\(}
-  } else {
-    set declpattern {^[a-zA-Z][a-zA-Z_0-9 ]+ \*?sqlite3[A-Z][a-zA-Z0-9]+\(}
+    set declpattern " *$declpattern"
   }
+  set declpattern ^$declpattern
   while {![eof $in]} {
     set line [gets $in]
     if {[regexp {^#\s*include\s+["<]([^">]+)[">]} $line all hdr]} {
@@ -145,10 +155,31 @@ proc copy_file {filename} {
       puts $out "#if 0"
     } elseif {[regexp {^#line} $line]} {
       # Skip #line directives.
-    } elseif {$addstatic && [regexp $declpattern $line] 
-                  && ![regexp {^static} $line]} {
-      # Add the "static" keyword before internal functions.
-      puts $out "static $line"
+    } elseif {$addstatic && ![regexp {^(static|typedef)} $line]} {
+      if {[regexp $declpattern $line all funcname]} {
+        # Add the SQLITE_PRIVATE or SQLITE_API keyword before functions.
+        # so that linkage can be modified at compile-time.
+        if {[regexp {^sqlite3_} $funcname]} {
+          puts $out "SQLITE_API $line"
+        } else {
+          puts $out "SQLITE_PRIVATE $line"
+        }
+      } elseif {[regexp $varpattern $line all varname]} {
+        # Add the SQLITE_PRIVATE before variable declarations or
+        # definitions for internal use
+        if {![regexp {^sqlite3_} $varname]} {
+          regsub {^extern } $line {} line
+          puts $out "SQLITE_PRIVATE $line"
+        } elseif {![regexp {^SQLITE_EXTERN} $line]} {
+          puts $out "SQLITE_API $line"
+        } else {
+          puts $out $line
+        }
+      } elseif {[regexp {^void \(\*sqlite3_io_trace\)} $line]} {
+        puts $out "SQLITE_API $line"
+      } else {
+        puts $out $line
+      }
     } else {
       puts $out $line
     }
