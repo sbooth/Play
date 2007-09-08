@@ -164,7 +164,11 @@
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_PEAK"])
 						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
-					
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MUSICDNS_PUID"])
+						[metadataDictionary setValue:value forKey:MetadataMusicDNSPUIDKey];
+					else if(NSOrderedSame == [key caseInsensitiveCompare:@"MUSICBRAINZ_ID"])
+						[metadataDictionary setValue:value forKey:MetadataMusicBrainzIDKey];
+
 					[key release];
 					[value release];
 					

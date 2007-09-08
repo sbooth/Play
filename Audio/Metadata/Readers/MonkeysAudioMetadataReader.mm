@@ -172,6 +172,9 @@ getAPETag(CAPETag		*f,
 	if(nil != albumPeak)
 		[metadataDictionary setValue:[NSNumber numberWithDouble:[albumPeak doubleValue]] forKey:ReplayGainAlbumPeakKey];
 	
+	[metadataDictionary setValue:getAPETag(f, "MUSICDNS_PUID") forKey:MetadataMusicDNSPUIDKey];
+	[metadataDictionary setValue:getAPETag(f, "MUSICBRAINZ_ID") forKey:MetadataMusicBrainzIDKey];
+
 	delete f;
 	free(chars);
 	

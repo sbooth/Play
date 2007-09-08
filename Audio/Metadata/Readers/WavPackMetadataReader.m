@@ -167,6 +167,9 @@ getWavPackTag(WavpackContext	*wpc,
 	if(nil != albumPeak)
 		[metadataDictionary setValue:[NSNumber numberWithDouble:[albumPeak doubleValue]] forKey:ReplayGainAlbumPeakKey];
 	
+	[metadataDictionary setValue:getWavPackTag(wpc, "MUSICDNS_PUID") forKey:MetadataMusicDNSPUIDKey];
+	[metadataDictionary setValue:getWavPackTag(wpc, "MUSICBRAINZ_ID") forKey:MetadataMusicBrainzIDKey];
+
 	WavpackCloseFile(wpc);
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];

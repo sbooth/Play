@@ -199,6 +199,18 @@
 			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
 			[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
 		}
+		
+		tag = "MUSICDNS_PUID";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:MetadataMusicDNSPUIDKey];
+		}					
+
+		tag = "MUSICBRAINZ_ID";
+		if(fieldList.contains(tag)) {
+			value = [NSString stringWithUTF8String:fieldList[tag].toString().toCString(true)];
+			[metadataDictionary setValue:value forKey:MetadataMusicBrainzIDKey];
+		}							
 	}		
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];
