@@ -34,31 +34,6 @@ NSString * const	ScheduledAudioRegionObjectKey		= @"org.sbooth.Play.ScheduledAud
 NSString * const	AudioSchedulerRunLoopMode			= @"org.sbooth.Play.AudioScheduler.RunLoopMode";
 
 // ========================================
-// Buffer parameters
-// ========================================
-#define NUMBER_OF_SLICES_IN_BUFFER		10
-#define FRAMES_PER_SLICE				2048
-
-// ========================================
-// Friends
-// ========================================
-@interface ScheduledAudioRegion (AudioSchedulerMethods)
-- (void) reset;
-
-- (void) clearFramesScheduled;
-- (void) clearFramesRendered;
-
-- (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
-
-- (ScheduledAudioSlice *) buffer;
-
-- (void) scheduledAdditionalFrames:(UInt32)frameCount;
-- (void) renderedAdditionalFrames:(UInt32)frameCount;
-
-- (BOOL) atEnd;
-@end
-
-// ========================================
 // Private methods
 // ========================================
 @interface AudioScheduler (Private)
@@ -128,103 +103,6 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	[pool release];
 }
 
-// ========================================
-// Helper functions
-// ========================================
-void
-allocate_slice_for_asbd(const AudioStreamBasicDescription *asbd, ScheduledAudioSlice *slice)
-{
-	NSCParameterAssert(NULL != asbd);
-	NSCParameterAssert(NULL != slice);
-	
-	// Allocate the buffer list
-	slice->mBufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (asbd->mChannelsPerFrame - 1)), 1);
-	NSCAssert(NULL != slice->mBufferList, @"Unable to allocate memory");
-	
-	slice->mBufferList->mNumberBuffers = asbd->mChannelsPerFrame;
-
-	unsigned i;
-	for(i = 0; i < slice->mBufferList->mNumberBuffers; ++i) {
-		slice->mBufferList->mBuffers[i].mData = calloc(FRAMES_PER_SLICE, sizeof(float));
-		NSCAssert(NULL != slice->mBufferList->mBuffers[i].mData, @"Unable to allocate memory");
-		slice->mBufferList->mBuffers[i].mDataByteSize = FRAMES_PER_SLICE * sizeof(float);
-		slice->mBufferList->mBuffers[i].mNumberChannels = 1;
-	}
-
-	// Set the complete flag so the scheduler knows this slice can be filled and scheduled
-	slice->mFlags = kScheduledAudioSliceFlag_Complete;
-}
-
-void
-deallocate_slice(ScheduledAudioSlice *slice)
-{
-	NSCParameterAssert(NULL != slice);
-	
-	unsigned i;
-	for(i = 0; i < slice->mBufferList->mNumberBuffers; ++i) {
-		free(slice->mBufferList->mBuffers[i].mData);
-		slice->mBufferList->mBuffers[i].mData = NULL;
-	}
-	
-	free(slice->mBufferList);
-	slice->mBufferList = NULL;
-}
-
-ScheduledAudioSlice *
-allocate_slice_buffer_for_asbd(const AudioStreamBasicDescription *asbd)
-{
-	NSCParameterAssert(NULL != asbd);
-	
-	ScheduledAudioSlice *sliceBuffer = calloc(NUMBER_OF_SLICES_IN_BUFFER, sizeof(ScheduledAudioSlice));
-	NSCAssert(NULL != sliceBuffer, @"Unable to allocate memory");
-	
-	unsigned i;
-	for(i = 0; i < NUMBER_OF_SLICES_IN_BUFFER; ++i)
-		allocate_slice_for_asbd(asbd, sliceBuffer + i);
-	
-	return sliceBuffer;
-}
-
-void
-deallocate_slice_buffer(ScheduledAudioSlice **sliceBuffer)
-{
-	NSCParameterAssert(NULL != sliceBuffer);
-	
-	if(NULL == *sliceBuffer)
-		return;
-	
-	unsigned i;
-	for(i = 0; i < NUMBER_OF_SLICES_IN_BUFFER; ++i)
-		deallocate_slice(*sliceBuffer + i);
-	
-	free(*sliceBuffer), *sliceBuffer = NULL;
-}
-
-static void
-clear_buffer_list(AudioBufferList *bufferList)
-{
-	NSCParameterAssert(NULL != bufferList);
-	
-	unsigned i;
-	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
-		bufferList->mBuffers[i].mDataByteSize = FRAMES_PER_SLICE * sizeof(float);
-		memset(bufferList->mBuffers[i].mData, 0, bufferList->mBuffers[i].mDataByteSize);
-	}
-}
-
-static void
-clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
-{
-	NSCParameterAssert(NULL != sliceBuffer);
-	
-	unsigned i, j;
-	for(i = 0; i < NUMBER_OF_SLICES_IN_BUFFER; ++i) {
-		for(j = 0; j < sliceBuffer[i].mBufferList->mNumberBuffers; ++j)
-			clear_buffer_list(sliceBuffer[i].mBufferList);
-		sliceBuffer[i].mFlags = kScheduledAudioSliceFlag_Complete;
-	}
-}
-
 @implementation AudioScheduler
 
 - (id) init
@@ -239,6 +117,9 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 		
 		_scheduledStartTime.mFlags		= kAudioTimeStampSampleTimeValid;
 		_scheduledStartTime.mSampleTime	= 0;
+		
+		_numberSlices		= [[NSUserDefaults standardUserDefaults] integerForKey:@"numberOfAudioSlicesInBuffer"];
+		_framesPerSlice		= [[NSUserDefaults standardUserDefaults] integerForKey:@"numberOfAudioFramesPerSlice"];
 	}
 	return self;
 }
@@ -255,6 +136,16 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 	_delegate = nil;
 
 	[super dealloc];
+}
+
+- (unsigned) numberOfSlicesInBuffer
+{
+	return _numberSlices;
+}
+
+- (unsigned) numberOfFramesPerSlice
+{
+	return _framesPerSlice;
 }
 
 - (AudioUnit) audioUnit
@@ -307,6 +198,9 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 - (void) scheduleAudioRegion:(ScheduledAudioRegion *)scheduledAudioRegion
 {
 	NSParameterAssert(nil != scheduledAudioRegion);
+	
+	// Setup the buffers inside the region we will be using
+	[scheduledAudioRegion allocateBuffersWithSliceCount:[self numberOfSlicesInBuffer] frameCount:[self numberOfFramesPerSlice]];
 	
 	@synchronized([self scheduledAudioRegions]) {
 		[[self scheduledAudioRegions] addObject:scheduledAudioRegion];
@@ -391,9 +285,9 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 		NSLog(@"AudioUnitReset failed");
 
 	if(nil != [self regionBeingScheduled])
-		clear_slice_buffer([[self regionBeingScheduled] buffer]);
+		[[self regionBeingScheduled] clearSliceBuffer];
 	if(nil != [self regionBeingRendered])
-		clear_slice_buffer([[self regionBeingRendered] buffer]);
+		[[self regionBeingRendered] clearSliceBuffer];
 	
 	_scheduledStartTime.mFlags			= kAudioTimeStampSampleTimeValid;
 	_scheduledStartTime.mSampleTime		= 0;
@@ -526,17 +420,17 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer)
 		while([self keepScheduling] && nil != [self regionBeingScheduled] && NO == allFramesScheduled) {
 
 			// Iterate through the slice buffer, scheduling audio as completed slices become available
-			for(i = 0; i < NUMBER_OF_SLICES_IN_BUFFER; ++i) {
-				slice = [[self regionBeingScheduled] buffer] + i;
+			for(i = 0; i < [[self regionBeingScheduled] numberOfSlicesInBuffer]; ++i) {
+				slice = [[self regionBeingScheduled] sliceAtIndex:i];
 				
 				// If the slice is marked as complete, re-use it
 				if(kScheduledAudioSliceFlag_Complete & slice->mFlags) {
 					
 					// Prepare the slice
-					clear_buffer_list(slice->mBufferList);
+					[[self regionBeingScheduled] clearSlice:i];
 					
 					// Read some data
-					frameCount = [[self regionBeingScheduled] readAudio:slice->mBufferList frameCount:FRAMES_PER_SLICE];
+					frameCount = [[self regionBeingScheduled] readAudioInSlice:i];
 					
 					// EOS?
 					if(0 == frameCount) {

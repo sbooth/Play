@@ -71,17 +71,6 @@ NSString * const	AUNodeKey								= @"AUNode";
 NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.AudioPlayer";
 
 // ========================================
-// AudioPlayer callbacks
-// ========================================
-@interface AudioLibrary (AudioPlayerMethods)
-- (void) streamPlaybackDidStart;
-- (void) streamPlaybackDidComplete;
-- (void) requestNextStream;
-- (BOOL) sentNextStreamRequest;
-- (AudioStream *) nextStream;
-@end
-
-// ========================================
 // AUGraph manipulation
 // ========================================
 @interface AudioPlayer (AUGraphMethods)

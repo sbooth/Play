@@ -45,6 +45,9 @@
 	// AudioScheduler members
 	ScheduledAudioSlice		*_sliceBuffer;
 
+	unsigned				_numberSlices;
+	unsigned				_framesPerSlice;
+
 	SInt64					_framesScheduled;
 	SInt64					_framesRendered;
 }	
@@ -96,4 +99,32 @@
 - (SInt64) framesScheduled;
 - (SInt64) framesRendered;
 
+@end
+
+// ========================================
+// AudioScheduler methods
+// ========================================
+@interface ScheduledAudioRegion (AudioSchedulerMethods)
+- (unsigned) numberOfSlicesInBuffer;
+- (unsigned) numberOfFramesPerSlice;
+
+- (void) allocateBuffersWithSliceCount:(unsigned)sliceCount frameCount:(unsigned)frameCount;
+- (void) clearSliceBuffer;
+- (void) clearSlice:(unsigned)sliceIndex;
+
+- (void) reset;
+
+- (void) clearFramesScheduled;
+- (void) clearFramesRendered;
+
+- (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
+- (UInt32) readAudioInSlice:(unsigned)sliceIndex;
+
+- (ScheduledAudioSlice *) buffer;
+- (ScheduledAudioSlice *) sliceAtIndex:(unsigned)sliceIndex;
+
+- (void) scheduledAdditionalFrames:(UInt32)frameCount;
+- (void) renderedAdditionalFrames:(UInt32)frameCount;
+
+- (BOOL) atEnd;
 @end
