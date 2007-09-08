@@ -68,7 +68,34 @@
 - (void) deleteStream:(AudioStream *)stream;
 - (void) revertStream:(AudioStream *)stream;
 
-// ========================================
-// Metadata support
+@end
 
+// ========================================
+// Interfaces for other classes, not for general consumption
+@class AudioStream, Playlist, SmartPlaylist, WatchFolder;
+
+@interface AudioStreamManager (CollectionManagerMethods)
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error;
+- (BOOL) disconnectedFromDatabase:(NSError **)error;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
+- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
+@end
+
+@interface AudioStreamManager (PlaylistMethods)
+- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
+@end
+
+@interface AudioStreamManager (SmartPlaylistMethods)
+- (NSArray *) streamsForSmartPlaylist:(SmartPlaylist *)playlist;
+@end
+
+@interface AudioStreamManager (WatchFolderMethods)
+- (NSArray *) streamsForWatchFolder:(WatchFolder *)folder;
 @end

@@ -81,3 +81,10 @@ extern NSString * const		PlaylistStreamsKey;
 - (void) setPlaying:(BOOL)playing;
 
 @end
+
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface Playlist (PlaylistNodeMethods)
+- (void) loadStreams;
+@end
+

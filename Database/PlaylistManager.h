@@ -60,7 +60,30 @@
 - (void) deletePlaylist:(Playlist *)playlist;
 - (void) revertPlaylist:(Playlist *)playlist;
 
-// ========================================
-// Metadata support
+@end
 
+// ========================================
+// Interfaces for other classes, not for general consumption
+@class AudioStream;
+
+@interface PlaylistManager (CollectionManagerMethods)
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error;
+- (BOOL) disconnectedFromDatabase:(NSError **)error;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) playlist:(Playlist *)playlist willChangeValueForKey:(NSString *)key;
+- (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key;
+@end
+
+@interface PlaylistManager (PlaylistMethods)
+- (void) playlist:(Playlist *)playlist willInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
+
+- (void) playlist:(Playlist *)playlist willRemoveStreamAtIndex:(unsigned)index;
+- (void) playlist:(Playlist *)playlist didRemoveStreamAtIndex:(unsigned)index;
 @end

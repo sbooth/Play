@@ -53,3 +53,10 @@ extern NSString * const		WatchFolderStreamsKey;
 - (void)			getStreams:(id *)buffer range:(NSRange)range;
 
 @end
+
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface WatchFolder (WatchFolderNodeMethods)
+- (void) loadStreams;
+@end
+

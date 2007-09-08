@@ -27,24 +27,10 @@
 
 #import "SQLiteUtilityFunctions.h"
 
-@interface WatchFolderManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
-
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
-
-- (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
-- (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
-@end
-
 @interface WatchFolderManager (Private)
-- (void) 			prepareSQL;
-- (void) 			finalizeSQL;
-- (sqlite3_stmt *) 	preparedStatementForAction:(NSString *)action;
+- (BOOL) prepareSQL:(NSError **)error;
+- (BOOL) finalizeSQL:(NSError **)error;
+- (sqlite3_stmt *) preparedStatementForAction:(NSString *)action;
 
 - (BOOL) isConnectedToDatabase;
 - (BOOL) updateInProgress;
@@ -241,16 +227,16 @@
 
 @implementation WatchFolderManager (CollectionManagerMethods)
 
-- (void) connectedToDatabase:(sqlite3 *)db
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error
 {
 	_db = db;
-	[self prepareSQL];
+	return [self prepareSQL:error];
 }
 
-- (void) disconnectedFromDatabase
+- (BOOL) disconnectedFromDatabase:(NSError **)error
 {
-	[self finalizeSQL];
 	_db = NULL;
+	return [self finalizeSQL:error];
 }
 
 - (void) reset
@@ -417,9 +403,8 @@
 
 #pragma mark Prepared SQL Statements
 
-- (void) prepareSQL
+- (BOOL) prepareSQL:(NSError **)error
 {
-	NSError			*error				= nil;	
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
@@ -427,35 +412,66 @@
 		@"select_all_watch_folders", @"select_watch_folder_by_id", @"insert_watch_folder", @"update_watch_folder", @"delete_watch_folder", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	const char		*tail				= NULL;
 	
 	while((filename = [enumerator nextObject])) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
-		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-		NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), filename);
+		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
-		result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-		NSAssert2(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement for '%@' (%@).", @"Database", @""), filename, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		if(nil == sql)
+			return NO;
+		
+		if(SQLITE_OK != sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 		
 		[_sql setValue:[NSNumber numberWithUnsignedLong:(unsigned long)statement] forKey:filename];
-	}	
+	}
+	
+	return YES;
 }
 
-- (void) finalizeSQL
+- (BOOL) finalizeSQL:(NSError **)error
 {
 	NSEnumerator	*enumerator			= [_sql objectEnumerator];
 	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	
 	while((wrappedPtr = [enumerator nextObject])) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
-		result = sqlite3_finalize(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		if(SQLITE_OK != sqlite3_finalize(statement)) {
+			if(nil != error) {
+				NSArray *keys = [_sql allKeysForObject:wrappedPtr];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), [keys lastObject]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 	}
 	
 	[_sql removeAllObjects];
+	
+	return YES;
 }
 
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action

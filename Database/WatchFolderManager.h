@@ -61,3 +61,19 @@
 - (void) revertWatchFolder:(WatchFolder *)folder;
 
 @end
+
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface WatchFolderManager (CollectionManagerMethods)
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error;
+- (BOOL) disconnectedFromDatabase:(NSError **)error;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
+- (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
+@end

@@ -27,14 +27,6 @@ NSString * const	WatchFolderURLKey							= @"url";
 NSString * const	WatchFolderNameKey							= @"name";
 NSString * const	WatchFolderStreamsKey						= @"streams";
 
-@interface AudioStreamManager (WatchFolderMethods)
-- (NSArray *) streamsForWatchFolder:(WatchFolder *)folder;
-@end
-
-@interface WatchFolder (WatchFolderNodeMethods)
-- (void) loadStreams;
-@end
-
 @implementation WatchFolder
 
 + (void) initialize

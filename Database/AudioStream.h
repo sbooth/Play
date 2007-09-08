@@ -50,6 +50,8 @@ extern NSString * const		MetadataCommentKey;
 extern NSString * const		MetadataISRCKey;
 extern NSString * const		MetadataMCNKey;
 extern NSString * const		MetadataBPMKey;
+extern NSString * const		MetadataMusicDNSPUIDKey;
+extern NSString * const		MetadataMusicBrainzIDKey;
 
 extern NSString * const		ReplayGainReferenceLoudnessKey;
 extern NSString * const		ReplayGainTrackGainKey;

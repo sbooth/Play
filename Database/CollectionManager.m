@@ -29,80 +29,92 @@
 #import "SQLiteUtilityFunctions.h"
 
 // ========================================
-// AudioStream friend methods
-@interface AudioStreamManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
+// Helper functions
+BOOL 
+executeSQLFromFileInBundle(sqlite3		*db,
+						   NSString		*filename,
+						   NSError		**error)
+{
+	NSCParameterAssert(NULL != db);
+	NSCParameterAssert(nil != filename);
 
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
+//	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
+	
+	sqlite3_stmt	*statement		= NULL;
+	const char		*tail			= NULL;
+	NSString		*path			= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
+	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
+	
+	if(nil == sql)
+		return NO;
+	
+	if(SQLITE_OK != sqlite3_prepare_v2(db, [sql UTF8String], -1, &statement, &tail)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
 
-- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
-- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
-@end
+	if(SQLITE_DONE != sqlite3_step(statement)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be executed.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to execute SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+	
+	
+	if(SQLITE_OK != sqlite3_finalize(statement)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+	
+	return YES;
+}
 
 // ========================================
-// PlaylistManager friend methods
-@interface PlaylistManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
-
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
-
-- (void) playlist:(Playlist *)playlist willChangeValueForKey:(NSString *)key;
-- (void) playlist:(Playlist *)playlist didChangeValueForKey:(NSString *)key;
-@end
-
-// ========================================
-// SmartPlaylistManager friend methods
-@interface SmartPlaylistManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
-
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
-
-- (void) smartPlaylist:(SmartPlaylist *)playlist willChangeValueForKey:(NSString *)key;
-- (void) smartPlaylist:(SmartPlaylist *)playlist didChangeValueForKey:(NSString *)key;
-@end
-
-// ========================================
-// WatchFolderManager friend methods
-@interface WatchFolderManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
-
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
-
-- (void) watchFolder:(WatchFolder *)folder willChangeValueForKey:(NSString *)key;
-- (void) watchFolder:(WatchFolder *)folder didChangeValueForKey:(NSString *)key;
-@end
+// Symbolic constants
+NSString *const DatabaseErrorDomain = @"org.sbooth.Play.ErrorDomain.Database";
 
 @interface CollectionManager (Private)
-- (void) createTables;
-- (void) createStreamTable;
-- (void) createPlaylistTable;
-- (void) createPlaylistEntryTable;
-- (void) createSmartPlaylistTable;
-- (void) createWatchFolderTable;
-- (void) createTriggers;
+- (BOOL) createTables:(NSError **)error;
+- (BOOL) createStreamTable:(NSError **)error;
+- (BOOL) createPlaylistTable:(NSError **)error;
+- (BOOL) createPlaylistEntryTable:(NSError **)error;
+- (BOOL) createSmartPlaylistTable:(NSError **)error;
+- (BOOL) createWatchFolderTable:(NSError **)error;
+- (BOOL) createTriggers:(NSError **)error;
 
-- (void) prepareSQL;
-- (void) finalizeSQL;
+- (BOOL) prepareSQL:(NSError **)error;
+- (BOOL) finalizeSQL:(NSError **)error;
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action;
 
 - (void) doBeginTransaction;
@@ -221,42 +233,129 @@ static CollectionManager *collectionManagerInstance = nil;
 
 #pragma mark Database connections
 
-- (void) connectToDatabase:(NSString *)databasePath
+// TODO: Break this out into each sub-manager as necessary
+- (BOOL) updateDatabaseIfNeeded:(NSString *)databasePath error:(NSError **)error
+{
+	NSParameterAssert(nil != databasePath);
+
+	sqlite3 *db = NULL;
+	if(SQLITE_OK != sqlite3_open([databasePath UTF8String], &db)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be opened.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:databasePath]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to open the database", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+
+	if(NO == executeSQLFromFileInBundle(db, @"check_for_musicdns_puid_and_musicbrainz_id_columns", error)) {
+		if(NO == executeSQLFromFileInBundle(db, @"add_musicdns_puid_column", error) || NO == executeSQLFromFileInBundle(db, @"add_musicbrainz_id_column", error))
+			return NO;
+	}
+
+	if(SQLITE_OK != sqlite3_close(db)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The database could not be closed.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to close the database", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+	
+	return YES;
+}
+
+- (BOOL) connectToDatabase:(NSString *)databasePath error:(NSError **)error
 {
 	NSParameterAssert(nil != databasePath);
 	
-	if([self isConnectedToDatabase])
-		[self disconnectFromDatabase];
+	if([self isConnectedToDatabase] && NO == [self disconnectFromDatabase:error])
+		return NO;
 	
-	int result = sqlite3_open([databasePath UTF8String], &_db);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to open the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
+	if(SQLITE_OK != sqlite3_open([databasePath UTF8String], &_db)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" could not be opened.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:databasePath]] forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to open the database", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+		
+	if(NO == [self createTables:error])
+		return NO;
 	
-	[self createTables];
+	if(NO == [self prepareSQL:error])
+		return NO;
 	
-	[self prepareSQL];
-	
-	[[self streamManager] connectedToDatabase:_db];
-	[[self playlistManager] connectedToDatabase:_db];
-	[[self smartPlaylistManager] connectedToDatabase:_db];
-	[[self watchFolderManager] connectedToDatabase:_db];
+	if(NO == [[self streamManager] connectedToDatabase:_db error:error])
+		return NO;
+	if(NO == [[self playlistManager] connectedToDatabase:_db error:error])
+		return NO;
+	if(NO == [[self smartPlaylistManager] connectedToDatabase:_db error:error])
+		return NO;
+	if(NO == [[self watchFolderManager] connectedToDatabase:_db error:error])
+		return NO;
+
+	return YES;
 }
 
-- (void) disconnectFromDatabase
+- (BOOL) disconnectFromDatabase:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	[[self streamManager] disconnectedFromDatabase];
-	[[self playlistManager] disconnectedFromDatabase];
-	[[self smartPlaylistManager] disconnectedFromDatabase];
-	[[self watchFolderManager] disconnectedFromDatabase];
+	if(NO == [[self streamManager] disconnectedFromDatabase:error])
+		return NO;
+	if(NO == [[self playlistManager] disconnectedFromDatabase:error])
+		return NO;
+	if(NO == [[self smartPlaylistManager] disconnectedFromDatabase:error])
+		return NO;
+	if(NO == [[self watchFolderManager] disconnectedFromDatabase:error])
+		return NO;
 
-	[self finalizeSQL];
+	if(NO == [self finalizeSQL:error])
+		return NO;
 	
-	int result = sqlite3_close(_db);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to close the sqlite database (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);	
+	if(SQLITE_OK != sqlite3_close(_db)) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The database could not be closed.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to close the database", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:DatabaseErrorDomain 
+										 code:DatabaseSQLiteError 
+									 userInfo:errorDictionary];
+		}
+		
+		return NO;
+	}
+	
 	_db = NULL;
-
 	[self reset];
+	
+	return YES;
 }
 
 - (BOOL) isConnectedToDatabase
@@ -272,7 +371,7 @@ static CollectionManager *collectionManagerInstance = nil;
 
 	_updating = YES;
 	
-	[self doBeginTransaction];
+//	[self doBeginTransaction];
 	
 	[[self streamManager] beginUpdate];
 	[[self playlistManager] beginUpdate];
@@ -284,6 +383,8 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSAssert(YES == [self updateInProgress], @"No update in progress");
 	
+	[self doBeginTransaction];
+
 	[[self streamManager] processUpdate];
 	[[self playlistManager] processUpdate];
 	[[self smartPlaylistManager] processUpdate];
@@ -308,7 +409,7 @@ static CollectionManager *collectionManagerInstance = nil;
 	[[self smartPlaylistManager] cancelUpdate];
 	[[self watchFolderManager] cancelUpdate];
 
-	[self doRollbackTransaction];
+//	[self doRollbackTransaction];
 	_updating = NO;
 }
 
@@ -361,203 +462,140 @@ static CollectionManager *collectionManagerInstance = nil;
 
 #pragma mark Table Creation
 
-- (void) createTables
+- (BOOL) createTables:(NSError **)error
 {
-	[self createStreamTable];
-	[self createPlaylistTable];
-	[self createPlaylistEntryTable];
-	[self createSmartPlaylistTable];
-	[self createWatchFolderTable];
+	if(NO == [self createStreamTable:error])
+		return NO;
+	if(NO == [self createPlaylistTable:error])
+		return NO;
+	if(NO == [self createPlaylistEntryTable:error])
+		return NO;
+	if(NO == [self createSmartPlaylistTable:error])
+		return NO;
+	if(NO == [self createWatchFolderTable:error])
+		return NO;
 	
-	[self createTriggers];
+	if(NO == [self createTriggers:error])
+		return NO;
+	
+	return YES;
 }
 
-- (void) createStreamTable
+- (BOOL) createStreamTable:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_stream_table" ofType:@"sql"];
-	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-	
-	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_stream_table");
-	
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create the streams table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	return executeSQLFromFileInBundle(_db, @"create_stream_table", error);
 }
 
-- (void) createPlaylistTable
+- (BOOL) createPlaylistTable:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_playlist_table" ofType:@"sql"];
-	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-	
-	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_playlist_table");
-	
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create the playlists table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	return executeSQLFromFileInBundle(_db, @"create_playlist_table", error);
 }
 
-- (void) createPlaylistEntryTable
+- (BOOL) createPlaylistEntryTable:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_playlist_entry_table" ofType:@"sql"];
-	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-	
-	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_playlist_entry_table");
-	
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create the playlist entry table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	return executeSQLFromFileInBundle(_db, @"create_playlist_entry_table", error);
 }
 
-- (void) createSmartPlaylistTable
+- (BOOL) createSmartPlaylistTable:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_smart_playlist_table" ofType:@"sql"];
-	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-	
-	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_smart_playlist_table");
-	
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create the smart playlists table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	return executeSQLFromFileInBundle(_db, @"create_smart_playlist_table", error);
 }
 
-- (void) createWatchFolderTable
+- (BOOL) createWatchFolderTable:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= [[NSBundle mainBundle] pathForResource:@"create_watch_folder_table" ofType:@"sql"];
-	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-	
-	NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), @"create_watch_folder_table");
-	
-	result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_step(statement);
-	NSAssert1(SQLITE_DONE == result, @"Unable to create the playlist entry table (%@).", [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	
-	result = sqlite3_finalize(statement);
-	NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+	return executeSQLFromFileInBundle(_db, @"create_watch_folder_table", error);
 }
 
-- (void) createTriggers
+- (BOOL) createTriggers:(NSError **)error
 {
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
-	NSArray			*triggers		= [NSArray arrayWithObjects:@"delete_playlist_trigger", @"delete_stream_trigger", nil];
-	NSEnumerator	*enumerator		= [triggers objectEnumerator];
-	NSString		*trigger		= nil;
-	sqlite3_stmt	*statement		= NULL;
-	int				result			= SQLITE_OK;
-	const char		*tail			= NULL;
-	NSError			*error			= nil;
-	NSString		*path			= nil;
-	NSString		*sql			= nil;
-	
-	while((trigger = [enumerator nextObject])) {
-		path = [[NSBundle mainBundle] pathForResource:trigger ofType:@"sql"];
-		sql = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-		
-		NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), trigger);
-		
-		result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		result = sqlite3_step(statement);
-		NSAssert2(SQLITE_DONE == result, @"Unable to create the \"%@\" trigger (%@).", trigger, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-		
-		result = sqlite3_finalize(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
-	}
+	if(NO == executeSQLFromFileInBundle(_db, @"delete_playlist_trigger", error) || NO == executeSQLFromFileInBundle(_db, @"delete_stream_trigger", error))
+		return NO;
+	else
+		return YES;
 }
 
 #pragma mark Prepared SQL Statements
 
-- (void) prepareSQL
+- (BOOL) prepareSQL:(NSError **)error
 {
-	NSError			*error				= nil;	
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	const char		*tail				= NULL;
 	
 	while((filename = [enumerator nextObject])) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
-		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-		NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), filename);
+		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
-		result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-		NSAssert2(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement for '%@' (%@).", @"Database", @""), filename, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		if(nil == sql)
+			return NO;
+		
+		if(SQLITE_OK != sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 		
 		[_sql setValue:[NSNumber numberWithUnsignedLong:(unsigned long)statement] forKey:filename];
-	}	
+	}
+	
+	return YES;
 }
 
-- (void) finalizeSQL
+- (BOOL) finalizeSQL:(NSError **)error
 {
 	NSEnumerator	*enumerator			= [_sql objectEnumerator];
 	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	
 	while((wrappedPtr = [enumerator nextObject])) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
-		result = sqlite3_finalize(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		if(SQLITE_OK != sqlite3_finalize(statement)) {
+			if(nil != error) {
+				NSArray *keys = [_sql allKeysForObject:wrappedPtr];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), [keys lastObject]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 	}
 	
 	[_sql removeAllObjects];
+	
+	return YES;
 }
 
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action

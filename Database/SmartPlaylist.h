@@ -64,3 +64,10 @@ extern NSString * const		SmartPlaylistPredicateKey;
 - (void) setPlaying:(BOOL)playing;
 
 @end
+
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface SmartPlaylist (SmartPlaylistNodeMethods)
+- (void) loadStreams;
+@end
+

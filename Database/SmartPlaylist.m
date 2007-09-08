@@ -25,14 +25,6 @@
 
 NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 
-@interface AudioStreamManager (SmartPlaylistMethods)
-- (NSArray *) streamsForSmartPlaylist:(SmartPlaylist *)playlist;
-@end
-
-@interface SmartPlaylist (SmartPlaylistNodeMethods)
-- (void) loadStreams;
-@end
-
 @implementation SmartPlaylist
 
 + (void) initialize

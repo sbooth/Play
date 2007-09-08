@@ -28,36 +28,10 @@
 
 #import "SQLiteUtilityFunctions.h"
 
-@interface AudioStreamManager (CollectionManagerMethods)
-- (void) connectedToDatabase:(sqlite3 *)db;
-- (void) disconnectedFromDatabase;
-- (void) reset;
-
-- (void) beginUpdate;
-- (void) processUpdate;
-- (void) finishUpdate;
-- (void) cancelUpdate;
-
-- (void) stream:(AudioStream *)stream willChangeValueForKey:(NSString *)key;
-- (void) stream:(AudioStream *)stream didChangeValueForKey:(NSString *)key;
-@end
-
-@interface AudioStreamManager (PlaylistMethods)
-- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
-@end
-
-@interface AudioStreamManager (SmartPlaylistMethods)
-- (NSArray *) streamsForSmartPlaylist:(SmartPlaylist *)playlist;
-@end
-
-@interface AudioStreamManager (WatchFolderMethods)
-- (NSArray *) streamsForWatchFolder:(WatchFolder *)folder;
-@end
-
 @interface AudioStreamManager (Private)
-- (void) 			prepareSQL;
-- (void) 			finalizeSQL;
-- (sqlite3_stmt *) 	preparedStatementForAction:(NSString *)action;
+- (BOOL) prepareSQL:(NSError **)error;
+- (BOOL) finalizeSQL:(NSError **)error;
+- (sqlite3_stmt *) preparedStatementForAction:(NSString *)action;
 
 - (BOOL) isConnectedToDatabase;
 - (BOOL) updateInProgress;
@@ -336,16 +310,16 @@
 
 @implementation AudioStreamManager (CollectionManagerMethods)
 
-- (void) connectedToDatabase:(sqlite3 *)db
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error
 {
 	_db = db;
-	[self prepareSQL];
+	return [self prepareSQL:error];
 }
 
-- (void) disconnectedFromDatabase
+- (BOOL) disconnectedFromDatabase:(NSError **)error
 {
-	[self finalizeSQL];
 	_db = NULL;
+	return [self finalizeSQL:error];
 }
 
 - (void) reset
@@ -593,9 +567,8 @@
 
 #pragma mark Prepared SQL Statements
 
-- (void) prepareSQL
+- (BOOL) prepareSQL:(NSError **)error
 {
-	NSError			*error				= nil;	
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
 	NSString		*filename			= nil;
@@ -603,35 +576,66 @@
 		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"select_streams_for_playlist", @"insert_stream", @"update_stream", @"delete_stream", nil];
 	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	const char		*tail				= NULL;
 	
 	while((filename = [enumerator nextObject])) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
-		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-		NSAssert1(nil != sql, NSLocalizedStringFromTable(@"Unable to locate sql file \"%@\".", @"Database", @""), filename);
+		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
-		result = sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail);
-		NSAssert2(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to prepare sql statement for '%@' (%@).", @"Database", @""), filename, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		if(nil == sql)
+			return NO;
+		
+		if(SQLITE_OK != sqlite3_prepare_v2(_db, [sql UTF8String], -1, &statement, &tail)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 		
 		[_sql setValue:[NSNumber numberWithUnsignedLong:(unsigned long)statement] forKey:filename];
-	}	
+	}
+	
+	return YES;
 }
 
-- (void) finalizeSQL
+- (BOOL) finalizeSQL:(NSError **)error
 {
 	NSEnumerator	*enumerator			= [_sql objectEnumerator];
 	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
-	int				result				= SQLITE_OK;
 	
 	while((wrappedPtr = [enumerator nextObject])) {
-		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
-		result = sqlite3_finalize(statement);
-		NSAssert1(SQLITE_OK == result, NSLocalizedStringFromTable(@"Unable to finalize sql statement (%@).", @"Database", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
+		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];
+		if(SQLITE_OK != sqlite3_finalize(statement)) {
+			if(nil != error) {
+				NSArray *keys = [_sql allKeysForObject:wrappedPtr];
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), [keys lastObject]] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(_db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 	}
 	
 	[_sql removeAllObjects];
+
+	return YES;
 }
 
 - (sqlite3_stmt *) preparedStatementForAction:(NSString *)action
@@ -749,6 +753,10 @@
 	getColumnValue(statement, 37, stream, PropertiesDurationKey, eObjectTypeDouble);
 	getColumnValue(statement, 38, stream, PropertiesBitrateKey, eObjectTypeDouble);
 	
+	// Additional fields added after 0.1.2 release
+	getColumnValue(statement, 39, stream, MetadataMusicDNSPUIDKey, eObjectTypeString);
+	getColumnValue(statement, 40, stream, MetadataMusicBrainzIDKey, eObjectTypeString);
+	
 	// Register the object	
 	NSMapInsert(_registeredStreams, (void *)objectID, (void *)stream);
 	
@@ -818,7 +826,11 @@
 		bindParameter(statement, 36, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
 		bindParameter(statement, 37, stream, PropertiesDurationKey, eObjectTypeDouble);
 		bindParameter(statement, 38, stream, PropertiesBitrateKey, eObjectTypeDouble);
-				
+
+		// Additional fields added after 0.1.2 release
+		bindParameter(statement, 39, stream, MetadataMusicDNSPUIDKey, eObjectTypeString);
+		bindParameter(statement, 40, stream, MetadataMusicBrainzIDKey, eObjectTypeString);
+		
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
 		
@@ -917,6 +929,10 @@
 	bindNamedParameter(statement, ":total_frames", stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
 	bindNamedParameter(statement, ":duration", stream, PropertiesDurationKey, eObjectTypeDouble);
 	bindNamedParameter(statement, ":bitrate", stream, PropertiesBitrateKey, eObjectTypeDouble);
+	
+	// Additional fields added after 0.1.2 release
+	bindNamedParameter(statement, ":musicdns_puid", stream, MetadataMusicDNSPUIDKey, eObjectTypeString);
+	bindNamedParameter(statement, ":musicbrainz_id", stream, MetadataMusicBrainzIDKey, eObjectTypeString);
 	
 	result = sqlite3_step(statement);
 	NSAssert2(SQLITE_DONE == result, @"Unable to update the record for %@ (%@).", stream, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -1023,6 +1039,9 @@
 				PropertiesTotalFramesKey,
 				PropertiesDurationKey,
 				PropertiesBitrateKey,
+				
+				MetadataMusicDNSPUIDKey,
+				MetadataMusicBrainzIDKey,
 				
 				nil];			
 		}

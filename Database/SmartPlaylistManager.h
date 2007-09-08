@@ -60,7 +60,20 @@
 - (void) deleteSmartPlaylist:(SmartPlaylist *)playlist;
 - (void) revertSmartPlaylist:(SmartPlaylist *)playlist;
 
-// ========================================
-// Metadata support
+@end
 
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface SmartPlaylistManager (CollectionManagerMethods)
+- (BOOL) connectedToDatabase:(sqlite3 *)db error:(NSError **)error;
+- (BOOL) disconnectedFromDatabase:(NSError **)error;
+- (void) reset;
+
+- (void) beginUpdate;
+- (void) processUpdate;
+- (void) finishUpdate;
+- (void) cancelUpdate;
+
+- (void) smartPlaylist:(SmartPlaylist *)playlist willChangeValueForKey:(NSString *)key;
+- (void) smartPlaylist:(SmartPlaylist *)playlist didChangeValueForKey:(NSString *)key;
 @end

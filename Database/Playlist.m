@@ -28,22 +28,6 @@ NSString * const	PlaylistStreamsKey						= @"streams";
 
 NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
-@interface AudioStreamManager (PlaylistMethods)
-- (NSArray *) streamsForPlaylist:(Playlist *)playlist;
-@end
-
-@interface PlaylistManager (PlaylistMethods)
-- (void) playlist:(Playlist *)playlist willInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
-- (void) playlist:(Playlist *)playlist didInsertStream:(AudioStream *)stream atIndex:(unsigned)index;
-
-- (void) playlist:(Playlist *)playlist willRemoveStreamAtIndex:(unsigned)index;
-- (void) playlist:(Playlist *)playlist didRemoveStreamAtIndex:(unsigned)index;
-@end
-
-@interface Playlist (PlaylistNodeMethods)
-- (void) loadStreams;
-@end
-
 @implementation Playlist
 
 + (void) initialize

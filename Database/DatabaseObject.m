@@ -48,9 +48,8 @@ NSString * const	ObjectIDKey								= @"id";
 		
 		return ([value isEqual:[NSNull null]] ? nil : value);
 	}
-	else {
+	else
 		return [super valueForKey:key];
-	}
 }
 
 - (void) setValue:(id)value forKey:(NSString *)key
@@ -167,12 +166,12 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (NSDictionary *) changedValues
 {
-	return _changedValues;
+	return [[_changedValues retain] autorelease];
 }
 
 - (NSDictionary *) savedValues
 {
-	return _savedValues;
+	return [[_savedValues retain] autorelease];
 }
 
 #pragma mark Subclass Methods

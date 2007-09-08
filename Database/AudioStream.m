@@ -50,6 +50,8 @@ NSString * const	MetadataCommentKey						= @"comment";
 NSString * const	MetadataISRCKey							= @"isrc";
 NSString * const	MetadataMCNKey							= @"mcn";
 NSString * const	MetadataBPMKey							= @"bpm";
+NSString * const	MetadataMusicDNSPUIDKey					= @"musicdns_puid";
+NSString * const	MetadataMusicBrainzIDKey				= @"musicbrainz_id";
 
 NSString * const	ReplayGainReferenceLoudnessKey			= @"referenceLoudness";
 NSString * const	ReplayGainTrackGainKey					= @"trackGain";
@@ -122,6 +124,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self setValue:nil forKey:MetadataISRCKey];
 	[self setValue:nil forKey:MetadataMCNKey];
 	[self setValue:nil forKey:MetadataBPMKey];
+	[self setValue:nil forKey:MetadataMusicDNSPUIDKey];
+	[self setValue:nil forKey:MetadataMusicBrainzIDKey];
 }
 
 - (IBAction) clearReplayGain:(id)sender
@@ -290,6 +294,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			MetadataISRCKey,
 			MetadataMCNKey,
 			MetadataBPMKey,
+			MetadataMusicDNSPUIDKey,
+			MetadataMusicBrainzIDKey,
 
 			ReplayGainReferenceLoudnessKey,
 			ReplayGainTrackGainKey,

@@ -28,6 +28,16 @@
 @class DatabaseObject;
 @class AudioStream;
 
+// ========================================
+// Error Codes
+// ========================================
+extern NSString * const			DatabaseErrorDomain;
+
+enum {
+	DatabaseFileNotFoundError					= 0,
+	DatabaseSQLiteError							= 1
+};
+
 @interface CollectionManager : NSObject
 {
 	@private
@@ -57,8 +67,9 @@
 
 // ========================================
 // Database connection
-- (void) connectToDatabase:(NSString *)databasePath;
-- (void) disconnectFromDatabase;
+- (BOOL) updateDatabaseIfNeeded:(NSString *)databasePath error:(NSError **)error;
+- (BOOL) connectToDatabase:(NSString *)databasePath error:(NSError **)error;
+- (BOOL) disconnectFromDatabase:(NSError **)error;
 - (BOOL) isConnectedToDatabase;
 
 // ========================================
