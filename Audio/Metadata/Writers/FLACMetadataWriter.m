@@ -210,6 +210,9 @@ setVorbisComment(FLAC__StreamMetadata		*block,
 	numericValue = [metadata valueForKey:ReplayGainAlbumPeakKey];
 	setVorbisComment(block, @"REPLAYGAIN_ALBUM_PEAK", (nil == numericValue ? nil : [NSString stringWithFormat:@"%1.8f", [numericValue doubleValue]]));
 	
+	setVorbisComment(block, @"MUSICDNS_PUID", [metadata valueForKey:MetadataMusicDNSPUIDKey]);
+	setVorbisComment(block, @"MUSICBRAINZ_ID", [metadata valueForKey:MetadataMusicBrainzIDKey]);
+
 	// Write the new metadata to the file
 	result = FLAC__metadata_chain_write(chain, YES, NO);
 	if(NO == result) {

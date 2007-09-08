@@ -152,6 +152,9 @@ setField(CAPETag		*f,
 	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
 	setField(f, "REPLAYGAIN_ALBUM_PEAK", (nil == albumPeak ? nil : [NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]]));
 
+	setField(f, "MUSICDNS_PUID", [metadata valueForKey:MetadataMusicDNSPUIDKey]);
+	setField(f, "MUSICBRAINZ_ID", [metadata valueForKey:MetadataMusicBrainzIDKey]);
+
 	result = f->Save();
 	if(ERROR_SUCCESS != result) {
 		if(nil != error) {

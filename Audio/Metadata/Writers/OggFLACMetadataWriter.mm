@@ -128,6 +128,12 @@
 	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
 	f.tag()->addField("REPLAYGAIN_ALBUM_PEAK", (nil == albumPeak ? TagLib::String::null : TagLib::String([[NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]] UTF8String], TagLib::String::UTF8)));
 
+	NSString *puid = [metadata valueForKey:MetadataMusicDNSPUIDKey];
+	f.tag()->addField("MUSICDNS_PUID", (nil == puid ? TagLib::String::null : TagLib::String([puid UTF8String], TagLib::String::UTF8)));
+
+	NSString *mbid = [metadata valueForKey:MetadataMusicBrainzIDKey];
+	f.tag()->addField("MUSICBRAINZ_ID", (nil == mbid ? TagLib::String::null : TagLib::String([mbid UTF8String], TagLib::String::UTF8)));
+
 	result = f.save();
 	if(NO == result) {
 		if(nil != error) {

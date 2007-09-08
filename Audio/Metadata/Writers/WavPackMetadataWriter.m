@@ -181,6 +181,16 @@
 		WavpackAppendTagItem(wpc, "REPLAYGAIN_ALBUM_PEAK", [albumPeakString UTF8String], strlen([albumPeakString UTF8String]));
 	}
 	
+	NSString *puid = [metadata valueForKey:MetadataMusicDNSPUIDKey];
+	WavpackDeleteTagItem(wpc, "MUSICDNS_PUID");
+	if(nil != puid)
+		WavpackAppendTagItem(wpc, "MUSICDNS_PUID", [puid UTF8String], strlen([puid UTF8String]));
+
+	NSString *mbid = [metadata valueForKey:MetadataMusicBrainzIDKey];
+	WavpackDeleteTagItem(wpc, "MUSICBRAINZ_ID");
+	if(nil != mbid)
+		WavpackAppendTagItem(wpc, "MUSICBRAINZ_ID", [mbid UTF8String], strlen([mbid UTF8String]));
+
 	result = WavpackWriteTag(wpc);
 
 	if(NO == result) {
