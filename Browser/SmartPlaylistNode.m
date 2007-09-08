@@ -27,10 +27,6 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@interface SmartPlaylist (SmartPlaylistNodeMethods)
-- (void) loadStreams;
-@end
-
 @interface SmartPlaylistNode (Private)
 - (void) streamsChanged:(NSNotification *)aNotification;
 @end

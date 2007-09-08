@@ -25,10 +25,6 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@interface Playlist (PlaylistNodeMethods)
-- (void) loadStreams;
-@end
-
 @implementation PlaylistNode
 
 - (id) initWithPlaylist:(Playlist *)playlist

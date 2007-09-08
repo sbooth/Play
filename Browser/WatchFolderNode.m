@@ -27,10 +27,6 @@
 - (NSMutableArray *) streamsArray;
 @end
 
-@interface WatchFolder (WatchFolderNodeMethods)
-- (void) loadStreams;
-@end
-
 @implementation WatchFolderNode
 
 - (id) initWithWatchFolder:(WatchFolder *)folder
