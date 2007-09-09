@@ -49,6 +49,8 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	calculateTrackAndAlbumReplayGain:(id)sender;
 - (IBAction)	clearReplayGain:(id)sender;
 
+- (IBAction)	determinePUIDs:(id)sender;
+
 - (IBAction)	remove:(id)sender;
 
 - (IBAction)	showTracksWithSameArtist:(id)sender;
@@ -70,6 +72,8 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	doubleClickAction:(id)sender;
 
+// ========================================
+// Message displayed when the table is empty
 - (NSString *)	emptyMessage;
 
 @end

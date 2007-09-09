@@ -35,7 +35,9 @@
 #import "SecondsFormatter.h"
 
 #import "ReplayGainUtilities.h"
-#import "ReplayGainCalculationProgressSheet.h"
+#import "CancelableProgressSheet.h"
+
+#import "PUIDUtilities.h"
 
 #import "CTBadge.h"
 
@@ -66,6 +68,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain;
+- (void) performPUIDCalculationForStreams:(NSArray *)streams;
 @end
 
 @implementation AudioStreamTableView
@@ -100,6 +103,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return (1 < [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(clearReplayGain:))
 		return (0 != [[_streamController selectedObjects] count]);
+	else if([menuItem action] == @selector(determinePUIDs:))
+		return ((0 != [[_streamController selectedObjects] count]) && canConnectToMusicDNS());
 	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
 	else if([menuItem action] == @selector(showTracksWithSameArtist:)) {
@@ -396,7 +401,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		NSBeep();
 		return;
 	}
-	
+
 	[self performReplayGainCalculationForStreams:[_streamController selectedObjects] calculateAlbumGain:NO];
 }
 
@@ -420,6 +425,33 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[CollectionManager manager] beginUpdate];
 	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(clearReplayGain:) withObject:sender];
 	[[CollectionManager manager] finishUpdate];
+}
+
+- (IBAction) determinePUIDs:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	if(NO == canConnectToMusicDNS()) {
+		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"You are not connected to the internet.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"Not connected to the internet", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"An internet connection is required to map OFA fingerprints to MusicDNS PUIDs.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+		
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+											 code:0 
+										 userInfo:errorDictionary];
+
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+
+		return;
+	}
+	
+	[self performPUIDCalculationForStreams:[_streamController selectedObjects]];
 }
 
 - (IBAction) remove:(id)sender
@@ -1010,8 +1042,9 @@ bail:
 
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain
 {
-	ReplayGainCalculationProgressSheet *progressSheet = [[ReplayGainCalculationProgressSheet alloc] init];
-				
+	CancelableProgressSheet *progressSheet = [[CancelableProgressSheet alloc] init];
+	[progressSheet setLegend:NSLocalizedStringFromTable(@"Calculating Replay Gain...", @"Library", @"")];
+
 	[[NSApplication sharedApplication] beginSheet:[progressSheet sheet]
 								   modalForWindow:[self window]
 									modalDelegate:nil
@@ -1023,6 +1056,32 @@ bail:
 	[progressSheet startProgressIndicator:self];
 	[[CollectionManager manager] beginUpdate];
 	calculateReplayGain(streams, calculateAlbumGain, modalSession);
+	[[CollectionManager manager] finishUpdate];	
+	[progressSheet stopProgressIndicator:self];
+	
+	[NSApp endModalSession:modalSession];
+	
+	[NSApp endSheet:[progressSheet sheet]];
+	[[progressSheet sheet] close];
+	[progressSheet release];
+}
+
+- (void) performPUIDCalculationForStreams:(NSArray *)streams
+{
+	CancelableProgressSheet *progressSheet = [[CancelableProgressSheet alloc] init];
+	[progressSheet setLegend:NSLocalizedStringFromTable(@"Determining PUID...", @"Library", @"")];
+	
+	[[NSApplication sharedApplication] beginSheet:[progressSheet sheet]
+								   modalForWindow:[self window]
+									modalDelegate:nil
+								   didEndSelector:nil
+									  contextInfo:nil];
+	
+	NSModalSession modalSession = [[NSApplication sharedApplication] beginModalSessionForWindow:[progressSheet sheet]];
+	
+	[progressSheet startProgressIndicator:self];
+	[[CollectionManager manager] beginUpdate];
+	calculateFingerprintsAndRequestPUIDs(streams, modalSession);
 	[[CollectionManager manager] finishUpdate];	
 	[progressSheet stopProgressIndicator:self];
 	
