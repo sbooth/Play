@@ -28,7 +28,7 @@ static Genres *sharedGenres = nil;
 - (id) init
 {
 	if((self = [super init])) {
-		_unsortedGenres = [NSArray arrayWithObjects:
+		_unsortedGenres = [[NSArray alloc] initWithObjects:
 			NSLocalizedStringFromTable(@"Blues", @"Genres", @""),
 			NSLocalizedStringFromTable(@"Classic Rock", @"Genres", @""),
 			NSLocalizedStringFromTable(@"Country", @"Genres", @""),
@@ -177,9 +177,7 @@ static Genres *sharedGenres = nil;
 			NSLocalizedStringFromTable(@"Anime", @"Genres", @""),
 			NSLocalizedStringFromTable(@"JPop", @"Genres", @""),
 			NSLocalizedStringFromTable(@"Synthpop", @"Genres", @""),
-			nil
-			];
-		[_unsortedGenres retain];
+			nil];
 		_genres = [[_unsortedGenres sortedArrayUsingSelector:@selector(compare:)] retain];
 	}
 	return self;
@@ -188,9 +186,8 @@ static Genres *sharedGenres = nil;
 + (NSArray *) sharedGenres
 {
 	@synchronized(self) {
-		if(nil == sharedGenres) {
+		if(nil == sharedGenres)
 			sharedGenres = [[self alloc] init];
-		}
 	}
 	return [sharedGenres valueForKey:@"genres"];
 }
@@ -198,9 +195,8 @@ static Genres *sharedGenres = nil;
 + (NSArray *) unsortedGenres
 {
 	@synchronized(self) {
-		if(nil == sharedGenres) {
+		if(nil == sharedGenres)
 			sharedGenres = [[self alloc] init];
-		}
 	}
 	return [sharedGenres valueForKey:@"unsortedGenres"];
 }
@@ -208,9 +204,8 @@ static Genres *sharedGenres = nil;
 + (id) allocWithZone:(NSZone *)zone
 {
     @synchronized(self) {
-        if(nil == sharedGenres) {
+        if(nil == sharedGenres)
             return [super allocWithZone:zone];
-        }
     }
     return sharedGenres;
 }
