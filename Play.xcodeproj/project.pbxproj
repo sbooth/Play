@@ -82,6 +82,7 @@
 		8C30A0790B74F8630007204B /* PlayApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0760B74F8630007204B /* PlayApplicationDelegate.m */; };
 		8C37CD0F0C3ED16900A29D13 /* malloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C37CD0D0C3ED16900A29D13 /* malloc.c */; };
 		8C37CD100C3ED16900A29D13 /* vdbeblob.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C37CD0E0C3ED16900A29D13 /* vdbeblob.c */; };
+		8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */; };
 		8C50FF940B7ADEC8005419EF /* select_stream_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */; };
 		8C53D8E00BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */; };
 		8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
@@ -335,7 +336,6 @@
 		8CE6A43F0C3F4CBB005A221B /* ImageAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24FA0B724AE500CE799A /* ImageAndTextCell.m */; };
 		8CF0D90E0C836D0200728E39 /* AdvancedPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */; };
 		8CF0D92D0C836DD500728E39 /* AdvancedPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF0D92B0C836DD400728E39 /* AdvancedPreferences.nib */; };
-		8CF0D9490C83700400728E39 /* AdvancedPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CF0D9480C83700400728E39 /* AdvancedPreferencesToolbarImage.tiff */; };
 		8CF257B20BF543FA00A8520E /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A10BF543FA00A8520E /* AIPlasticButton.m */; };
 		8CF257B40BF543FA00A8520E /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */; };
 		8CF257B60BF543FA00A8520E /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */; };
@@ -503,6 +503,7 @@
 		8C37CD0E0C3ED16900A29D13 /* vdbeblob.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = vdbeblob.c; path = src/vdbeblob.c; sourceTree = "<group>"; };
 		8C37CD110C3ED18500A29D13 /* btreeInt.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = btreeInt.h; path = src/btreeInt.h; sourceTree = "<group>"; };
 		8C37CD120C3ED18500A29D13 /* limits.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = limits.h; path = src/limits.h; sourceTree = "<group>"; };
+		8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = AdvancedPreferencesToolbarImage.tiff; path = Images/AdvancedPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_id.sql; path = SQL/select_stream_by_id.sql; sourceTree = "<group>"; };
 		8C53D8DD0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSBezierPath_RoundRectMethods.h; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.h; sourceTree = "<group>"; };
 		8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSBezierPath_RoundRectMethods.m; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.m; sourceTree = "<group>"; };
@@ -856,7 +857,6 @@
 		8CF0D90B0C836D0200728E39 /* AdvancedPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdvancedPreferencesController.h; path = Preferences/AdvancedPreferencesController.h; sourceTree = "<group>"; };
 		8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdvancedPreferencesController.m; path = Preferences/AdvancedPreferencesController.m; sourceTree = "<group>"; };
 		8CF0D92C0C836DD500728E39 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AdvancedPreferences.nib; sourceTree = "<group>"; };
-		8CF0D9480C83700400728E39 /* AdvancedPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = AdvancedPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8CF257A00BF543FA00A8520E /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticButton.h; path = ThirdParty/AIPlasticButton/AIPlasticButton.h; sourceTree = "<group>"; };
 		8CF257A10BF543FA00A8520E /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticButton.m; path = ThirdParty/AIPlasticButton/AIPlasticButton.m; sourceTree = "<group>"; };
 		8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticInfoButton.h; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -1411,7 +1411,7 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				8CF0D9480C83700400728E39 /* AdvancedPreferencesToolbarImage.tiff */,
+				8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */,
 				8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */,
 				8CE631D20C161D140073ADC3 /* Drawer-List.tiff */,
 				8CE631D30C161D140073ADC3 /* fileexport.png */,
@@ -1929,9 +1929,9 @@
 				8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */,
 				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
 				8CF0D92D0C836DD500728E39 /* AdvancedPreferences.nib in Resources */,
-				8CF0D9490C83700400728E39 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
 				8CA8B2EA0C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql in Resources */,
 				8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */,
+				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
