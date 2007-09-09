@@ -18,16 +18,16 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "ReplayGainCalculationProgressSheet.h"
+#import "CancelableProgressSheet.h"
 
-@implementation ReplayGainCalculationProgressSheet
+@implementation CancelableProgressSheet
 
 - (id) init
 {
 	if((self = [super init])) {
-		BOOL result = [NSBundle loadNibNamed:@"ReplayGainCalculationProgressSheet" owner:self];
+		BOOL result = [NSBundle loadNibNamed:@"CancelableProgressSheet" owner:self];
 		if(NO == result) {
-			NSLog(@"Missing resource: \"ReplayGainCalculationProgressSheet.nib\".");
+			NSLog(@"Missing resource: \"CancelableProgressSheet.nib\".");
 			[self release];
 			return nil;
 		}
@@ -37,7 +37,12 @@
 
 - (NSWindow *) sheet
 {
-	return _sheet;
+	return [[_sheet retain] autorelease];
+}
+
+- (void) setLegend:(NSString *)legend
+{
+	[_legend setStringValue:legend];
 }
 
 - (IBAction) cancel:(id)sender

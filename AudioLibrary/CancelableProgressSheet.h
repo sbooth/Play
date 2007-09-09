@@ -20,17 +20,20 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface ReplayGainCalculationProgressSheet : NSObject
+@interface CancelableProgressSheet : NSObject
 {
 	IBOutlet NSWindow				*_sheet;
+	IBOutlet NSTextField			*_legend;
 	IBOutlet NSProgressIndicator	*_progressIndicator;
 }
 
-- (NSWindow *)		sheet;
+- (NSWindow *) sheet;
 
-- (IBAction)		cancel:(id)sender;
+- (void) setLegend:(NSString *)legend;
 
-- (IBAction)		startProgressIndicator:(id)sender;
-- (IBAction)		stopProgressIndicator:(id)sender;
+- (IBAction) cancel:(id)sender;
+
+- (IBAction) startProgressIndicator:(id)sender;
+- (IBAction) stopProgressIndicator:(id)sender;
 
 @end
