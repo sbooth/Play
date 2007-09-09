@@ -25,10 +25,6 @@
 #include <ofa1/ofa.h>
 #include "protocol.h"
 
-//#include <musicbrainz3/webservice.h>
-//#include <musicbrainz3/query.h>
-//#include <musicbrainz3/model.h>
-
 #include <SystemConfiguration/SCNetwork.h>
 
 #define LOCAL_MAX(a, b)			((a) > (b) ? (a) : (b))
@@ -180,7 +176,6 @@ calculateFingerprintsAndRequestPUIDs(NSArray *streams, NSModalSession modalSessi
 
 		// Create the audio fingerprint
 		if(false == trackData->createPrint()) {
-			NSLog(@"** Failed to generate print.");
 			delete trackData;
 			continue;
 		}
@@ -189,56 +184,14 @@ calculateFingerprintsAndRequestPUIDs(NSArray *streams, NSModalSession modalSessi
 		NSString *bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
 		TrackInformation *trackInfo = trackData->getMetadata(PLAY_CLIENT_ID, [bundleVersion UTF8String], true);
 		if(NULL != trackInfo) {
-//			NSLog(@" Title: %s\n", trackInfo->getTrack().c_str());
-//			NSLog(@"Artist: %s\n", trackInfo->getArtist().c_str());
-//			NSLog(@" Album: %s\n", trackInfo->getAlbum().c_str());
-//			NSLog(@" Track: %i\n", trackInfo->getTrackNum());
-//			NSLog(@"  Year: %s\n", trackInfo->getYear().c_str());
-//			NSLog(@" Genre: %s\n", trackInfo->getGenre().c_str());
-//			NSLog(@"  PUID: %s\n", trackInfo->getPUID().c_str());
 			std::string PUID = trackInfo->getPUID();
 			if(0 < PUID.length())
-				[stream setValue:[NSString stringWithCString:PUID.c_str() encoding:NSASCIIStringEncoding] forKey:MetadataMusicDNSPUIDKey];
+				[stream setValue:[NSString stringWithCString:PUID.c_str() encoding:NSASCIIStringEncoding] forKey:MetadataMusicDNSPUIDKey];			
 		}
 		else
 			NSLog(@"Unable to retrieve MusicDNS metadata");
 		
 		delete trackData;
-
-/*		if(0 < PUID.length()) {
-			MusicBrainz::Query q;
-			MusicBrainz::TrackResultList results;
-
-			try {
-				MusicBrainz::TrackFilter f = MusicBrainz::TrackFilter().puid(trackInfo->getPUID());
-				results = q.getTracks(&f);
-			}
-
-			catch(MusicBrainz::WebServiceError &e) {
-				NSLog(@"MusicBrainz error: %s", e.what());
-				continue;
-			}
-
-			for(MusicBrainz::TrackResultList::iterator i = results.begin(); i != results.end(); ++i) {
-				MusicBrainz::TrackResult *result = *i;
-				MusicBrainz::Track *track = result->getTrack();
-				
-				NSLog(@"Score   : %s", result->getScore());
-				NSLog(@"Id      : %s", track->getId().c_str());
-				NSLog(@"Title   : %s", track->getTitle().c_str());
-				NSLog(@"Artist  : %s", track->getArtist()->getName().c_str());
-				
-				MusicBrainz::ReleaseList releases = track->getReleases();
-
-				for(MusicBrainz::ReleaseList::iterator j = releases.begin(); j != releases.end(); ++j) {
-					MusicBrainz::Release *release = *j;
-
-					NSLog(@"Id      : %s", release->getId().c_str());
-					NSLog(@"Title   : %s", release->getTitle().c_str());
-					
-				}
-			}
-		}*/
 
 #if DEBUG
 		clock_t track_end = clock();
