@@ -51,5 +51,9 @@
 	<integer>0</integer>
 	<key>clippingPrevention</key>
 	<integer>0</integer>
+	<key>numberOfAudioSlicesInBuffer</key>
+	<real>10</real>
+	<key>numberOfAudioFramesPerSlice</key>
+	<real>2048</real>
 </dict>
 </plist>
