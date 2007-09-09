@@ -16,6 +16,7 @@
                 calculateTrackReplayGain = id; 
                 clearPlayQueue = id; 
                 clearReplayGain = id; 
+                determinePUIDs = id; 
                 editMetadata = id; 
                 insertPlaylist = id; 
                 insertPlaylistWithSelection = id; 
@@ -26,9 +27,11 @@
                 playPause = id; 
                 playPreviousStream = id; 
                 playlistInformation = id; 
+                prunePlayQueue = id; 
                 remove = id; 
                 rescanMetadata = id; 
                 saveMetadata = id; 
+                scramblePlayQueue = id; 
                 showTracksWithSameAlbum = id; 
                 showTracksWithSameArtist = id; 
                 showTracksWithSameComposer = id; 

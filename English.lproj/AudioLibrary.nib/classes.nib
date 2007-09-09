@@ -103,6 +103,7 @@
                 clearReplayGain = id; 
                 convert = id; 
                 convertWithMax = id; 
+                determinePUIDs = id; 
                 editMetadata = id; 
                 editWithTag = id; 
                 openWith = id; 
