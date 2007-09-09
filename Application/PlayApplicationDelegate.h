@@ -21,35 +21,29 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/GrowlApplicationBridge.h>
 
-@class AudioLibrary;
-@class AudioScrobbler;
-@class PTKeyCombo;
+@class AudioLibrary, AudioScrobbler, PTKeyCombo;
 
 @interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
 	AudioScrobbler		*_scrobbler;
 }
 
-- (AudioLibrary *)		library;
-- (AudioScrobbler *)	scrobbler;
+- (AudioLibrary *) library;
+- (AudioScrobbler *) scrobbler;
 
-- (IBAction)			showPreferences:(id)sender;
+- (IBAction) showPreferences:(id)sender;
 
 @end
 
 @interface PlayApplicationDelegate (HotKeyMethods)
-
 - (void) registerPlayPauseHotKey:(PTKeyCombo *)keyCombo;
 - (void) registerPlayNextStreamHotKey:(PTKeyCombo *)keyCombo;
 - (void) registerPlayPreviousStreamHotKey:(PTKeyCombo *)keyCombo;
-
 @end
 
 @interface PlayApplicationDelegate (LibraryWrapperMethods)
+- (IBAction) playPause:(id)sender;
 
-- (IBAction)	playPause:(id)sender;
-
-- (IBAction)	playNextStream:(id)sender;
-- (IBAction)	playPreviousStream:(id)sender;
-
+- (IBAction) playNextStream:(id)sender;
+- (IBAction) playPreviousStream:(id)sender;
 @end

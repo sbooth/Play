@@ -47,23 +47,22 @@
 
 + (void) initialize
 {
-	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
-	if(nil == defaultsPath) {
-		NSLog(@"Missing resource: Defaults.plist");
-		return;
-	}
-	
 	[NSDateFormatter setDefaultFormatterBehavior:NSDateFormatterBehavior10_4];
 	[NSNumberFormatter setDefaultFormatterBehavior:NSNumberFormatterBehavior10_4];
-
-	NSDictionary *initialValuesDictionary = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];		
-	
-	[[NSUserDefaults standardUserDefaults] registerDefaults:initialValuesDictionary];
-	[[NSUserDefaultsController sharedUserDefaultsController] setInitialValues:initialValuesDictionary];
 	
 	IntegerToDoubleRoundingValueTransformer *rounder = [[IntegerToDoubleRoundingValueTransformer alloc] init];
 	[NSValueTransformer setValueTransformer:rounder forName:@"IntegerToDoubleRoundingValueTransformer"];
 	[rounder release];
+
+	NSString *defaultsPath = [[NSBundle mainBundle] pathForResource:@"Defaults" ofType:@"plist"];
+	if(nil != defaultsPath) {
+		NSDictionary *initialValuesDictionary = [NSDictionary dictionaryWithContentsOfFile:defaultsPath];		
+		
+		[[NSUserDefaults standardUserDefaults] registerDefaults:initialValuesDictionary];
+		[[NSUserDefaultsController sharedUserDefaultsController] setInitialValues:initialValuesDictionary];
+	}
+	else
+		NSLog(@"Missing file: Defaults.plist");
 }
 
 - (AudioLibrary *) library
@@ -73,8 +72,10 @@
 
 - (AudioScrobbler *) scrobbler
 {
-	if(nil == _scrobbler)
-		_scrobbler = [[AudioScrobbler alloc] init];
+	@synchronized(self) {
+		if(nil == _scrobbler)
+			_scrobbler = [[AudioScrobbler alloc] init];
+	}
 	return _scrobbler;
 }
 
@@ -219,8 +220,8 @@
 	NSArray			*defaultNotifications		= nil;
 	NSArray			*allNotifications			= nil;
 	
-	defaultNotifications		= [NSArray arrayWithObjects:@"Track Playback Started", nil];
-	allNotifications			= [NSArray arrayWithObjects:@"Track Playback Started", nil];
+	defaultNotifications		= [NSArray arrayWithObject:@"Track Playback Started"];
+	allNotifications			= [NSArray arrayWithObject:@"Track Playback Started"];
 	registrationDictionary		= [NSDictionary dictionaryWithObjectsAndKeys:
 		@"Play", GROWL_APP_NAME,  
 		allNotifications, GROWL_NOTIFICATIONS_ALL, 
@@ -378,7 +379,7 @@
 		[self setWindowTitleForStream:stream];
 
 	if(nil != metadataWriter) {
-		BOOL					result			= [metadataWriter writeMetadata:stream error:&error];
+		BOOL result = [metadataWriter writeMetadata:stream error:&error];
 		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
 	}
 }
@@ -405,9 +406,8 @@
 	NSString	*windowTitle			= nil;
 	NSString	*representedFilename	= @"";
 	
-	if(nil != url && [url isFileURL]) {
+	if(nil != url && [url isFileURL])
 		representedFilename = [url path];
-	}
 	
 	if(nil != title && nil != artist)
 		windowTitle = [NSString stringWithFormat:@"%@ - %@", artist, title];
