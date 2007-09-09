@@ -143,28 +143,10 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 NSString * const	PlayQueueKey								= @"playQueue";
 
 // ========================================
-// Friend methods
-// ========================================
-@interface WatchFolder (WatchFolderNodeMethods)
-- (void) loadStreams;
-@end
-
-// ========================================
 // Completely bogus NSTreeController bindings hack
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
 - (id) observedObject;
-@end
-
-// ========================================
-// AudioPlayer callbacks
-// ========================================
-@interface AudioLibrary (AudioPlayerMethods)
-- (void) streamPlaybackDidStart;
-- (void) streamPlaybackDidComplete;
-- (void) requestNextStream;
-- (BOOL) sentNextStreamRequest;
-- (AudioStream *) nextStream;
 @end
 
 // ========================================
@@ -390,7 +372,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		init_gen_rand(time(NULL));
 		
 		if([[NSUserDefaults standardUserDefaults] boolForKey:@"useInMemoryDatabase"])
-			[[CollectionManager manager] connectToDatabase:@":memory:"];
+			[[CollectionManager manager] connectToDatabase:@":memory:" error:nil];
 		else {
 			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
 			NSAssert(nil != paths, NSLocalizedStringFromTable(@"Unable to locate the \"Application Support\" folder.", @"Errors", @""));
@@ -405,7 +387,24 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			
 			NSString *databasePath = [applicationSupportFolder stringByAppendingPathComponent:@"Library.sqlite3"];
 
-			[[CollectionManager manager] connectToDatabase:databasePath];
+			NSError *error = nil;
+			
+			// Check if the database is current and if it isn't update
+			if(NO == [[CollectionManager manager] updateDatabaseIfNeeded:databasePath error:&error]) {
+				if(nil != error)
+					[[NSApplication sharedApplication] presentError:error];
+
+				[self release];
+				return nil;
+			}
+			
+			if(NO == [[CollectionManager manager] connectToDatabase:databasePath error:&error]) {
+				if(nil != error)
+					[[NSApplication sharedApplication] presentError:error];
+				
+				[self release];
+				return nil;
+			}
 		}
 		
 		_playQueue			= [[NSMutableArray alloc] init];
@@ -449,7 +448,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-	[[CollectionManager manager] disconnectFromDatabase];
+	[[CollectionManager manager] disconnectFromDatabase:nil];
 
 	[_player release], _player = nil;
 
@@ -502,14 +501,21 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	// Setup browser
 	[self setupBrowser];
 	
-	// Set sort descriptors
-	[_streamController setSortDescriptors:[NSArray arrayWithObjects:
-//		[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
-		[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
-		nil]];
+	// Restore sort descriptors
+	NSArray *sortDescriptors = nil;
+	NSData *sortDescriptorData =[[NSUserDefaults standardUserDefaults] dataForKey:@"streamTableSortDescriptors"];
+	if(nil != sortDescriptorData)
+		sortDescriptors = (NSArray *)[NSKeyedUnarchiver unarchiveObjectWithData:sortDescriptorData];
+	else
+		sortDescriptors = [NSArray arrayWithObjects:
+//			[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
+			nil];
+	
+	[_streamController setSortDescriptors:sortDescriptors];
 
 /*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
 		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
@@ -604,6 +610,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	else if([menuItem action] == @selector(clearPlayQueue:))
 		return (0 != [self countOfPlayQueue]);
+	else if([menuItem action] == @selector(scramblePlayQueue:))
+		return (1 < [self countOfPlayQueue]);
+	else if([menuItem action] == @selector(prunePlayQueue:)) {
+		unsigned count = [[_playQueueController selectionIndexes] count];
+		return (0 < count && count < [self countOfPlayQueue]);
+	}
 	
 	return YES;
 }
@@ -1437,15 +1449,50 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (IBAction) clearPlayQueue:(id)sender
 {
-	if([[self player] hasValidStream]) {
+	if([[self player] hasValidStream])
 		[self stop:sender];
-	}
 	
 	[self willChangeValueForKey:PlayQueueKey];
 	[_playQueue removeAllObjects];
 	[self didChangeValueForKey:PlayQueueKey];
 
 	[self updatePlayButtonState];
+}
+
+- (IBAction) scramblePlayQueue:(id)sender
+{
+	unsigned	i;
+	double		randomNumber;
+	unsigned	randomIndex;
+	
+	[self willChangeValueForKey:PlayQueueKey];
+	for(i = 0; i < [self countOfPlayQueue]; ++i) {
+		
+		if([self playbackIndex] == i)
+			continue;
+		
+		do {
+			randomNumber	= genrand_real2();
+			randomIndex		= (unsigned)(randomNumber * [self countOfPlayQueue]);
+		} while(randomIndex == [self playbackIndex]);
+		
+		[_playQueue exchangeObjectAtIndex:i withObjectAtIndex:randomIndex];
+	}
+	[self didChangeValueForKey:PlayQueueKey];
+}
+
+- (IBAction) prunePlayQueue:(id)sender
+{
+	if(0 == [[_playQueueController selectionIndexes] count]) {
+		NSBeep();
+		return;
+	}
+	
+	NSMutableIndexSet *indexesToRemove = [[NSMutableIndexSet alloc] init];
+	[indexesToRemove addIndexesInRange:NSMakeRange(0, [self countOfPlayQueue])];
+	[indexesToRemove removeIndexes:[_playQueueController selectionIndexes]];
+	[_playQueueController removeObjectsAtArrangedObjectIndexes:indexesToRemove];
+	[indexesToRemove release];
 }
 
 #pragma mark Properties
@@ -1547,6 +1594,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 			[cell setFont:font];
 		}
 	}
+}
+
+- (void) tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
+{
+	if(tableView == _streamTable) {
+		NSArray *sortDescriptors = [tableView sortDescriptors];
+		NSData *sortDescriptorData = [NSKeyedArchiver archivedDataWithRootObject:sortDescriptors];
+		[[NSUserDefaults standardUserDefaults] setObject:sortDescriptorData forKey:@"streamTableSortDescriptors"];
+	}	
 }
 
 - (void) tableViewSelectionDidChange:(NSNotification *)aNotification

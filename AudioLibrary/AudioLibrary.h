@@ -230,6 +230,8 @@ extern NSString * const		PlayQueueKey;
 - (void)			insertStreams:(NSArray *)streams inPlayQueueAtIndexes:(NSIndexSet *)indexes;
 
 - (IBAction)		clearPlayQueue:(id)sender;
+- (IBAction)		scramblePlayQueue:(id)sender;
+- (IBAction)		prunePlayQueue:(id)sender;
 
 // ========================================
 // Library properties
@@ -253,4 +255,14 @@ extern NSString * const		PlayQueueKey;
 // Undo/redo support
 - (NSUndoManager *) undoManager;
 
+@end
+
+// ========================================
+// Interfaces for other classes, not for general consumption
+@interface AudioLibrary (AudioPlayerMethods)
+- (void) streamPlaybackDidStart;
+- (void) streamPlaybackDidComplete;
+- (void) requestNextStream;
+- (BOOL) sentNextStreamRequest;
+- (AudioStream *) nextStream;
 @end
