@@ -51,6 +51,8 @@ extern NSString * const		iTunesPboardType;
 
 - (IBAction)	determinePUIDs:(id)sender;
 
+- (IBAction)	lookupTrackInMusicBrainz:(id)sender;
+
 - (IBAction)	remove:(id)sender;
 
 - (IBAction)	showTracksWithSameArtist:(id)sender;

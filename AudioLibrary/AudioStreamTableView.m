@@ -27,6 +27,7 @@
 
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
+#import "MusicBrainzMatchesSheet.h"
 //#import "FileConversionSheet.h"
 
 #import "CollectionManager.h"
@@ -38,6 +39,7 @@
 #import "CancelableProgressSheet.h"
 
 #import "PUIDUtilities.h"
+#import "MusicBrainzUtilities.h"
 
 #import "CTBadge.h"
 
@@ -67,6 +69,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showMusicBrainzMatchesSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain;
 - (void) performPUIDCalculationForStreams:(NSArray *)streams;
 @end
@@ -105,6 +108,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(determinePUIDs:))
 		return ((0 != [[_streamController selectedObjects] count]) && canConnectToMusicDNS());
+	else if([menuItem action] == @selector(lookupTrackInMusicBrainz:))
+		return ((1 == [[_streamController selectedObjects] count]) && nil != [[_streamController selection] valueForKey:MetadataMusicDNSPUIDKey] && canConnectToMusicBrainz());
 	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
 	else if([menuItem action] == @selector(showTracksWithSameArtist:)) {
@@ -452,6 +457,82 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	}
 	
 	[self performPUIDCalculationForStreams:[_streamController selectedObjects]];
+}
+
+- (IBAction) lookupTrackInMusicBrainz:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count] || nil == [[_streamController selection] valueForKey:MetadataMusicDNSPUIDKey]) {
+		NSBeep();
+		return;
+	}
+	
+	if(NO == canConnectToMusicBrainz()) {
+		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"You are not connected to the internet.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"Not connected to the internet", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"An internet connection is required to use MusicBrainz.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+		
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+											 code:0 
+										 userInfo:errorDictionary];
+		
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+		
+		return;
+	}
+	
+	NSArray *matches = getMusicBrainzMetadata([_streamController selection]);
+	
+	if(nil == matches) {
+		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+		
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+											 code:0 
+										 userInfo:errorDictionary];
+		
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+		
+		return;
+	}
+	else if(0 == [matches count]) {
+		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"The track was not found.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"No matching tracks in MusicBrainz", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"This track was not found in MusicBrainz.  Please consider submitting it!", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+		
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+											 code:0 
+										 userInfo:errorDictionary];
+		
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+		
+		return;
+	}
+	else if(1 == [matches count]) {
+		[[CollectionManager manager] beginUpdate];
+		[[_streamController selection] setValuesForKeysWithDictionary:[matches lastObject]];
+		[[CollectionManager manager] finishUpdate];
+		[_streamController rearrangeObjects];
+	}
+	else {
+		MusicBrainzMatchesSheet *matchesSheet = [[MusicBrainzMatchesSheet alloc] init];
+		[matchesSheet setMatches:matches];
+		
+		[[NSApplication sharedApplication] beginSheet:[matchesSheet sheet] 
+									   modalForWindow:[self window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showMusicBrainzMatchesSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:matchesSheet];
+	}
 }
 
 - (IBAction) remove:(id)sender
@@ -1028,6 +1109,22 @@ bail:
 		[[CollectionManager manager] cancelUpdate];
 	
 	[metadataEditingSheet release];
+}
+
+- (void) showMusicBrainzMatchesSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	MusicBrainzMatchesSheet *matchesSheet = (MusicBrainzMatchesSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] beginUpdate];
+		[[_streamController selection] setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
+		[[CollectionManager manager] finishUpdate];
+		[_streamController rearrangeObjects];
+	}
+	
+	[matchesSheet release];
 }
 
 #if 0

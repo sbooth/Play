@@ -83,6 +83,9 @@
 		8C37CD0F0C3ED16900A29D13 /* malloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C37CD0D0C3ED16900A29D13 /* malloc.c */; };
 		8C37CD100C3ED16900A29D13 /* vdbeblob.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C37CD0E0C3ED16900A29D13 /* vdbeblob.c */; };
 		8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */; };
+		8C47A9580C93618B00D71633 /* MusicBrainzUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */; };
+		8C47AB010C94690800D71633 /* MusicBrainzMatchesSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C47AAFF0C94690800D71633 /* MusicBrainzMatchesSheet.m */; };
+		8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */; };
 		8C50FF940B7ADEC8005419EF /* select_stream_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */; };
 		8C53D8E00BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */; };
 		8C5574E60BBC1FA80047B89C /* mad.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5574E10BBC1FA80047B89C /* mad.framework */; };
@@ -504,6 +507,11 @@
 		8C37CD110C3ED18500A29D13 /* btreeInt.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = btreeInt.h; path = src/btreeInt.h; sourceTree = "<group>"; };
 		8C37CD120C3ED18500A29D13 /* limits.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = limits.h; path = src/limits.h; sourceTree = "<group>"; };
 		8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = AdvancedPreferencesToolbarImage.tiff; path = Images/AdvancedPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
+		8C47A9550C93618B00D71633 /* MusicBrainzUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicBrainzUtilities.h; path = Utilities/MusicBrainzUtilities.h; sourceTree = "<group>"; };
+		8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MusicBrainzUtilities.mm; path = Utilities/MusicBrainzUtilities.mm; sourceTree = "<group>"; };
+		8C47AAFE0C94690800D71633 /* MusicBrainzMatchesSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicBrainzMatchesSheet.h; path = AudioLibrary/MusicBrainzMatchesSheet.h; sourceTree = "<group>"; };
+		8C47AAFF0C94690800D71633 /* MusicBrainzMatchesSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MusicBrainzMatchesSheet.m; path = AudioLibrary/MusicBrainzMatchesSheet.m; sourceTree = "<group>"; };
+		8C47AB2B0C946C2900D71633 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MusicBrainzMatchesSheet.nib; sourceTree = "<group>"; };
 		8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_id.sql; path = SQL/select_stream_by_id.sql; sourceTree = "<group>"; };
 		8C53D8DD0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSBezierPath_RoundRectMethods.h; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.h; sourceTree = "<group>"; };
 		8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSBezierPath_RoundRectMethods.m; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.m; sourceTree = "<group>"; };
@@ -1017,6 +1025,7 @@
 				8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */,
 				8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */,
 				8CF0D92B0C836DD400728E39 /* AdvancedPreferences.nib */,
+				8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1404,6 +1413,8 @@
 				8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */,
 				8CA56D230BD641A800225BB4 /* PlayQueueArrayController.h */,
 				8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */,
+				8C47AAFE0C94690800D71633 /* MusicBrainzMatchesSheet.h */,
+				8C47AAFF0C94690800D71633 /* MusicBrainzMatchesSheet.m */,
 			);
 			name = AudioLibrary;
 			sourceTree = "<group>";
@@ -1520,6 +1531,8 @@
 				8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */,
 				8CF538200C4E93D1002E59E7 /* PUIDUtilities.h */,
 				8CF538210C4E93D1002E59E7 /* PUIDUtilities.mm */,
+				8C47A9550C93618B00D71633 /* MusicBrainzUtilities.h */,
+				8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1932,6 +1945,7 @@
 				8CA8B2EA0C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql in Resources */,
 				8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */,
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
+				8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2133,6 +2147,8 @@
 				8CF0D90E0C836D0200728E39 /* AdvancedPreferencesController.m in Sources */,
 				8CA8B41F0C8E083900B56CCB /* protocol.cpp in Sources */,
 				8CA662080C8E33CA00E03092 /* CancelableProgressSheet.m in Sources */,
+				8C47A9580C93618B00D71633 /* MusicBrainzUtilities.mm in Sources */,
+				8C47AB010C94690800D71633 /* MusicBrainzMatchesSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2217,6 +2233,14 @@
 				8C2B358F0C1903D2000E28B9 /* English */,
 			);
 			name = DSPPreferences.nib;
+			sourceTree = "<group>";
+		};
+		8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C47AB2B0C946C2900D71633 /* English */,
+			);
+			name = MusicBrainzMatchesSheet.nib;
 			sourceTree = "<group>";
 		};
 		8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */ = {

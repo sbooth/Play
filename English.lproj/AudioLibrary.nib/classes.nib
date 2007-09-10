@@ -106,6 +106,7 @@
                 determinePUIDs = id; 
                 editMetadata = id; 
                 editWithTag = id; 
+                lookupTrackInMusicBrainz = id; 
                 openWith = id; 
                 openWithFinder = id; 
                 playlistInformation = id; 

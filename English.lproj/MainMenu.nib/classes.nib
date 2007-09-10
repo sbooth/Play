@@ -23,6 +23,7 @@
                 insertSmartPlaylist = id; 
                 insertWatchFolder = id; 
                 jumpToNowPlaying = id; 
+                lookupTrackInMusicBrainz = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
