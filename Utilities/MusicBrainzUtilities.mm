@@ -97,7 +97,7 @@ getMusicBrainzMetadata(AudioStream *stream)
 			MusicBrainz::Release *release = NULL;
 			
 			try {
-				MusicBrainz::ReleaseIncludes includes = MusicBrainz::ReleaseIncludes().artist().counts().tracks().discs();
+				MusicBrainz::ReleaseIncludes includes = MusicBrainz::ReleaseIncludes().artist().counts().tracks().releaseEvents();
 				release = q.getReleaseById((*j)->getId(), &includes);
 				if(NULL == release)
 					continue;
@@ -122,13 +122,39 @@ getMusicBrainzMetadata(AudioStream *stream)
 				[releaseDictionary setValue:[NSString stringWithCString:release->getTitle().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataAlbumTitleKey];
 			if(0 != release->getNumTracks())
 				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumTracks()] forKey:MetadataTrackTotalKey];
-			if(0 != release->getNumDiscs())
-				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumDiscs()] forKey:MetadataDiscTotalKey];
+//			if(0 != release->getNumDiscs())
+//				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumDiscs()] forKey:MetadataDiscTotalKey];
 			if(NULL != release->getArtist())
 				[releaseDictionary setValue:[NSString stringWithCString:release->getArtist()->getName().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataAlbumArtistKey];
 //			if(!release->getAsin().empty())
 //				[releaseDictionary setValue:[NSString stringWithCString:release->getAsin().c_str() encoding:NSUTF8StringEncoding] forKey:@"ASIN"];
-		
+
+			// Take a best guess on the release date
+			if(1 == release->getNumReleaseEvents()) {
+				MusicBrainz::ReleaseEvent *releaseEvent = release->getReleaseEvent(0);
+				[releaseDictionary setValue:[NSString stringWithCString:releaseEvent->getDate().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataDateKey];
+			}
+			else {
+				NSString	*currentLocale		= [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLocale"];
+				NSArray		*localeElements		= [currentLocale componentsSeparatedByString:@"_"];
+//				NSString	*currentLanguage	= [localeElements objectAtIndex:0];
+				NSString	*currentCountry		= [localeElements objectAtIndex:1];
+
+				// Try to match based on the assumption that the disc is from the user's own locale
+				for(int k = 0; k < release->getNumReleaseEvents(); ++k) {
+					MusicBrainz::ReleaseEvent *releaseEvent = release->getReleaseEvent(k);
+					NSString *releaseEventCountry = [NSString stringWithCString:releaseEvent->getCountry().c_str() encoding:NSASCIIStringEncoding];
+					if(NSOrderedSame == [releaseEventCountry caseInsensitiveCompare:currentCountry])
+						[releaseDictionary setValue:[NSString stringWithCString:releaseEvent->getDate().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataDateKey];
+				}
+				
+				// Nothing matched, just take the first one
+				if(nil == [releaseDictionary valueForKey:MetadataDateKey] && 0 < release->getNumReleaseEvents()) {
+					MusicBrainz::ReleaseEvent *releaseEvent = release->getReleaseEvent(0);
+					[releaseDictionary setValue:[NSString stringWithCString:releaseEvent->getDate().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataDateKey];
+				}
+			}
+			
 			[mbMatches addObject:releaseDictionary];
 			
 			delete release;
@@ -136,6 +162,6 @@ getMusicBrainzMetadata(AudioStream *stream)
 		
 		delete track;
 	}
-	
+
 	return [mbMatches autorelease];
 }
