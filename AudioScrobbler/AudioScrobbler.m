@@ -109,7 +109,7 @@ escapeForLastFM(NSString *string)
 		escapeForLastFM([stream valueForKey:MetadataArtistKey]), 
 		escapeForLastFM([stream valueForKey:MetadataTitleKey]), 
 		escapeForLastFM([stream valueForKey:MetadataAlbumTitleKey]), 
-		@"", // TODO: MusicBrainz support
+		escapeForLastFM([stream valueForKey:MetadataMusicBrainzIDKey]), 
 		[[stream valueForKey:PropertiesDurationKey] intValue], 
 		escapeForLastFM([[stream valueForKey:StreamURLKey] path])
 		]];	
