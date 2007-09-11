@@ -100,6 +100,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(saveMetadata:))
 		return (0 != [[_streamController selectedObjects] count]);
+	else if([menuItem action] == @selector(clearMetadata:))
+		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(calculateTrackReplayGain:))
 		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(calculateTrackAndAlbumReplayGain:))
@@ -398,6 +400,16 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	}
 	
 	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(saveMetadata:) withObject:sender];
+}
+
+- (IBAction) clearMetadata:(id)sender
+{
+	if(0 == [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[_streamController selectedObjects] makeObjectsPerformSelector:@selector(clearMetadata:) withObject:sender];
 }
 
 - (IBAction) calculateTrackReplayGain:(id)sender

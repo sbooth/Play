@@ -100,6 +100,7 @@
                 addToPlayQueue = id; 
                 calculateTrackAndAlbumReplayGain = id; 
                 calculateTrackReplayGain = id; 
+                clearMetadata = id; 
                 clearReplayGain = id; 
                 convert = id; 
                 convertWithMax = id; 
