@@ -149,12 +149,12 @@ escapeForLastFM(NSString *string)
 	if(nil == _queue)
 		_queue = [[NSMutableArray alloc] init];
 	
-	return _queue;
+	return [[_queue retain] autorelease];
 }
 
 - (NSString *) pluginID
 {
-	return _pluginID;
+	return [[_pluginID retain] autorelease];
 }
 
 - (void) sendCommand:(NSString *)command
