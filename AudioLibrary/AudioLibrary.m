@@ -389,8 +389,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 			NSError *error = nil;
 			
-			// Check if the database is current and if it isn't update
-			if(NO == [[CollectionManager manager] updateDatabaseIfNeeded:databasePath error:&error]) {
+			// Check if the database is current (if it exists) and if it isn't update
+			if([[NSFileManager defaultManager] fileExistsAtPath:databasePath] && NO == [[CollectionManager manager] updateDatabaseIfNeeded:databasePath error:&error]) {
 				if(nil != error)
 					[[NSApplication sharedApplication] presentError:error];
 
