@@ -38,8 +38,7 @@ extern NSString * const		AudioStreamPboardType;
 // Action Methods
 - (IBAction)	addToPlayQueue:(id)sender;
 
-- (IBAction)	playlistInformation:(id)sender;
-- (IBAction)	watchFolderInformation:(id)sender;
+- (IBAction)	showInformationSheet:(id)sender;
 
 - (IBAction)	remove:(id)sender;
 

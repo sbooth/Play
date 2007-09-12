@@ -61,8 +61,24 @@ static float heightOffset	= 3.0;
 		BrowserNode *node = [_browserController selectedNode];
 		return ([node isKindOfClass:[AudioStreamCollectionNode class]] && 0 != [(AudioStreamCollectionNode *)node countOfStreams]);
 	}
-	else if([menuItem action] == @selector(playlistInformation:))
-		return ([_browserController selectedNodeIsPlaylist] || [_browserController selectedNodeIsSmartPlaylist]);
+	else if([menuItem action] == @selector(showInformationSheet:)) {
+		if([_browserController selectedNodeIsPlaylist]) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Playlist Info", @"Menus", @"")];
+			return YES;
+		}
+		else if([_browserController selectedNodeIsSmartPlaylist]) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Smart Playlist Info", @"Menus", @"")];
+			return YES;
+		}
+		else if([_browserController selectedNodeIsWatchFolder]) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Watch Folder Info", @"Menus", @"")];
+			return YES;
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"No Selection", @"Menus", @"")];
+			return NO;
+		}
+	}
 	else if([menuItem action] == @selector(watchFolderInformation:))
 		return [_browserController selectedNodeIsWatchFolder];
 	else if([menuItem action] == @selector(remove:))
@@ -203,9 +219,9 @@ static float heightOffset	= 3.0;
 	[[AudioLibrary library] addStreamsToPlayQueue:streams];
 }
 
-- (IBAction) playlistInformation:(id)sender
+- (IBAction) showInformationSheet:(id)sender
 {
-	if(NO == [_browserController selectedNodeIsPlaylist] && NO == [_browserController selectedNodeIsSmartPlaylist]) {
+	if(NO == [_browserController selectedNodeIsPlaylist] && NO == [_browserController selectedNodeIsSmartPlaylist] && NO == [_browserController selectedNodeIsWatchFolder]) {
 		NSBeep();
 		return;
 	}
@@ -236,26 +252,19 @@ static float heightOffset	= 3.0;
 									   didEndSelector:@selector(showSmartPlaylistInformationSheetDidEnd:returnCode:contextInfo:) 
 										  contextInfo:playlistInformationSheet];
 	}
-}
-
-- (IBAction) watchFolderInformation:(id)sender
-{
-	if(NO == [_browserController selectedNodeIsWatchFolder]) {
-		NSBeep();
-		return;
+	else if([_browserController selectedNodeIsWatchFolder]) {
+		WatchFolderInformationSheet *watchFolderInformationSheet = [[WatchFolderInformationSheet alloc] init];
+		
+		[watchFolderInformationSheet setWatchFolder:[(WatchFolderNode *)[_browserController selectedNode] watchFolder]];
+		
+		[[CollectionManager manager] beginUpdate];
+		
+		[[NSApplication sharedApplication] beginSheet:[watchFolderInformationSheet sheet] 
+									   modalForWindow:[[AudioLibrary library] window] 
+										modalDelegate:self 
+									   didEndSelector:@selector(showWatchFolderInformationSheetDidEnd:returnCode:contextInfo:) 
+										  contextInfo:watchFolderInformationSheet];
 	}
-	
-	WatchFolderInformationSheet *watchFolderInformationSheet = [[WatchFolderInformationSheet alloc] init];
-	
-	[watchFolderInformationSheet setWatchFolder:[(WatchFolderNode *)[_browserController selectedNode] watchFolder]];
-	
-	[[CollectionManager manager] beginUpdate];
-	
-	[[NSApplication sharedApplication] beginSheet:[watchFolderInformationSheet sheet] 
-								   modalForWindow:[[AudioLibrary library] window] 
-									modalDelegate:self 
-								   didEndSelector:@selector(showWatchFolderInformationSheetDidEnd:returnCode:contextInfo:) 
-									  contextInfo:watchFolderInformationSheet];
 }
 
 - (IBAction) remove:(id)sender

@@ -88,8 +88,16 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 {
 	if([menuItem action] == @selector(addToPlayQueue:))
 		return (0 != [[_streamController selectedObjects] count]);
-	else if([menuItem action] == @selector(streamInformation:))
-		return (1 == [[_streamController selectedObjects] count]);
+	else if([menuItem action] == @selector(showInformationSheet:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Track Info", @"Menus", @"")];
+			return YES;
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"No Selection", @"Menus", @"")];
+			return NO;	
+		}
+	}
 	else if([menuItem action] == @selector(resetPlayCount:))
 		return (0 != [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(resetSkipCount:))
@@ -305,7 +313,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[AudioLibrary library] addStreamsToPlayQueue:streams];
 }
 
-- (IBAction) streamInformation:(id)sender
+- (IBAction) showInformationSheet:(id)sender
 {
 	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();

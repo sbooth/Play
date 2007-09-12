@@ -36,7 +36,7 @@ extern NSString * const		iTunesPboardType;
 // Action Methods
 - (IBAction)	addToPlayQueue:(id)sender;
 
-- (IBAction)	streamInformation:(id)sender;
+- (IBAction)	showInformationSheet:(id)sender;
 
 - (IBAction)	resetPlayCount:(id)sender;
 - (IBAction)	resetSkipCount:(id)sender;
