@@ -92,7 +92,7 @@ static float heightOffset	= 3.0;
 	unichar			key		= [[event charactersIgnoringModifiers] characterAtIndex:0];    
 	unsigned int	flags	= [event modifierFlags] & 0x00FF;
     
-	if((NSDeleteCharacter == key || NSBackspaceCharacter == key) && 0 == flags)
+	if((NSDeleteCharacter == key || NSBackspaceCharacter == key || 0xF728 == key) && 0 == flags)
 		[self remove:event];
 	else if(0x0020 == key && 0 == flags)
 		[[AudioLibrary library] playPause:self];
