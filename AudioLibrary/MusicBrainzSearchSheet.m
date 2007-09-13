@@ -109,7 +109,10 @@
 - (IBAction) search:(id)sender
 {
 	NSError *error = nil;
+	
+	[self startProgressIndicator:sender];
 	NSArray *matches = getMusicBrainzTracksMatching([self title], [self artist], [self albumTitle], [self duration], &error);
+	[self stopProgressIndicator:sender];
 	
 	if(nil == matches) {
 		NSAlert *alert = [NSAlert alertWithError:error];
@@ -119,6 +122,18 @@
 	}
 	else
 		[self setMatches:matches];
+}
+
+- (IBAction) startProgressIndicator:(id)sender
+{
+	[_progressIndicator setHidden:NO];
+	[_progressIndicator startAnimation:sender];
+}
+
+- (IBAction) stopProgressIndicator:(id)sender
+{
+	[_progressIndicator stopAnimation:sender];
+	[_progressIndicator setHidden:YES];
 }
 
 - (void) setMatches:(NSArray *)matches

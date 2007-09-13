@@ -22,8 +22,9 @@
 
 @interface MusicBrainzSearchSheet : NSObject
 {
-	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSArrayController	*_matchesController;
+	IBOutlet NSWindow				*_sheet;
+	IBOutlet NSArrayController		*_matchesController;
+	IBOutlet NSProgressIndicator	*_progressIndicator;
 	
 	NSString	*_title;
 	NSString	*_artist;
@@ -48,6 +49,9 @@
 - (IBAction)		ok:(id)sender;
 - (IBAction)		cancel:(id)sender;
 - (IBAction)		search:(id)sender;
+
+- (IBAction)		startProgressIndicator:(id)sender;
+- (IBAction)		stopProgressIndicator:(id)sender;
 
 - (void)			setMatches:(NSArray *)matches;
 - (NSDictionary *)	selectedMatch;
