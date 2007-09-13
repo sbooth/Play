@@ -116,8 +116,13 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return (1 < [[_streamController selectedObjects] count]);
 	else if([menuItem action] == @selector(clearReplayGain:))
 		return (0 != [[_streamController selectedObjects] count]);
-	else if([menuItem action] == @selector(determinePUIDs:))
+	else if([menuItem action] == @selector(determinePUIDs:)) {
+		if(1 == [[_streamController selectedObjects] count])
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Determine PUID...", @"Menus", @"")];
+		else
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Determine PUIDs...", @"Menus", @"")];
 		return ((0 != [[_streamController selectedObjects] count]) && canConnectToMusicDNS());
+	}
 	else if([menuItem action] == @selector(lookupTrackInMusicBrainz:))
 		return ((1 == [[_streamController selectedObjects] count]) && nil != [[_streamController selection] valueForKey:MetadataMusicDNSPUIDKey] && canConnectToMusicBrainz());
 	else if([menuItem action] == @selector(remove:))
