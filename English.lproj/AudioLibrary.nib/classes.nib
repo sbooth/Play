@@ -116,6 +116,7 @@
                 resetSkipCount = id; 
                 revealInFinder = id; 
                 saveMetadata = id; 
+                searchMusicBrainzForMatchingTracks = id; 
                 showInformationSheet = id; 
                 showTracksWithSameAlbum = id; 
                 showTracksWithSameArtist = id; 

@@ -34,6 +34,7 @@
                 rescanMetadata = id; 
                 saveMetadata = id; 
                 scramblePlayQueue = id; 
+                searchMusicBrainzForMatchingTracks = id; 
                 showInformationSheet = id; 
                 showTracksWithSameAlbum = id; 
                 showTracksWithSameArtist = id; 

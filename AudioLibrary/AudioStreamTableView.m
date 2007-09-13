@@ -28,6 +28,7 @@
 #import "AudioStreamInformationSheet.h"
 #import "AudioMetadataEditingSheet.h"
 #import "MusicBrainzMatchesSheet.h"
+#import "MusicBrainzSearchSheet.h"
 //#import "FileConversionSheet.h"
 
 #import "CollectionManager.h"
@@ -70,6 +71,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 - (void) showStreamInformationSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMetadataEditingSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) showMusicBrainzMatchesSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void) showMusicBrainzSearchSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void) performReplayGainCalculationForStreams:(NSArray *)streams calculateAlbumGain:(BOOL)calculateAlbumGain;
 - (void) performPUIDCalculationForStreams:(NSArray *)streams;
 @end
@@ -125,6 +127,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	}
 	else if([menuItem action] == @selector(lookupTrackInMusicBrainz:))
 		return ((1 == [[_streamController selectedObjects] count]) && nil != [[_streamController selection] valueForKey:MetadataMusicDNSPUIDKey] && canConnectToMusicBrainz());
+	else if([menuItem action] == @selector(searchMusicBrainzForMatchingTracks:))
+		return ((1 == [[_streamController selectedObjects] count]) && canConnectToMusicBrainz());
 	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
 	else if([menuItem action] == @selector(showTracksWithSameArtist:)) {
@@ -508,19 +512,10 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
-	NSArray *matches = getMusicBrainzMetadata([_streamController selection]);
+	NSError *error = nil;
+	NSArray *matches = getMusicBrainzTracksMatchingPUID([_streamController selection], &error);
 	
 	if(nil == matches) {
-		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
-		
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-		
-		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
-											 code:0 
-										 userInfo:errorDictionary];
-		
 		NSAlert *alert = [NSAlert alertWithError:error];
 		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
 		
@@ -558,6 +553,46 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 									   didEndSelector:@selector(showMusicBrainzMatchesSheetDidEnd:returnCode:contextInfo:) 
 										  contextInfo:matchesSheet];
 	}
+}
+
+- (IBAction) searchMusicBrainzForMatchingTracks:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	if(NO == canConnectToMusicBrainz()) {
+		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"You are not connected to the internet.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"Not connected to the internet", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+		[errorDictionary setObject:NSLocalizedStringFromTable(@"An internet connection is required to use MusicBrainz.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+		
+		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+											 code:0 
+										 userInfo:errorDictionary];
+		
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+		
+		return;
+	}
+	
+	MusicBrainzSearchSheet *searchSheet = [[MusicBrainzSearchSheet alloc] init];
+	
+	[searchSheet setTitle:[[_streamController selection] valueForKey:MetadataTitleKey]];
+	[searchSheet setArtist:[[_streamController selection] valueForKey:MetadataArtistKey]];
+	[searchSheet setAlbumTitle:[[_streamController selection] valueForKey:MetadataAlbumTitleKey]];
+	[searchSheet setDuration:[[_streamController selection] valueForKey:PropertiesDurationKey]];
+
+	[[NSApplication sharedApplication] beginSheet:[searchSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showMusicBrainzSearchSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:searchSheet];
+
+	[searchSheet search:sender];
 }
 
 - (IBAction) remove:(id)sender
@@ -1150,6 +1185,22 @@ bail:
 	}
 	
 	[matchesSheet release];
+}
+
+- (void) showMusicBrainzSearchSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+{
+	MusicBrainzSearchSheet *searchSheet = (MusicBrainzSearchSheet *)contextInfo;
+	
+	[sheet orderOut:self];
+	
+	if(NSOKButton == returnCode) {
+		[[CollectionManager manager] beginUpdate];
+		[[_streamController selection] setValuesForKeysWithDictionary:[searchSheet selectedMatch]];
+		[[CollectionManager manager] finishUpdate];
+		[_streamController rearrangeObjects];
+	}
+	
+	[searchSheet release];
 }
 
 #if 0

@@ -20,18 +20,36 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+@interface MusicBrainzSearchSheet : NSObject
+{
+	IBOutlet NSWindow			*_sheet;
+	IBOutlet NSArrayController	*_matchesController;
 	
-	BOOL canConnectToMusicBrainz();
-
-	NSArray * getMusicBrainzTracksMatchingPUID(AudioStream *stream, NSError **error);
-
-	NSArray * getMusicBrainzTracksMatching(NSString *title, NSString *artist, NSString *albumTitle, NSNumber *duration, NSError **error);
-
-#ifdef __cplusplus
+	NSString	*_title;
+	NSString	*_artist;
+	NSString	*_albumTitle;
+	NSNumber	*_duration;
 }
-#endif
+
+- (NSWindow *)		sheet;
+
+- (NSString *)		title;
+- (void)			setTitle:(NSString *)title;
+
+- (NSString *)		artist;
+- (void)			setArtist:(NSString *)artist;
+
+- (NSString *)		albumTitle;
+- (void)			setAlbumTitle:(NSString *)albumTitle;
+
+- (NSNumber *)		duration;
+- (void)			setDuration:(NSNumber *)duration;
+
+- (IBAction)		ok:(id)sender;
+- (IBAction)		cancel:(id)sender;
+- (IBAction)		search:(id)sender;
+
+- (void)			setMatches:(NSArray *)matches;
+- (NSDictionary *)	selectedMatch;
+
+@end

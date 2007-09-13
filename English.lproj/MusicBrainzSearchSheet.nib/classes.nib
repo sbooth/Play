@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {cancel = id; ok = id; search = id; }; 
+            CLASS = MusicBrainzSearchSheet; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {"_matchesController" = NSArrayController; "_sheet" = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

@@ -53,6 +53,7 @@ extern NSString * const		iTunesPboardType;
 - (IBAction)	determinePUIDs:(id)sender;
 
 - (IBAction)	lookupTrackInMusicBrainz:(id)sender;
+- (IBAction)	searchMusicBrainzForMatchingTracks:(id)sender;
 
 - (IBAction)	remove:(id)sender;
 

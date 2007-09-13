@@ -40,29 +40,9 @@ canConnectToMusicBrainz()
 }
 
 NSArray *
-getMusicBrainzMetadata(AudioStream *stream)
+buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList &results)
 {
-	NSCParameterAssert(nil != stream);
-	
-	NSString *PUID = [stream valueForKey:MetadataMusicDNSPUIDKey];
-	if(nil == PUID)
-		return nil;
-	
-	MusicBrainz::Query				q;
-	MusicBrainz::TrackResultList	results;
-
-	NSMutableArray *mbMatches = [[NSMutableArray alloc] init];
-
-	try {
-		MusicBrainz::TrackFilter f = MusicBrainz::TrackFilter().puid([PUID cStringUsingEncoding:NSASCIIStringEncoding]);
-		results = q.getTracks(&f);
-	}
-	
-	catch(MusicBrainz::Exception &e) {
-		NSLog(@"MusicBrainz error: %s", e.what());
-		[mbMatches release];
-		return nil;
-	}
+	NSMutableArray *resultArray = [[NSMutableArray alloc] init];
 	
 	for(MusicBrainz::TrackResultList::iterator i = results.begin(); i != results.end(); ++i) {
 		MusicBrainz::TrackResult	*result		= *i;
@@ -82,15 +62,15 @@ getMusicBrainzMetadata(AudioStream *stream)
 		
 		NSMutableDictionary *trackDictionary = [NSMutableDictionary dictionary];
 		
-//		if(0 != result->getScore())
-//			[trackDictionary setValue:[NSNumber numberWithInt:result->getScore()] forKey:@"score"];
+		//		if(0 != result->getScore())
+		//			[trackDictionary setValue:[NSNumber numberWithInt:result->getScore()] forKey:@"score"];
 		if(!track->getId().empty())
 			[trackDictionary setValue:[NSString stringWithCString:track->getId().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataMusicBrainzIDKey];
 		if(!track->getTitle().empty())
 			[trackDictionary setValue:[NSString stringWithCString:track->getTitle().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataTitleKey];
 		if(NULL != track->getArtist())
 			[trackDictionary setValue:[NSString stringWithCString:track->getArtist()->getName().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataArtistKey];
-
+		
 		MusicBrainz::ReleaseList releases = track->getReleases();
 		
 		for(MusicBrainz::ReleaseList::iterator j = releases.begin(); j != releases.end(); ++j) {
@@ -116,19 +96,23 @@ getMusicBrainzMetadata(AudioStream *stream)
 					[releaseDictionary setValue:[NSNumber numberWithInt:(1 + k)] forKey:MetadataTrackNumberKey];
 			}
 			
-//			if(!release->getId().empty())
-//				[releaseDictionary setValue:[NSString stringWithCString:release->getId().c_str() encoding:NSUTF8StringEncoding] forKey:@"releaseID"];
+			//			if(!release->getId().empty())
+			//				[releaseDictionary setValue:[NSString stringWithCString:release->getId().c_str() encoding:NSUTF8StringEncoding] forKey:@"releaseID"];
 			if(!release->getTitle().empty())
 				[releaseDictionary setValue:[NSString stringWithCString:release->getTitle().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataAlbumTitleKey];
 			if(0 != release->getNumTracks())
 				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumTracks()] forKey:MetadataTrackTotalKey];
-//			if(0 != release->getNumDiscs())
-//				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumDiscs()] forKey:MetadataDiscTotalKey];
-			if(NULL != release->getArtist())
-				[releaseDictionary setValue:[NSString stringWithCString:release->getArtist()->getName().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataAlbumArtistKey];
-//			if(!release->getAsin().empty())
-//				[releaseDictionary setValue:[NSString stringWithCString:release->getAsin().c_str() encoding:NSUTF8StringEncoding] forKey:@"ASIN"];
-
+			//			if(0 != release->getNumDiscs())
+			//				[releaseDictionary setValue:[NSNumber numberWithInt:release->getNumDiscs()] forKey:MetadataDiscTotalKey];
+			// Only set the album artist if it is different from the track artist
+			if(NULL != release->getArtist()) {
+				NSString *albumArtist = [NSString stringWithCString:release->getArtist()->getName().c_str() encoding:NSUTF8StringEncoding];
+				if(NO == [albumArtist isEqualToString:[releaseDictionary valueForKey:MetadataArtistKey]])
+					[releaseDictionary setValue:albumArtist forKey:MetadataAlbumArtistKey];
+			}
+			//			if(!release->getAsin().empty())
+			//				[releaseDictionary setValue:[NSString stringWithCString:release->getAsin().c_str() encoding:NSUTF8StringEncoding] forKey:@"ASIN"];
+			
 			// Take a best guess on the release date
 			if(1 == release->getNumReleaseEvents()) {
 				MusicBrainz::ReleaseEvent *releaseEvent = release->getReleaseEvent(0);
@@ -137,9 +121,9 @@ getMusicBrainzMetadata(AudioStream *stream)
 			else {
 				NSString	*currentLocale		= [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLocale"];
 				NSArray		*localeElements		= [currentLocale componentsSeparatedByString:@"_"];
-//				NSString	*currentLanguage	= [localeElements objectAtIndex:0];
+				//				NSString	*currentLanguage	= [localeElements objectAtIndex:0];
 				NSString	*currentCountry		= [localeElements objectAtIndex:1];
-
+				
 				// Try to match based on the assumption that the disc is from the user's own locale
 				for(int k = 0; k < release->getNumReleaseEvents(); ++k) {
 					MusicBrainz::ReleaseEvent *releaseEvent = release->getReleaseEvent(k);
@@ -155,13 +139,119 @@ getMusicBrainzMetadata(AudioStream *stream)
 				}
 			}
 			
-			[mbMatches addObject:releaseDictionary];
+			[resultArray addObject:releaseDictionary];
 			
 			delete release;
 		}
 		
 		delete track;
 	}
+	
+	return [resultArray autorelease];
+}
 
-	return [mbMatches autorelease];
+NSArray *
+getMusicBrainzTracksMatchingPUID(AudioStream *stream, NSError **error)
+{
+	NSCParameterAssert(nil != stream);
+	
+	NSString *PUID = [stream valueForKey:MetadataMusicDNSPUIDKey];
+	if(nil == PUID)
+		return nil;
+	
+	MusicBrainz::Query				q;
+	MusicBrainz::TrackResultList	results;
+
+	try {
+		MusicBrainz::TrackFilter f = MusicBrainz::TrackFilter().puid([PUID cStringUsingEncoding:NSASCIIStringEncoding]);
+		results = q.getTracks(&f);
+	}
+	
+	catch(MusicBrainz::WebServiceError &e) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:NSCocoaErrorDomain 
+										 code:0 
+									 userInfo:errorDictionary];
+		}
+		
+		return nil;
+	}
+	
+	catch(MusicBrainz::Exception &e) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:NSCocoaErrorDomain 
+										 code:0 
+									 userInfo:errorDictionary];
+		}
+		
+		return nil;
+	}
+	
+	return buildMusicBrainzResultArray(q, results);
+}
+
+NSArray * 
+getMusicBrainzTracksMatching(NSString *title, NSString *artist, NSString *albumTitle, NSNumber *duration, NSError **error)
+{
+	MusicBrainz::Query				q;
+	MusicBrainz::TrackResultList	results;
+		
+	try {
+		MusicBrainz::TrackFilter f = MusicBrainz::TrackFilter();
+		if(nil != title)
+			f.title([title cStringUsingEncoding:NSUTF8StringEncoding]);
+		if(nil != artist)
+			f.artistName([artist cStringUsingEncoding:NSUTF8StringEncoding]);
+		if(nil != albumTitle)
+			f.releaseTitle([albumTitle cStringUsingEncoding:NSUTF8StringEncoding]);
+		if(nil != duration)
+			f.duration([duration intValue]);
+		results = q.getTracks(&f);
+	}
+	
+	catch(MusicBrainz::WebServiceError &e) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:NSCocoaErrorDomain 
+										 code:0 
+									 userInfo:errorDictionary];
+		}
+		
+		return nil;
+	}
+	
+	catch(MusicBrainz::Exception &e) {
+		if(nil != error) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"An error occurred while connecting to MusicBrainz.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"MusicBrainz error", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"There may be a problem with the MusicBrainz server.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			*error = [NSError errorWithDomain:NSCocoaErrorDomain 
+										 code:0 
+									 userInfo:errorDictionary];
+		}
+		
+		return nil;
+	}
+	
+	return buildMusicBrainzResultArray(q, results);
 }
