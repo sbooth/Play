@@ -485,7 +485,8 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
-	[self performPUIDCalculationForStreams:[_streamController selectedObjects]];
+	NSArray *streams = [[_streamController selectedObjects] copy];
+	[self performPUIDCalculationForStreams:[streams autorelease]];
 }
 
 - (IBAction) lookupTrackInMusicBrainz:(id)sender
@@ -512,8 +513,9 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
-	NSError *error = nil;
-	NSArray *matches = getMusicBrainzTracksMatchingPUID([_streamController selection], &error);
+	NSError			*error		= nil;
+	AudioStream		*stream		= [[_streamController selectedObjects] lastObject];
+	NSArray			*matches	= getMusicBrainzTracksMatchingPUID([_streamController selection], &error);
 	
 	if(nil == matches) {
 		NSAlert *alert = [NSAlert alertWithError:error];
@@ -539,7 +541,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	}
 	else if(1 == [matches count]) {
 		[[CollectionManager manager] beginUpdate];
-		[[_streamController selection] setValuesForKeysWithDictionary:[matches lastObject]];
+		[stream setValuesForKeysWithDictionary:[matches lastObject]];
 		[[CollectionManager manager] finishUpdate];
 		[_streamController rearrangeObjects];
 	}
@@ -579,12 +581,13 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
-	MusicBrainzSearchSheet *searchSheet = [[MusicBrainzSearchSheet alloc] init];
-	
-	[searchSheet setTitle:[[_streamController selection] valueForKey:MetadataTitleKey]];
-	[searchSheet setArtist:[[_streamController selection] valueForKey:MetadataArtistKey]];
-	[searchSheet setAlbumTitle:[[_streamController selection] valueForKey:MetadataAlbumTitleKey]];
-	[searchSheet setDuration:[[_streamController selection] valueForKey:PropertiesDurationKey]];
+	MusicBrainzSearchSheet	*searchSheet	= [[MusicBrainzSearchSheet alloc] init];
+	AudioStream				*stream			= [[_streamController selectedObjects] lastObject];
+
+	[searchSheet setTitle:[stream valueForKey:MetadataTitleKey]];
+	[searchSheet setArtist:[stream valueForKey:MetadataArtistKey]];
+	[searchSheet setAlbumTitle:[stream valueForKey:MetadataAlbumTitleKey]];
+	[searchSheet setDuration:[stream valueForKey:PropertiesDurationKey]];
 
 	[[NSApplication sharedApplication] beginSheet:[searchSheet sheet] 
 								   modalForWindow:[self window] 
@@ -1177,9 +1180,11 @@ bail:
 	
 	[sheet orderOut:self];
 	
+	AudioStream *stream = [[_streamController selectedObjects] lastObject];
+
 	if(NSOKButton == returnCode) {
 		[[CollectionManager manager] beginUpdate];
-		[[_streamController selection] setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
+		[stream setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
 		[[CollectionManager manager] finishUpdate];
 		[_streamController rearrangeObjects];
 	}
@@ -1193,9 +1198,11 @@ bail:
 	
 	[sheet orderOut:self];
 	
+	AudioStream *stream = [[_streamController selectedObjects] lastObject];
+
 	if(NSOKButton == returnCode) {
 		[[CollectionManager manager] beginUpdate];
-		[[_streamController selection] setValuesForKeysWithDictionary:[searchSheet selectedMatch]];
+		[stream setValuesForKeysWithDictionary:[searchSheet selectedMatch]];
 		[[CollectionManager manager] finishUpdate];
 		[_streamController rearrangeObjects];
 	}
