@@ -20,15 +20,13 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 	
 	BOOL canConnectToMusicBrainz();
 
-	NSArray * getMusicBrainzTracksMatchingPUID(AudioStream *stream, NSError **error);
+	NSArray * getMusicBrainzTracksMatchingPUID(NSString *PUID, NSError **error);
 
 	NSArray * getMusicBrainzTracksMatching(NSString *title, NSString *artist, NSString *albumTitle, NSNumber *duration, NSError **error);
 

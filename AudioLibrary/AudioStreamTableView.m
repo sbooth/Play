@@ -573,48 +573,18 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return;
 	}
 	
-	NSError			*error		= nil;
-	AudioStream		*stream		= [[_streamController selectedObjects] lastObject];
-	NSArray			*matches	= getMusicBrainzTracksMatchingPUID([_streamController selection], &error);
+	MusicBrainzMatchesSheet	*matchesSheet	= [[MusicBrainzMatchesSheet alloc] init];
+	AudioStream				*stream			= [[_streamController selectedObjects] lastObject];
 	
-	if(nil == matches) {
-		NSAlert *alert = [NSAlert alertWithError:error];
-		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
-		
-		return;
-	}
-	else if(0 == [matches count]) {
-		NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
-		
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"The track was not found.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"No matching tracks in MusicBrainz", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-		[errorDictionary setObject:NSLocalizedStringFromTable(@"This track was not found in MusicBrainz.  Please consider submitting it!", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
-		
-		NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
-											 code:0 
-										 userInfo:errorDictionary];
-		
-		NSAlert *alert = [NSAlert alertWithError:error];
-		[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
-		
-		return;
-	}
-	else if(1 == [matches count]) {
-		[[CollectionManager manager] beginUpdate];
-		[stream setValuesForKeysWithDictionary:[matches lastObject]];
-		[[CollectionManager manager] finishUpdate];
-		[_streamController rearrangeObjects];
-	}
-	else {
-		MusicBrainzMatchesSheet *matchesSheet = [[MusicBrainzMatchesSheet alloc] init];
-		[matchesSheet setMatches:matches];
-		
-		[[NSApplication sharedApplication] beginSheet:[matchesSheet sheet] 
-									   modalForWindow:[self window] 
-										modalDelegate:self 
-									   didEndSelector:@selector(showMusicBrainzMatchesSheetDidEnd:returnCode:contextInfo:) 
-										  contextInfo:matchesSheet];
-	}
+	[matchesSheet setPUID:[stream valueForKey:MetadataMusicDNSPUIDKey]];
+	
+	[[NSApplication sharedApplication] beginSheet:[matchesSheet sheet] 
+								   modalForWindow:[self window] 
+									modalDelegate:self 
+								   didEndSelector:@selector(showMusicBrainzMatchesSheetDidEnd:returnCode:contextInfo:) 
+									  contextInfo:matchesSheet];
+	
+	[matchesSheet search:sender];
 }
 
 - (IBAction) searchMusicBrainzForMatchingTracks:(id)sender
@@ -1283,10 +1253,27 @@ bail:
 	AudioStream *stream = [[_streamController selectedObjects] lastObject];
 
 	if(NSOKButton == returnCode) {
-		[[CollectionManager manager] beginUpdate];
-		[stream setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
-		[[CollectionManager manager] finishUpdate];
-		[_streamController rearrangeObjects];
+		
+		if(nil == [matchesSheet selectedMatch]) {
+			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+			
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"The track was not found.", @"Errors", @"") forKey:NSLocalizedDescriptionKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"No matching tracks in MusicBrainz", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+			[errorDictionary setObject:NSLocalizedStringFromTable(@"This track was not found in MusicBrainz.  Please consider submitting it!", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+			
+			NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain 
+												 code:0 
+											 userInfo:errorDictionary];
+			
+			NSAlert *alert = [NSAlert alertWithError:error];
+			[alert beginSheetModalForWindow:[self window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+		}
+		else {
+			[[CollectionManager manager] beginUpdate];
+			[stream setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
+			[[CollectionManager manager] finishUpdate];
+			[_streamController rearrangeObjects];
+		}
 	}
 	
 	[matchesSheet release];

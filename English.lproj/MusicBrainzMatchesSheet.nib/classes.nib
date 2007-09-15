@@ -2,10 +2,20 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {cancel = id; ok = id; }; 
+            ACTIONS = {
+                cancel = id; 
+                ok = id; 
+                search = id; 
+                startProgressIndicator = id; 
+                stopProgressIndicator = id; 
+            }; 
             CLASS = MusicBrainzMatchesSheet; 
             LANGUAGE = ObjC; 
-            OUTLETS = {"_matchesController" = NSArrayController; "_sheet" = NSWindow; }; 
+            OUTLETS = {
+                "_matchesController" = NSArrayController; 
+                "_progressIndicator" = NSProgressIndicator; 
+                "_sheet" = NSWindow; 
+            }; 
             SUPERCLASS = NSObject; 
         }
     ); 

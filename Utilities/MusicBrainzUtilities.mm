@@ -181,14 +181,10 @@ buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList 
 }
 
 NSArray *
-getMusicBrainzTracksMatchingPUID(AudioStream *stream, NSError **error)
+getMusicBrainzTracksMatchingPUID(NSString *PUID, NSError **error)
 {
-	NSCParameterAssert(nil != stream);
-	
-	NSString *PUID = [stream valueForKey:MetadataMusicDNSPUIDKey];
-	if(nil == PUID)
-		return nil;
-	
+	NSCParameterAssert(nil != PUID);
+
 	MusicBrainz::Query				q;
 	MusicBrainz::TrackResultList	results;
 

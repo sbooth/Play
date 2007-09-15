@@ -22,14 +22,24 @@
 
 @interface MusicBrainzMatchesSheet : NSObject
 {
-	IBOutlet NSWindow			*_sheet;
-	IBOutlet NSArrayController	*_matchesController;
+	IBOutlet NSWindow				*_sheet;
+	IBOutlet NSArrayController		*_matchesController;
+	IBOutlet NSProgressIndicator	*_progressIndicator;
+	
+	NSString	*_PUID;
 }
 
 - (NSWindow *)		sheet;
 
+- (NSString *)		PUID;
+- (void)			setPUID:(NSString *)PUID;
+
 - (IBAction)		ok:(id)sender;
 - (IBAction)		cancel:(id)sender;
+- (IBAction)		search:(id)sender;
+
+- (IBAction)		startProgressIndicator:(id)sender;
+- (IBAction)		stopProgressIndicator:(id)sender;
 
 - (void)			setMatches:(NSArray *)matches;
 - (NSDictionary *)	selectedMatch;

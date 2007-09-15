@@ -20,6 +20,8 @@
 
 #import "MusicBrainzMatchesSheet.h"
 
+#import "MusicBrainzUtilities.h"
+
 @implementation MusicBrainzMatchesSheet
 
 - (id) init
@@ -35,9 +37,27 @@
 	return self;
 }
 
+- (void) dealloc
+{
+	[_PUID release], _PUID = nil;
+	
+	[super dealloc];
+}
+
 - (NSWindow *) sheet
 {
 	return [[_sheet retain] autorelease];
+}
+
+- (NSString *) PUID
+{
+	return [[_PUID retain] autorelease];
+}
+
+- (void) setPUID:(NSString *)PUID
+{
+	[_PUID release];
+	_PUID = [PUID retain];
 }
 
 - (IBAction) ok:(id)sender
@@ -48,6 +68,38 @@
 - (IBAction) cancel:(id)sender
 {
     [[NSApplication sharedApplication] endSheet:[self sheet] returnCode:NSCancelButton];
+}
+
+- (IBAction) search:(id)sender
+{
+	NSError *error = nil;
+	
+	[self startProgressIndicator:sender];
+	NSArray *matches = getMusicBrainzTracksMatchingPUID([self PUID], &error);
+	[self stopProgressIndicator:sender];
+	
+	if(nil == matches) {
+		NSAlert *alert = [NSAlert alertWithError:error];
+		[alert runModal];
+		
+		return;
+	}
+	else if(0 == [matches count])
+		[self ok:sender];
+	else
+		[self setMatches:matches];
+}
+
+- (IBAction) startProgressIndicator:(id)sender
+{
+	[_progressIndicator setHidden:NO];
+	[_progressIndicator startAnimation:sender];
+}
+
+- (IBAction) stopProgressIndicator:(id)sender
+{
+	[_progressIndicator stopAnimation:sender];
+	[_progressIndicator setHidden:YES];
 }
 
 - (void) setMatches:(NSArray *)matches
