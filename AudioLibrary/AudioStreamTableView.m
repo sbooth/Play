@@ -131,7 +131,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		return ((1 == [[_streamController selectedObjects] count]) && canConnectToMusicBrainz());
 	else if([menuItem action] == @selector(remove:))
 		return [_streamController canRemove];
-	else if([menuItem action] == @selector(showTracksWithSameArtist:)) {
+	else if([menuItem action] == @selector(browseTracksWithSameArtist:)) {
 		if(1 == [[_streamController selectedObjects] count]) {
 			NSString *artist = [[_streamController selection] valueForKey:MetadataArtistKey];
 			if(nil == artist)
@@ -146,7 +146,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 			return NO;
 		}
 	}
-	else if([menuItem action] == @selector(showTracksWithSameAlbum:)) {
+	else if([menuItem action] == @selector(browseTracksWithSameAlbum:)) {
 		if(1 == [[_streamController selectedObjects] count]) {
 			NSString *albumTitle = [[_streamController selection] valueForKey:MetadataAlbumTitleKey];
 			if(nil == albumTitle)
@@ -161,7 +161,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 			return NO;
 		}
 	}
-	else if([menuItem action] == @selector(showTracksWithSameComposer:)) {
+	else if([menuItem action] == @selector(browseTracksWithSameComposer:)) {
 		if(1 == [[_streamController selectedObjects] count]) {
 			NSString *composer = [[_streamController selection] valueForKey:MetadataComposerKey];
 			if(nil == composer)
@@ -176,7 +176,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 			return NO;
 		}
 	}
-	else if([menuItem action] == @selector(showTracksWithSameGenre:)) {
+	else if([menuItem action] == @selector(browseTracksWithSameGenre:)) {
 		if(1 == [[_streamController selectedObjects] count]) {
 			NSString *genre = [[_streamController selection] valueForKey:MetadataGenreKey];
 			if(nil == genre)
@@ -184,6 +184,66 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 			else
 				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"%@ tracks", @"Menus", @""), genre]];
 				
+			return (nil != genre);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks of this genre", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(addTracksWithSameArtistToPlayQueue:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *artist = [[_streamController selection] valueForKey:MetadataArtistKey];
+			if(nil == artist)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No artist", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks by %@", @"Menus", @""), artist]];
+			
+			return (nil != artist);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks by this artist", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(addTracksWithSameAlbumToPlayQueue:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *albumTitle = [[_streamController selection] valueForKey:MetadataAlbumTitleKey];
+			if(nil == albumTitle)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No album", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks from \"%@\"", @"Menus", @""), albumTitle]];
+			
+			return (nil != albumTitle);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks from this album", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(addTracksWithSameComposerToPlayQueue:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *composer = [[_streamController selection] valueForKey:MetadataComposerKey];
+			if(nil == composer)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No composer", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"Tracks by %@", @"Menus", @""), composer]];
+			
+			return (nil != composer);
+		}
+		else {
+			[menuItem setTitle:NSLocalizedStringFromTable(@"Tracks by this composer", @"Menus", @"")];
+			return NO;
+		}
+	}
+	else if([menuItem action] == @selector(addTracksWithSameGenreToPlayQueue:)) {
+		if(1 == [[_streamController selectedObjects] count]) {
+			NSString *genre = [[_streamController selection] valueForKey:MetadataGenreKey];
+			if(nil == genre)
+				[menuItem setTitle:NSLocalizedStringFromTable(@"No genre", @"Menus", @"")];
+			else
+				[menuItem setTitle:[NSString stringWithFormat:NSLocalizedStringFromTable(@"%@ tracks", @"Menus", @""), genre]];
+			
 			return (nil != genre);
 		}
 		else {
@@ -610,7 +670,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[CollectionManager manager] finishUpdate];
 }
 
-- (IBAction) showTracksWithSameArtist:(id)sender
+- (IBAction) browseTracksWithSameArtist:(id)sender
 {
 	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();
@@ -620,7 +680,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[AudioLibrary library] browseTracksByArtist:[[_streamController selection] valueForKey:MetadataArtistKey]];
 }
 
-- (IBAction) showTracksWithSameAlbum:(id)sender
+- (IBAction) browseTracksWithSameAlbum:(id)sender
 {
 	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();
@@ -630,7 +690,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[AudioLibrary library] browseTracksByAlbum:[[_streamController selection] valueForKey:MetadataAlbumTitleKey]];
 }
 
-- (IBAction) showTracksWithSameComposer:(id)sender
+- (IBAction) browseTracksWithSameComposer:(id)sender
 {
 	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();
@@ -640,7 +700,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[[AudioLibrary library] browseTracksByComposer:[[_streamController selection] valueForKey:MetadataComposerKey]];
 }
 
-- (IBAction) showTracksWithSameGenre:(id)sender
+- (IBAction) browseTracksWithSameGenre:(id)sender
 {
 	if(1 != [[_streamController selectedObjects] count]) {
 		NSBeep();
@@ -648,6 +708,46 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	}
 	
 	[[AudioLibrary library] browseTracksByGenre:[[_streamController selection] valueForKey:MetadataGenreKey]];
+}
+
+- (IBAction) addTracksWithSameArtistToPlayQueue:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] addTracksToPlayQueueByArtist:[[_streamController selection] valueForKey:MetadataArtistKey]];
+}
+
+- (IBAction) addTracksWithSameAlbumToPlayQueue:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] addTracksToPlayQueueByAlbum:[[_streamController selection] valueForKey:MetadataAlbumTitleKey]];
+}
+
+- (IBAction) addTracksWithSameComposerToPlayQueue:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] addTracksToPlayQueueByComposer:[[_streamController selection] valueForKey:MetadataComposerKey]];
+}
+
+- (IBAction) addTracksWithSameGenreToPlayQueue:(id)sender
+{
+	if(1 != [[_streamController selectedObjects] count]) {
+		NSBeep();
+		return;
+	}
+	
+	[[AudioLibrary library] addTracksToPlayQueueByGenre:[[_streamController selection] valueForKey:MetadataGenreKey]];
 }
 
 - (IBAction) openWithFinder:(id)sender

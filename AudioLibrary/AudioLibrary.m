@@ -173,7 +173,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) setPlayQueueFromArray:(NSArray *)streams;
 
-- (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count;
+- (void) addRandomTracksFromLibraryToPlayQueue:(unsigned)count;
 
 - (void) updatePlayQueueHistory;
 
@@ -587,7 +587,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		return [[self undoManager] canUndo];
 	else if([menuItem action] == @selector(redo:))
 		return [[self undoManager] canRedo];
-	else if([menuItem action] == @selector(add10RandomStreamsToPlayQueue:) || [menuItem action] == @selector(add25RandomStreamsToPlayQueue:))
+	else if([menuItem action] == @selector(add10RandomTracksToPlayQueue:) || [menuItem action] == @selector(add25RandomTracksToPlayQueue:))
 		return (0 != [[[[CollectionManager manager] streamManager] streams] count]);
 	else if([menuItem action] == @selector(toggleRandomPlayback:))
 		return (0 != [self countOfPlayQueue] && NO == [self loopPlayback]);
@@ -652,14 +652,42 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[subView collapse];
 }
 
-- (IBAction) add10RandomStreamsToPlayQueue:(id)sender
+- (IBAction) add10RandomTracksToPlayQueue:(id)sender
 {
-	[self addRandomStreamsFromLibraryToPlayQueue:10];
+	[self addRandomTracksFromLibraryToPlayQueue:10];
 }
 
-- (IBAction) add25RandomStreamsToPlayQueue:(id)sender
+- (IBAction) add25RandomTracksToPlayQueue:(id)sender
 {
-	[self addRandomStreamsFromLibraryToPlayQueue:25];
+	[self addRandomTracksFromLibraryToPlayQueue:25];
+}
+
+- (void) addTracksToPlayQueueByArtist:(NSString *)artist
+{
+	NSParameterAssert(nil != artist);
+	
+	[self addStreamsToPlayQueue:[[[CollectionManager manager] streamManager] streamsForArtist:artist]];
+}
+
+- (void) addTracksToPlayQueueByAlbum:(NSString *)album
+{
+	NSParameterAssert(nil != album);
+	
+	[self addStreamsToPlayQueue:[[[CollectionManager manager] streamManager] streamsForAlbumTitle:album]];
+}
+
+- (void) addTracksToPlayQueueByComposer:(NSString *)composer
+{
+	NSParameterAssert(nil != composer);
+	
+	[self addStreamsToPlayQueue:[[[CollectionManager manager] streamManager] streamsForComposer:composer]];
+}
+
+- (void) addTracksToPlayQueueByGenre:(NSString *)genre
+{
+	NSParameterAssert(nil != genre);
+	
+	[self addStreamsToPlayQueue:[[[CollectionManager manager] streamManager] streamsForGenre:genre]];
 }
 
 - (IBAction) openDocument:(id)sender
@@ -2106,7 +2134,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self didChangeValueForKey:PlayQueueKey];
 }
 
-- (void) addRandomStreamsFromLibraryToPlayQueue:(unsigned)count
+- (void) addRandomTracksFromLibraryToPlayQueue:(unsigned)count
 {
 	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
 	double			randomNumber;

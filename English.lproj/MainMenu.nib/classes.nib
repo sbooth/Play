@@ -2,16 +2,24 @@
     IBClasses = (
         {
             ACTIONS = {
-                add10RandomStreamsToPlayQueue = id; 
-                add25RandomStreamsToPlayQueue = id; 
+                add10RandomTracksToPlayQueue = id; 
+                add25RandomTracksToPlayQueue = id; 
                 addFiles = id; 
                 addToPlayQueue = id; 
+                addTracksWithSameAlbumToPlayQueue = id; 
+                addTracksWithSameArtistToPlayQueue = id; 
+                addTracksWithSameComposerToPlayQueue = id; 
+                addTracksWithSameGenreToPlayQueue = id; 
                 browseHighestRated = id; 
                 browseLibrary = id; 
                 browseMostPopular = id; 
                 browseRecentlyAdded = id; 
                 browseRecentlyPlayed = id; 
                 browseRecentlySkipped = id; 
+                browseTracksWithSameAlbum = id; 
+                browseTracksWithSameArtist = id; 
+                browseTracksWithSameComposer = id; 
+                browseTracksWithSameGenre = id; 
                 calculateTrackAndAlbumReplayGain = id; 
                 calculateTrackReplayGain = id; 
                 clearMetadata = id; 
@@ -36,10 +44,6 @@
                 scramblePlayQueue = id; 
                 searchMusicBrainzForMatchingTracks = id; 
                 showInformationSheet = id; 
-                showTracksWithSameAlbum = id; 
-                showTracksWithSameArtist = id; 
-                showTracksWithSameComposer = id; 
-                showTracksWithSameGenre = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 

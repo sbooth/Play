@@ -98,6 +98,14 @@
         {
             ACTIONS = {
                 addToPlayQueue = id; 
+                addTracksWithSameAlbumToPlayQueue = id; 
+                addTracksWithSameArtistToPlayQueue = id; 
+                addTracksWithSameComposerToPlayQueue = id; 
+                addTracksWithSameGenreToPlayQueue = id; 
+                browseTracksWithSameAlbum = id; 
+                browseTracksWithSameArtist = id; 
+                browseTracksWithSameComposer = id; 
+                browseTracksWithSameGenre = id; 
                 calculateTrackAndAlbumReplayGain = id; 
                 calculateTrackReplayGain = id; 
                 clearMetadata = id; 
@@ -118,10 +126,6 @@
                 saveMetadata = id; 
                 searchMusicBrainzForMatchingTracks = id; 
                 showInformationSheet = id; 
-                showTracksWithSameAlbum = id; 
-                showTracksWithSameArtist = id; 
-                showTracksWithSameComposer = id; 
-                showTracksWithSameGenre = id; 
                 watchFolderInformation = id; 
             }; 
             CLASS = FirstResponder; 
