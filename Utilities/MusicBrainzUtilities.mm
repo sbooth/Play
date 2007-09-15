@@ -64,8 +64,7 @@ buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList 
 		
 		NSMutableDictionary *trackDictionary = [NSMutableDictionary dictionary];
 		
-		if(0 != result->getScore())
-			NSLog(@"Score is %i", result->getScore());
+//		if(0 != result->getScore())
 //			[trackDictionary setValue:[NSNumber numberWithInt:result->getScore()] forKey:@"score"];
 		if(!track->getId().empty())
 			[trackDictionary setValue:[NSString stringWithCString:track->getId().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataMusicBrainzIDKey];
