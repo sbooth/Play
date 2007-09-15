@@ -24,6 +24,7 @@
 #include <musicbrainz3/webservice.h>
 #include <musicbrainz3/query.h>
 #include <musicbrainz3/model.h>
+#include <musicbrainz3/utils.h>
 
 #include <SystemConfiguration/SCNetwork.h>
 #include <typeinfo>
@@ -41,7 +42,7 @@ canConnectToMusicBrainz()
 }
 
 NSArray *
-buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList &results)
+buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList &results, NSError **error)
 {
 	NSMutableArray *resultArray = [[NSMutableArray alloc] init];
 	
@@ -50,20 +51,21 @@ buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList 
 		MusicBrainz::Track			*track		= NULL;
 		
 		try {
-			MusicBrainz::TrackIncludes includes = MusicBrainz::TrackIncludes().artist().releases();
+			MusicBrainz::TrackIncludes includes = MusicBrainz::TrackIncludes().artist().releases().trackRelations();
 			track = q.getTrackById(result->getTrack()->getId(), &includes);
 			if(NULL == track)
 				continue;
 		}
 		
-		catch(MusicBrainz::Exception &e) {
+		catch(/* const MusicBrainz::Exception &e */ const std::exception &e) {
 			NSLog(@"MusicBrainz error: %s", e.what());
 			continue;
 		}
 		
 		NSMutableDictionary *trackDictionary = [NSMutableDictionary dictionary];
 		
-//		if(0 != result->getScore())
+		if(0 != result->getScore())
+			NSLog(@"Score is %i", result->getScore());
 //			[trackDictionary setValue:[NSNumber numberWithInt:result->getScore()] forKey:@"score"];
 		if(!track->getId().empty())
 			[trackDictionary setValue:[NSString stringWithCString:track->getId().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataMusicBrainzIDKey];
@@ -84,7 +86,7 @@ buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList 
 					continue;
 			}
 			
-			catch(MusicBrainz::Exception &e) {
+			catch(/* const MusicBrainz::Exception &e */ const std::exception &e) {
 				NSLog(@"MusicBrainz error: %s", e.what());
 				continue;
 			}
@@ -140,6 +142,34 @@ buildMusicBrainzResultArray(MusicBrainz::Query &q, MusicBrainz::TrackResultList 
 				}
 			}
 			
+			// Look for Composer relations
+			MusicBrainz::RelationList relations = track->getRelations(MusicBrainz::Relation::TO_TRACK);
+			
+			for(MusicBrainz::RelationList::iterator j = relations.begin(); j != relations.end(); ++j) {
+				MusicBrainz::Relation *relation = *j;
+								
+				if("Composer" == MusicBrainz::extractFragment(relation->getType())) {
+					if(MusicBrainz::Relation::TO_ARTIST == relation->getTargetType()) {
+						MusicBrainz::Artist *composer = NULL;
+
+						try {
+							composer = q.getArtistById(relation->getTargetId());
+							if(NULL == composer)
+								continue;
+						}
+						
+						catch(/* const MusicBrainz::Exception &e */ const std::exception &e) {
+							NSLog(@"MusicBrainz error: %s", e.what());
+							continue;
+						}
+						
+						[releaseDictionary setValue:[NSString stringWithCString:composer->getName().c_str() encoding:NSUTF8StringEncoding] forKey:MetadataComposerKey];
+
+						delete composer;
+					}
+				}				
+			}
+			
 			[resultArray addObject:releaseDictionary];
 			
 			delete release;
@@ -184,7 +214,7 @@ getMusicBrainzTracksMatchingPUID(AudioStream *stream, NSError **error)
 		return nil;
 	}
 
-	return buildMusicBrainzResultArray(q, results);
+	return buildMusicBrainzResultArray(q, results, error);
 }
 
 NSArray * 
@@ -223,5 +253,5 @@ getMusicBrainzTracksMatching(NSString *title, NSString *artist, NSString *albumT
 		return nil;
 	}
 
-	return buildMusicBrainzResultArray(q, results);
+	return buildMusicBrainzResultArray(q, results, error);
 }
