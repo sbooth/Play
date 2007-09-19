@@ -115,9 +115,12 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 		_sourceFormat.mBytesPerFrame		= _sourceFormat.mBytesPerPacket * _sourceFormat.mFramesPerPacket;		
 		
 		switch(_streamInfo.channels) {
-			// TODO: FLAC doesn't have default channel layouts
-			case 1:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;			break;
-			case 2:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;		break;
+			case 1:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;				break;
+			case 2:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo;			break;
+			case 3:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_3_0_A;		break;
+			case 4:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_Quadraphonic;		break;
+			case 5:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_5_0_A;		break;
+			case 6:		_channelLayout.mChannelLayoutTag = kAudioChannelLayoutTag_MPEG_5_1_A;		break;
 		}
 		
 		// Allocate the buffer list
