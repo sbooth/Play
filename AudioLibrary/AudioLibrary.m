@@ -143,6 +143,13 @@ NSString * const	WatchFolderObjectKey						= @"org.sbooth.Play.WatchFolder";
 NSString * const	PlayQueueKey								= @"playQueue";
 
 // ========================================
+// Definitions
+// ========================================
+#define VIEW_MENU_INDEX								5
+#define PLAY_QUEUE_TABLE_COLUMNS_MENU_ITEM_INDEX	5
+#define STREAM_TABLE_COLUMNS_MENU_ITEM_INDEX		6
+
+// ========================================
 // Completely bogus NSTreeController bindings hack
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
@@ -2306,6 +2313,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 	[[_streamTable headerView] setMenu:_streamTableHeaderContextMenu];
 	
+	// Also replace the placeholder item in the menu bar
+	 NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
+	 NSMenu *viewMenu = [[mainMenu itemAtIndex:VIEW_MENU_INDEX] submenu];
+	 if(nil != viewMenu) {
+		 NSMenuItem *streamTableColumnsMenuItem = [viewMenu itemAtIndex:STREAM_TABLE_COLUMNS_MENU_ITEM_INDEX];
+		 [mainMenu setSubmenu:_streamTableHeaderContextMenu forItem:streamTableColumnsMenuItem];
+	 }
+	
 	// Keep our changes from generating notifications to ourselves
 	[_streamTable setDelegate:nil];
 	
@@ -2387,6 +2402,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[[_playQueueTable headerView] setMenu:_playQueueTableHeaderContextMenu];
 	
+	// Also replace the placeholder item in the menu bar
+	NSMenu *mainMenu = [[NSApplication sharedApplication] mainMenu];
+	NSMenu *viewMenu = [[mainMenu itemAtIndex:VIEW_MENU_INDEX] submenu];
+	if(nil != viewMenu) {
+		NSMenuItem *playQueueTableColumnsMenuItem = [viewMenu itemAtIndex:PLAY_QUEUE_TABLE_COLUMNS_MENU_ITEM_INDEX];
+		[mainMenu setSubmenu:_playQueueTableHeaderContextMenu forItem:playQueueTableColumnsMenuItem];
+	}
+
 	// Keep our changes from generating notifications to ourselves
 	[_playQueueTable setDelegate:nil];
 	
