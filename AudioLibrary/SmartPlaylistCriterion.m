@@ -120,7 +120,7 @@ enum {
 
 - (NSView *) view
 {
-	return _view;	
+	return [[_view retain] autorelease];
 }
 
 - (NSAttributeType) attributeType
@@ -190,7 +190,7 @@ enum {
 
 - (NSString *) keyPath
 {
-	return _keyPath;
+	return [[_keyPath retain] autorelease];
 }
 
 - (void) setKeyPath:(NSString *)keyPath
@@ -222,7 +222,7 @@ enum {
 
 - (id) searchTerm
 {
-	return _searchTerm;
+	return [[_searchTerm retain] autorelease];
 }
 
 - (void) setSearchTerm:(id)searchTerm
@@ -233,9 +233,8 @@ enum {
 
 - (NSPredicate *) predicate
 {
-	if(nil == [self keyPath]/* || nil == [self searchTerm]*/) {
+	if(nil == [self keyPath]/* || nil == [self searchTerm]*/)
 		return [NSPredicate predicateWithValue:YES];
-	}
 	
 	NSExpression	*left		= [NSExpression expressionForKeyPath:[self keyPath]];
 	NSExpression	*right		= [NSExpression expressionForConstantValue:[self searchTerm]];
