@@ -78,7 +78,7 @@
 
 - (NSWindow *) sheet
 {
-	return _sheet;
+	return [[_sheet retain] autorelease];
 }
 
 - (IBAction) ok:(id)sender
@@ -102,7 +102,7 @@
 
 - (SmartPlaylist *) smartPlaylist
 {
-	return _playlist;
+	return [[_playlist retain] autorelease];
 }
 
 - (void) setSmartPlaylist:(SmartPlaylist *)playlist
@@ -213,11 +213,10 @@
 
 - (void) addCriterion:(SmartPlaylistCriterion *)criterion
 {
-	NSView				*criterionView;
-	float				viewHeight;
+	NSParameterAssert(nil != criterion);
 	
-	criterionView		= [criterion view];	
-	viewHeight			= [criterionView bounds].size.height;
+	NSView	*criterionView	= [criterion view];	
+	float	viewHeight		= [criterionView bounds].size.height;
 	
 	if(0 < [[self criteria] count]) {
 		NSRect			windowFrame;
@@ -249,9 +248,10 @@
 
 - (void) removeCriterion:(SmartPlaylistCriterion *)criterion
 {
-	if(0 == [[self criteria] count] || NO == [[self criteria] containsObject:criterion]) {
+	NSParameterAssert(nil != criterion);
+	
+	if(0 == [[self criteria] count] || NO == [[self criteria] containsObject:criterion])
 		return;
-	}
 	
 	NSView	*criterionView	= [criterion view];
 	float	viewHeight		= [criterionView bounds].size.height;
@@ -303,7 +303,7 @@
 	if(nil == _criteria)
 		_criteria = [[NSMutableArray alloc] init];
 
-	return _criteria;
+	return [[_criteria retain] autorelease];
 }
 
 @end
