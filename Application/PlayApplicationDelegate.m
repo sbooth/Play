@@ -424,17 +424,13 @@
 
 - (void) streamDidChange:(NSNotification *)aNotification
 {
-	AudioStream				*stream			= [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
-	NSError					*error			= nil;
-	AudioMetadataWriter		*metadataWriter = [AudioMetadataWriter metadataWriterForURL:[stream valueForKey:StreamURLKey] error:&error];
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
 
 	if([stream isPlaying])
 		[self setWindowTitleForStream:stream];
 
-	if(nil != metadataWriter) {
-		BOOL result = [metadataWriter writeMetadata:stream error:&error];
-		NSAssert(YES == result, NSLocalizedStringFromTable(@"Unable to save metadata to file.", @"Errors", @""));
-	}
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallySaveMetadataChanges"])
+		[stream saveMetadata:self];
 }
 
 - (void) streamsDidChange:(NSNotification *)aNotification
@@ -447,7 +443,8 @@
 		if([stream isPlaying])
 			[self setWindowTitleForStream:stream];
 		
-		[stream saveMetadata:self];
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallySaveMetadataChanges"])
+			[stream saveMetadata:self];
 	}
 }
 
