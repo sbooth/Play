@@ -50,8 +50,8 @@ NSString * const	MetadataCommentKey						= @"comment";
 NSString * const	MetadataISRCKey							= @"isrc";
 NSString * const	MetadataMCNKey							= @"mcn";
 NSString * const	MetadataBPMKey							= @"bpm";
-NSString * const	MetadataMusicDNSPUIDKey					= @"musicdns_puid";
-NSString * const	MetadataMusicBrainzIDKey				= @"musicbrainz_id";
+NSString * const	MetadataMusicDNSPUIDKey					= @"musicDNSPUID";
+NSString * const	MetadataMusicBrainzIDKey				= @"musicBrainzID";
 
 NSString * const	ReplayGainReferenceLoudnessKey			= @"referenceLoudness";
 NSString * const	ReplayGainTrackGainKey					= @"trackGain";
