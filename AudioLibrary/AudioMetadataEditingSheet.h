@@ -43,6 +43,8 @@
 //- (IBAction)			undo:(id)sender;
 //- (IBAction)			redo:(id)sender;
 
+- (NSArray *)			changedStreams;
+
 - (NSArray *)			genres;
 
 @end

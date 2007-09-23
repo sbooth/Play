@@ -441,8 +441,10 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 //	[self rescanMetadata:sender];
 	
 	AudioMetadataEditingSheet *metadataEditingSheet = [[AudioMetadataEditingSheet alloc] init];
+
 	NSArrayController *allStreamsController = [metadataEditingSheet valueForKey:@"allStreamsController"];
 	[allStreamsController setContent:[[[CollectionManager manager] streamManager] streams]];
+	
 	NSArrayController *streamController = [metadataEditingSheet valueForKey:@"streamController"];
 	NSArray *streams = [[_streamController arrangedObjects] copy];
 	[streamController setContent:[streams autorelease]];
@@ -1235,7 +1237,13 @@ bail:
 	[sheet orderOut:self];
 	
 	if(NSOKButton == returnCode) {
+		// Once finishUpdate is called changedStreams will be empty, so determine which streams
+		// were edited beforehand
+		NSArray *changedStreams = [metadataEditingSheet changedStreams];
 		[[CollectionManager manager] finishUpdate];
+
+		[changedStreams makeObjectsPerformSelector:@selector(saveMetadata:) withObject:self];
+		
 		[_streamController rearrangeObjects];
 	}
 	else if(NSCancelButton == returnCode)
@@ -1253,7 +1261,6 @@ bail:
 	AudioStream *stream = [[_streamController selectedObjects] lastObject];
 
 	if(NSOKButton == returnCode) {
-		
 		if(nil == [matchesSheet selectedMatch]) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
@@ -1272,6 +1279,9 @@ bail:
 			[[CollectionManager manager] beginUpdate];
 			[stream setValuesForKeysWithDictionary:[matchesSheet selectedMatch]];
 			[[CollectionManager manager] finishUpdate];
+			
+			[stream saveMetadata:self];
+			
 			[_streamController rearrangeObjects];
 		}
 	}
@@ -1291,6 +1301,9 @@ bail:
 		[[CollectionManager manager] beginUpdate];
 		[stream setValuesForKeysWithDictionary:[searchSheet selectedMatch]];
 		[[CollectionManager manager] finishUpdate];
+		
+		[stream saveMetadata:self];
+		
 		[_streamController rearrangeObjects];
 	}
 	
@@ -1326,6 +1339,8 @@ bail:
 	[[CollectionManager manager] finishUpdate];	
 	[progressSheet stopProgressIndicator:self];
 	
+	[streams makeObjectsPerformSelector:@selector(saveMetadata:) withObject:self];
+
 	[NSApp endModalSession:modalSession];
 	
 	[NSApp endSheet:[progressSheet sheet]];
@@ -1349,8 +1364,10 @@ bail:
 	[progressSheet startProgressIndicator:self];
 	[[CollectionManager manager] beginUpdate];
 	calculateFingerprintsAndRequestPUIDs(streams, modalSession);
-	[[CollectionManager manager] finishUpdate];	
+	[[CollectionManager manager] finishUpdate];
 	[progressSheet stopProgressIndicator:self];
+	
+	[streams makeObjectsPerformSelector:@selector(saveMetadata:) withObject:self];
 	
 	[NSApp endModalSession:modalSession];
 	

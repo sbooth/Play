@@ -19,6 +19,7 @@
  */
 
 #import "AudioMetadataEditingSheet.h"
+#import "AudioStream.h"
 #import "Genres.h"
 
 @implementation AudioMetadataEditingSheet
@@ -86,6 +87,20 @@
 	
 	return YES;
 }*/
+
+- (NSArray *) changedStreams
+{
+	NSMutableArray	*result			= [[NSMutableArray alloc] init];
+	AudioStream		*stream			= nil;
+	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
+	
+	while((stream = [enumerator nextObject])) {
+		if([stream hasChanges])
+			[result addObject:stream];
+	}
+	
+	return [result autorelease];
+}
 
 - (NSArray *) genres
 {

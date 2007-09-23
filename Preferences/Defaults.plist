@@ -14,8 +14,6 @@
 	<false/>
 	<key>rescanMetadataBeforePlayback</key>
 	<false/>
-	<key>automaticallySaveMetadataChanges</key>
-	<true/>
 	<key>rememberPlayQueue</key>
 	<true/>
 	<key>removeStreamsFromPlayQueueWhenFinished</key>

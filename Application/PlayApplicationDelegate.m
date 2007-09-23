@@ -428,9 +428,6 @@
 
 	if([stream isPlaying])
 		[self setWindowTitleForStream:stream];
-
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallySaveMetadataChanges"])
-		[stream saveMetadata:self];
 }
 
 - (void) streamsDidChange:(NSNotification *)aNotification
@@ -442,9 +439,6 @@
 	while((stream = [enumerator nextObject])) {
 		if([stream isPlaying])
 			[self setWindowTitleForStream:stream];
-		
-		if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallySaveMetadataChanges"])
-			[stream saveMetadata:self];
 	}
 }
 
