@@ -21,11 +21,12 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/GrowlApplicationBridge.h>
 
-@class AudioLibrary, AudioScrobbler, PTKeyCombo;
+@class AudioLibrary, AudioScrobbler, PTKeyCombo, RemoteControl;
 
 @interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
 	AudioScrobbler		*_scrobbler;
+	RemoteControl		*_remoteControl;
 }
 
 - (AudioLibrary *) library;

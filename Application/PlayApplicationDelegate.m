@@ -30,6 +30,7 @@
 #import "PTHotKey.h"
 #import "PTHotKeyCenter.h"
 #import "PTKeyCombo.h"
+#import "AppleRemote.h"
 #import "IntegerToDoubleRoundingValueTransformer.h"
 
 @interface PlayApplicationDelegate (Private)
@@ -103,7 +104,7 @@
 		PTKeyCombo *keyCombo = [[PTKeyCombo alloc] initWithPlistRepresentation:dictionary];
 		[self registerPlayPreviousStreamHotKey:keyCombo];
 		[keyCombo release];
-	}
+	}	
 }
 
 
@@ -133,6 +134,9 @@
 {
 	// Register services
 	[[NSApplication sharedApplication] setServicesProvider:[[[ServicesProvider alloc] init] autorelease]];
+
+	// Start listening for remote control events
+	_remoteControl = [[AppleRemote alloc] initWithDelegate:self];
 
 	// Register for applicable audio notifications
 	[[NSNotificationCenter defaultCenter] addObserver:self 
@@ -180,6 +184,10 @@
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
+	// Stop listening for remote control events
+	[_remoteControl stopListening:aNotification];
+	[_remoteControl release], _remoteControl = nil;
+	
 	// Save the play queue
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rememberPlayQueue"]) {
 		NSArray *objectIDs = [[AudioLibrary library] valueForKeyPath:[NSString stringWithFormat:@"%@.%@", PlayQueueKey, ObjectIDKey]];
@@ -198,6 +206,16 @@
 	return YES;
 }
 
+- (void) applicationWillBecomeActive:(NSNotification *)aNotification
+{
+	[_remoteControl startListening:self];
+}
+
+- (void) applicationWillResignActive:(NSNotification *)aNotification
+{
+	[_remoteControl stopListening:self];
+}
+
 - (void) application:(NSApplication *)sender openFiles:(NSArray *)filenames
 {
 	BOOL success = [[AudioLibrary library] addFiles:filenames];
@@ -205,6 +223,11 @@
 		success = [[AudioLibrary library] playFiles:filenames];
 	
 	[[NSApplication sharedApplication] replyToOpenOrPrint:(success ? NSApplicationDelegateReplySuccess : NSApplicationDelegateReplyFailure)];
+}
+
+- (BOOL) application:(NSApplication *)sender delegateHandlesKey:(NSString *)key
+{
+	return [key isEqualToString:@"library"];
 }
 
 - (IBAction) showPreferences:(id)sender
@@ -311,6 +334,36 @@
 - (IBAction) playPreviousStream:(id)sender
 {
 	[[AudioLibrary library] playPreviousStream:sender];
+}
+
+@end
+
+@implementation PlayApplicationDelegate (RemoteControlWrapperDelegateMethods)
+
+- (void) sendRemoteButtonEvent:(RemoteControlEventIdentifier)event pressedDown:(BOOL)pressedDown remoteControl:(RemoteControl *)remoteControl
+{
+	switch(event) {
+		case kRemoteButtonPlus:
+			break;
+			
+		case kRemoteButtonMinus:
+			break;
+			
+		case kRemoteButtonMenu:
+			break;
+			
+		case kRemoteButtonPlay:
+			[[self library] playPause:remoteControl];
+			break;
+			
+		case kRemoteButtonRight:
+			[[self library] playNextStream:remoteControl];
+			break;
+			
+		case kRemoteButtonLeft:
+			[[self library] playPreviousStream:remoteControl];
+			break;
+	}
 }
 
 @end
