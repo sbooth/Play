@@ -2676,3 +2676,15 @@ NSString * const	PlayQueueKey								= @"playQueue";
 }
 
 @end
+
+@implementation AudioLibrary (ScriptingAdditions)
+
+- (NSScriptObjectSpecifier *) objectSpecifier
+{
+	NSScriptObjectSpecifier		*applicationSpecifier	= [[NSApplication sharedApplication] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier			= [[NSPropertySpecifier alloc] initWithContainerSpecifier:applicationSpecifier key:@"library"];
+
+	return [selfSpecifier autorelease];
+}
+
+@end
