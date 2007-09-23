@@ -1,0 +1,313 @@
+// !$*UTF8*$!
+{
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 5B00231D0C56288F00FB1521 /* RemoteControlWrapper */;
+		activeTarget = 8D1107260486CEB800E47090 /* RemoteControlWrapper */;
+		addToTargets = (
+			8D1107260486CEB800E47090 /* RemoteControlWrapper */,
+		);
+		codeSenseManager = 5B0023220C5628B700FB1521 /* Code sense */;
+		executables = (
+			5B00231D0C56288F00FB1521 /* RemoteControlWrapper */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					243,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFindDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFindDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					579,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFindDataSource_MessageID,
+					PBXFindDataSource_LocationID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					541,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					525,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 208947528;
+			PBXWorkspaceStateSaveDate = 208947528;
+		};
+		perUserProjectItems = {
+			5B3C0A870C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A870C74497B00CC8900 /* PBXTextBookmark */;
+			5B3C0A880C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A880C74497B00CC8900 /* PBXTextBookmark */;
+			5B3C0A890C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A890C74497B00CC8900 /* PBXTextBookmark */;
+			5B3C0A8A0C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A8A0C74497B00CC8900 /* PBXTextBookmark */;
+			5B3C0A8B0C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A8B0C74497B00CC8900 /* PBXTextBookmark */;
+			5B3C0A8C0C74497B00CC8900 /* PBXTextBookmark */ = 5B3C0A8C0C74497B00CC8900 /* PBXTextBookmark */;
+		};
+		sourceControlManager = 5B0023210C5628B700FB1521 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	29B97316FDCFA39411CA2CEA /* main.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 310}}";
+			sepNavSelRange = "{144, 0}";
+			sepNavVisRange = "{0, 266}";
+		};
+	};
+	5B00231D0C56288F00FB1521 /* RemoteControlWrapper */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = RemoteControlWrapper;
+		sourceDirectories = (
+		);
+	};
+	5B0023210C5628B700FB1521 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryName = "";
+		};
+	};
+	5B0023220C5628B700FB1521 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	5B0023230C5628C400FB1521 /* RemoteControlWrapper_Prefix.pch */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 310}}";
+			sepNavSelRange = "{106, 0}";
+			sepNavVisRange = "{0, 171}";
+		};
+	};
+	5B102D6F0C3C04C800514E74 /* license.txt */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {861, 800}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1138}";
+			sepNavWindowFrame = "{{38, 223}, {920, 929}}";
+		};
+	};
+	5B3C0A870C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5B92775E0B78CABC0058AA16 /* HIDRemoteControlDevice.m */;
+		name = "g(@\"E";
+		rLen = 5;
+		rLoc = 15613;
+		rType = 0;
+		vrLen = 731;
+		vrLoc = 15036;
+	};
+	5B3C0A880C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5B677BC30C1D97E100F4CB01 /* GlobalKeyboardDevice.m */;
+		name = "g(@\"U";
+		rLen = 5;
+		rLoc = 4199;
+		rType = 0;
+		vrLen = 896;
+		vrLoc = 3974;
+	};
+	5B3C0A890C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5BAA56560B81A1210068DF18 /* RemoteControlContainer.m */;
+		rLen = 0;
+		rLoc = 2225;
+		rType = 0;
+	};
+	5B3C0A8A0C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5B92775E0B78CABC0058AA16 /* HIDRemoteControlDevice.m */;
+		name = "g(@\"E";
+		rLen = 5;
+		rLoc = 15613;
+		rType = 0;
+		vrLen = 731;
+		vrLoc = 15036;
+	};
+	5B3C0A8B0C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5B677BC30C1D97E100F4CB01 /* GlobalKeyboardDevice.m */;
+		name = "g(@\"U";
+		rLen = 5;
+		rLoc = 4199;
+		rType = 0;
+		vrLen = 896;
+		vrLoc = 3974;
+	};
+	5B3C0A8C0C74497B00CC8900 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 5BAA56560B81A1210068DF18 /* RemoteControlContainer.m */;
+		name = "RemoteControlContainer.m: count";
+		rLen = 0;
+		rLoc = 2225;
+		rType = 0;
+		vrLen = 462;
+		vrLoc = 2114;
+	};
+	5B677BC30C1D97E100F4CB01 /* GlobalKeyboardDevice.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1106, 3388}}";
+			sepNavSelRange = "{4199, 5}";
+			sepNavVisRect = "{{0, 1384}, {855, 271}}";
+		};
+	};
+	5B8D4DE70C55D676008A1C8A /* readme.txt */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {861, 800}}";
+			sepNavSelRange = "{235, 0}";
+			sepNavVisRange = "{0, 235}";
+			sepNavWindowFrame = "{{61, 202}, {920, 929}}";
+		};
+	};
+	5B92749A0B78B3750058AA16 /* MultiClickRemoteBehavior.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 896}}";
+			sepNavSelRange = "{227, 0}";
+			sepNavVisRange = "{0, 1321}";
+			sepNavWindowFrame = "{{84, 181}, {920, 929}}";
+		};
+	};
+	5B92749B0B78B3750058AA16 /* MultiClickRemoteBehavior.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 1820}}";
+			sepNavSelRange = "{132, 0}";
+			sepNavVisRange = "{0, 1321}";
+		};
+	};
+	5B92749F0B78B3B20058AA16 /* RemoteControl.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 896}}";
+			sepNavSelRange = "{121, 0}";
+			sepNavVisRange = "{0, 1310}";
+		};
+	};
+	5B92775D0B78CABC0058AA16 /* HIDRemoteControlDevice.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 658}}";
+			sepNavSelRange = "{130, 0}";
+			sepNavVisRange = "{0, 1323}";
+		};
+	};
+	5B92775E0B78CABC0058AA16 /* HIDRemoteControlDevice.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1088, 7224}}";
+			sepNavSelRange = "{15613, 5}";
+			sepNavVisRange = "{3860, 1951}";
+			sepNavVisRect = "{{0, 6452}, {855, 271}}";
+			sepNavWindowFrame = "{{107, 160}, {920, 929}}";
+		};
+	};
+	5BAA56560B81A1210068DF18 /* RemoteControlContainer.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {855, 1610}}";
+			sepNavSelRange = "{2225, 0}";
+			sepNavVisRect = "{{0, 712}, {855, 271}}";
+		};
+	};
+	5BF9B9D609C9B00900EFA68D /* MainController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 350}}";
+			sepNavSelRange = "{48, 0}";
+			sepNavVisRange = "{0, 463}";
+		};
+	};
+	5BF9B9D709C9B00900EFA68D /* MainController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1028, 2856}}";
+			sepNavSelRange = "{6087, 0}";
+			sepNavVisRange = "{5311, 1517}";
+			sepNavWindowFrame = "{{38, 274}, {1087, 878}}";
+		};
+	};
+	5BF9BA8009C9BA2200EFA68D /* RemoteFeedbackView.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {896, 1176}}";
+			sepNavSelRange = "{239, 0}";
+			sepNavVisRange = "{0, 434}";
+		};
+	};
+	8D1107260486CEB800E47090 /* RemoteControlWrapper */ = {
+		activeExec = 0;
+		executables = (
+			5B00231D0C56288F00FB1521 /* RemoteControlWrapper */,
+		);
+	};
+}
