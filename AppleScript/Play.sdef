@@ -361,7 +361,7 @@
 	<!--
 		PLAY SUITE
 	-->
-	<suite name="Play Suite" code="PlaY" description="Play specific classes.">
+	<suite name="Play Suite" code="plaY" description="Play specific classes.">
 		<class name="track" code="trck" description="An audio track" plural="tracks">
 			<cocoa class="AudioStream"/>
 			<property name="URL" code="url " description="The url representing this track" type="text" access="r">
