@@ -659,6 +659,11 @@ NSString * const	PlayQueueKey								= @"playQueue";
 		[subView collapse];
 }
 
+- (IBAction) addCurrentTracksToPlayQueue:(id)sender
+{
+	[self addStreamsToPlayQueue:[_streamController arrangedObjects]];
+}
+
 - (IBAction) add10RandomTracksToPlayQueue:(id)sender
 {
 	[self addRandomTracksFromLibraryToPlayQueue:10];

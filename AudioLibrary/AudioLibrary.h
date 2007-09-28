@@ -213,6 +213,8 @@ extern NSString * const		PlayQueueKey;
 // Play Queue management
 - (IBAction)		togglePlayQueue:(id)sender;
 
+- (IBAction)		addCurrentTracksToPlayQueue:(id)sender;
+
 - (IBAction)		add10RandomTracksToPlayQueue:(id)sender;
 - (IBAction)		add25RandomTracksToPlayQueue:(id)sender;
 
