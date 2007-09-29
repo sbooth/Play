@@ -216,7 +216,7 @@ static float heightOffset	= 3.0;
 		return;
 	}
 	
-	[[AudioLibrary library] addCurrentTracksToPlayQueue:sender];
+	[[AudioLibrary library] sortStreamsAndAddToPlayQueue:streams];
 }
 
 - (IBAction) showInformationSheet:(id)sender
@@ -296,11 +296,11 @@ static float heightOffset	= 3.0;
 	}
 
 	if(0 == [[AudioLibrary library] countOfPlayQueue]) {
-		[[AudioLibrary library] addCurrentTracksToPlayQueue:sender];
+		[[AudioLibrary library] sortStreamsAndAddToPlayQueue:streams];
 		[[AudioLibrary library] playStreamAtIndex:0];
 	}
 	else
-		[[AudioLibrary library] addCurrentTracksToPlayQueue:sender];
+		[[AudioLibrary library] sortStreamsAndAddToPlayQueue:streams];
 }
 
 @end

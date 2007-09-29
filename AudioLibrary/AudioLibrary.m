@@ -1422,6 +1422,14 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	[self updatePlayButtonState];
 }
 
+- (void) sortStreamsAndAddToPlayQueue:(NSArray *)streams
+{
+	NSParameterAssert(nil != streams);
+	
+	NSArray *sortedStreams = [streams sortedArrayUsingDescriptors:[_streamController sortDescriptors]];
+	[self addStreamsToPlayQueue:sortedStreams];
+}
+
 - (void) insertStreams:(NSArray *)streams inPlayQueueAtIndex:(unsigned)index
 {
 	[self insertStreams:streams inPlayQueueAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(index, [streams count])]];

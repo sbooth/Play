@@ -229,6 +229,7 @@ extern NSString * const		PlayQueueKey;
 
 - (void)			addStreamToPlayQueue:(AudioStream *)stream;
 - (void)			addStreamsToPlayQueue:(NSArray *)streams;
+- (void)			sortStreamsAndAddToPlayQueue:(NSArray *)streams;
 
 - (void)			insertStreams:(NSArray *)streams inPlayQueueAtIndex:(unsigned)index;
 - (void)			insertStreams:(NSArray *)streams inPlayQueueAtIndexes:(NSIndexSet *)indexes;
