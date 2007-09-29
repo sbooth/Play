@@ -31,7 +31,6 @@
             CLASS = AudioLibrary; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                "_albumArtImageView" = NSImageView; 
                 "_browserController" = BrowserTreeController; 
                 "_browserDrawer" = NSDrawer; 
                 "_browserOutlineView" = BrowserOutlineView; 
