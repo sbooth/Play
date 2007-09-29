@@ -188,6 +188,9 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) setupBrowser;
 
+- (void) saveBrowserStateToDefaults;
+- (void) restoreBrowserStateFromDefaults;
+
 - (void) setupStreamTableColumns;
 - (void) setupPlayQueueTableColumns;
 
@@ -502,57 +505,16 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (void) awakeFromNib
 {
-	// Setup streams table
-//	[_streamTable setSearchColumnIdentifiers:[NSSet setWithObjects:@"title", @"albumTitle", @"artist", @"albumArtist", @"genre", @"composer", nil]];
-
-	// Setup browser
 	[self setupBrowser];
 	
-	// Restore sort descriptors
-	NSArray *sortDescriptors = nil;
-	NSData *sortDescriptorData =[[NSUserDefaults standardUserDefaults] dataForKey:@"streamTableSortDescriptors"];
-	if(nil != sortDescriptorData)
-		sortDescriptors = (NSArray *)[NSKeyedUnarchiver unarchiveObjectWithData:sortDescriptorData];
-	else
-		sortDescriptors = [NSArray arrayWithObjects:
-//			[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
-			[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
-			[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
-			[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
-			[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
-			nil];
+	[self restoreStateFromDefaults];
 	
-	[_streamController setSortDescriptors:sortDescriptors];
-
-/*	[_browserController setSortDescriptors:[NSArray arrayWithObjects:
-		[[[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES] autorelease],
-		nil]];*/
-	
-	// Default window state
 	[self updatePlayButtonState];
-	[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	
 	[self setupStreamTableColumns];
 	[self setupPlayQueueTableColumns];
 	
 	[self scanWatchFolders];
-	
-	// Restore the browser's state
-	switch([[NSUserDefaults standardUserDefaults] integerForKey:@"browserDrawerState"]) {
-		case NSDrawerOpenState:			[_browserDrawer open];		break;
-		case NSDrawerOpeningState:		[_browserDrawer open];		break;
-	}
-
-	// and selected node
-	NSData *archivedIndexPath = [[NSUserDefaults standardUserDefaults] dataForKey:@"browserSelectionIndexPathArchive"];
-	if(nil != archivedIndexPath) {
-		NSIndexPath *selectedNodeIndexPath = [NSKeyedUnarchiver unarchiveObjectWithData:archivedIndexPath];
-		if(nil != selectedNodeIndexPath) {
-			BOOL nodeSelected = [_browserController setSelectionIndexPath:selectedNodeIndexPath];
-			if(NO == nodeSelected)
-				[self browseLibrary:self];
-		}
-	}
 }
 
 - (void) windowDidLoad
@@ -642,12 +604,6 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (IBAction) toggleBrowser:(id)sender
 {
 	[_browserDrawer toggle:sender];
-}
-
-- (void) saveBrowserStateToDefaults;
-{
-	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:[_browserDrawer state]] forKey:@"browserDrawerState"];
-	[[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:[_browserController selectionIndexPath]] forKey:@"browserSelectionIndexPathArchive"];
 }
 
 - (IBAction) togglePlayQueue:(id)sender
@@ -1385,11 +1341,8 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	}
 	
 	[stream setPlaying:YES];
-	
-	/*	if(nil == [stream valueForKey:@"albumArt"]) {
-		[_albumArtImageView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
-	}*/
-	
+	[self scrollNowPlayingToVisible];
+		
 	[[self player] play];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
@@ -1598,6 +1551,38 @@ NSString * const	PlayQueueKey								= @"playQueue";
 - (BOOL) streamReorderingAllowed
 {
 	return _streamReorderingAllowed;
+}
+
+- (void) saveStateToDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setBool:[self randomPlayback] forKey:@"randomPlayback"];
+	[[NSUserDefaults standardUserDefaults] setBool:[self loopPlayback] forKey:@"loopPlayback"];
+	
+	[self saveBrowserStateToDefaults];
+}
+
+- (void) restoreStateFromDefaults
+{
+	[self setRandomPlayback:[[NSUserDefaults standardUserDefaults] boolForKey:@"randomPlayback"]];
+	[self setLoopPlayback:[[NSUserDefaults standardUserDefaults] boolForKey:@"loopPlayback"]];
+
+	// Restore sort descriptors
+	NSArray *sortDescriptors = nil;
+	NSData *sortDescriptorData =[[NSUserDefaults standardUserDefaults] dataForKey:@"streamTableSortDescriptors"];
+	if(nil != sortDescriptorData)
+		sortDescriptors = (NSArray *)[NSKeyedUnarchiver unarchiveObjectWithData:sortDescriptorData];
+	else
+		sortDescriptors = [NSArray arrayWithObjects:
+//			[[[NSSortDescriptor alloc] initWithKey:MetadataArtistKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataAlbumTitleKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:PropertiesDataFormatKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataDiscNumberKey ascending:YES] autorelease],
+			[[[NSSortDescriptor alloc] initWithKey:MetadataTrackNumberKey ascending:YES] autorelease],
+			nil];
+	
+	[_streamController setSortDescriptors:sortDescriptors];
+	
+	[self restoreBrowserStateFromDefaults];
 }
 
 @end
@@ -1992,6 +1977,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	NSAssert(nil != stream, @"Playback started for stream index not in play queue.");
 	
 	[stream setPlaying:YES];
+	[self scrollNowPlayingToVisible];
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamPlaybackDidStartNotification 
 														object:self 
@@ -2273,6 +2259,32 @@ NSString * const	PlayQueueKey								= @"playQueue";
 	
 	[imageAndTextCell setLineBreakMode:NSLineBreakByTruncatingTail];
 	[tableColumn setDataCell:[imageAndTextCell autorelease]];
+}
+
+- (void) saveBrowserStateToDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:[_browserDrawer state]] forKey:@"browserDrawerState"];
+	[[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:[_browserController selectionIndexPath]] forKey:@"browserSelectionIndexPathArchive"];
+}
+
+- (void) restoreBrowserStateFromDefaults
+{
+	// Restore the browser's state
+	switch([[NSUserDefaults standardUserDefaults] integerForKey:@"browserDrawerState"]) {
+		case NSDrawerOpenState:			[_browserDrawer open];		break;
+		case NSDrawerOpeningState:		[_browserDrawer open];		break;
+	}
+	
+	// and selected node
+	NSData *archivedIndexPath = [[NSUserDefaults standardUserDefaults] dataForKey:@"browserSelectionIndexPathArchive"];
+	if(nil != archivedIndexPath) {
+		NSIndexPath *selectedNodeIndexPath = [NSKeyedUnarchiver unarchiveObjectWithData:archivedIndexPath];
+		if(nil != selectedNodeIndexPath) {
+			BOOL nodeSelected = [_browserController setSelectionIndexPath:selectedNodeIndexPath];
+			if(NO == nodeSelected)
+				[self browseLibrary:self];
+		}
+	}
 }
 
 - (void) setupStreamTableColumns

@@ -92,7 +92,6 @@ extern NSString * const		PlayQueueKey;
 	
 	IBOutlet NSButton						*_playPauseButton;
 	
-	IBOutlet NSImageView					*_albumArtImageView;
 	IBOutlet NSDrawer						*_browserDrawer;
 	
 	@private
@@ -192,8 +191,6 @@ extern NSString * const		PlayQueueKey;
 - (IBAction)	closeBrowser:(id)sender;
 - (IBAction)	toggleBrowser:(id)sender;
 
-- (void)		saveBrowserStateToDefaults;
-
 - (IBAction)	browseLibrary:(id)sender;
 - (IBAction)	browseMostPopular:(id)sender;
 - (IBAction)	browseHighestRated:(id)sender;
@@ -257,6 +254,9 @@ extern NSString * const		PlayQueueKey;
 - (BOOL)		streamReorderingAllowed;
 
 - (AudioStream *) nowPlaying;
+
+- (void)		saveStateToDefaults;
+- (void)		restoreStateFromDefaults;
 
 // ========================================
 // Undo/redo support
