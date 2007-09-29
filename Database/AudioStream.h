@@ -72,7 +72,6 @@ extern NSString * const		PropertiesBitrateKey;
 @interface AudioStream : DatabaseObject
 {
 	BOOL	_playing;
-	id		_albumArt;
 }
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
