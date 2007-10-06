@@ -1863,7 +1863,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 {
 	if(NSOKButton == returnCode) {
 #if SQL_DEBUG
-		unsigned startCount = [[_streamController arrangedObjects] count];
+		unsigned startCount = [[[[CollectionManager manager] streamManager] streams] count];
 		clock_t start = clock();
 #endif
 		
@@ -1891,7 +1891,7 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 #if SQL_DEBUG
 		clock_t end = clock();
-		unsigned endCount = [[_streamController arrangedObjects] count];
+		unsigned endCount = [[[[CollectionManager manager] streamManager] streams] count];
 		unsigned filesAdded = endCount - startCount;
 		double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 		NSLog(@"Added %i files in %f seconds (%f files per second)", filesAdded, elapsed, (double)filesAdded / elapsed);
