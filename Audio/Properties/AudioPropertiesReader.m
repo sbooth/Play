@@ -41,8 +41,8 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 	NSParameterAssert([url isFileURL]);
 	
 	AudioPropertiesReader		*result				= nil;
-	NSString					*path				= [url path];;
-	NSString					*pathExtension		= [[path pathExtension] lowercaseString];;
+	NSString					*path				= [url path];
+	NSString					*pathExtension		= [[path pathExtension] lowercaseString];
 	
 	if([pathExtension isEqualToString:@"flac"]) {
 		result = [[FLACPropertiesReader alloc] init];
