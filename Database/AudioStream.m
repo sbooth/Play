@@ -323,6 +323,11 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 @implementation AudioStream (ScriptingAdditions)
 
+- (void) handleEnqueueScriptCommand:(NSScriptCommand *)command
+{
+	[[AudioLibrary library] addStreamToPlayQueue:self];
+}
+
 - (NSScriptObjectSpecifier *) objectSpecifier
 {
 	id							libraryDescription	= [NSClassDescription classDescriptionForClass:[AudioLibrary class]];

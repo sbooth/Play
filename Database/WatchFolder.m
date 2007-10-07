@@ -68,7 +68,7 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 
 - (NSArray *) streams
 {
-	return _streams;
+	return [[_streams retain] autorelease];
 }
 
 - (AudioStream *) streamAtIndex:(unsigned)index
@@ -144,6 +144,12 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 @end
 
 @implementation WatchFolder (ScriptingAdditions)
+
+- (void) handleEnqueueScriptCommand:(NSScriptCommand *)command
+{
+	[self loadStreams];
+	[[AudioLibrary library] addStreamsToPlayQueue:[self streams]];
+}
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {

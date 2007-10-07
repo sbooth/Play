@@ -472,52 +472,49 @@
 
 @implementation NSApplication (ScriptingAdditions)
 
-- (id) handlePlayPauseScriptCommand:(NSScriptCommand *)command
+- (void) handlePlayPauseScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] playPause:command];
-	
-	return nil;
 }
 
-- (id) handleSkipForwardScriptCommand:(NSScriptCommand *)command
+- (void) handleSkipForwardScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] skipForward:command];
-	
-	return nil;
 }
 
-- (id) handleSkipBackwardScriptCommand:(NSScriptCommand *)command
+- (void) handleSkipBackwardScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] skipBackward:command];
-	
-	return nil;
 }
 
-- (id) handlePlayNextTrackScriptCommand:(NSScriptCommand *)command
+- (void) handlePlayNextTrackScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] playNextStream:command];
-	
-	return nil;
 }
 
-- (id) handlePlayPreviousTrackScriptCommand:(NSScriptCommand *)command
+- (void) handlePlayPreviousTrackScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] playPreviousStream:command];
-	
-	return nil;
 }
 
-- (id) handleAddToPlayQueueScriptCommand:(NSScriptCommand *)command
+- (void) handleEnqueueScriptCommand:(NSScriptCommand *)command
 {
-	id		directParameter			= [command directParameter];
-	Class	directParameterClass	= [directParameter class];
-
-	NSLog(@"directParameter = %@",directParameter);
-	NSLog(@"directParameterClass = %@",directParameterClass);
+	id directParameter = [command directParameter];
 	
-//	[[[self delegate] library] playPreviousStream:command];
-	
-	return nil;
+	if([directParameter isKindOfClass:[NSArray class]]) {
+		NSArray						*trackSpecifiers	= (NSArray *)directParameter;
+		NSEnumerator				*enumerator			= [trackSpecifiers objectEnumerator];
+		NSScriptObjectSpecifier		*specifier			= nil;
+		NSMutableArray				*tracksToAdd		= [NSMutableArray array];
+		
+		while((specifier = [enumerator nextObject])) {
+			AudioStream *evaluatedObject = [specifier objectsByEvaluatingSpecifier];
+			if(nil != evaluatedObject)
+				[tracksToAdd addObject:evaluatedObject];
+		}
+		
+		[[[self delegate] library] addStreamsToPlayQueue:tracksToAdd];
+	}
 }
 
 @end

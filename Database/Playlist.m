@@ -68,7 +68,7 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (NSArray *) streams
 {
-	return _streams;
+	return [[_streams retain] autorelease];
 }
 
 - (AudioStream *) streamAtIndex:(unsigned)index
@@ -277,6 +277,12 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 @end
 
 @implementation Playlist (ScriptingAdditions)
+
+- (void) handleEnqueueScriptCommand:(NSScriptCommand *)command
+{
+	[self loadStreams];
+	[[AudioLibrary library] addStreamsToPlayQueue:[self streams]];
+}
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {

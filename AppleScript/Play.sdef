@@ -110,8 +110,8 @@
 			<responds-to name="play previous track">
 				<cocoa method="handlePlayPreviousTrackScriptCommand:"/>
 			</responds-to>
-			<responds-to name="add to play queue">
-				<cocoa method="handleAddToPlayQueueScriptCommand:"/>
+			<responds-to name="enqueue">
+				<cocoa method="handleEnqueueScriptCommand:"/>
 			</responds-to>
 		</class>
 		<class name="document" code="docu" description="A document.">
@@ -385,13 +385,20 @@
 		<command name="skip backward" code="plaYsbwd" description="Rewind three seconds"/>
 		<command name="play next track" code="plaYpnxt" description="Play the next track in the play queue"/>
 		<command name="play previous track" code="plaYpprv" description="Play the previous track in the play queue"/>
-		<command name="add to play queue" code="plaYad2q" description="Add the specified track to the play queue">
-			<direct-parameter description="the track(s) to add" type="specifier"/>
+		<command name="enqueue" code="plaYad2q" description="Add the specified track to the play queue">
+			<direct-parameter description="the track(s) to add">
+				<type type="specifier"/>
+				<type type="track"/>
+				<type type="track" list="yes"/>
+			</direct-parameter>
 		</command>
 
 		<class name="track" code="trck" description="An audio track" plural="tracks">
 			<cocoa class="AudioStream"/>
-			<property name="ID" code="ID  " description="The unique ID of this track" type="integer" access="r">
+			<responds-to name="enqueue">
+				<cocoa method="handleEnqueueScriptCommand:"/>
+			</responds-to>
+			<property name="id" code="ID  " description="The unique ID of this track" type="integer" access="r">
 				<cocoa key="id"/>
 			</property>
 			<property name="URL" code="url " description="The url representing this track" type="text" access="r">
@@ -516,7 +523,10 @@
 		<class name="playlist" code="plal" description="An audio playlist">
 			<cocoa class="Playlist"/>
 			<element type="track"/>
-			<property name="ID" code="ID  " description="The unique ID of this playlist" type="integer" access="r">
+			<responds-to name="enqueue">
+				<cocoa method="handleEnqueueScriptCommand:"/>
+			</responds-to>
+			<property name="id" code="ID  " description="The unique ID of this playlist" type="integer" access="r">
 				<cocoa key="id"/>
 			</property>
 			<property name="name" code="pnam" description="The name of this playlist" type="text">
@@ -529,7 +539,10 @@
 		<class name="smart playlist" code="smpl" description="A smart audio playlist">
 			<cocoa class="SmartPlaylist"/>
 			<element type="track"/>
-			<property name="ID" code="ID  " description="The unique ID of this smart playlist" type="integer" access="r">
+			<responds-to name="enqueue">
+				<cocoa method="handleEnqueueScriptCommand:"/>
+			</responds-to>
+			<property name="id" code="ID  " description="The unique ID of this smart playlist" type="integer" access="r">
 				<cocoa key="id"/>
 			</property>
 			<property name="name" code="pnam" description="The name of this smart playlist" type="text">
@@ -542,7 +555,10 @@
 		<class name="watch folder" code="wfld" description="A folder to watch for audio files">
 			<cocoa class="WatchFolder"/>
 			<element type="track"/>
-			<property name="ID" code="ID  " description="The unique ID of this watch folder" type="integer" access="r">
+			<responds-to name="enqueue">
+				<cocoa method="handleEnqueueScriptCommand:"/>
+			</responds-to>
+			<property name="id" code="ID  " description="The unique ID of this watch folder" type="integer" access="r">
 				<cocoa key="id"/>
 			</property>
 			<property name="name" code="pnam" description="The name of this watch folder" type="text">
