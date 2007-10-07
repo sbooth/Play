@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "PlaylistManager.h"
 #import "AudioStreamManager.h"
+#import "AudioLibrary.h"
 
 NSString * const	PlaylistNameKey							= @"name";
 NSString * const	PlaylistStreamsKey						= @"streams";
@@ -271,6 +272,22 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	[_streams removeAllObjects];
 	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForPlaylist:self]];
 	[self didChangeValueForKey:PlaylistStreamsKey];
+}
+
+@end
+
+@implementation Playlist (ScriptingAdditions)
+
+- (NSScriptObjectSpecifier *) objectSpecifier
+{
+	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
+	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
+																									  containerSpecifier:audioLibrarySpecifier 
+																													 key:@"playlists" 
+																												uniqueID:[self valueForKey:ObjectIDKey]];
+	
+	return [selfSpecifier autorelease];
 }
 
 @end

@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "WatchFolderManager.h"
 #import "AudioStreamManager.h"
+#import "AudioLibrary.h"
 
 NSString * const	WatchFolderURLKey							= @"url";
 NSString * const	WatchFolderNameKey							= @"name";
@@ -138,6 +139,22 @@ NSString * const	WatchFolderStreamsKey						= @"streams";
 	[_streams removeAllObjects];
 	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForWatchFolder:self]];
 	[self didChangeValueForKey:WatchFolderStreamsKey];
+}
+
+@end
+
+@implementation WatchFolder (ScriptingAdditions)
+
+- (NSScriptObjectSpecifier *) objectSpecifier
+{
+	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
+	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
+																									  containerSpecifier:audioLibrarySpecifier 
+																													 key:@"watch folders" 
+																												uniqueID:[self valueForKey:ObjectIDKey]];
+	
+	return [selfSpecifier autorelease];
 }
 
 @end

@@ -42,6 +42,8 @@
 
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "PlaylistManager.h"
+#import "SmartPlaylistManager.h"
 #import "WatchFolderManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
@@ -2703,6 +2705,86 @@ NSString * const	PlayQueueKey								= @"playQueue";
 @end
 
 @implementation AudioLibrary (ScriptingAdditions)
+
+- (unsigned) countOfTracks
+{
+	return [[[[CollectionManager manager] streamManager] streams] count];
+}
+
+- (AudioStream *) objectInTracksAtIndex:(unsigned)index
+{
+	return [[[[CollectionManager manager] streamManager] streams] objectAtIndex:index];	
+}
+
+- (void) getTracks:(id *)buffer range:(NSRange)range
+{
+	[[[[CollectionManager manager] streamManager] streams] getObjects:buffer range:range];	
+}
+
+- (AudioStream *) valueInTracksWithUniqueID:(NSNumber *)uniqueID
+{
+	return [[[CollectionManager manager] streamManager] streamForID:uniqueID];	
+}
+
+- (unsigned) countOfPlaylists
+{
+	return [[[[CollectionManager manager] playlistManager] playlists] count];
+}
+
+- (Playlist *) objectInPlaylistsAtIndex:(unsigned)index
+{
+	return [[[[CollectionManager manager] playlistManager] playlists] objectAtIndex:index];	
+}
+
+- (void) getPlaylists:(id *)buffer range:(NSRange)range
+{
+	[[[[CollectionManager manager] playlistManager] playlists] getObjects:buffer range:range];	
+}
+
+- (Playlist *) valueInPlaylistsWithUniqueID:(NSNumber *)uniqueID
+{
+	return [[[CollectionManager manager] playlistManager] playlistForID:uniqueID];	
+}
+
+- (unsigned) countOfSmartPlaylists
+{
+	return [[[[CollectionManager manager] smartPlaylistManager] smartPlaylists] count];
+}
+
+- (SmartPlaylist *) objectInSmartPlaylistsAtIndex:(unsigned)index
+{
+	return [[[[CollectionManager manager] smartPlaylistManager] smartPlaylists] objectAtIndex:index];	
+}
+
+- (void) getSmartPlaylists:(id *)buffer range:(NSRange)range
+{
+	[[[[CollectionManager manager] smartPlaylistManager] smartPlaylists] getObjects:buffer range:range];	
+}
+
+- (SmartPlaylist *) valueInSmartPlaylistsWithUniqueID:(NSNumber *)uniqueID
+{
+	return [[[CollectionManager manager] smartPlaylistManager] smartPlaylistForID:uniqueID];	
+}
+
+- (unsigned) countOfWatchFolders
+{
+	return [[[[CollectionManager manager] watchFolderManager] watchFolders] count];
+}
+
+- (WatchFolder *) objectInWatchFoldersAtIndex:(unsigned)index
+{
+	return [[[[CollectionManager manager] watchFolderManager] watchFolders] objectAtIndex:index];	
+}
+
+- (void) getWatchFolders:(id *)buffer range:(NSRange)range
+{
+	[[[[CollectionManager manager] watchFolderManager] watchFolders] getObjects:buffer range:range];	
+}
+
+- (WatchFolder *) valueInWatchFoldersWithUniqueID:(NSNumber *)uniqueID
+{
+	return [[[CollectionManager manager] watchFolderManager] watchFolderForID:uniqueID];	
+}
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {

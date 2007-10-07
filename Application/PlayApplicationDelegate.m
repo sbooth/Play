@@ -467,3 +467,57 @@
 }
 
 @end
+
+#pragma mark Scripting
+
+@implementation NSApplication (ScriptingAdditions)
+
+- (id) handlePlayPauseScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] playPause:command];
+	
+	return nil;
+}
+
+- (id) handleSkipForwardScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] skipForward:command];
+	
+	return nil;
+}
+
+- (id) handleSkipBackwardScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] skipBackward:command];
+	
+	return nil;
+}
+
+- (id) handlePlayNextTrackScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] playNextStream:command];
+	
+	return nil;
+}
+
+- (id) handlePlayPreviousTrackScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] playPreviousStream:command];
+	
+	return nil;
+}
+
+- (id) handleAddToPlayQueueScriptCommand:(NSScriptCommand *)command
+{
+	id		directParameter			= [command directParameter];
+	Class	directParameterClass	= [directParameter class];
+
+	NSLog(@"directParameter = %@",directParameter);
+	NSLog(@"directParameterClass = %@",directParameterClass);
+	
+//	[[[self delegate] library] playPreviousStream:command];
+	
+	return nil;
+}
+
+@end

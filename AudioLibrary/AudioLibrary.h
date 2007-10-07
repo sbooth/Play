@@ -20,9 +20,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioStream, Playlist;
+@class AudioStream;
 @class AudioPlayer;
-@class CollectionManager;
 @class PlayQueueTableView;
 @class AudioStreamTableView, AudioStreamArrayController;
 @class BrowserOutlineView, BrowserTreeController;
@@ -267,6 +266,7 @@ extern NSString * const		PlayQueueKey;
 
 // ========================================
 // Interfaces for other classes, not for general consumption
+// ========================================
 @interface AudioLibrary (AudioPlayerMethods)
 - (void) streamPlaybackDidStart;
 - (void) streamPlaybackDidComplete;

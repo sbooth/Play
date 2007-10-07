@@ -23,6 +23,7 @@
 #import "AudioStreamManager.h"
 #import "AudioMetadataReader.h"
 #import "AudioMetadataWriter.h"
+#import "AudioLibrary.h"
 
 NSString * const	StreamURLKey							= @"url";
 
@@ -316,6 +317,22 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			nil];
 	}	
 	return _supportedKeys;
+}
+
+@end
+
+@implementation AudioStream (ScriptingAdditions)
+
+- (NSScriptObjectSpecifier *) objectSpecifier
+{
+	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
+	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
+																									  containerSpecifier:audioLibrarySpecifier 
+																													 key:@"tracks" 
+																												uniqueID:[self valueForKey:ObjectIDKey]];
+	
+	return [selfSpecifier autorelease];
 }
 
 @end

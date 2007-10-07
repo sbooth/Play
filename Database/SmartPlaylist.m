@@ -22,6 +22,7 @@
 #import "CollectionManager.h"
 #import "SmartPlaylistManager.h"
 #import "AudioStreamManager.h"
+#import "AudioLibrary.h"
 
 NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 
@@ -144,6 +145,22 @@ NSString * const	SmartPlaylistPredicateKey				= @"predicate";
 	[_streams removeAllObjects];
 	[_streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsForSmartPlaylist:self]];
 	[self didChangeValueForKey:PlaylistStreamsKey];
+}
+
+@end
+
+@implementation SmartPlaylist (ScriptingAdditions)
+
+- (NSScriptObjectSpecifier *) objectSpecifier
+{
+	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
+	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
+																									  containerSpecifier:audioLibrarySpecifier 
+																													 key:@"smart playlists" 
+																												uniqueID:[self valueForKey:ObjectIDKey]];
+	
+	return [selfSpecifier autorelease];
 }
 
 @end
