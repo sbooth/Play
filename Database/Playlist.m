@@ -280,12 +280,12 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {
-	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
-	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
-	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
-																									  containerSpecifier:audioLibrarySpecifier 
-																													 key:@"playlists" 
-																												uniqueID:[self valueForKey:ObjectIDKey]];
+	id							libraryDescription	= [NSClassDescription classDescriptionForClass:[AudioLibrary class]];
+	NSScriptObjectSpecifier		*librarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier		= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:libraryDescription
+																								  containerSpecifier:librarySpecifier 
+																												 key:@"playlists" 
+																											uniqueID:[self valueForKey:ObjectIDKey]];
 	
 	return [selfSpecifier autorelease];
 }

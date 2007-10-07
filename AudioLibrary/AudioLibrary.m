@@ -2788,9 +2788,12 @@ NSString * const	PlayQueueKey								= @"playQueue";
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {
-	NSScriptObjectSpecifier		*applicationSpecifier	= [[NSApplication sharedApplication] objectSpecifier];
-	NSScriptObjectSpecifier		*selfSpecifier			= [[NSPropertySpecifier alloc] initWithContainerSpecifier:applicationSpecifier key:@"library"];
-
+	id							appDescription		= [NSClassDescription classDescriptionForClass:[NSApplication class]];
+	NSScriptObjectSpecifier		*appSpecifier		= [[NSApplication sharedApplication] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier		= [[NSPropertySpecifier alloc] initWithContainerClassDescription:appDescription
+																								  containerSpecifier:appSpecifier 
+																												 key:@"library"];
+	
 	return [selfSpecifier autorelease];
 }
 

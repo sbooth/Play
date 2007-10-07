@@ -325,10 +325,10 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (NSScriptObjectSpecifier *) objectSpecifier
 {
-	id							classDescription		= [NSClassDescription classDescriptionForClass:[self class]];
-	NSScriptObjectSpecifier		*audioLibrarySpecifier	= [[AudioLibrary library] objectSpecifier];
-	NSScriptObjectSpecifier		*selfSpecifier			= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:classDescription
-																									  containerSpecifier:audioLibrarySpecifier 
+	id							libraryDescription	= [NSClassDescription classDescriptionForClass:[AudioLibrary class]];
+	NSScriptObjectSpecifier		*librarySpecifier	= [[AudioLibrary library] objectSpecifier];
+	NSScriptObjectSpecifier		*selfSpecifier		= [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:libraryDescription
+																									  containerSpecifier:librarySpecifier 
 																													 key:@"tracks" 
 																												uniqueID:[self valueForKey:ObjectIDKey]];
 	
