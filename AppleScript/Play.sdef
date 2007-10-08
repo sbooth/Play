@@ -113,6 +113,9 @@
 			<responds-to name="enqueue">
 				<cocoa method="handleEnqueueScriptCommand:"/>
 			</responds-to>
+			<responds-to name="add">
+				<cocoa method="handleAddScriptCommand:"/>
+			</responds-to>
 		</class>
 		<class name="document" code="docu" description="A document.">
 			<cocoa class="NSDocument"/>
@@ -391,6 +394,15 @@
 				<type type="track"/>
 				<type type="track" list="yes"/>
 			</direct-parameter>
+		</command>
+		<command name="add" code="plaYadd " description="Add the specified files to the library">
+			<direct-parameter description="the file(s) to add">
+				<type type="file"/>
+				<type type="file" list="yes"/>
+			</direct-parameter>
+			<parameter name="to" code="Libr" description="The library for the new object(s)" type="audio library" optional="yes">
+				<cocoa key="ToLocation"/>
+			</parameter>
 		</command>
 
 		<class name="track" code="trck" description="An audio track" plural="tracks">

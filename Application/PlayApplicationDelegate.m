@@ -515,6 +515,21 @@
 		
 		[[[self delegate] library] addStreamsToPlayQueue:tracksToAdd];
 	}
+	else
+		[command setScriptErrorNumber:NSArgumentsWrongScriptError];
+}
+
+- (void) handleAddScriptCommand:(NSScriptCommand *)command
+{
+	id directParameter = [command directParameter];
+	// for now, the "ToLocation" argument is ignored
+
+	if([directParameter isKindOfClass:[NSString class]])
+		[[[self delegate] library] addFile:directParameter];
+	else if([directParameter isKindOfClass:[NSURL class]])
+		[[[self delegate] library] addFile:[directParameter path]];
+	else
+		[command setScriptErrorNumber:NSArgumentsWrongScriptError];
 }
 
 @end
