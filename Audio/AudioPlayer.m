@@ -542,6 +542,18 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 - (AudioStreamBasicDescription)		format					{ return _format; }
 - (AudioChannelLayout)				channelLayout			{ return _channelLayout; }
 
+- (void) saveStateToDefaults
+{
+	[[NSUserDefaults standardUserDefaults] setFloat:[self volume] forKey:@"playerVolume"];
+	[self saveEffectsToDefaults];
+}
+
+- (void) restoreStateFromDefaults
+{
+	[self setVolume:[[NSUserDefaults standardUserDefaults] floatForKey:@"playerVolume"]];
+	[self restoreEffectsFromDefaults];	
+}
+
 - (SInt64)			totalFrames								{ return _totalFrames; }
 
 - (SInt64) currentFrame
@@ -792,15 +804,11 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		return err;
 	
-	[self restoreEffectsFromDefaults];
-	
 	return noErr;
 }
 
 - (OSStatus) teardownAUGraph
 {	
-//	[self saveEffectsToDefaults];
-	
 	Boolean graphIsRunning = NO;
 	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
 	if(noErr != err)

@@ -124,6 +124,9 @@ enum {
 - (AudioStreamBasicDescription) format;
 - (AudioChannelLayout) channelLayout;
 
+- (void)			saveStateToDefaults;
+- (void)			restoreStateFromDefaults;
+
 // ========================================
 // Values available for UI binding
 - (SInt64)			totalFrames;

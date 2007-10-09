@@ -6,6 +6,8 @@
 	<true/>
 	<key>useInMemoryDatabase</key>
 	<false/>
+	<key>playerVolume</key>
+	<real>1.0</real>
 	<key>enableAudioScrobbler</key>
 	<true/>
 	<key>enableGrowlNotifications</key>

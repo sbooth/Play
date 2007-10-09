@@ -1580,6 +1580,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	[[NSUserDefaults standardUserDefaults] setBool:[self loopPlayback] forKey:@"loopPlayback"];
 	
 	[self saveBrowserStateToDefaults];
+	
+	[[self player] saveStateToDefaults];
 }
 
 - (void) restoreStateFromDefaults
@@ -1604,6 +1606,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	[_streamController setSortDescriptors:sortDescriptors];
 	
 	[self restoreBrowserStateFromDefaults];
+
+	[[self player] restoreStateFromDefaults];
 }
 
 @end

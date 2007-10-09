@@ -196,9 +196,6 @@
 	
 	// Save player state
 	[[AudioLibrary library] saveStateToDefaults];
-	
-	// FIXME: When AUEventListener code is working, remove this kludge
-	[[[AudioLibrary library] player] saveEffectsToDefaults];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication
