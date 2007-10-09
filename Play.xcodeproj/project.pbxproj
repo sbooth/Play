@@ -133,6 +133,8 @@
 		8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
 		8C84BACF0C619F6800D8D221 /* ofa1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
 		8C84BAD00C619F7400D8D221 /* ofa1.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
+		8C85D1140CBB26F6002802E1 /* player_volume.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C85D1120CBB26F6002802E1 /* player_volume.png */; };
+		8C85D1150CBB26F6002802E1 /* player-volume.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C85D1130CBB26F6002802E1 /* player-volume.png */; };
 		8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC10BDF215500605141 /* ComposerNode.m */; };
 		8C8E3BC70BDF215500605141 /* ComposersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC30BDF215500605141 /* ComposersNode.m */; };
 		8C8E3D2C0BDF26D600605141 /* ShortcutRecorder.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */; };
@@ -583,6 +585,8 @@
 		8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitView.m; path = ThirdParty/RBSplitView/Source/RBSplitView.m; sourceTree = "<group>"; };
 		8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPrivateDefines.h; path = ThirdParty/RBSplitView/Source/RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
 		8C84BACA0C619F6800D8D221 /* ofa1.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ofa1.framework; path = Frameworks/ofa1.framework; sourceTree = "<group>"; };
+		8C85D1120CBB26F6002802E1 /* player_volume.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = player_volume.png; path = Images/player_volume.png; sourceTree = "<group>"; };
+		8C85D1130CBB26F6002802E1 /* player-volume.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "player-volume.png"; path = "Images/player-volume.png"; sourceTree = "<group>"; };
 		8C8E3BC00BDF215500605141 /* ComposerNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposerNode.h; path = Browser/ComposerNode.h; sourceTree = "<group>"; };
 		8C8E3BC10BDF215500605141 /* ComposerNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposerNode.m; path = Browser/ComposerNode.m; sourceTree = "<group>"; };
 		8C8E3BC20BDF215500605141 /* ComposersNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposersNode.h; path = Browser/ComposersNode.h; sourceTree = "<group>"; };
@@ -1550,6 +1554,8 @@
 		8C9C2E690B7310AC00CE799A /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				8C85D1120CBB26F6002802E1 /* player_volume.png */,
+				8C85D1130CBB26F6002802E1 /* player-volume.png */,
 				8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */,
 				8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */,
 				8CE631D20C161D140073ADC3 /* Drawer-List.tiff */,
@@ -2083,6 +2089,8 @@
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
 				8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */,
 				8C2E0AD60C98764500E8BB6F /* MusicBrainzSearchSheet.nib in Resources */,
+				8C85D1140CBB26F6002802E1 /* player_volume.png in Resources */,
+				8C85D1150CBB26F6002802E1 /* player-volume.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
