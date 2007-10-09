@@ -2003,7 +2003,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		
 		[toolbarItem setLabel:NSLocalizedStringFromTable(@"Search", @"Library", @"")];
 		[toolbarItem setPaletteLabel:NSLocalizedStringFromTable(@"Search", @"Library", @"")];		
-		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Search for matching tracks in the library", @"Library", @"")];
+		[toolbarItem setToolTip:NSLocalizedStringFromTable(@"Search for tracks", @"Library", @"")];
 		
 		[toolbarItem setView:_searchFieldToolbarView];
 		[toolbarItem setMinSize:[_searchFieldToolbarView frame].size];
