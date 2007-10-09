@@ -89,6 +89,11 @@ extern NSString * const		PlayQueueKey;
 	IBOutlet BrowserOutlineView				*_browserOutlineView;
 	IBOutlet RBSplitView					*_splitView;
 	
+	IBOutlet NSView							*_playerControlsToolbarView;
+	IBOutlet NSView							*_playbackOrderControlsToolbarView;
+	IBOutlet NSView							*_volumeControlToolbarView;
+	IBOutlet NSView							*_searchFieldToolbarView;
+	
 	IBOutlet NSButton						*_playPauseButton;
 	
 	IBOutlet NSDrawer						*_browserDrawer;

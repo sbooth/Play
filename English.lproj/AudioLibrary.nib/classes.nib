@@ -2,24 +2,29 @@
     IBClasses = (
         {
             ACTIONS = {
-                add10RandomStreamsToPlayQueue = id; 
-                add25RandomStreamsToPlayQueue = id; 
+                add10RandomTracksToPlayQueue = id; 
+                add25RandomTracksToPlayQueue = id; 
+                addCurrentTracksToPlayQueue = id; 
+                browseHighestRated = id; 
                 browseLibrary = id; 
                 browseMostPopular = id; 
                 browseRecentlyAdded = id; 
                 browseRecentlyPlayed = id; 
                 browseRecentlySkipped = id; 
                 clearPlayQueue = id; 
+                closeBrowser = id; 
                 insertPlaylist = id; 
                 insertSmartPlaylist = id; 
                 insertWatchFolder = id; 
                 jumpToNowPlaying = id; 
+                openBrowser = id; 
                 openDocument = id; 
                 play = id; 
                 playNextStream = id; 
                 playPause = id; 
                 playPreviousStream = id; 
-                selectHighestRated = id; 
+                prunePlayQueue = id; 
+                scramblePlayQueue = id; 
                 skipBackward = id; 
                 skipForward = id; 
                 skipToBeginning = id; 
@@ -37,9 +42,13 @@
                 "_playPauseButton" = NSButton; 
                 "_playQueueController" = NSArrayController; 
                 "_playQueueTable" = PlayQueueTableView; 
+                "_playbackOrderControlsToolbarView" = NSView; 
+                "_playerControlsToolbarView" = NSView; 
+                "_searchFieldToolbarView" = NSView; 
                 "_splitView" = RBSplitView; 
                 "_streamController" = AudioStreamArrayController; 
                 "_streamTable" = AudioStreamTableView; 
+                "_volumeControlToolbarView" = NSView; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
@@ -96,6 +105,7 @@
         }, 
         {
             ACTIONS = {
+                "" = id; 
                 addToPlayQueue = id; 
                 addTracksWithSameAlbumToPlayQueue = id; 
                 addTracksWithSameArtistToPlayQueue = id; 
@@ -131,6 +141,7 @@
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
         }, 
+        {CLASS = NSLevelIndicator; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
         {
             CLASS = PlayQueueArrayController; 
             LANGUAGE = ObjC; 
