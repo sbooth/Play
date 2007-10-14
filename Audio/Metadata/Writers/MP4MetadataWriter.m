@@ -143,7 +143,14 @@
 		NSData *data = getPNGDataForImage(albumArt); 
 		MP4SetMetadataCoverArt(mp4FileHandle, (u_int8_t *)[data bytes], [data length]);
 	}*/
-		
+	
+	// Make our mark
+	NSString *bundleShortVersionString	= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+	NSString *bundleVersion				= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+	NSString *applicationVersionString	= [NSString stringWithFormat:@"Play %@ (%@)", bundleShortVersionString, bundleVersion];
+	
+	result = MP4SetMetadataTool(mp4FileHandle, [applicationVersionString UTF8String]);
+	
 	MP4Close(mp4FileHandle);
 	
 	return YES;
