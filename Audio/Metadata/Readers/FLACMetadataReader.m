@@ -147,9 +147,8 @@
 						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 						double		doubleValue		= 0.0;
 						
-						if([scanner scanDouble:&doubleValue]) {
+						if([scanner scanDouble:&doubleValue])
 							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
-						}
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_TRACK_PEAK"]) {
 						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
@@ -158,9 +157,8 @@
 						NSScanner	*scanner		= [NSScanner scannerWithString:value];						
 						double		doubleValue		= 0.0;
 						
-						if([scanner scanDouble:&doubleValue]) {
+						if([scanner scanDouble:&doubleValue])
 							[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
-						}
 					}
 					else if(NSOrderedSame == [key caseInsensitiveCompare:@"REPLAYGAIN_ALBUM_PEAK"])
 						[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
@@ -184,7 +182,6 @@
 					[picture release];
 				}
 				break;
-				
 				
 			case FLAC__METADATA_TYPE_STREAMINFO:					break;
 			case FLAC__METADATA_TYPE_PADDING:						break;
