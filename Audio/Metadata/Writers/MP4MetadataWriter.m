@@ -144,10 +144,52 @@
 		MP4SetMetadataCoverArt(mp4FileHandle, (u_int8_t *)[data bytes], [data length]);
 	}*/
 	
+	// ReplayGain
+	NSNumber *referenceLoudness = [metadata valueForKey:ReplayGainReferenceLoudnessKey];
+	if(nil == referenceLoudness)
+		MP4DeleteMetadataFreeForm(mp4FileHandle, "replaygain_reference_loudness", NULL);
+	else {
+		const char *value = [[NSString stringWithFormat:@"%2.1f dB", [referenceLoudness doubleValue]] UTF8String];
+		result = MP4SetMetadataFreeForm(mp4FileHandle, "replaygain_reference_loudness", (const u_int8_t *)value, strlen(value), NULL);
+	}
+
+	NSNumber *trackGain = [metadata valueForKey:ReplayGainTrackGainKey];
+	if(nil == trackGain)
+		MP4DeleteMetadataFreeForm(mp4FileHandle, "replaygain_track_gain", NULL);
+	else {
+		const char *value = [[NSString stringWithFormat:@"%+2.2f dB", [trackGain doubleValue]] UTF8String];
+		result = MP4SetMetadataFreeForm(mp4FileHandle, "replaygain_track_gain", (const u_int8_t *)value, strlen(value), NULL);
+	}
+
+	NSNumber *trackPeak = [metadata valueForKey:ReplayGainTrackPeakKey];
+	if(nil == trackPeak)
+		MP4DeleteMetadataFreeForm(mp4FileHandle, "repaaygain_track_peak", NULL);
+	else {
+		const char *value = [[NSString stringWithFormat:@"%1.8f", [trackPeak doubleValue]] UTF8String];
+		result = MP4SetMetadataFreeForm(mp4FileHandle, "replaygain_track_peak", (const u_int8_t *)value, strlen(value), NULL);
+	}
+
+	NSNumber *albumGain = [metadata valueForKey:ReplayGainAlbumGainKey];
+	if(nil == albumGain)
+		MP4DeleteMetadataFreeForm(mp4FileHandle, "replaygain_album_gain", NULL);
+	else {
+		const char *value = [[NSString stringWithFormat:@"%+2.2f dB", [albumGain doubleValue]] UTF8String];
+		result = MP4SetMetadataFreeForm(mp4FileHandle, "replaygain_album_gain", (const u_int8_t *)value, strlen(value), NULL);
+	}
+
+	NSNumber *albumPeak = [metadata valueForKey:ReplayGainAlbumPeakKey];
+	if(nil == albumPeak)
+		MP4DeleteMetadataFreeForm(mp4FileHandle, "replaygain_album_peak", NULL);
+	else {
+		const char *value = [[NSString stringWithFormat:@"%1.8f", [albumPeak doubleValue]] UTF8String];
+		result = MP4SetMetadataFreeForm(mp4FileHandle, "replaygain_album_peak", (const u_int8_t *)value, strlen(value), NULL);
+	}
+	
 	// Make our mark
 	NSString *bundleShortVersionString	= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-	NSString *bundleVersion				= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
-	NSString *applicationVersionString	= [NSString stringWithFormat:@"Play %@ (%@)", bundleShortVersionString, bundleVersion];
+//	NSString *bundleVersion				= [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+//	NSString *applicationVersionString	= [NSString stringWithFormat:@"Play %@ (%@)", bundleShortVersionString, bundleVersion];
+	NSString *applicationVersionString	= [NSString stringWithFormat:@"Play %@", bundleShortVersionString];
 	
 	result = MP4SetMetadataTool(mp4FileHandle, [applicationVersionString UTF8String]);
 	

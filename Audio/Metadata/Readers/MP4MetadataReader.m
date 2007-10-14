@@ -122,6 +122,55 @@
 		}
 	}*/
 	
+	// ReplayGain
+	u_int8_t *rawValue;
+	u_int32_t rawValueSize;
+
+	if(MP4GetMetadataFreeForm(mp4FileHandle, "replaygain_reference_loudness", &rawValue, &rawValueSize, NULL)) {
+		NSString	*value			= [[NSString alloc] initWithBytes:rawValue length:rawValueSize encoding:NSUTF8StringEncoding];
+		NSScanner	*scanner		= [NSScanner scannerWithString:value];
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue])
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainReferenceLoudnessKey];
+		
+		[value release];
+	}
+	
+	if(MP4GetMetadataFreeForm(mp4FileHandle, "replaygain_track_gain", &rawValue, &rawValueSize, NULL)) {
+		NSString	*value			= [[NSString alloc] initWithBytes:rawValue length:rawValueSize encoding:NSUTF8StringEncoding];
+		NSScanner	*scanner		= [NSScanner scannerWithString:value];
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue])
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainTrackGainKey];
+		
+		[value release];
+	}
+
+	if(MP4GetMetadataFreeForm(mp4FileHandle, "replaygain_track_peak", &rawValue, &rawValueSize, NULL)) {
+		NSString *value = [[NSString alloc] initWithBytes:rawValue length:rawValueSize encoding:NSUTF8StringEncoding];
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainTrackPeakKey];
+		[value release];
+	}
+
+	if(MP4GetMetadataFreeForm(mp4FileHandle, "replaygain_album_gain", &rawValue, &rawValueSize, NULL)) {
+		NSString	*value			= [[NSString alloc] initWithBytes:rawValue length:rawValueSize encoding:NSUTF8StringEncoding];
+		NSScanner	*scanner		= [NSScanner scannerWithString:value];
+		double		doubleValue		= 0.0;
+		
+		if([scanner scanDouble:&doubleValue])
+			[metadataDictionary setValue:[NSNumber numberWithDouble:doubleValue] forKey:ReplayGainAlbumGainKey];
+		
+		[value release];
+	}
+	
+	if(MP4GetMetadataFreeForm(mp4FileHandle, "replaygain_album_peak", &rawValue, &rawValueSize, NULL)) {
+		NSString *value = [[NSString alloc] initWithBytes:rawValue length:rawValueSize encoding:NSUTF8StringEncoding];
+		[metadataDictionary setValue:[NSNumber numberWithDouble:[value doubleValue]] forKey:ReplayGainAlbumPeakKey];
+		[value release];
+	}
+	
 	MP4Close(mp4FileHandle);	
 	
 	[self setValue:metadataDictionary forKey:@"metadata"];
