@@ -108,22 +108,7 @@
 		MP4SetMetadataCoverArt(mp4FileHandle, (u_int8_t *)[data bytes], [data length]);
 	}*/
 		
-	result = MP4Close(mp4FileHandle);
-	if(NO == result) {
-		if(nil != error) {
-			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The file \"%@\" is not a valid MPEG file.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to write metadata", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];						
-			
-			*error = [NSError errorWithDomain:AudioMetadataWriterErrorDomain 
-										 code:AudioMetadataWriterFileFormatNotRecognizedError 
-									 userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
+	MP4Close(mp4FileHandle);
 	
 	return YES;
 }
