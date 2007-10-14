@@ -49,57 +49,93 @@
 	
 	// Album title
 	NSString *album = [metadata valueForKey:MetadataAlbumTitleKey];
-	result = MP4SetMetadataAlbum(mp4FileHandle, (nil == album ? "" : [album UTF8String]));
+	if(nil == album)
+		result = MP4DeleteMetadataAlbum(mp4FileHandle);
+	else
+		result = MP4SetMetadataAlbum(mp4FileHandle, [album UTF8String]);
 	
 	// Artist
 	NSString *artist = [metadata valueForKey:MetadataArtistKey];
-	result = MP4SetMetadataArtist(mp4FileHandle, (nil == artist ? "" : [artist UTF8String]));
+	if(nil == artist)
+		result = MP4DeleteMetadataArtist(mp4FileHandle);
+	else
+		result = MP4SetMetadataArtist(mp4FileHandle, [artist UTF8String]);
 
 	// Album Artist
 	NSString *albumArtist = [metadata valueForKey:MetadataAlbumArtistKey];
-	result = MP4SetMetadataAlbumArtist(mp4FileHandle, (nil == albumArtist ? "" : [albumArtist UTF8String]));
+	if(nil == albumArtist)
+		result = MP4DeleteMetadataAlbumArtist(mp4FileHandle);
+	else	
+		result = MP4SetMetadataAlbumArtist(mp4FileHandle, [albumArtist UTF8String]);
 	
 	// Composer
 	NSString *composer = [metadata valueForKey:MetadataComposerKey];
-	result = MP4SetMetadataWriter(mp4FileHandle, (nil == composer ? "" : [composer UTF8String]));
+	if(nil == composer)
+		result = MP4DeleteMetadataWriter(mp4FileHandle);
+	else	
+		result = MP4SetMetadataWriter(mp4FileHandle, [composer UTF8String]);
 	
 	// Genre
 	NSString *genre = [metadata valueForKey:MetadataGenreKey];
-	result = MP4SetMetadataGenre(mp4FileHandle, (nil == genre ? "" : [genre UTF8String]));
+	if(nil == genre)
+		result = MP4DeleteMetadataGenre(mp4FileHandle);
+	else	
+		result = MP4SetMetadataGenre(mp4FileHandle, [genre UTF8String]);
 	
 	// Year
 	NSString *date = [metadata valueForKey:MetadataDateKey];
-	result = MP4SetMetadataYear(mp4FileHandle, (nil == date ? "" : [date UTF8String]));
+	if(nil == date)
+		result = MP4DeleteMetadataYear(mp4FileHandle);
+	else	
+		result = MP4SetMetadataYear(mp4FileHandle, [date UTF8String]);
 	
 	// Comment
 	NSString *comment = [metadata valueForKey:MetadataCommentKey];
-	result = MP4SetMetadataComment(mp4FileHandle, (nil == comment ? "" : [comment UTF8String]));
+	if(nil == comment)
+		result = MP4DeleteMetadataComment(mp4FileHandle);
+	else	
+		result = MP4SetMetadataComment(mp4FileHandle, [comment UTF8String]);
 	
 	// Track title
 	NSString *title = [metadata valueForKey:MetadataTitleKey];
-	result = MP4SetMetadataName(mp4FileHandle, (nil == title ? "" : [title UTF8String]));
+	if(nil == title)
+		result = MP4DeleteMetadataName(mp4FileHandle);
+	else	
+		result = MP4SetMetadataName(mp4FileHandle, [title UTF8String]);
 	
 	// Track number
 	NSNumber *trackNumber	= [metadata valueForKey:MetadataTrackNumberKey];
 	NSNumber *trackTotal	= [metadata valueForKey:MetadataTrackTotalKey];
-	result = MP4SetMetadataTrack(mp4FileHandle,
-								 (nil == trackNumber ? 0 : [trackNumber unsignedIntValue]),
-								 (nil == trackTotal ? 0 : [trackTotal unsignedIntValue]));
+	if(nil == trackNumber && nil == trackTotal)
+		result = MP4DeleteMetadataTrack(mp4FileHandle);
+	else
+		result = MP4SetMetadataTrack(mp4FileHandle,
+									 (nil == trackNumber ? 0 : [trackNumber unsignedIntValue]),
+									 (nil == trackTotal ? 0 : [trackTotal unsignedIntValue]));
 	
 	// Compilation
 	NSNumber *compilation = [metadata valueForKey:MetadataCompilationKey];
-	result = MP4SetMetadataCompilation(mp4FileHandle, (nil == compilation ? NO : [compilation boolValue]));
+	if(nil == compilation)
+		result = MP4DeleteMetadataCompilation(mp4FileHandle);
+	else	
+		result = MP4SetMetadataCompilation(mp4FileHandle, [compilation boolValue]);
 	
 	// Disc number
 	NSNumber *discNumber	= [metadata valueForKey:MetadataDiscNumberKey];
 	NSNumber *discTotal		= [metadata valueForKey:MetadataDiscTotalKey];
-	result = MP4SetMetadataDisk(mp4FileHandle,
-								(nil == discNumber ? 0 : [discNumber unsignedIntValue]),
-								(nil == discTotal ? 0 : [discTotal unsignedIntValue]));
+	if(nil == discNumber && nil == discTotal)
+		result = MP4DeleteMetadataDisk(mp4FileHandle);
+	else	
+		result = MP4SetMetadataDisk(mp4FileHandle,
+									(nil == discNumber ? 0 : [discNumber unsignedIntValue]),
+									(nil == discTotal ? 0 : [discTotal unsignedIntValue]));
 	
 	// BPM
 	NSNumber *bpm = [metadata valueForKey:MetadataBPMKey];
-	result = MP4SetMetadataTempo(mp4FileHandle, (nil == bpm ? 0 : [bpm unsignedShortValue]));
+	if(nil == bpm)
+		result = MP4DeleteMetadataTempo(mp4FileHandle);
+	else	
+		result = MP4SetMetadataTempo(mp4FileHandle, [bpm unsignedShortValue]);
 	
 	// Album art
 /*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
