@@ -387,7 +387,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[toolbarItem setLabel: NSLocalizedStringFromTable(@"Presets", @"AudioUnitUI", @"")];
 		[toolbarItem setPaletteLabel: NSLocalizedStringFromTable(@"Presets", @"AudioUnitUI", @"")];
 		[toolbarItem setToolTip: NSLocalizedStringFromTable(@"Show or hide the presets drawer", @"AudioUnitUI", @"")];
-		[toolbarItem setImage: [NSImage imageNamed:@"Drawer-List"]];
+		[toolbarItem setImage: [NSImage imageNamed:@"ToggleAUPresetDrawerToolbarImage"]];
 		
 		[toolbarItem setTarget:_presetsDrawer];
 		[toolbarItem setAction:@selector(toggle:)];
