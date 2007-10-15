@@ -21,6 +21,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F0220B866F1900E8ADB6 /* CTGradient.m */; };
 		8C06F02C0B866F2D00E8ADB6 /* CTBadge_1.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */; };
 		8C06F02D0B866F2D00E8ADB6 /* CTBadge_3.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 8C06F0270B866F2D00E8ADB6 /* CTBadge_3.pdf */; };
@@ -428,6 +429,7 @@
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C06F0210B866F1900E8ADB6 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ThirdParty/CTGradient/CTGradient.h; sourceTree = "<group>"; };
 		8C06F0220B866F1900E8ADB6 /* CTGradient.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CTGradient.m; path = ThirdParty/CTGradient/CTGradient.m; sourceTree = "<group>"; };
 		8C06F0260B866F2D00E8ADB6 /* CTBadge_1.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = CTBadge_1.pdf; sourceTree = "<group>"; };
@@ -1318,6 +1320,7 @@
 		8C8E3D200BDF266F00605141 /* Strings */ = {
 			isa = PBXGroup;
 			children = (
+				8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */,
 				8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */,
 				8C5837FA0BDFBCCF00E43C9E /* Database.strings */,
 				8C5837FC0BDFBCCF00E43C9E /* Errors.strings */,
@@ -2087,6 +2090,7 @@
 				8C85D1150CBB26F6002802E1 /* player-volume.png in Resources */,
 				8C3956330CBBC239004EFC92 /* speaker_quiet.png in Resources */,
 				8C3956340CBBC239004EFC92 /* speaker_loud.png in Resources */,
+				8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2330,6 +2334,14 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 			);
 			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C05E62B0CC27FE4006E5746 /* English */,
+			);
+			name = AudioUnitUI.strings;
 			sourceTree = "<group>";
 		};
 		8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */ = {
