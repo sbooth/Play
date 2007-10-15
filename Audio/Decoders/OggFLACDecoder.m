@@ -84,7 +84,7 @@ errorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus
 	if((self = [super initWithURL:url error:error])) {
 		// Create FLAC decoder
 		_flac = FLAC__stream_decoder_new();
-		NSAssert(NULL != _flac, NSLocalizedStringFromTable(@"Unable to create the FLAC decoder.", @"Exceptions", @""));
+		NSAssert(NULL != _flac, NSLocalizedStringFromTable(@"Unable to create the FLAC decoder.", @"Errors", @""));
 		
 		// Initialize decoder
 		FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_ogg_file(_flac, 

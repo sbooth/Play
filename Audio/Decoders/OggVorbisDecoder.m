@@ -32,10 +32,10 @@
 		NSAssert1(NULL != file, @"Unable to open the input file (%s).", strerror(errno));	
 		
 		int result = ov_test(file, &_vf, NULL, 0);
-		NSAssert(0 == result, NSLocalizedStringFromTable(@"The file does not appear to be a valid Ogg Vorbis file.", @"Exceptions", @""));
+		NSAssert(0 == result, NSLocalizedStringFromTable(@"The file does not appear to be a valid Ogg Vorbis file.", @"Errors", @""));
 		
 		result = ov_test_open(&_vf);
-		NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Exceptions", @""));
+		NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Errors", @""));
 		
 		vorbis_info *ovInfo = ov_info(&_vf, -1);
 		NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
