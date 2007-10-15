@@ -1636,7 +1636,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 			
 			// Icon for now playing
 			if([[aTableColumn identifier] isEqual:@"nowPlaying"])
-				[cell setImage:(highlight ? [NSImage imageNamed:@"artsenvironment"] : nil)];
+				[cell setImage:(highlight ? [NSImage imageNamed:@"NowPlayingImage"] : nil)];
 			
 			// Bold/unbold cell font as required
 			NSFont *font = [cell font];
