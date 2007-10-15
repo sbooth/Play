@@ -398,7 +398,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[toolbarItem setLabel: NSLocalizedStringFromTable(@"Save Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setPaletteLabel: NSLocalizedStringFromTable(@"Save Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setToolTip: NSLocalizedStringFromTable(@"Save the current settings as a preset", @"AudioUnitUI", @"")];
-		[toolbarItem setImage: [NSImage imageNamed:@"filesave"]];		
+		[toolbarItem setImage: [NSImage imageNamed:@"SaveAUPresetToolbarImage"]];
 
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(savePreset:)];
@@ -409,7 +409,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[toolbarItem setLabel: NSLocalizedStringFromTable(@"Bypass", @"AudioUnitUI", @"")];
 		[toolbarItem setPaletteLabel: NSLocalizedStringFromTable(@"Bypass", @"AudioUnitUI", @"")];
 		[toolbarItem setToolTip: NSLocalizedStringFromTable(@"Toggle whether the AudioUnit is bypassed", @"AudioUnitUI", @"")];
-		[toolbarItem setImage: [NSImage imageNamed:@"kmixdocked_error"]];		
+		[toolbarItem setImage: [NSImage imageNamed:@"BypassAUToolbarImage"]];
 		
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(toggleBypassEffect:)];
@@ -420,7 +420,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[toolbarItem setLabel: NSLocalizedStringFromTable(@"Import Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setPaletteLabel: NSLocalizedStringFromTable(@"Import Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setToolTip: NSLocalizedStringFromTable(@"Import settings from a preset file", @"AudioUnitUI", @"")];
-		[toolbarItem setImage: [NSImage imageNamed:@"revert"]];		
+		[toolbarItem setImage: [NSImage imageNamed:@"ImportAUPresetToolbarImage"]];		
 		
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(loadPresetFromFile:)];
@@ -431,7 +431,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		[toolbarItem setLabel: NSLocalizedStringFromTable(@"Export Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setPaletteLabel: NSLocalizedStringFromTable(@"Export Preset", @"AudioUnitUI", @"")];
 		[toolbarItem setToolTip: NSLocalizedStringFromTable(@"Export the current settings to a preset file", @"AudioUnitUI", @"")];
-		[toolbarItem setImage: [NSImage imageNamed:@"fileexport"]];		
+		[toolbarItem setImage: [NSImage imageNamed:@"ExportAUPresetToolbarImage"]];
 
 		[toolbarItem setTarget:self];
 		[toolbarItem setAction:@selector(savePresetToFile:)];
