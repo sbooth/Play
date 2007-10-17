@@ -197,10 +197,11 @@ audio_linear_round(unsigned int bits,
 		mad_stream_buffer(&_mad_stream, NULL, 0);
 		
 		// Reset frame count to prevent early termination of playback
-		_mpegFramesDecoded	= 0;
-		_samplesDecoded		= 0;
+		_mpegFramesDecoded			= 0;
+		_samplesDecoded				= 0;
+		_samplesToSkipInNextFrame	= 0;
 		
-		_currentFrame		= frame;
+		_currentFrame				= frame;
 	}
 	
 	// Right now it's only possible to return an approximation of the audio frame
@@ -349,17 +350,31 @@ audio_linear_round(unsigned int bits,
 		// Synthesize the frame into PCM
 		mad_synth_frame(&_mad_synth, &_mad_frame);
 		
-		unsigned startingSample = 0;
+		// Skip any samples that remain from last frame
+		// This can happen if the LAME encoder delay is greater than the number of samples in a frame
+		// This normally won't happen, but is possible for MP3s that have been gaplessly cut
+		unsigned startingSample = _samplesToSkipInNextFrame;
+		
 		// Skip the Xing header (it contains empty audio)
 		if(_foundXingHeader && 1 == _mpegFramesDecoded)
 			continue;
 		// Adjust the first real audio frame for gapless playback
 		else if(_foundLAMEHeader && 2 == _mpegFramesDecoded)
-			startingSample = _encoderDelay;
+			startingSample += _encoderDelay;
+
+		// The number of samples in this frame
+		unsigned sampleCount = _mad_synth.pcm.length;
+
+		// Skip this entire frame if necessary
+		if(startingSample > sampleCount) {
+			_samplesToSkipInNextFrame += startingSample - sampleCount;
+			continue;
+		}
+		else
+			_samplesToSkipInNextFrame = 0;
 		
 		// If a LAME header was found, the total number of audio frames (AKA samples) 
 		// is known.  Ensure only that many are output
-		unsigned sampleCount = _mad_synth.pcm.length;
 		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + (sampleCount - startingSample))
 			sampleCount = [self totalFrames] - _samplesDecoded;
 		

@@ -33,6 +33,8 @@
 	uint32_t			_mpegFramesDecoded;
 	uint32_t			_totalMPEGFrames;
 	
+	unsigned			_samplesToSkipInNextFrame;
+	
 	SInt64				_currentFrame;
 	SInt64				_totalFrames;
 	
