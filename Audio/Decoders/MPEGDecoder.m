@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 
 #define INPUT_BUFFER_SIZE	(5 * 8192)
+#define SEEK_BUFFER_SIZE	1024
 #define LAME_HEADER_SIZE	((8 * 5) + 4 + 4 + 8 + 32 + 16 + 16 + 4 + 4 + 8 + 12 + 12 + 8 + 8 + 2 + 3 + 11 + 32 + 32 + 32)
 
 #define BIT_RESOLUTION		24
@@ -81,6 +82,8 @@ audio_linear_round(unsigned int bits,
 
 @interface MPEGDecoder (Private)
 - (BOOL) scanFile;
+- (SInt64) seekToFrameApproximately:(SInt64)frame;
+- (SInt64) seekToFrameAccurately:(SInt64)frame;
 @end
 
 @implementation MPEGDecoder
@@ -174,46 +177,12 @@ audio_linear_round(unsigned int bits,
 
 - (BOOL)			supportsSeeking					{ return YES; }
 
-	// FIXME: Seeking breaks gapless playback for the stream
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	double	fraction	= (double)frame / [self totalFrames];
-	long	seekPoint	= 0;
-	
-	// If a Xing header was found, interpolate in TOC
-	if(_foundXingHeader) {
-		double		percent		= 100 * fraction;
-		unsigned	firstIndex	= percent;
-		
-		if(99 < firstIndex)
-			firstIndex = 99;
-		
-		double firstOffset	= _xingTOC[firstIndex];
-		double secondOffset	= 256;
-		
-		if(99 > firstIndex)
-			secondOffset = _xingTOC[firstIndex + 1];;
-			
-			double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
-			seekPoint = (long)((1.0 / 256.0) * x * _fileBytes); 
-	}
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"accurateMP3Seeking"])
+		return [self seekToFrameAccurately:frame];
 	else
-		seekPoint = (long)_fileBytes * fraction;
-	
-	int result = fseek(_file, seekPoint, SEEK_SET);
-	if(0 == result) {
-		mad_stream_buffer(&_mad_stream, NULL, 0);
-		
-		// Reset frame count to prevent early termination of playback
-		_mpegFramesDecoded			= 0;
-		_samplesDecoded				= 0;
-		_samplesToSkipInNextFrame	= 0;
-		
-		_currentFrame				= frame;
-	}
-	
-	// Right now it's only possible to return an approximation of the audio frame
-	return (-1 == result ? -1 : frame);
+		return [self seekToFrameApproximately:frame];
 }
 
 - (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount
@@ -683,6 +652,106 @@ audio_linear_round(unsigned int bits,
 		return NO;
 	
 	return YES;
+}
+
+- (SInt64) seekToFrameApproximately:(SInt64)frame
+{
+	double	fraction	= (double)frame / [self totalFrames];
+	long	seekPoint	= 0;
+	
+	// If a Xing header was found, interpolate in TOC
+	if(_foundXingHeader) {
+		double		percent		= 100 * fraction;
+		unsigned	firstIndex	= percent;
+		
+		if(99 < firstIndex)
+			firstIndex = 99;
+		
+		double firstOffset	= _xingTOC[firstIndex];
+		double secondOffset	= 256;
+		
+		if(99 > firstIndex)
+			secondOffset = _xingTOC[firstIndex + 1];;
+			
+			double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
+			seekPoint = (long)((1.0 / 256.0) * x * _fileBytes); 
+	}
+	else
+		seekPoint = (long)_fileBytes * fraction;
+	
+	int result = fseek(_file, seekPoint, SEEK_SET);
+	if(0 == result) {
+		mad_stream_buffer(&_mad_stream, NULL, 0);
+		
+		// Reset frame count to prevent early termination of playback
+		_mpegFramesDecoded			= 0;
+		_samplesDecoded				= 0;
+		_samplesToSkipInNextFrame	= 0;
+		
+		_currentFrame				= frame;
+	}
+	
+	// Right now it's only possible to return an approximation of the audio frame
+	return (-1 == result ? -1 : frame);
+}
+
+- (SInt64) seekToFrameAccurately:(SInt64)frame
+{
+	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
+	
+	// Brute-force seeking is necessary since frame-accurate seeking is required
+	
+	// To seek to a frame earlier in the file, rewind to the beginning
+	if([self currentFrame] > frame) {
+		if(-1 == fseek(_file, 0, SEEK_SET))
+			return -1;
+		
+		// Reset decoder parameters
+		_mpegFramesDecoded			= 0;
+		_currentFrame				= 0;
+		_samplesToSkipInNextFrame	= 0;
+		_samplesDecoded				= 0;
+		
+		// Zero the buffers
+		unsigned i;
+		for(i = 0; i < _bufferList->mNumberBuffers; ++i)
+			_bufferList->mBuffers[i].mDataByteSize = 0;
+		
+		mad_stream_buffer(&_mad_stream, NULL, 0);
+	}
+	
+	// Allocate a buffer list to use for seeking
+	AudioBufferList *bufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (_format.mChannelsPerFrame - 1)), 1);
+	NSAssert(NULL != bufferList, @"Unable to allocate memory");
+	
+	bufferList->mNumberBuffers = _format.mChannelsPerFrame;
+	
+	unsigned i;
+	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
+		bufferList->mBuffers[i].mData = calloc(SEEK_BUFFER_SIZE, sizeof(float));
+		NSAssert(NULL != bufferList->mBuffers[i].mData, @"Unable to allocate memory");
+		
+		bufferList->mBuffers[i].mNumberChannels = 1;
+	}
+	
+	// Decode until the desired frame is reached		
+	for(;;) {
+		UInt32 framesRemaining	= frame - [self currentFrame];
+		UInt32 framesToRead		= (SEEK_BUFFER_SIZE > framesRemaining ? framesRemaining : SEEK_BUFFER_SIZE);;
+		
+		if(0 == framesRemaining)
+			break;
+		
+		UInt32 framesRead = [self readAudio:bufferList frameCount:framesToRead];
+		if(0 == framesRead)
+			break;
+	}
+	
+	for(i = 0; i < bufferList->mNumberBuffers; ++i)
+		free(bufferList->mBuffers[i].mData), bufferList->mBuffers[i].mData = NULL;	
+	free(bufferList), bufferList = NULL;
+	
+	return [self currentFrame];
 }
 
 @end
