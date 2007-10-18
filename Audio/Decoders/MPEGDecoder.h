@@ -25,7 +25,7 @@
 
 @interface MPEGDecoder : AudioDecoder
 {
-	int					_fd;
+	FILE				*_file;
 	unsigned char		*_inputBuffer;
 	
 	AudioBufferList		*_bufferList;

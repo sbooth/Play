@@ -93,10 +93,18 @@ audio_linear_round(unsigned int bits,
 		_inputBuffer = (unsigned char *)calloc(INPUT_BUFFER_SIZE + MAD_BUFFER_GUARD, sizeof(unsigned char));
 		NSAssert(NULL != _inputBuffer, @"Unable to allocate memory");
 		
-		_fd = open([[[self URL] path] fileSystemRepresentation], O_RDONLY);
-		if(-1 == _fd) {
+		_file = fopen([[[self URL] path] fileSystemRepresentation], "r");
+		if(NULL == _file) {
 			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 				
+//				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The format of the file \"%@\" was not recognized.", @"Errors", @""), [[NSFileManager defaultManager] displayNameAtPath:path]] forKey:NSLocalizedDescriptionKey];
+//				[errorDictionary setObject:NSLocalizedStringFromTable(@"File Format Not Recognized", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+//				[errorDictionary setObject:NSLocalizedStringFromTable(@"The file's extension may not match the file's type.", @"Errors", @"") forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:NSPOSIXErrorDomain 
+											 code:errno 
+										 userInfo:errorDictionary];
 			}
 			
 			[self release];
@@ -149,7 +157,7 @@ audio_linear_round(unsigned int bits,
 	mad_stream_finish(&_mad_stream);
 	
 	free(_inputBuffer), _inputBuffer = NULL;
-	close(_fd), _fd = -1;
+	fclose(_file), _file = NULL;
 	
 	if(_bufferList) {
 		unsigned i;
@@ -170,7 +178,7 @@ audio_linear_round(unsigned int bits,
 - (SInt64) seekToFrame:(SInt64)frame
 {
 	double	fraction	= (double)frame / [self totalFrames];
-	off_t	seekPoint	= 0;
+	long	seekPoint	= 0;
 	
 	// If a Xing header was found, interpolate in TOC
 	if(_foundXingHeader) {
@@ -187,13 +195,13 @@ audio_linear_round(unsigned int bits,
 			secondOffset = _xingTOC[firstIndex + 1];;
 			
 			double x = firstOffset + (secondOffset - firstOffset) * (percent - firstIndex);
-			seekPoint = (off_t)((1.0 / 256.0) * x * _fileBytes); 
+			seekPoint = (long)((1.0 / 256.0) * x * _fileBytes); 
 	}
 	else
-		seekPoint = (off_t)_fileBytes * fraction;
+		seekPoint = (long)_fileBytes * fraction;
 	
-	off_t result = lseek(_fd, seekPoint, SEEK_SET);
-	if(-1 != result) {
+	int result = fseek(_file, seekPoint, SEEK_SET);
+	if(0 == result) {
 		mad_stream_buffer(&_mad_stream, NULL, 0);
 		
 		// Reset frame count to prevent early termination of playback
@@ -269,8 +277,7 @@ audio_linear_round(unsigned int bits,
 		// Feed the input buffer if necessary
 		if(NULL == _mad_stream.buffer || MAD_ERROR_BUFLEN == _mad_stream.error) {
 			if(NULL != _mad_stream.next_frame) {
-				bytesRemaining		= _mad_stream.bufend - _mad_stream.next_frame;
-				
+				bytesRemaining = _mad_stream.bufend - _mad_stream.next_frame;
 				memmove(_inputBuffer, _mad_stream.next_frame, bytesRemaining);
 				
 				readStartPointer	= _inputBuffer + bytesRemaining;
@@ -283,9 +290,8 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// Read raw bytes from the MP3 file
-			ssize_t bytesRead = read(_fd, readStartPointer, bytesToRead);
-			
-			if(-1 == bytesRead) {
+			size_t bytesRead = fread(readStartPointer, 1, bytesToRead, _file);
+			if(ferror(_file)) {
 #if DEBUG
 				NSLog(@"Read error: %s.", strerror(errno));
 #endif
@@ -293,7 +299,7 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
-			if(0 == bytesRead) {
+			if(0 == bytesRead && feof(_file)) {
 				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
@@ -306,9 +312,7 @@ audio_linear_round(unsigned int bits,
 		// Decode the MPEG frame
 		int result = mad_frame_decode(&_mad_frame, &_mad_stream);
 		if(-1 == result) {
-			
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
-				
 				// Prevent ID3 tags from reporting recoverable frame errors
 				const uint8_t	*buffer			= _mad_stream.this_frame;
 				unsigned		buflen			= _mad_stream.bufend - _mad_stream.this_frame;
@@ -323,11 +327,10 @@ audio_linear_round(unsigned int bits,
 					
 					mad_stream_skip(&_mad_stream, id3_length);
 				}
-				else {
 #if DEBUG
+				else
 					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
 #endif
-				}
 				
 				continue;
 			}
@@ -351,8 +354,8 @@ audio_linear_round(unsigned int bits,
 		mad_synth_frame(&_mad_synth, &_mad_frame);
 		
 		// Skip any samples that remain from last frame
-		// This can happen if the LAME encoder delay is greater than the number of samples in a frame
-		// This normally won't happen, but is possible for MP3s that have been gaplessly cut
+		// This can happen if the encoder delay is greater than the number of samples in a frame
+		// This normally won't happen, but is possible
 		unsigned startingSample = _samplesToSkipInNextFrame;
 		
 		// Skip the Xing header (it contains empty audio)
@@ -400,6 +403,7 @@ audio_linear_round(unsigned int bits,
 	}
 	
 	_currentFrame += framesRead;
+	
 	return framesRead;
 }
 
@@ -411,7 +415,7 @@ audio_linear_round(unsigned int bits,
 {
 	uint32_t			framesDecoded = 0;
 	UInt32				bytesToRead, bytesRemaining;
-	ssize_t				bytesRead;
+	size_t				bytesRead;
 	unsigned char		*readStartPointer;
 	BOOL				readEOF;
 	
@@ -428,7 +432,7 @@ audio_linear_round(unsigned int bits,
 	
 	readEOF = NO;
 	
-	result = fstat(_fd, &stat);
+	result = fstat(fileno(_file), &stat);
 	if(-1 == result)
 		return NO;
 	
@@ -436,10 +440,8 @@ audio_linear_round(unsigned int bits,
 	
 	for(;;) {
 		if(NULL == stream.buffer || MAD_ERROR_BUFLEN == stream.error) {
-			
 			if(stream.next_frame) {
-				bytesRemaining		= stream.bufend - stream.next_frame;
-				
+				bytesRemaining = stream.bufend - stream.next_frame;
 				memmove(_inputBuffer, stream.next_frame, bytesRemaining);
 				
 				readStartPointer	= _inputBuffer + bytesRemaining;
@@ -452,9 +454,8 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// Read raw bytes from the MP3 file
-			bytesRead = read(_fd, readStartPointer, bytesToRead);
-			
-			if(-1 == bytesRead) {
+			bytesRead = fread(readStartPointer, 1, bytesToRead, _file);
+			if(ferror(_file)) {
 #if DEBUG
 				NSLog(@"Read error: %s.", strerror(errno));
 #endif
@@ -462,7 +463,7 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
-			if(0 == bytesRead) {
+			if(0 == bytesRead && feof(_file)) {
 				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
@@ -473,11 +474,8 @@ audio_linear_round(unsigned int bits,
 		}
 		
 		result = mad_frame_decode(&frame, &stream);
-		
 		if(-1 == result) {
-			
 			if(MAD_RECOVERABLE(stream.error)) {
-				
 				// Prevent ID3 tags from reporting recoverable frame errors
 				const uint8_t	*buffer			= stream.this_frame;
 				unsigned		buflen			= stream.bufend - stream.this_frame;
@@ -491,11 +489,10 @@ audio_linear_round(unsigned int bits,
 					
 					mad_stream_skip(&stream, id3_length);
 				}
-				else {
 #if DEBUG
+				else
 					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&stream));
 #endif
-				}
 				
 				continue;
 			}
@@ -517,7 +514,6 @@ audio_linear_round(unsigned int bits,
 		// Look for a Xing header in the first frame that was successfully decoded
 		// Reference http://www.codeproject.com/audio/MPEGAudioInfo.asp
 		if(1 == framesDecoded) {
-			
 			_format.mSampleRate			= frame.header.samplerate;
 			_format.mChannelsPerFrame	= MAD_NCHANNELS(&frame.header);
 			
@@ -548,8 +544,6 @@ audio_linear_round(unsigned int bits,
 			ancillaryBitsRemaining -= 32;
 			
 			if('Xing' == magic || 'Info' == magic) {
-				//			if((('X' << 24) | ('i' << 16) | ('n' << 8) | ('g')) == magic) {
-				
 				unsigned	i;
 				uint32_t	flags = 0, frames = 0, bytes = 0, vbrScale = 0;
 				
@@ -669,8 +663,8 @@ audio_linear_round(unsigned int bits,
 					break;
 					
 				}
-				}
 			}
+		}
 		else {
 			// Just estimate the number of frames based on the file's size
 			_totalFrames = (double)frame.header.samplerate * ((_fileBytes - id3_length) / (frame.header.bitrate / 8.0));
@@ -678,17 +672,17 @@ audio_linear_round(unsigned int bits,
 			// For now, quit after second frame
 			break;
 		}		
-		}
+	}
 	
 	// Clean up
 	mad_frame_finish(&frame);
 	mad_stream_finish(&stream);
 	
 	// Rewind to the beginning of file
-	if(-1 == lseek(_fd, 0, SEEK_SET))
+	if(-1 == fseek(_file, 0, SEEK_SET))
 		return NO;
 	
 	return YES;
-	}
+}
 
 @end
