@@ -268,7 +268,7 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
-			if(0 == bytesRead && feof(_file)) {
+			if(feof(_file)) {
 				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
@@ -432,7 +432,7 @@ audio_linear_round(unsigned int bits,
 			}
 			
 			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
-			if(0 == bytesRead && feof(_file)) {
+			if(feof(_file)) {
 				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
 				bytesRead	+= MAD_BUFFER_GUARD;
 				readEOF		= YES;
