@@ -236,7 +236,9 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	[[self scheduler] stopScheduling];
 	[[self scheduler] clear];
-	
+	[self setPlaying:NO];
+	_regionStartingFrame = 0;		
+
 	OSStatus err = [self resetAUGraph];
 	if(noErr != err)
 		NSLog(@"AudioPlayer error: Unable to reset AUGraph AudioUnits: %i", err);
@@ -570,14 +572,14 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		currentFrame = [self totalFrames ] - 1;*/
 
 	BOOL resume = NO;
-	
+
+	[[self scheduler] stopScheduling];
+	[[self scheduler] reset];
+
 	if([self isPlaying]) {
-		[self stop];
+		[self setPlaying:NO];
+		_regionStartingFrame = 0;		
 		resume = YES;
-	}
-	else {
-		[[self scheduler] stopScheduling];
-		[[self scheduler] reset];
 	}
 	
 	OSStatus err = [self resetAUGraph];

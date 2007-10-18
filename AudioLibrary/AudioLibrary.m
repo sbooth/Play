@@ -1306,7 +1306,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	AudioStream *currentStream = [self nowPlaying];
 	
-	[[self player] stop];
+//	[[self player] stop];
 	
 	if(nil != currentStream) {
 		NSNumber		*skipCount		= [currentStream valueForKey:StatisticsSkipCountKey];
