@@ -324,7 +324,6 @@ audio_linear_round(unsigned int bits,
 		
 		// Skip any samples that remain from last frame
 		// This can happen if the encoder delay is greater than the number of samples in a frame
-		// This normally won't happen, but is possible
 		unsigned startingSample = _samplesToSkipInNextFrame;
 		
 		// Skip the Xing header (it contains empty audio)
@@ -590,12 +589,12 @@ audio_linear_round(unsigned int bits,
 					
 					uint16_t encoderDelay = mad_bit_read(&stream.anc_ptr, 12);
 					uint16_t encoderPadding = mad_bit_read(&stream.anc_ptr, 12);
-					
-					_totalFrames = [self totalFrames] - (encoderDelay + encoderPadding);
-					
-					// Adjust encoderDelay for MDCT/filterbank delay
+										
+					// Adjust encoderDelay and encoderPadding for MDCT/filterbank delays
 					_encoderDelay = encoderDelay + 528 + 1;
-					_encoderPadding = encoderPadding;
+					_encoderPadding = encoderPadding - (528 + 1);
+
+					_totalFrames = [self totalFrames] - (_encoderDelay + _encoderPadding);
 					
 					/*uint8_t misc =*/ mad_bit_read(&stream.anc_ptr, 8);
 					
