@@ -354,13 +354,14 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	_totalFramesRead			+= framesRead;
 	
 	if([self framesToPlay] == _framesReadInCurrentLoop || (0 == framesRead && 0 != framesToRead)) {
-		[[self decoder] seekToFrame:[self startingFrame]];
 		++_completedLoops;
-		_framesReadInCurrentLoop = 0;		
+		_framesReadInCurrentLoop = 0;
+
+		if([self loopCount] < [self completedLoops])
+			_atEnd = YES;
+		else
+			[[self decoder] seekToFrame:[self startingFrame]];
 	}
-	
-	if([self loopCount] < [self completedLoops])
-		_atEnd = YES;
 	
 	return framesRead;	
 }
