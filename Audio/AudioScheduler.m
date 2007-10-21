@@ -59,8 +59,13 @@ NSString * const	AudioSchedulerRunLoopMode			= @"org.sbooth.Play.AudioScheduler.
 static void
 scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 {
-	NSAutoreleasePool	*pool		= [[NSAutoreleasePool alloc] init];
-	AudioScheduler		*scheduler	= (AudioScheduler *)userData;
+	NSCParameterAssert(NULL != userData);
+	NSCParameterAssert(NULL != slice);
+	
+	NSAutoreleasePool		*pool		= [[NSAutoreleasePool alloc] init];
+	NSArray					*dataArray	= (NSArray *)userData;
+	AudioScheduler			*scheduler	= (AudioScheduler *)[dataArray objectAtIndex:0];
+	ScheduledAudioRegion	*region		= (ScheduledAudioRegion *)[dataArray objectAtIndex:1];
 
 #if DEBUG
 	if(kScheduledAudioSliceFlag_BeganToRenderLate & slice->mFlags)
@@ -71,7 +76,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	if(/*(kScheduledAudioSliceFlag_BeganToRender & slice->mFlags) &&*/ nil == [scheduler regionBeingRendered]) {
 
 		// Update the scheduler
-		[scheduler setRegionBeingRendered:[scheduler regionBeingScheduled]];
+		[scheduler setRegionBeingRendered:region];
 
 		// Notify the delegate
 		if(nil != [scheduler delegate] && [[scheduler delegate] respondsToSelector:@selector(audioSchedulerStartedRenderingRegion:)])
@@ -100,6 +105,7 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 		[scheduler setRegionBeingRendered:nil];
 	}
 
+	[dataArray release];
 	[pool release];
 }
 
@@ -448,11 +454,16 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 						break;
 					}
 					
+					// To handle the case where the file contains fewer frames than the buffer,
+					// pass the region and self to the callback proc to ensure that the callback
+					// knows the ScheduledAudioRegion the audio that was just rendered came from
+					NSArray *array = [[NSArray alloc] initWithObjects:self, [self regionBeingScheduled], nil];					
+					
 					// Schedule it
 					slice->mTimeStamp.mFlags		= kAudioTimeStampSampleTimeValid;
 					slice->mTimeStamp.mSampleTime	= [self scheduledStartTime].mSampleTime + [self framesScheduled];
 					slice->mCompletionProc			= scheduledAudioSliceCompletionProc;
-					slice->mCompletionProcUserData	= (void *)self;
+					slice->mCompletionProcUserData	= (void *)array;
 					slice->mFlags					= 0;
 					slice->mNumberFrames			= frameCount;
 					
