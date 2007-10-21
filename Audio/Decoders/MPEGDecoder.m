@@ -507,6 +507,7 @@ audio_linear_round(unsigned int bits,
 				ancillaryBitsRemaining -= 32;
 				
 				// 4 byte value containing total frames
+				// For LAME-encoded MP3s, the number of MPEG frames in the file is one greater than this frame
 				if(FRAMES_FLAG & flags) {
 					if(32 > ancillaryBitsRemaining)
 						continue;
@@ -549,8 +550,6 @@ audio_linear_round(unsigned int bits,
 					vbrScale = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 				}
-				
-				framesDecoded	= frames;
 				
 				_foundXingHeader = YES;
 				
@@ -614,7 +613,6 @@ audio_linear_round(unsigned int bits,
 					
 					_foundLAMEHeader = YES;
 					break;
-					
 				}
 			}
 		}
