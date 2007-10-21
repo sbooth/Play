@@ -236,7 +236,7 @@ audio_linear_round(unsigned int bits,
 		
 		// If the file contains a Xing header but not LAME gapless information,
 		// decode the number of MPEG frames specified by the Xing header
-		if(_foundXingHeader && NO == _foundLAMEHeader && _mpegFramesDecoded == _totalMPEGFrames)
+		if(_foundXingHeader && NO == _foundLAMEHeader && 1 + _mpegFramesDecoded == _totalMPEGFrames)
 			break;
 		
 		// The LAME header indicates how many samples are in the file
