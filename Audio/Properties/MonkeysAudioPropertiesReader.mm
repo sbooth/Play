@@ -28,19 +28,14 @@
 @implementation MonkeysAudioPropertiesReader
 
 - (BOOL) readProperties:(NSError **)error
-{
-	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path;
-	IAPEDecompress					*decompressor;
-	str_utf16						*chars;
-	int								result;
-	
+{	
 	// Setup converter
-	path			= [[self valueForKey:StreamURLKey] path];
-	chars			= GetUTF16FromANSI([path fileSystemRepresentation]);
+	NSString	*path	= [[self valueForKey:StreamURLKey] path];
+	str_utf16	*chars	= GetUTF16FromANSI([path fileSystemRepresentation]);
 	NSAssert(NULL != chars, NSLocalizedStringFromTable(@"Unable to allocate memory.", @"Errors", @""));
 	
-	decompressor	= CreateIAPEDecompress(chars, &result);	
+	int result;
+	IAPEDecompress *decompressor = CreateIAPEDecompress(chars, &result);	
 	if(NULL == decompressor || ERROR_SUCCESS != result) {
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
@@ -57,13 +52,13 @@
 		return NO;
 	}
 
-	propertiesDictionary = [NSMutableDictionary dictionary];
+	NSMutableDictionary *propertiesDictionary = [NSMutableDictionary dictionary];
 	
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:PropertiesFileTypeKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Monkey's Audio", @"Formats", @"") forKey:PropertiesDataFormatKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"APE", @"Formats", @"") forKey:PropertiesFormatDescriptionKey];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS)] forKey:PropertiesTotalFramesKey];
-	//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
+//	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:@"averageBitrate"];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_BITS_PER_SAMPLE)] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_CHANNELS)] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:PropertiesSampleRateKey];
