@@ -834,13 +834,20 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		NSDictionary	*cueSheetTrack	= nil;
 		
 		while((cueSheetTrack = [enumerator nextObject])) {
+			// If the stream already exists in the library, skip it
+			AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename] 
+																			  startingFrame:[cueSheetTrack valueForKey:StreamStartingFrameKey] 
+																				 frameCount:[cueSheetTrack valueForKey:StreamFrameCountKey]];
+			if(nil != stream)
+				continue;
+
 			// Create a dictionary containing all applicable keys for this stream
 			NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader properties]];
 			[values addEntriesFromDictionary:cueSheetTrack];
 			[values addEntriesFromDictionary:[metadataReader metadata]];
 			
 			// Insert the object in the database
-			AudioStream *stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
+			stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
 			
 			// Add the stream to the selected playlist
 			if(nil != stream && [_browserController selectedNodeIsPlaylist])
