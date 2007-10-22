@@ -35,12 +35,11 @@ bindParameter(sqlite3_stmt		*statement,
 	NSCParameterAssert(nil != kvcObject);
 	NSCParameterAssert(nil != key);
 	
-	int		result			= SQLITE_OK;
-	id		value			= [kvcObject valueForKey:key];
+	int		result		= SQLITE_OK;
+	id		value		= [kvcObject valueForKey:key];
 	
-	if(nil == value) {
+	if(nil == value)
 		result = sqlite3_bind_null(statement, parameterIndex);
-	}
 	else {
 		switch(objectType) {
 			case eObjectTypeURL:	
@@ -52,17 +51,35 @@ bindParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDate:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value timeIntervalSinceReferenceDate]);	
 				break;
-			case eObjectTypeBoolean:	
+			case eObjectTypeBool:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value boolValue]);	
 				break;
-			case eObjectTypeUnsignedInteger:	
+			case eObjectTypeUnsignedShort:
+				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedShortValue]);	
+				break;
+			case eObjectTypeShort:
+				result = sqlite3_bind_int(statement, parameterIndex, [value shortValue]);	
+				break;
+			case eObjectTypeUnsignedInt:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedIntValue]);	
 				break;
-			case eObjectTypeInteger:	
+			case eObjectTypeInt:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value intValue]);	
 				break;
-			case eObjectTypeLongLong:	
+			case eObjectTypeUnsignedLong:
+				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedLongValue]);
+				break;
+			case eObjectTypeLong:
+				result = sqlite3_bind_int(statement, parameterIndex, [value longValue]);
+				break;
+			case eObjectTypeUnsignedLongLong:
+				result = sqlite3_bind_int64(statement, parameterIndex, [value unsignedLongLongValue]);
+				break;
+			case eObjectTypeLongLong:
 				result = sqlite3_bind_int64(statement, parameterIndex, [value longLongValue]);	
+				break;
+			case eObjectTypeFloat:	
+				result = sqlite3_bind_double(statement, parameterIndex, [value floatValue]);
 				break;
 			case eObjectTypeDouble:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value doubleValue]);	
@@ -99,9 +116,8 @@ bindNamedParameter(sqlite3_stmt		*statement,
 	
 	NSCAssert1(0 < parameterIndex, @"Invalid parameter name \"%@\"", parameterName);
 	
-	if(nil == value) {
+	if(nil == value)
 		result = sqlite3_bind_null(statement, parameterIndex);
-	}
 	else {
 		switch(objectType) {
 			case eObjectTypeURL:	
@@ -113,17 +129,35 @@ bindNamedParameter(sqlite3_stmt		*statement,
 			case eObjectTypeDate:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value timeIntervalSinceReferenceDate]);	
 				break;
-			case eObjectTypeBoolean:	
+			case eObjectTypeBool:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value boolValue]);	
 				break;
-			case eObjectTypeUnsignedInteger:	
+			case eObjectTypeUnsignedShort:	
+				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedShortValue]);	
+				break;
+			case eObjectTypeShort:	
+				result = sqlite3_bind_int(statement, parameterIndex, [value shortValue]);
+				break;
+			case eObjectTypeUnsignedInt:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedIntValue]);	
 				break;
-			case eObjectTypeInteger:	
+			case eObjectTypeInt:	
 				result = sqlite3_bind_int(statement, parameterIndex, [value intValue]);	
 				break;
-			case eObjectTypeLongLong:	
-				result = sqlite3_bind_int64(statement, parameterIndex, [value longLongValue]);	
+			case eObjectTypeUnsignedLong:
+				result = sqlite3_bind_int(statement, parameterIndex, [value unsignedLongValue]);	
+				break;
+			case eObjectTypeLong:
+				result = sqlite3_bind_int(statement, parameterIndex, [value longValue]);	
+				break;
+			case eObjectTypeUnsignedLongLong:
+				result = sqlite3_bind_int64(statement, parameterIndex, [value unsignedLongLongValue]);	
+				break;
+			case eObjectTypeLongLong:
+				result = sqlite3_bind_int64(statement, parameterIndex, [value longLongValue]);
+				break;
+			case eObjectTypeFloat:	
+				result = sqlite3_bind_double(statement, parameterIndex, [value floatValue]);
 				break;
 			case eObjectTypeDouble:	
 				result = sqlite3_bind_double(statement, parameterIndex, [value doubleValue]);	
@@ -170,17 +204,35 @@ getColumnValue(sqlite3_stmt		*statement,
 		case eObjectTypeDate:
 			[object initValue:[NSDate dateWithTimeIntervalSinceReferenceDate:sqlite3_column_double(statement, columnIndex)] forKey:key];
 			break;
-		case eObjectTypeBoolean:
+		case eObjectTypeBool:
 			[object initValue:[NSNumber numberWithBool:sqlite3_column_int(statement, columnIndex)] forKey:key];
 			break;
-		case eObjectTypeUnsignedInteger:	
+		case eObjectTypeUnsignedShort:
+			[object initValue:[NSNumber numberWithUnsignedShort:sqlite3_column_int(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeShort:	
+			[object initValue:[NSNumber numberWithShort:sqlite3_column_int(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeUnsignedInt:
 			[object initValue:[NSNumber numberWithUnsignedInt:sqlite3_column_int(statement, columnIndex)] forKey:key];
 			break;
-		case eObjectTypeInteger:	
+		case eObjectTypeInt:	
 			[object initValue:[NSNumber numberWithInt:sqlite3_column_int(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeUnsignedLong:	
+			[object initValue:[NSNumber numberWithUnsignedLong:sqlite3_column_int(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeLong:	
+			[object initValue:[NSNumber numberWithLong:sqlite3_column_int(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeUnsignedLongLong:	
+			[object initValue:[NSNumber numberWithUnsignedLongLong:sqlite3_column_int64(statement, columnIndex)] forKey:key];
 			break;
 		case eObjectTypeLongLong:	
 			[object initValue:[NSNumber numberWithLongLong:sqlite3_column_int64(statement, columnIndex)] forKey:key];
+			break;
+		case eObjectTypeFloat:	
+			[object initValue:[NSNumber numberWithFloat:sqlite3_column_double(statement, columnIndex)] forKey:key];
 			break;
 		case eObjectTypeDouble:	
 			[object initValue:[NSNumber numberWithDouble:sqlite3_column_double(statement, columnIndex)] forKey:key];
