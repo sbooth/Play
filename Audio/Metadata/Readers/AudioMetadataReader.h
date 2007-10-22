@@ -23,7 +23,7 @@
 // ========================================
 // Error Codes
 // ========================================
-extern NSString * const			AudioMetadataReaderErrorDomain;
+extern NSString * const		AudioMetadataReaderErrorDomain;
 
 enum {
 	AudioMetadataReaderFileFormatNotRecognizedError		= 0,
@@ -39,5 +39,7 @@ enum {
 + (AudioMetadataReader *)			metadataReaderForURL:(NSURL *)url error:(NSError **)error;
 
 - (BOOL)							readMetadata:(NSError **)error;
+
+- (NSDictionary *)					metadata;
 
 @end

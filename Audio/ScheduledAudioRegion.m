@@ -136,7 +136,7 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	startTime.mFlags		= kAudioTimeStampSampleTimeValid;
 	startTime.mSampleTime	= 0;
 	
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:0 framesToPlay:[decoder totalFrames] loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:0 frameCount:[decoder totalFrames] loopCount:0];
 }
 
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame
@@ -146,53 +146,56 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	startTime.mFlags		= kAudioTimeStampSampleTimeValid;
 	startTime.mSampleTime	= 0;
 	
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame framesToPlay:([decoder totalFrames] - startingFrame) loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame frameCount:([decoder totalFrames] - startingFrame) loopCount:0];
 }
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount
 {
 	AudioTimeStamp startTime = { 0 };
 	
 	startTime.mFlags		= kAudioTimeStampSampleTimeValid;
 	startTime.mSampleTime	= 0;
 	
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame framesToPlay:framesToPlay loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame frameCount:frameCount loopCount:0];
 }
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay loopCount:(unsigned)loopCount
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount
 {
 	AudioTimeStamp startTime = { 0 };
 	
 	startTime.mFlags		= kAudioTimeStampSampleTimeValid;
 	startTime.mSampleTime	= 0;
 	
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame framesToPlay:framesToPlay loopCount:loopCount];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame frameCount:frameCount loopCount:loopCount];
 }
 
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime
 {
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:0 framesToPlay:[decoder totalFrames] loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:0 frameCount:[decoder totalFrames] loopCount:0];
 }
 
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame
 {
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame framesToPlay:([decoder totalFrames] - startingFrame) loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame frameCount:([decoder totalFrames] - startingFrame) loopCount:0];
 }
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount
 {
-	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame framesToPlay:framesToPlay loopCount:0];
+	return [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startTime:startTime startingFrame:startingFrame frameCount:frameCount loopCount:0];
 }
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay loopCount:(unsigned)loopCount
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount
 {
 	ScheduledAudioRegion *result = [[ScheduledAudioRegion alloc] init];
 	
 	[result setDecoder:decoder];
 	[result setStartTime:startTime];
 	[result setStartingFrame:startingFrame];
-	[result setFramesToPlay:framesToPlay];
+	[result setFrameCount:frameCount];
 	[result setLoopCount:loopCount];
+	
+	if(0 != [result startingFrame])
+		[result reset];
 	
 	return [result autorelease];
 }
@@ -241,20 +244,20 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	_startingFrame = startingFrame;
 }
 
-- (UInt32)			framesToPlay							{ return _framesToPlay; }
+- (UInt32)			frameCount							{ return _frameCount; }
 
-- (void) setFramesToPlay:(UInt32)framesToPlay
+- (void) setFrameCount:(UInt32)frameCount
 {
-	NSParameterAssert(0 < framesToPlay);
+	NSParameterAssert(0 < frameCount);
 
-	_framesToPlay = framesToPlay;
+	_frameCount = frameCount;
 }
 
 #pragma mark Playback
 
 - (unsigned)		completedLoops							{ return _completedLoops; }
 
-- (SInt64)			totalFrames								{ return (([self loopCount] + 1) * [self framesToPlay]); }
+- (SInt64)			totalFrames								{ return (([self loopCount] + 1) * [self frameCount]); }
 - (SInt64)			currentFrame							{ return _totalFramesRead; }
 - (SInt64)			framesRemaining							{ return ([self totalFrames] - [self currentFrame]); }
 
@@ -264,8 +267,8 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 {
 	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
-	_completedLoops				= frame / [self framesToPlay];
-	_framesReadInCurrentLoop	= frame % [self framesToPlay];
+	_completedLoops				= frame / [self frameCount];
+	_framesReadInCurrentLoop	= frame % [self frameCount];
 	_totalFramesRead			= frame;
 	_atEnd						= NO;
 
@@ -343,7 +346,7 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	if([self loopCount] < [self completedLoops])
 		return 0;
 
-	UInt32	framesRemaining		= [self startingFrame] + [self framesToPlay] - [[self decoder] currentFrame];
+	UInt32	framesRemaining		= [self startingFrame] + [self frameCount] - [[self decoder] currentFrame];
 	UInt32	framesToRead		= (frameCount < framesRemaining ? frameCount : framesRemaining);
 	UInt32	framesRead			= 0;
 	
@@ -353,7 +356,7 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 	_framesReadInCurrentLoop	+= framesRead;
 	_totalFramesRead			+= framesRead;
 	
-	if([self framesToPlay] == _framesReadInCurrentLoop || (0 == framesRead && 0 != framesToRead)) {
+	if([self frameCount] == _framesReadInCurrentLoop || (0 == framesRead && 0 != framesToRead)) {
 		++_completedLoops;
 		_framesReadInCurrentLoop = 0;
 

@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS 'streams' (
 
 	'id'						INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	'url'						TEXT UNIQUE,
+	'url'						TEXT NOT NULL,
+	'starting_frame'			INTEGER NOT NULL DEFAULT -1,
+	'frame_count'				INTEGER NOT NULL DEFAULT -1,
 
 	'date_added'				REAL,
 	'first_played_date'			REAL,
@@ -28,6 +30,9 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'mcn'						TEXT,
 	'bpm'						INTEGER,
 
+	'musicdns_puid'				TEXT,
+	'musicbrainz_id'			TEXT,
+
 	'reference_loudness'		REAL,
 	'track_replay_gain'			REAL,
 	'track_peak'				REAL,
@@ -44,7 +49,6 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'duration'					REAL,
 	'bitrate'					REAL,
 	
-	'musicdns_puid'				TEXT,
-	'musicbrainz_id'			TEXT
+	UNIQUE (url, starting_frame, frame_count)
 	
 );

@@ -26,6 +26,8 @@
 #import "AudioLibrary.h"
 
 NSString * const	StreamURLKey							= @"url";
+NSString * const	StreamStartingFrameKey					= @"startingFrame";
+NSString * const	StreamFrameCountKey						= @"frameCount";
 
 NSString * const	StatisticsDateAddedKey					= @"dateAdded";
 NSString * const	StatisticsFirstPlayedDateKey			= @"firstPlayed";
@@ -80,18 +82,33 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues
 {
+	return [self insertStreamForURL:URL startingFrame:[NSNumber numberWithInt:-1] frameCount:[NSNumber numberWithInt:-1] withInitialValues:keyedValues];
+}
+
++ (id) insertStreamForURL:(NSURL *)URL startingFrame:(NSNumber *)startingFrame withInitialValues:(NSDictionary *)keyedValues
+{
+	return [self insertStreamForURL:URL startingFrame:startingFrame frameCount:[NSNumber numberWithInt:-1] withInitialValues:keyedValues];
+}
+
++ (id) insertStreamForURL:(NSURL *)URL startingFrame:(NSNumber *)startingFrame frameCount:(NSNumber *)frameCount withInitialValues:(NSDictionary *)keyedValues
+{
 	NSParameterAssert(nil != URL);
+	NSParameterAssert(nil != startingFrame);
+	NSParameterAssert(nil != frameCount);
 	
 	AudioStream *stream = [[AudioStream alloc] init];
 	
 	// Call init: methods here to avoid sending change notifications
 	[stream initValue:URL forKey:StreamURLKey];
+	[stream initValue:startingFrame forKey:StreamStartingFrameKey];
+	[stream initValue:frameCount forKey:StreamFrameCountKey];
+	
 	[stream initValue:[NSDate date] forKey:StatisticsDateAddedKey];
 	[stream initValuesForKeysWithDictionary:keyedValues];
 	
 	if(NO == [[[CollectionManager manager] streamManager] insertStream:stream])
 		[stream release], stream = nil;
-
+	
 	return [stream autorelease];
 }
 
@@ -236,6 +253,14 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 - (BOOL) isPlaying							{ return _playing; }
 - (void) setPlaying:(BOOL)playing			{ _playing = playing; }
 
+- (BOOL) isPartOfCueSheet
+{
+	NSNumber	*startingFrame	= [self valueForKey:StreamStartingFrameKey];
+	NSNumber	*frameCount		= [self valueForKey:StreamFrameCountKey];
+	
+	return (-1 != [startingFrame longLongValue] && -1 != [frameCount unsignedIntValue]);
+}
+
 - (void) save
 {
 	[[[CollectionManager manager] streamManager] saveStream:self];
@@ -270,6 +295,8 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 		_supportedKeys	= [[NSArray alloc] initWithObjects:
 			ObjectIDKey, 
 			StreamURLKey,
+			StreamStartingFrameKey,
+			StreamFrameCountKey,
 			
 			StatisticsDateAddedKey,
 			StatisticsFirstPlayedDateKey,

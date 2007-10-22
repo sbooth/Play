@@ -25,6 +25,8 @@
 // KVC key names for persistent properties
 // ========================================
 extern NSString * const		StreamURLKey;
+extern NSString * const		StreamStartingFrameKey;
+extern NSString * const		StreamFrameCountKey;
 
 extern NSString * const		StatisticsDateAddedKey;
 extern NSString * const		StatisticsFirstPlayedDateKey;
@@ -71,10 +73,12 @@ extern NSString * const		PropertiesBitrateKey;
 
 @interface AudioStream : DatabaseObject
 {
-	BOOL	_playing;
+	BOOL _playing;
 }
 
 + (id) insertStreamForURL:(NSURL *)URL withInitialValues:(NSDictionary *)keyedValues;
++ (id) insertStreamForURL:(NSURL *)URL startingFrame:(NSNumber *)startingFrame withInitialValues:(NSDictionary *)keyedValues;
++ (id) insertStreamForURL:(NSURL *)URL startingFrame:(NSNumber *)startingFrame frameCount:(NSNumber *)frameCount withInitialValues:(NSDictionary *)keyedValues;
 
 - (IBAction) resetPlayCount:(id)sender;
 - (IBAction) resetSkipCount:(id)sender;
@@ -93,5 +97,7 @@ extern NSString * const		PropertiesBitrateKey;
 
 - (BOOL) isPlaying;
 - (void) setPlaying:(BOOL)playing;
+
+- (BOOL) isPartOfCueSheet;
 
 @end

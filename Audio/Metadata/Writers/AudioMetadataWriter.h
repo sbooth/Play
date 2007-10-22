@@ -23,7 +23,7 @@
 // ========================================
 // Error Codes
 // ========================================
-extern NSString * const			AudioMetadataWriterErrorDomain;
+extern NSString * const		AudioMetadataWriterErrorDomain;
 
 enum {
 	AudioMetadataWriterFileFormatNotRecognizedError		= 0,

@@ -32,7 +32,7 @@
 	AudioDecoder			*_decoder;
 	AudioTimeStamp			_startTime;
 	SInt64					_startingFrame;
-	UInt32					_framesToPlay;
+	UInt32					_frameCount;
 	unsigned				_loopCount;
 	
 	UInt32					_framesReadInCurrentLoop;
@@ -58,13 +58,13 @@
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder;
 
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay loopCount:(unsigned)loopCount;
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount;
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount;
 
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime;
 + (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame framesToPlay:(unsigned)framesToPlay loopCount:(unsigned)loopCount;
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount;
++ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount;
 
 // ========================================
 // Properties
@@ -78,8 +78,8 @@
 - (SInt64) startingFrame;
 - (void) setStartingFrame:(SInt64)startingFrame;
 
-- (UInt32) framesToPlay;
-- (void) setFramesToPlay:(UInt32)fframesToPlay;
+- (UInt32) frameCount;
+- (void) setFrameCount:(UInt32)frameCount;
 
 - (unsigned) loopCount;
 - (void) setLoopCount:(unsigned)loopCount;

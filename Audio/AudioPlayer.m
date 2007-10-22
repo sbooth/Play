@@ -299,8 +299,21 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		}
 	}
 	
+	// Determine the subrange of the stream to play, if any
+	NSNumber				*streamStartingFrame	= [stream valueForKey:StreamStartingFrameKey];
+	NSNumber				*streamFrameCount		= [stream valueForKey:StreamFrameCountKey];
+	ScheduledAudioRegion	*region					= nil;
+	
+	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
+	if(-1 == [streamStartingFrame intValue] && -1 == [streamFrameCount intValue])
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder];
+	else if(-1 == [streamFrameCount intValue])
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue]];
+	else
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue] frameCount:[streamFrameCount unsignedIntValue]];
+
 	// Schedule the region for playback, and start scheduling audio slices
-	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder]];
+	[[self scheduler] scheduleAudioRegion:region];
 	[[self scheduler] startScheduling];
 
 	[self prepareToPlayStream:stream];
@@ -332,8 +345,21 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(NO == formatsMatch || NO == channelLayoutsMatch)
 		return NO;
 	
-	// They match, so schedule the region for playback
-	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder]];
+	// Determine the subrange of the stream to play, if any
+	NSNumber				*streamStartingFrame	= [stream valueForKey:StreamStartingFrameKey];
+	NSNumber				*streamFrameCount		= [stream valueForKey:StreamFrameCountKey];
+	ScheduledAudioRegion	*region					= nil;
+	
+	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
+	if(-1 == [streamStartingFrame intValue] && -1 == [streamFrameCount intValue])
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder];
+	else if(-1 == [streamFrameCount intValue])
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue]];
+	else
+		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue] frameCount:[streamFrameCount unsignedIntValue]];
+	
+	// The formats and channel layouts match, so schedule the region for playback
+	[[self scheduler] scheduleAudioRegion:region];
 
 	return YES;
 }

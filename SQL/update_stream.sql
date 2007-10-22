@@ -1,5 +1,7 @@
 UPDATE 'streams' SET
 		url = :url,
+		starting_frame = :starting_frame,
+		frame_count = :frame_count,
 		
 		date_added = :date_added,
 		first_played_date = :first_played_date,
@@ -26,6 +28,9 @@ UPDATE 'streams' SET
 		mcn = :mcn,
 		bpm = :bpm,
 		
+		musicdns_puid = :musicdns_puid,
+		musicbrainz_id = :musicbrainz_id,
+
 		reference_loudness = :reference_loudness,
 		track_replay_gain = :track_replay_gain,
 		track_peak = :track_peak,
@@ -40,9 +45,6 @@ UPDATE 'streams' SET
 		sample_rate = :sample_rate,
 		total_frames = :total_frames,
 		duration = :duration,
-		bitrate = :bitrate,
-		
-		musicdns_puid = :musicdns_puid,
-		musicbrainz_id = :musicbrainz_id
-		
+		bitrate = :bitrate
+
 	WHERE id == :id;

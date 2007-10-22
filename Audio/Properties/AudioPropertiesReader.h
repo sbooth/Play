@@ -21,9 +21,15 @@
 #import <Cocoa/Cocoa.h>
 
 // ========================================
+// KVC key names
+// ========================================
+extern NSString * const		AudioPropertiesCueSheetKey;
+extern NSString * const		AudioPropertiesCueSheetTracksKey;
+
+// ========================================
 // Error Codes
 // ========================================
-extern NSString * const			AudioPropertiesReaderErrorDomain;
+extern NSString * const		AudioPropertiesReaderErrorDomain;
 
 enum {
 	AudioPropertiesReaderFileFormatNotRecognizedError		= 0,
@@ -40,5 +46,8 @@ enum {
 + (AudioPropertiesReader *)			propertiesReaderForURL:(NSURL *)url error:(NSError **)error;
 
 - (BOOL)							readProperties:(NSError **)error;
+
+- (NSDictionary *)					properties;
+- (NSDictionary *)					cueSheet;
 
 @end

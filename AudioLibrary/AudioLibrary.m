@@ -193,6 +193,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) addRandomTracksFromLibraryToPlayQueue:(unsigned)count;
 
+- (BOOL) addStreamsFromExternalCueSheet:(NSString*)filename;
+
 - (void) updatePlayQueueHistory;
 
 - (void) updatePlayButtonState;
@@ -804,12 +806,10 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	NSError *error = nil;
 	
-	// If the stream already exists in the library, do nothing
-	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
-	if(nil != stream)
-		return YES;
-
-	// First read the properties
+	if([[filename pathExtension] isEqualToString:@"cue"])
+		return [self addStreamsFromExternalCueSheet:filename];
+	
+	// First read the properties to determine if the file contains a cuesheet
 	AudioPropertiesReader *propertiesReader = [AudioPropertiesReader propertiesReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
 	if(nil == propertiesReader)
 		return NO;
@@ -818,28 +818,64 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	if(NO == result)
 		return NO;
 	
-	// Now read the metadata
-	AudioMetadataReader *metadataReader	= [AudioMetadataReader metadataReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
-	if(nil == metadataReader)
-		return NO;
-	
-	result = [metadataReader readMetadata:&error];
-	if(NO == result)
-		return NO;
-
-	NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader valueForKey:@"properties"]];
-	[values addEntriesFromDictionary:[metadataReader valueForKey:@"metadata"]];
-	
-	// Insert the object in the database
-	stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
-	
-/*	if(nil != stream) {
-		if([_browserController selectedNodeIsPlaylist]) {
-			[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
-		}
-	}*/
+	// If the file contains a cuesheet, treat each entry as a separate stream
+	NSDictionary *cueSheet = [propertiesReader cueSheet];
+	if(nil != cueSheet) {
+		// Read the metadata for the file as a whole
+		AudioMetadataReader *metadataReader	= [AudioMetadataReader metadataReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
+		if(nil == metadataReader)
+			return NO;
 		
-	return (nil != stream);
+		result = [metadataReader readMetadata:&error];
+		if(NO == result)
+			return NO;
+
+		NSEnumerator	*enumerator		= [[cueSheet valueForKey:AudioPropertiesCueSheetTracksKey] objectEnumerator];
+		NSDictionary	*cueSheetTrack	= nil;
+		
+		while((cueSheetTrack = [enumerator nextObject])) {
+			// Create a dictionary containing all applicable keys for this stream
+			NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader properties]];
+			[values addEntriesFromDictionary:cueSheetTrack];
+			[values addEntriesFromDictionary:[metadataReader metadata]];
+			
+			// Insert the object in the database
+			AudioStream *stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
+			
+			// Add the stream to the selected playlist
+			if(nil != stream && [_browserController selectedNodeIsPlaylist])
+				[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
+		}
+
+		return YES;
+	}
+	else {
+		// If the stream already exists in the library, do nothing
+		AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename]];
+		if(nil != stream)
+			return YES;
+
+		// Read the metadata
+		AudioMetadataReader *metadataReader	= [AudioMetadataReader metadataReaderForURL:[NSURL fileURLWithPath:filename] error:&error];
+		if(nil == metadataReader)
+			return NO;
+		
+		result = [metadataReader readMetadata:&error];
+		if(NO == result)
+			return NO;
+		
+		NSMutableDictionary *values = [NSMutableDictionary dictionaryWithDictionary:[propertiesReader properties]];
+		[values addEntriesFromDictionary:[metadataReader metadata]];
+		
+		// Insert the object in the database
+		stream = [AudioStream insertStreamForURL:[NSURL fileURLWithPath:filename] withInitialValues:values];
+		
+		// Add the stream to the selected playlist
+		if(nil != stream && [_browserController selectedNodeIsPlaylist])
+			[[(PlaylistNode *)[_browserController selectedNode] playlist] addStream:stream];
+		
+		return (nil != stream);
+	}
 }
 
 - (BOOL) addFiles:(NSArray *)filenames
@@ -2255,6 +2291,13 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	[self didChangeValueForKey:PlayQueueKey];
 	
 	[self updatePlayButtonState];
+}
+
+- (BOOL) addStreamsFromExternalCueSheet:(NSString*)filename
+{
+	NSParameterAssert(nil != filename);
+	
+	return NO;
 }
 
 - (void) updatePlayQueueHistory

@@ -55,6 +55,8 @@
 
 - (AudioStream *) streamForID:(NSNumber *)objectID;
 - (AudioStream *) streamForURL:(NSURL *)url;
+- (AudioStream *) streamForURL:(NSURL *)url startingFrame:(NSNumber *)startingFrame;
+- (AudioStream *) streamForURL:(NSURL *)url startingFrame:(NSNumber *)startingFrame frameCount:(NSNumber *)frameCount;
 
 - (NSArray *) streamsForArtist:(NSString *)artist;
 - (NSArray *) streamsForAlbumTitle:(NSString *)albumTitle;

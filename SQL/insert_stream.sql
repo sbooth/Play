@@ -1,6 +1,8 @@
 INSERT INTO 'streams' (
 
-		url, 
+		url,
+		starting_frame,
+		frame_count,
 		
 		date_added,
 		first_played_date,
@@ -26,6 +28,9 @@ INSERT INTO 'streams' (
 		isrc,
 		mcn,
 		bpm,
+
+		musicdns_puid,
+		musicbrainz_id,
 		
 		reference_loudness,
 		track_replay_gain,
@@ -41,15 +46,14 @@ INSERT INTO 'streams' (
 		sample_rate,
 		total_frames,
 		duration,
-		bitrate,
-		
-		musicdns_puid,
-		musicbrainz_id
-		
+		bitrate
+
 	) 
 	
 	VALUES (
 	
+		?, 
+		?, 
 		?, 
 		
 		?, 
@@ -79,6 +83,9 @@ INSERT INTO 'streams' (
 
 		?,
 		?,
+
+		?,
+		?,
 		?,
 		?,
 		?,
@@ -91,9 +98,6 @@ INSERT INTO 'streams' (
 		?, 
 		?, 
 		?, 
-		?,
-		
-		?,
 		?
-		
+				
 	);

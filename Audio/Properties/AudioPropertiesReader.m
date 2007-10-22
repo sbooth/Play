@@ -31,7 +31,9 @@
 #import "AudioStream.h"
 #import "UtilityFunctions.h"
 
-NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioPropertiesReader";
+NSString *const AudioPropertiesCueSheetKey			= @"org.sbooth.Play.AudioPropertiesReader.CueSheet";
+NSString *const AudioPropertiesCueSheetTracksKey	= @"org.sbooth.Play.AudioPropertiesReader.CueSheet.Tracks";
+NSString *const AudioPropertiesReaderErrorDomain	= @"org.sbooth.Play.ErrorDomain.AudioPropertiesReader";
 
 @implementation AudioPropertiesReader
 
@@ -140,5 +142,8 @@ NSString *const AudioPropertiesReaderErrorDomain = @"org.sbooth.Play.ErrorDomain
 }
 
 - (BOOL)			readProperties:(NSError **)error		{ return YES; }
+
+- (NSDictionary *)	properties								{ return [[_properties retain] autorelease]; }
+- (NSDictionary *)	cueSheet								{ return [_properties valueForKey:AudioPropertiesCueSheetKey]; }
 
 @end

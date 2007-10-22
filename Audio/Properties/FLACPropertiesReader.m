@@ -26,17 +26,15 @@
 
 - (BOOL) readProperties:(NSError **)error
 {
-	NSString						*path				= [_url path];
-	FLAC__Metadata_Chain			*chain				= NULL;
-	FLAC__Metadata_Iterator			*iterator			= NULL;
-	FLAC__StreamMetadata			*block				= NULL;
-	NSMutableDictionary				*propertiesDictionary;
+	NSString					*path		= [_url path];
+	FLAC__Metadata_Chain		*chain		= NULL;
+	FLAC__Metadata_Iterator		*iterator	= NULL;
+	FLAC__StreamMetadata		*block		= NULL;
 				
 	chain = FLAC__metadata_chain_new();
 	NSAssert(NULL != chain, @"Unable to allocate memory.");
 	
 	if(NO == FLAC__metadata_chain_read(chain, [path fileSystemRepresentation])) {
-		
 		if(nil != error) {
 			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
 			
@@ -75,6 +73,11 @@
 	
 	FLAC__metadata_iterator_init(iterator, chain);
 	
+	unsigned i;
+	NSMutableDictionary		*propertiesDictionary	= [NSMutableDictionary dictionary];
+	NSMutableDictionary		*cueSheetDictionary		= nil;
+	NSMutableArray			*cueSheetTracks			= nil;
+
 	do {
 		block = FLAC__metadata_iterator_get_block(iterator);
 		
@@ -83,8 +86,6 @@
 		
 		switch(block->type) {					
 			case FLAC__METADATA_TYPE_STREAMINFO:
-				propertiesDictionary = [NSMutableDictionary dictionary];
-				
 				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:PropertiesFileTypeKey];
 				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:PropertiesDataFormatKey];
 				[propertiesDictionary setValue:NSLocalizedStringFromTable(@"FLAC", @"Formats", @"") forKey:PropertiesFormatDescriptionKey];
@@ -93,16 +94,83 @@
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:PropertiesChannelsPerFrameKey];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:PropertiesSampleRateKey];				
 				[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)block->data.stream_info.total_samples / block->data.stream_info.sample_rate] forKey:PropertiesDurationKey];
-				
-				[self setValue:propertiesDictionary forKey:@"properties"];
 				break;
 				
+			case FLAC__METADATA_TYPE_CUESHEET:
+#if DEBUG
+				NSLog(@"FLAC cue sheet");
+				NSLog(@"  media_catalog_number : %s", block->data.cue_sheet.media_catalog_number);
+				NSLog(@"  lead_in              : %i", block->data.cue_sheet.lead_in);
+				NSLog(@"  is_cd                : %i", block->data.cue_sheet.is_cd);
+				NSLog(@"  num_tracks           : %i", block->data.cue_sheet.num_tracks);
+#endif
+
+				cueSheetDictionary	= [NSMutableDictionary dictionary];
+				cueSheetTracks		= [NSMutableArray array];
+				
+				[cueSheetDictionary setValue:[NSString stringWithUTF8String:block->data.cue_sheet.media_catalog_number] forKey:MetadataMCNKey];
+				
+				// Iterate through each track in the cue sheet and process each one
+				for(i = 0; i < block->data.cue_sheet.num_tracks; ++i) {
+#if DEBUG
+					NSLog(@"  Track %i", i);
+					NSLog(@"    offset             : %qi", block->data.cue_sheet.tracks[i].offset);
+					NSLog(@"    number             : %i", block->data.cue_sheet.tracks[i].number);
+					NSLog(@"    isrc               : %s", block->data.cue_sheet.tracks[i].isrc);
+					NSLog(@"    type               : %i", block->data.cue_sheet.tracks[i].type);
+					NSLog(@"    pre_emphasis       : %i", block->data.cue_sheet.tracks[i].pre_emphasis);
+					NSLog(@"    num_indices        : %i", block->data.cue_sheet.tracks[i].num_indices);
+					
+					// Index points are unused for now
+					unsigned j;
+					for(j = 0; j < block->data.cue_sheet.tracks[i].num_indices; ++j) {
+						NSLog(@"    Index %i", j);
+						NSLog(@"      offset           : %qi", block->data.cue_sheet.tracks[i].indices[j].offset);
+						NSLog(@"      number           : %i", block->data.cue_sheet.tracks[i].indices[j].number);
+					}
+#endif
+					
+					// Only process audio tracks
+					// 0 is audio, 1 is non-audio
+					if(0 == block->data.cue_sheet.tracks[i].type) {
+						NSMutableDictionary *trackDictionary = [NSMutableDictionary dictionary];
+						
+						[trackDictionary setValue:[NSString stringWithUTF8String:block->data.cue_sheet.tracks[i].isrc] forKey:MetadataISRCKey];
+						[trackDictionary setValue:[NSNumber numberWithInt:block->data.cue_sheet.tracks[i].number] forKey:MetadataTrackNumberKey];
+						[trackDictionary setValue:[NSNumber numberWithUnsignedLongLong:block->data.cue_sheet.tracks[i].offset] forKey:StreamStartingFrameKey];
+						
+						// Fill in frame counts and duration
+						if(0 < i) {
+							unsigned frameCount = (block->data.cue_sheet.tracks[i].offset - 1) - block->data.cue_sheet.tracks[i - 1].offset;
+							
+							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
+							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
+							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithDouble:(double)frameCount / [[propertiesDictionary valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
+						}
+						
+						// Special handling for the last audio track
+						// FIXME: Is it safe the assume the lead out will always be the final track in the cue sheet?
+						if(i == block->data.cue_sheet.num_tracks - 1 - 1) {
+							unsigned frameCount = [[propertiesDictionary valueForKey:PropertiesTotalFramesKey] unsignedLongLongValue] - block->data.cue_sheet.tracks[i].offset + 1;
+
+							[trackDictionary setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
+							[trackDictionary setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
+							[trackDictionary setValue:[NSNumber numberWithDouble:(double)frameCount / [[propertiesDictionary valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
+						}
+
+						[cueSheetTracks addObject:trackDictionary];
+					}
+				}
+
+				[cueSheetDictionary setValue:cueSheetTracks forKey:AudioPropertiesCueSheetTracksKey];
+				[propertiesDictionary setValue:cueSheetDictionary forKey:AudioPropertiesCueSheetKey];
+				break;
+
 			case FLAC__METADATA_TYPE_VORBIS_COMMENT:				break;
 			case FLAC__METADATA_TYPE_PICTURE:						break;
 			case FLAC__METADATA_TYPE_PADDING:						break;
 			case FLAC__METADATA_TYPE_APPLICATION:					break;
 			case FLAC__METADATA_TYPE_SEEKTABLE:						break;
-			case FLAC__METADATA_TYPE_CUESHEET:						break;
 			case FLAC__METADATA_TYPE_UNDEFINED:						break;
 			default:												break;
 		}
@@ -111,6 +179,8 @@
 	FLAC__metadata_iterator_delete(iterator);
 	FLAC__metadata_chain_delete(chain);
 	
+	[self setValue:propertiesDictionary forKey:@"properties"];
+
 	return YES;
 }
 
