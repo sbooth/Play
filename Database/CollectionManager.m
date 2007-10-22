@@ -432,6 +432,9 @@ static CollectionManager *collectionManagerInstance = nil;
 // These methods are ugly right now because they rely on knowing the names of the subclasses
 - (void) databaseObject:(DatabaseObject *)object willChangeValueForKey:(NSString *)key
 {
+	NSParameterAssert(nil != object);
+	NSParameterAssert(nil != key);
+	
 	[[[self undoManager] prepareWithInvocationTarget:object] mySetValue:[object valueForKey:key] forKey:key];
 	
 	if([object isKindOfClass:[AudioStream class]])
@@ -446,6 +449,9 @@ static CollectionManager *collectionManagerInstance = nil;
 
 - (void) databaseObject:(DatabaseObject *)object didChangeValueForKey:(NSString *)key
 {
+	NSParameterAssert(nil != object);
+	NSParameterAssert(nil != key);
+
 	if([object isKindOfClass:[AudioStream class]])
 		[[self streamManager] stream:(AudioStream *)object didChangeValueForKey:key];
 	else if([object isKindOfClass:[Playlist class]])

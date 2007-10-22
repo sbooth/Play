@@ -128,12 +128,16 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (void) addStreamWithID:(NSNumber *)objectID
 {
+	NSParameterAssert(nil != objectID);
+	
 	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 	[self insertObject:stream inStreamsAtIndex:[_streams count]];
 }
 
 - (void) insertStreamWithID:(NSNumber *)objectID atIndex:(unsigned)index
 {
+	NSParameterAssert(nil != objectID);
+
 	AudioStream *stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 	[self insertObject:stream inStreamsAtIndex:index];
 }
@@ -207,6 +211,8 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 
 - (void) insertObject:(AudioStream *)stream inStreamsAtIndex:(unsigned)index
 {
+	NSParameterAssert(nil != stream);
+
 	[[[CollectionManager manager] playlistManager] playlist:self willInsertStream:stream atIndex:index];
 	[_streams insertObject:stream atIndex:index];
 	[[[CollectionManager manager] playlistManager] playlist:self didInsertStream:stream atIndex:index];

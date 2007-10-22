@@ -562,14 +562,14 @@
 	
 	// Playlist ID and name
 	[playlist initValue:[NSNumber numberWithUnsignedInt:objectID] forKey:ObjectIDKey];
-	//	getColumnValue(statement, 0, playlist, ObjectIDKey, eObjectTypeUnsignedInteger);
+	//	getColumnValue(statement, 0, playlist, ObjectIDKey, eObjectTypeUnsignedInt);
 	getColumnValue(statement, 1, playlist, PlaylistNameKey, eObjectTypeString);
 	
 	// Statistics
 	getColumnValue(statement, 2, playlist, StatisticsDateCreatedKey, eObjectTypeDate);
 	getColumnValue(statement, 3, playlist, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 	getColumnValue(statement, 4, playlist, StatisticsLastPlayedDateKey, eObjectTypeDate);
-	getColumnValue(statement, 5, playlist, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+	getColumnValue(statement, 5, playlist, StatisticsPlayCountKey, eObjectTypeUnsignedInt);
 	
 	// Register the object	
 	NSMapInsert(_registeredPlaylists, (void *)objectID, (void *)playlist);
@@ -600,7 +600,7 @@
 		bindParameter(statement, 2, playlist, StatisticsDateCreatedKey, eObjectTypeDate);
 		bindParameter(statement, 3, playlist, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 		bindParameter(statement, 4, playlist, StatisticsLastPlayedDateKey, eObjectTypeDate);
-		bindParameter(statement, 5, playlist, StatisticsPlayCountKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 5, playlist, StatisticsPlayCountKey, eObjectTypeUnsignedInt);
 		
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [playlist valueForKey:PlaylistNameKey], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -653,14 +653,14 @@
 #endif
 	
 	// ID and Name
-	bindNamedParameter(statement, ":id", playlist, ObjectIDKey, eObjectTypeUnsignedInteger);
+	bindNamedParameter(statement, ":id", playlist, ObjectIDKey, eObjectTypeUnsignedInt);
 	bindNamedParameter(statement, ":name", playlist, PlaylistNameKey, eObjectTypeString);
 	
 	// Statistics
 	bindNamedParameter(statement, ":date_created", playlist, StatisticsDateCreatedKey, eObjectTypeDate);
 	bindNamedParameter(statement, ":first_played_date", playlist, StatisticsFirstPlayedDateKey, eObjectTypeDate);
 	bindNamedParameter(statement, ":last_played_date", playlist, StatisticsLastPlayedDateKey, eObjectTypeDate);
-	bindNamedParameter(statement, ":play_count", playlist, StatisticsPlayCountKey, eObjectTypeInteger);
+	bindNamedParameter(statement, ":play_count", playlist, StatisticsPlayCountKey, eObjectTypeInt);
 	
 	result = sqlite3_step(statement);
 	NSAssert2(SQLITE_DONE == result, @"Unable to update the record for %@ (%@).", playlist, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -760,8 +760,8 @@
 	for(index = 0; index < [streams count]; ++index) {
 		stream = [streams objectAtIndex:index];
 		
-		bindParameter(statement, 1, playlist, ObjectIDKey, eObjectTypeUnsignedInteger);
-		bindParameter(statement, 2, stream, ObjectIDKey, eObjectTypeUnsignedInteger);
+		bindParameter(statement, 1, playlist, ObjectIDKey, eObjectTypeUnsignedInt);
+		bindParameter(statement, 2, stream, ObjectIDKey, eObjectTypeUnsignedInt);
 //		bindParameter(statement, 3, playlist, StatisticsLastPlayedDateKey, eObjectTypeDate);
 		result = sqlite3_bind_int(statement, 3, index);	
 		NSAssert1(SQLITE_OK == result, @"Unable to bind parameter %i to sql statement.", 3/*, [NSString stringWithUTF8String:sqlite3_errmsg(_db)]*/);

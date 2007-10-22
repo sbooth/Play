@@ -541,7 +541,7 @@
 	
 	// WatchFolder ID and name
 	[folder initValue:[NSNumber numberWithUnsignedInt:objectID] forKey:ObjectIDKey];
-	//	getColumnValue(statement, 0, folder, ObjectIDKey, eObjectTypeUnsignedInteger);
+	//	getColumnValue(statement, 0, folder, ObjectIDKey, eObjectTypeUnsignedInt);
 	getColumnValue(statement, 1, folder, WatchFolderURLKey, eObjectTypeURL);
 	getColumnValue(statement, 2, folder, WatchFolderNameKey, eObjectTypeString);
 		
@@ -621,7 +621,7 @@
 #endif
 	
 	// ID, URL and Name
-	bindNamedParameter(statement, ":id", folder, ObjectIDKey, eObjectTypeUnsignedInteger);
+	bindNamedParameter(statement, ":id", folder, ObjectIDKey, eObjectTypeUnsignedInt);
 	bindNamedParameter(statement, ":url", folder, WatchFolderURLKey, eObjectTypeURL);
 	bindNamedParameter(statement, ":name", folder, WatchFolderNameKey, eObjectTypeString);
 	
