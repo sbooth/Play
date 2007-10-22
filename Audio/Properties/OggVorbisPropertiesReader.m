@@ -27,18 +27,9 @@
 @implementation OggVorbisPropertiesReader
 
 - (BOOL) readProperties:(NSError **)error
-{
-	NSMutableDictionary				*propertiesDictionary;
-	NSString						*path;
-	OggVorbis_File					vf;
-	vorbis_info						*ovInfo;
-	FILE							*file;
-	int								result;
-	ogg_int64_t						totalFrames;
-	long							bitrate;
-	
-	path							= [[self valueForKey:StreamURLKey] path];
-	file							= fopen([path fileSystemRepresentation], "r");
+{	
+	NSString	*path		= [[self valueForKey:StreamURLKey] path];
+	FILE		*file		= fopen([path fileSystemRepresentation], "r");
 	
 	if(NULL == file) {
 		if(nil != error) {
@@ -56,7 +47,8 @@
 		return NO;
 	}
 	
-	result							= ov_test(file, &vf, NULL, 0);
+	OggVorbis_File vf;
+	int result = ov_test(file, &vf, NULL, 0);
 	
 	if(0 != result) {
 		if(nil != error) {
@@ -81,24 +73,23 @@
 	NSAssert(0 == result, NSLocalizedStringFromTable(@"Unable to open the input file.", @"Errors", @""));
 	
 	// Get input file information
-	ovInfo = ov_info(&vf, -1);
+	vorbis_info *ovInfo = ov_info(&vf, -1);
 	NSAssert(NULL != ovInfo, @"Unable to get information on Ogg Vorbis stream.");
 	
-	totalFrames				= ov_pcm_total(&vf, -1);
-	bitrate					= ov_bitrate(&vf, -1);
+	ogg_int64_t				totalFrames				= ov_pcm_total(&vf, -1);
+	long					bitrate					= ov_bitrate(&vf, -1);
 	
-	propertiesDictionary	= [NSMutableDictionary dictionary];
+	NSMutableDictionary		*propertiesDictionary	= [NSMutableDictionary dictionary];
 	
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Ogg", @"Formats", @"") forKey:PropertiesFileTypeKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Vorbis", @"Formats", @"") forKey:PropertiesDataFormatKey];
 	[propertiesDictionary setValue:NSLocalizedStringFromTable(@"Ogg Vorbis", @"Formats", @"") forKey:PropertiesFormatDescriptionKey];
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
 	[propertiesDictionary setValue:[NSNumber numberWithLong:bitrate] forKey:PropertiesBitrateKey];
-	//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
+//	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->channels] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->rate] forKey:PropertiesSampleRateKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / ovInfo->rate] forKey:PropertiesDurationKey];
-		
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
