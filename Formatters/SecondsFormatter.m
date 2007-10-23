@@ -30,9 +30,8 @@
 	unsigned		days			= 0;
 	unsigned		hours			= 0;
 	
-	if(nil == object || NO == [object isKindOfClass:[NSNumber class]]) {
+	if(nil == object || NO == [object isKindOfClass:[NSNumber class]])
 		return nil;
-	}
 	
 	float floatValue = [object floatValue];
 	if(isnan(floatValue) || isinf(floatValue))
@@ -96,9 +95,7 @@
 
 - (NSAttributedString *) attributedStringForObjectValue:(id)object withDefaultAttributes:(NSDictionary *)attributes
 {
-	NSAttributedString		*result		= nil;
-	
-	result = [[NSAttributedString alloc] initWithString:[self stringForObjectValue:object] attributes:attributes];
+	NSAttributedString *result = [[NSAttributedString alloc] initWithString:[self stringForObjectValue:object] attributes:attributes];
 	return [result autorelease];
 }
 
