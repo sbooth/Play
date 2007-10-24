@@ -24,10 +24,9 @@
 
 - (NSString *) stringForObjectValue:(id)object
 {
-	if(nil == object || NO == [object isKindOfClass:[NSURL class]]) {
+	if(nil == object || NO == [object isKindOfClass:[NSURL class]])
 		return nil;
-	}
-		
+
 	return [[object path] stringByAbbreviatingWithTildeInPath];
 }
 
