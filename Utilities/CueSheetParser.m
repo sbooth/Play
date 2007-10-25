@@ -238,6 +238,11 @@ scanMSF(NSScanner		*scanner,
 				unsigned	framesPerSector		= [[[propertiesReader properties] valueForKey:PropertiesSampleRateKey] floatValue] / 75;
 				unsigned	startingSector		= (((60 * minute) + second) * 75) + frame;
 				long long	startingFrame		= startingSector * framesPerSector;
+				long long	totalFrames			= [[[propertiesReader properties] valueForKey:PropertiesTotalFramesKey] longLongValue];
+				
+				// Sanity check
+				if(startingFrame >= totalFrames)
+					continue;
 				
 				[currentTrack setValue:[NSNumber numberWithLongLong:startingFrame] forKey:StreamStartingFrameKey];
 			}
@@ -321,13 +326,8 @@ scanMSF(NSScanner		*scanner,
 		if(0 != i)
 			previousTrack = [cueSheetTracks objectAtIndex:(i - 1)];
 
-		NSMutableDictionary *nextTrack = nil;
-		if(i + 1 < [cueSheetTracks count])
-			nextTrack = [cueSheetTracks objectAtIndex:(i + 1)];
-		
-
 		// Fill in frame counts and duration
-		if(nil != previousTrack) {
+		if(nil != previousTrack && [[previousTrack valueForKey:StreamURLKey] isEqual:[thisTrack valueForKey:StreamURLKey]]) {
 			unsigned frameCount = ([[thisTrack valueForKey:StreamStartingFrameKey] longLongValue] - 1) - [[previousTrack valueForKey:StreamStartingFrameKey] longLongValue];
 			
 			[previousTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
@@ -335,8 +335,8 @@ scanMSF(NSScanner		*scanner,
 			[previousTrack setValue:[NSNumber numberWithDouble:(double)frameCount / [[thisTrack valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
 		}
 		
-		// Special handling for last track
-		if(nil == nextTrack) {
+		// Special handling for last tracks
+		if(nil == [thisTrack valueForKey:StreamFrameCountKey]) {
 			unsigned frameCount = [[thisTrack valueForKey:PropertiesTotalFramesKey] unsignedIntValue] - [[thisTrack valueForKey:StreamStartingFrameKey] longLongValue] + 1;
 			
 			[thisTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
