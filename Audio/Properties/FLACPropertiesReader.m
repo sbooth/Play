@@ -97,7 +97,7 @@
 				break;
 				
 			case FLAC__METADATA_TYPE_CUESHEET:
-#if DEBUG
+#if CUE_SHEET_DEBUG
 				NSLog(@"FLAC cue sheet");
 				NSLog(@"  media_catalog_number : %s", block->data.cue_sheet.media_catalog_number);
 				NSLog(@"  lead_in              : %i", block->data.cue_sheet.lead_in);
@@ -112,7 +112,7 @@
 				
 				// Iterate through each track in the cue sheet and process each one
 				for(i = 0; i < block->data.cue_sheet.num_tracks; ++i) {
-#if DEBUG
+#if CUE_SHEET_DEBUG
 					NSLog(@"  Track %i", i);
 					NSLog(@"    offset             : %qi", block->data.cue_sheet.tracks[i].offset);
 					NSLog(@"    number             : %i", block->data.cue_sheet.tracks[i].number);
