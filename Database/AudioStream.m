@@ -161,17 +161,17 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	AudioMetadataReader		*metadataReader		= [AudioMetadataReader metadataReaderForURL:[self valueForKey:StreamURLKey] error:&error];
 
 	if(nil == metadataReader) {
-/*		if(nil != error) {
+/*		if(nil != error)
 			[[AudioLibrary library] presentError:error];
-		}*/
+		*/
 		return;
 	}
 	
 	BOOL result = [metadataReader readMetadata:&error];
 	if(NO == result) {
-/*		if(nil != error) {
+/*		if(nil != error)
 			[[AudioLibrary library] presentError:error];
-		}*/
+		*/
 		return;
 	}
 	
@@ -191,21 +191,25 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 - (IBAction) saveMetadata:(id)sender
 {
+	// FIXME: Save album-only metadata to original file?
+	if([self isPartOfCueSheet])
+		return;
+	
 	NSError					*error				= nil;
 	AudioMetadataWriter		*metadataWriter		= [AudioMetadataWriter metadataWriterForURL:[self valueForKey:StreamURLKey] error:&error];
 	
 	if(nil == metadataWriter) {
-		/*		if(nil != error) {
-		[[AudioLibrary library] presentError:error];
-		}*/
+/*		if(nil != error)
+			[[AudioLibrary library] presentError:error];
+		*/
 		return;
 	}
 	
 	BOOL result = [metadataWriter writeMetadata:self error:&error];
 	if(NO == result) {
-		/*		if(nil != error) {
-		[[AudioLibrary library] presentError:error];
-		}*/
+/*		if(nil != error)
+			[[AudioLibrary library] presentError:error];
+		*/
 		return;
 	}	
 }
