@@ -179,7 +179,7 @@ audio_linear_round(unsigned int bits,
 
 - (SInt64) seekToFrame:(SInt64)frame
 {
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"accurateMP3Seeking"] && _foundLAMEHeader)
+	if(/*[[NSUserDefaults standardUserDefaults] boolForKey:@"accurateMP3Seeking"] &&*/ _foundLAMEHeader)
 		return [self seekToFrameAccurately:frame];
 	else
 		return [self seekToFrameApproximately:frame];
