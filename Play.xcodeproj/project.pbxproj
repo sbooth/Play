@@ -147,6 +147,7 @@
 		8C663A210B7FB1C800A226F0 /* Library.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C663A200B7FB1C800A226F0 /* Library.icns */; };
 		8C6ACE760BD55F6E00CDFEB2 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */; };
 		8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
+		8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6D026D0CCEFAEE00A597AE /* CueSheetParser.m */; };
 		8C84BACF0C619F6800D8D221 /* ofa1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
 		8C84BAD00C619F7400D8D221 /* ofa1.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
 		8C8E3BC50BDF215500605141 /* ComposerNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8E3BC10BDF215500605141 /* ComposerNode.m */; };
@@ -593,6 +594,8 @@
 		8C6ACE720BD55F6D00CDFEB2 /* RBSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitView.h; path = ThirdParty/RBSplitView/Source/RBSplitView.h; sourceTree = "<group>"; };
 		8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitView.m; path = ThirdParty/RBSplitView/Source/RBSplitView.m; sourceTree = "<group>"; };
 		8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPrivateDefines.h; path = ThirdParty/RBSplitView/Source/RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
+		8C6D026C0CCEFAEE00A597AE /* CueSheetParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CueSheetParser.h; path = Utilities/CueSheetParser.h; sourceTree = "<group>"; };
+		8C6D026D0CCEFAEE00A597AE /* CueSheetParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CueSheetParser.m; path = Utilities/CueSheetParser.m; sourceTree = "<group>"; };
 		8C84BACA0C619F6800D8D221 /* ofa1.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ofa1.framework; path = Frameworks/ofa1.framework; sourceTree = "<group>"; };
 		8C8E3BC00BDF215500605141 /* ComposerNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ComposerNode.h; path = Browser/ComposerNode.h; sourceTree = "<group>"; };
 		8C8E3BC10BDF215500605141 /* ComposerNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ComposerNode.m; path = Browser/ComposerNode.m; sourceTree = "<group>"; };
@@ -1646,6 +1649,8 @@
 				8CF538210C4E93D1002E59E7 /* PUIDUtilities.mm */,
 				8C47A9550C93618B00D71633 /* MusicBrainzUtilities.h */,
 				8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */,
+				8C6D026C0CCEFAEE00A597AE /* CueSheetParser.h */,
+				8C6D026D0CCEFAEE00A597AE /* CueSheetParser.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -2278,6 +2283,7 @@
 				8CF2C3A90CB9C8020051FC67 /* main.c in Sources */,
 				8CF2C3B40CB9C8790051FC67 /* parse.c in Sources */,
 				8CF2C3BF0CB9C89E0051FC67 /* opcodes.c in Sources */,
+				8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2607,10 +2613,12 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -2660,10 +2668,12 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_3 = "\"$(SRCROOT)/Frameworks\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_FAST_OBJC_DISPATCH = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
