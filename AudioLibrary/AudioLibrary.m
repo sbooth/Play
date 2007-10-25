@@ -681,8 +681,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	[panel setAllowsMultipleSelection:YES];
 	[panel setCanChooseDirectories:YES];
 	
-	[panel setTitle:NSLocalizedStringFromTable(@"Add to Library", @"AudioLibrary", @"")];
-	[panel setMessage:NSLocalizedStringFromTable(@"Choose files to add to the library.", @"AudioLibrary", @"")];
+	[panel setTitle:NSLocalizedStringFromTable(@"Add to Library", @"Library", @"")];
+	[panel setMessage:NSLocalizedStringFromTable(@"Choose files to add to the library.", @"Library", @"")];
 	
 	[panel beginSheetForDirectory:nil 
 							 file:nil 
