@@ -193,7 +193,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		// Listen for changes to the output device
 		[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self 
 																  forKeyPath:@"values.outputAudioDeviceUID"
-																	 options:nil
+																	 options:0
 																	 context:NULL];		
 	}
 	return self;
