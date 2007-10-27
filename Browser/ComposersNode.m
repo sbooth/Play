@@ -39,7 +39,7 @@
 		
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:MetadataComposerKey
-														 options:nil
+														 options:0
 														 context:nil];
 
 		[[NSNotificationCenter defaultCenter] addObserver:self 

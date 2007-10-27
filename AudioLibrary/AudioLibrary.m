@@ -161,12 +161,14 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 #define PLAY_QUEUE_TABLE_COLUMNS_MENU_ITEM_INDEX	5
 #define STREAM_TABLE_COLUMNS_MENU_ITEM_INDEX		6
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
 // ========================================
 // Completely bogus NSTreeController bindings hack
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
 - (id) observedObject;
 @end
+#endif
 
 // ========================================
 // Callback Methods (for sheets, etc.)

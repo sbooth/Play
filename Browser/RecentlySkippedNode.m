@@ -41,7 +41,7 @@
 
 		[[[CollectionManager manager] streamManager] addObserver:self 
 													  forKeyPath:StatisticsLastSkippedDateKey
-														 options:nil
+														 options:0
 														 context:nil];
 
 		[[NSNotificationCenter defaultCenter] addObserver:self 

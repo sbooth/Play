@@ -25,6 +25,8 @@
 #import "WatchFolderManager.h"
 #import "AudioStream.h"
 #import "Playlist.h"
+#import "SmartPlaylist.h"
+#import "WatchFolder.h"
 
 #import "SQLiteUtilityFunctions.h"
 
