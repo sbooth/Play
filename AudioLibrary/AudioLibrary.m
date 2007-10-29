@@ -91,6 +91,7 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
+// Hacky 10.4 workarounds
 #import "NSTreeController_Extensions.h"
 
 #include "sfmt19937.h"
@@ -161,14 +162,12 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 #define PLAY_QUEUE_TABLE_COLUMNS_MENU_ITEM_INDEX	5
 #define STREAM_TABLE_COLUMNS_MENU_ITEM_INDEX		6
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
 // ========================================
-// Completely bogus NSTreeController bindings hack
+// Completely bogus NSTreeController bindings hack (unnecessary on 10.5)
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
 - (id) observedObject;
 @end
-#endif
 
 // ========================================
 // Callback Methods (for sheets, etc.)
@@ -207,6 +206,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) saveBrowserStateToDefaults;
 - (void) restoreBrowserStateFromDefaults;
+- (BOOL) selectBrowserNode:(BrowserNode *)node;
 
 - (void) setupStreamTableColumns;
 - (void) setupPlayQueueTableColumns;
@@ -710,32 +710,32 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (IBAction) browseLibrary:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_libraryNode]];
+	[self selectBrowserNode:_libraryNode];
 }
 
 - (IBAction) browseMostPopular:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_mostPopularNode]];
+	[self selectBrowserNode:_mostPopularNode];
 }
 
 - (IBAction) browseHighestRated:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_highestRatedNode]];
+	[self selectBrowserNode:_highestRatedNode];
 }
 
 - (IBAction) browseRecentlyAdded:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyAddedNode]];
+	[self selectBrowserNode:_recentlyAddedNode];
 }
 
 - (IBAction) browseRecentlyPlayed:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlyPlayedNode]];
+	[self selectBrowserNode:_recentlyPlayedNode];
 }
 
 - (IBAction) browseRecentlySkipped:(id)sender
 {
-	/*BOOL success =*/ [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:_recentlySkippedNode]];
+	[self selectBrowserNode:_recentlySkippedNode];
 }
 
 - (BOOL) browseTracksByArtist:(NSString *)artist
@@ -744,7 +744,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *artistNode = [_artistsNode findChildNamed:artist];
 	if(nil != artistNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:artistNode]];
+		return [self selectBrowserNode:artistNode];
 	else
 		return NO;
 }
@@ -755,7 +755,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *albumNode = [_albumsNode findChildNamed:album];
 	if(nil != albumNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:albumNode]];
+		return [self selectBrowserNode:albumNode];
 	else
 		return NO;
 }
@@ -766,7 +766,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *composerNode = [_composersNode findChildNamed:composer];
 	if(nil != composerNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:composerNode]];
+		return [self selectBrowserNode:composerNode];
 	else
 		return NO;
 }
@@ -777,7 +777,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *genreNode = [_genresNode findChildNamed:genre];
 	if(nil != genreNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:genreNode]];
+		return [self selectBrowserNode:genreNode];
 	else	
 		return NO;
 }
@@ -788,7 +788,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *playlistNode = [_playlistsNode findChildNamed:playlistName];
 	if(nil != playlistNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:playlistNode]];
+		return [self selectBrowserNode:playlistNode];
 	else	
 		return NO;
 }
@@ -799,7 +799,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	BrowserNode *smartPlaylistNode = [_smartPlaylistsNode findChildNamed:smartPlaylistName];
 	if(nil != smartPlaylistNode)
-		return [_browserController setSelectionIndexPath:[_browserController arrangedIndexPathForObject:smartPlaylistName]];
+		return [self selectBrowserNode:smartPlaylistNode];
 	else	
 		return NO;
 }
@@ -1765,7 +1765,14 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-	BrowserNode *node = [item observedObject];
+	BrowserNode *node = nil;
+	
+	// In Leopard observedObject no longer works (which is a good thing)
+	if(nil != NSClassFromString(@"NSTreeNode"))
+		node = [item representedObject];
+	else
+		node = [item observedObject];
+
 	return [node nameIsEditable];
 }
 
@@ -1781,7 +1788,14 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-	BrowserNode *node = [item observedObject];
+	BrowserNode *node = nil;
+	
+	// In Leopard observedObject no longer works (which is a good thing)
+	if(nil != NSClassFromString(@"NSTreeNode"))
+		node = [item representedObject];
+	else
+		node = [item observedObject];
+
 	[(ImageAndTextCell *)cell setImage:[node icon]];
 
 	// If the row is selected but isn't being edited and the current drawing isn't being used to create a drag image,
@@ -1796,10 +1810,16 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	NSOutlineView				*outlineView		= [notification object];
 	int							selectedRow			= [outlineView selectedRow];
 	id							opaqueNode			= [outlineView itemAtRow:selectedRow];
-	BrowserNode					*node				= [opaqueNode observedObject];
+	BrowserNode					*node				= nil;
 	NSArray						*selected			= [_streamController selectedObjects];
 	NSDictionary				*bindingInfo		= [_streamController infoForBinding:@"contentArray"];
 	AudioStreamCollectionNode	*oldStreamsNode		= [bindingInfo valueForKey:NSObservedObjectKey];
+
+	// In Leopard observedObject no longer works (which is a good thing)
+	if(nil != NSClassFromString(@"NSTreeNode"))
+		node = [opaqueNode representedObject];
+	else
+		node = [opaqueNode observedObject];
 
 	// Unbind the current stream source
 	[_streamController unbind:@"contentArray"];
@@ -1808,7 +1828,6 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	// Don't do anything except possibly save the sort descriptors if the user selected nothing
 	if(nil == node) {
-
 		if(NO == [oldStreamsNode streamsAreOrdered]) {
 			[_streamTableSavedSortDescriptors release], _streamTableSavedSortDescriptors = nil;
 			_streamTableSavedSortDescriptors = [[_streamController sortDescriptors] retain];
@@ -2489,6 +2508,30 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	}
 }
 
+- (BOOL) selectBrowserNode:(BrowserNode *)node
+{
+	NSParameterAssert(nil != node);
+	
+	NSIndexPath *indexPath = nil;
+	
+	// If the NSTreeNode class is present, use it
+	if(nil != NSClassFromString(@"NSTreeNode")) {
+		NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
+		NSTreeNode		*child			= nil;
+		NSTreeNode		*match			= nil;
+		
+		while(nil == match && (child = [enumerator nextObject]))
+			match = treeNodeForRepresentedObject(child, node);
+		
+		indexPath = [match indexPath];
+	}
+	// Otherwise use hacky-10.4 workarounds
+	else
+		indexPath = [_browserController arrangedIndexPathForObject:node];
+	
+	return [_browserController setSelectionIndexPath:indexPath];	
+}
+
 - (void) setupStreamTableColumns
 {
 	NSMenuItem		*contextMenuItem;	
@@ -2556,18 +2599,20 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		[contextMenuItem setRepresentedObject:obj];
 		[contextMenuItem setState:([[visibleDictionary objectForKey:[obj identifier]] boolValue] ? NSOnState : NSOffState)];
 		
-		//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
+//		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
 		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
 		
-		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
+		if([[visibleDictionary objectForKey:[obj identifier]] boolValue])
 			[_streamTableVisibleColumns addObject:obj];
-		}
-		else {
+		else
 			[_streamTableHiddenColumns addObject:obj];
-			[_streamTable removeTableColumn:obj];
-		}
 	}
-	
+
+	// Don't modify table columns while enumerating
+	enumerator = [_streamTableHiddenColumns objectEnumerator];
+	while((obj = [enumerator nextObject]))
+		[_streamTable removeTableColumn:obj];
+
 	i = 0;
 	enumerator = [orderArray objectEnumerator];
 	while((obj = [enumerator nextObject])) {
@@ -2648,14 +2693,16 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 //		NSLog(@"setting width of %@ to %f", [obj identifier], [[sizesDictionary objectForKey:[obj identifier]] floatValue]);
 		[obj setWidth:[[sizesDictionary objectForKey:[obj identifier]] floatValue]];
 		
-		if([[visibleDictionary objectForKey:[obj identifier]] boolValue]) {
+		if([[visibleDictionary objectForKey:[obj identifier]] boolValue])
 			[_playQueueTableVisibleColumns addObject:obj];
-		}
-		else {
+		else
 			[_playQueueTableHiddenColumns addObject:obj];
-			[_playQueueTable removeTableColumn:obj];
-		}
 	}
+
+	// Don't modify table columns while enumerating
+	enumerator = [_playQueueTableHiddenColumns objectEnumerator];
+	while((obj = [enumerator nextObject]))
+		[_playQueueTable removeTableColumn:obj];
 	
 	i = 0;
 	enumerator = [orderArray objectEnumerator];

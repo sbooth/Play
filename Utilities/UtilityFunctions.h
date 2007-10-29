@@ -44,6 +44,8 @@ extern "C" {
 	NSData * getPNGDataForImage(NSImage *image);
 	NSData * getBitmapDataForImage(NSImage *image, NSBitmapImageFileType type);
 	
+	NSTreeNode * treeNodeForRepresentedObject(NSTreeNode *root, id representedObject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -218,3 +218,34 @@ getBitmapDataForImage(NSImage					*image,
 	
 	return [bitmapRep representationUsingType:type properties:nil]; 
 }
+
+NSTreeNode * 
+treeNodeForRepresentedObject(NSTreeNode *root, id representedObject)
+{
+	NSCParameterAssert(nil != root);
+	NSCParameterAssert(nil != representedObject);
+	
+	// Termination condition
+	if([[root representedObject] isEqual:representedObject])
+		return root;
+	
+	NSEnumerator	*enumerator		= [[root childNodes] objectEnumerator];
+	NSTreeNode		*child			= nil;
+	NSTreeNode		*match			= nil;
+	
+	// Perform a breadth-first search
+	while(nil == match && (child = [enumerator nextObject])) {
+		if([[child representedObject] isEqual:representedObject])
+			match = child;
+	}
+	
+	if(nil == match) {
+		enumerator 	= [[root childNodes] objectEnumerator];
+		child 		= nil;
+		
+		while(nil == match && (child = [enumerator nextObject]))
+			match = treeNodeForRepresentedObject(child, representedObject);
+	}
+	
+	return match;
+}
