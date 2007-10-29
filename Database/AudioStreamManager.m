@@ -906,7 +906,6 @@
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_stream"];
 	int				result			= SQLITE_OK;
-	NSDictionary	*changes		= [stream changedValues];
 	
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
@@ -983,9 +982,9 @@
 	double elapsed = (end - start) / (double)CLOCKS_PER_SEC;
 	NSLog(@"Stream update time = %f seconds", elapsed);
 #endif
-	
+
 	// Reset the object with the stored values
-	[stream initValuesForKeysWithDictionary:changes];
+	[stream synchronizeSavedValuesWithChangedValues];
 }
 
 - (void) doDeleteStream:(AudioStream *)stream

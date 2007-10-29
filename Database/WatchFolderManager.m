@@ -611,7 +611,6 @@
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_watch_folder"];
 	int				result			= SQLITE_OK;
-	NSDictionary	*changes		= [folder changedValues];
 	
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
@@ -641,7 +640,7 @@
 #endif
 	
 	// Reset the object with the stored values
-	[folder initValuesForKeysWithDictionary:changes];
+	[folder synchronizeSavedValuesWithChangedValues];
 }
 
 - (void) doDeleteWatchFolder:(WatchFolder *)folder

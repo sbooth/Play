@@ -174,6 +174,15 @@ NSString * const	ObjectIDKey								= @"id";
 	return [[_savedValues retain] autorelease];
 }
 
+- (void) synchronizeSavedValuesWithChangedValues
+{
+	if([self hasChanges]) {
+		NSDictionary *changedValuesCopy = [[self changedValues] copy];
+		[self initValuesForKeysWithDictionary:changedValuesCopy];
+		[changedValuesCopy release];
+	}
+}
+
 #pragma mark Subclass Methods
 
 - (NSArray *) supportedKeys

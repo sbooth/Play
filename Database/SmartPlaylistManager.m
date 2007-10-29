@@ -623,7 +623,6 @@
 	
 	sqlite3_stmt	*statement		= [self preparedStatementForAction:@"update_smart_playlist"];
 	int				result			= SQLITE_OK;
-	NSDictionary	*changes		= [playlist changedValues];
 	
 	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	NSAssert(NULL != statement, NSLocalizedStringFromTable(@"Unable to locate SQL.", @"Database", @""));
@@ -661,7 +660,7 @@
 #endif
 	
 	// Reset the object with the stored values
-	[playlist initValuesForKeysWithDictionary:changes];
+	[playlist synchronizeSavedValuesWithChangedValues];
 }
 
 - (void) doDeleteSmartPlaylist:(SmartPlaylist *)playlist
