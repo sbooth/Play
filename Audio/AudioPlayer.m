@@ -23,7 +23,6 @@
 #import "ScheduledAudioRegion.h"
 #import "AudioLibrary.h"
 #import "AudioStream.h"
-#import "AudioDecoder.h"
 
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/CoreAudio.h>
@@ -243,7 +242,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		NSLog(@"AudioPlayer error: Unable to reset AUGraph AudioUnits: %i", err);
 	
-	AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:error];
+	id <AudioDecoderMethods> decoder = [stream decoder:error];
 	if(nil == decoder)
 		return NO;
 
@@ -299,21 +298,8 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		}
 	}
 	
-	// Determine the subrange of the stream to play, if any
-	NSNumber				*streamStartingFrame	= [stream valueForKey:StreamStartingFrameKey];
-	NSNumber				*streamFrameCount		= [stream valueForKey:StreamFrameCountKey];
-	ScheduledAudioRegion	*region					= nil;
-	
-	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
-	if(-1 == [streamStartingFrame intValue] && -1 == [streamFrameCount intValue])
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder];
-	else if(-1 == [streamFrameCount intValue])
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue]];
-	else
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue] frameCount:[streamFrameCount unsignedIntValue]];
-
 	// Schedule the region for playback, and start scheduling audio slices
-	[[self scheduler] scheduleAudioRegion:region];
+	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionWithDecoder:decoder]];
 	[[self scheduler] startScheduling];
 
 	[self prepareToPlayStream:stream];
@@ -328,7 +314,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(NO == [self isPlaying] || NO == [[self scheduler] isScheduling])
 		return NO;
 
-	AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:error];
+	id <AudioDecoderMethods> decoder = [stream decoder:error];
 	if(nil == decoder)
 		return NO;
 
@@ -344,22 +330,9 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	// The two files can be joined only if they have the same formats and channel layouts
 	if(NO == formatsMatch || NO == channelLayoutsMatch)
 		return NO;
-	
-	// Determine the subrange of the stream to play, if any
-	NSNumber				*streamStartingFrame	= [stream valueForKey:StreamStartingFrameKey];
-	NSNumber				*streamFrameCount		= [stream valueForKey:StreamFrameCountKey];
-	ScheduledAudioRegion	*region					= nil;
-	
-	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
-	if(-1 == [streamStartingFrame intValue] && -1 == [streamFrameCount intValue])
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder];
-	else if(-1 == [streamFrameCount intValue])
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue]];
-	else
-		region = [ScheduledAudioRegion scheduledAudioRegionForDecoder:decoder startingFrame:[streamStartingFrame longLongValue] frameCount:[streamFrameCount unsignedIntValue]];
-	
+
 	// The formats and channel layouts match, so schedule the region for playback
-	[[self scheduler] scheduleAudioRegion:region];
+	[[self scheduler] scheduleAudioRegion:[ScheduledAudioRegion scheduledAudioRegionWithDecoder:decoder]];
 
 	return YES;
 }
@@ -392,7 +365,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 
 - (BOOL) streamSupportsSeeking
 {
-	return ([self hasValidStream] && [[[self scheduler] regionBeingRendered] supportsSeeking]);
+	return ([self hasValidStream] && [[[[self scheduler] regionBeingRendered] decoder] supportsSeeking]);
 }
 
 #pragma mark Playback Control
@@ -448,7 +421,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	AudioTimeStamp timeStamp = [[self scheduler] currentPlayTime];
 	if(kAudioTimeStampSampleTimeValid & timeStamp.mFlags) {
 		SInt64 lastRenderedFrame = [self startingFrame] + timeStamp.mSampleTime - _regionStartingFrame;
-		[self setStartingFrame:[[[self scheduler] regionBeingScheduled] seekToFrame:lastRenderedFrame]];
+		[self setStartingFrame:[[[[self scheduler] regionBeingScheduled] decoder] seekToFrame:lastRenderedFrame]];
 		[self setPlayingFrame:0];
 	}
 	
@@ -475,8 +448,8 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
 	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
-		SInt64 totalFrames		= [currentRegion totalFrames];
-		SInt64 currentFrame		= [currentRegion currentFrame];
+		SInt64 totalFrames		= [[currentRegion decoder] totalFrames];
+		SInt64 currentFrame		= [[currentRegion decoder] currentFrame];
 		SInt64 desiredFrame		= currentFrame + (SInt64)(seconds * [[currentRegion decoder] format].mSampleRate);
 		
 		if(totalFrames < desiredFrame)
@@ -491,7 +464,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
 	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
-		SInt64 currentFrame		= [currentRegion currentFrame];
+		SInt64 currentFrame		= [[currentRegion decoder] currentFrame];
 		SInt64 desiredFrame		= currentFrame - (SInt64)(seconds * [[currentRegion decoder] format].mSampleRate);
 		
 		if(0 > desiredFrame)
@@ -506,7 +479,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	ScheduledAudioRegion *currentRegion = [[self scheduler] regionBeingScheduled];
 	
 	if(nil != currentRegion && [[currentRegion decoder] supportsSeeking]) {
-		SInt64 totalFrames = [currentRegion totalFrames];		
+		SInt64 totalFrames = [[currentRegion decoder] totalFrames];		
 		[self setCurrentFrame:totalFrames - 1];
 	}
 }
@@ -626,7 +599,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	else if([self totalFrames] <= currentFrame)
 		currentFrame = [self totalFrames ] - 1;
 	
-	[self setStartingFrame:[[[self scheduler] regionBeingScheduled] seekToFrame:currentFrame + _regionStartingFrame]];
+	[self setStartingFrame:[[[[self scheduler] regionBeingScheduled] decoder] seekToFrame:currentFrame + _regionStartingFrame]];
 	[self setPlayingFrame:0];
 
 	AudioTimeStamp timeStamp = [[self scheduler] scheduledStartTime];
@@ -690,7 +663,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	NSLog(@"-audioSchedulerStartedRenderingRegion: %@", region);
 #endif
 	
-	[self setTotalFrames:[region totalFrames]];
+	[self setTotalFrames:[[region decoder] totalFrames]];
 	
 	[self willChangeValueForKey:@"hasValidStream"];
 	[self didChangeValueForKey:@"hasValidStream"];	

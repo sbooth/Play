@@ -135,6 +135,7 @@
 		8C5838750BDFD44000E43C9E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C58386B0BDFD44000E43C9E /* CoreAudio.framework */; };
 		8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */; };
 		8C5849CE0BE1A59800E43C9E /* RecentlySkippedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */; };
+		8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C590A140CD6EE860062E77C /* LoopableRegionDecoder.m */; };
 		8C5BD5FD0B7EFBF3000DE945 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */; };
 		8C5BD5FF0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5BD5FB0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.m */; };
 		8C5BDC340B7EFF09000DE945 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C5BDC1F0B7EFF09000DE945 /* Carbon.framework */; };
@@ -576,6 +577,9 @@
 		8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IntegerToDoubleRoundingValueTransformer.m; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.m; sourceTree = "<group>"; };
 		8C5849CB0BE1A59800E43C9E /* RecentlySkippedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlySkippedNode.h; path = Browser/RecentlySkippedNode.h; sourceTree = "<group>"; };
 		8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlySkippedNode.m; path = Browser/RecentlySkippedNode.m; sourceTree = "<group>"; };
+		8C590A130CD6EE860062E77C /* LoopableRegionDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoopableRegionDecoder.h; path = Audio/Decoders/LoopableRegionDecoder.h; sourceTree = "<group>"; };
+		8C590A140CD6EE860062E77C /* LoopableRegionDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LoopableRegionDecoder.m; path = Audio/Decoders/LoopableRegionDecoder.m; sourceTree = "<group>"; };
+		8C590B080CD8061B0062E77C /* AudioDecoderMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioDecoderMethods.h; path = Audio/Decoders/AudioDecoderMethods.h; sourceTree = "<group>"; };
 		8C5BD5F80B7EFBF3000DE945 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IconFamily.h; path = ThirdParty/IconFamily/IconFamily.h; sourceTree = "<group>"; };
 		8C5BD5F90B7EFBF3000DE945 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IconFamily.m; path = ThirdParty/IconFamily/IconFamily.m; sourceTree = "<group>"; };
 		8C5BD5FA0B7EFBF3000DE945 /* NSString+CarbonFSRefCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString+CarbonFSRefCreation.h"; path = "ThirdParty/IconFamily/NSString+CarbonFSRefCreation.h"; sourceTree = "<group>"; };
@@ -1630,6 +1634,9 @@
 				8CE620D70C11E8530073ADC3 /* OggVorbisDecoder.m */,
 				8CE620D80C11E8530073ADC3 /* WavPackDecoder.h */,
 				8CE620D90C11E8530073ADC3 /* WavPackDecoder.m */,
+				8C590A130CD6EE860062E77C /* LoopableRegionDecoder.h */,
+				8C590A140CD6EE860062E77C /* LoopableRegionDecoder.m */,
+				8C590B080CD8061B0062E77C /* AudioDecoderMethods.h */,
 			);
 			name = Decoders;
 			sourceTree = "<group>";
@@ -2286,6 +2293,7 @@
 				8CF2C3B40CB9C8790051FC67 /* parse.c in Sources */,
 				8CF2C3BF0CB9C89E0051FC67 /* opcodes.c in Sources */,
 				8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */,
+				8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2649,7 +2657,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-lcurl",
+					"-lcurl.3",
 				);
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/ThirdParty/libofa/include";
@@ -2701,7 +2709,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-lcurl",
+					"-lcurl.3",
 				);
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/ThirdParty/libofa/include";

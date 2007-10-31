@@ -21,6 +21,8 @@
 #import <Cocoa/Cocoa.h>
 #include <CoreAudio/CoreAudioTypes.h>
 
+#import "AudioDecoderMethods.h"
+
 // ========================================
 // Error Codes
 // ========================================
@@ -33,8 +35,8 @@ enum {
 	AudioDecoderInputOutputError				= 3
 };
 
-// A decoder reads audio data in some format and provides it as 32-bit float non-interleaved PCM
-@interface AudioDecoder : NSObject
+// Superclass for an audio decoder covering an entire file
+@interface AudioDecoder : NSObject <AudioDecoderMethods>
 {
 	NSURL							*_url;				// The location of the stream to be decoded
 	
@@ -44,37 +46,12 @@ enum {
 	AudioStreamBasicDescription		_sourceFormat;		// The native (PCM) format of the source file
 }
 
-+ (AudioDecoder *) audioDecoderForURL:(NSURL *)url error:(NSError **)error;
+// Return an AudioDecoder of the appropriate class
++ (AudioDecoder *) decoderWithURL:(NSURL *)url error:(NSError **)error;
 
 // Designated initializer
 - (id) initWithURL:(NSURL *)url error:(NSError **)error;
 
 // The stream this decoder will process
 - (NSURL *) URL;
-
-// The type of PCM data provided by this AudioDecoder
-- (AudioStreamBasicDescription) format;
-- (NSString *) formatDescription;
-
-// The layout of the channels this AudioDecoder provides
-- (AudioChannelLayout) channelLayout;
-- (NSString *) channelLayoutDescription;
-
-// Attempt to read frameCount frames of audio, returning the actual number of frames read
-- (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
-
-// The native (PCM) format of the source file
-- (AudioStreamBasicDescription) sourceFormat;
-- (NSString *) sourceFormatDescription;
-
-// ========================================
-// Input audio information
-// ========================================
-- (SInt64) totalFrames;
-- (SInt64) currentFrame;
-- (SInt64) framesRemaining;
-
-- (BOOL) supportsSeeking;
-- (SInt64) seekToFrame:(SInt64)frame;
-
 @end

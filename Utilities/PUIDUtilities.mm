@@ -20,7 +20,6 @@
 
 #import "PUIDUtilities.h"
 #import "AudioStream.h"
-#import "AudioDecoder.h"
 
 #include <ofa1/ofa.h>
 #include "protocol.h"
@@ -83,7 +82,7 @@ calculateFingerprintsAndRequestPUIDs(NSArray *streams, NSModalSession modalSessi
 		clock_t track_start = clock();
 #endif
 		
-		AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:nil];
+		id <AudioDecoderMethods> decoder = [stream decoder:nil];
 		
 		// Skip this stream if any errors occurred
 		if(nil == decoder)

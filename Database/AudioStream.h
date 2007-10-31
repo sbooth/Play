@@ -20,6 +20,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "DatabaseObject.h"
+#import "AudioDecoderMethods.h"
 
 // ========================================
 // KVC key names for persistent properties
@@ -99,5 +100,7 @@ extern NSString * const		PropertiesBitrateKey;
 - (void) setPlaying:(BOOL)playing;
 
 - (BOOL) isPartOfCueSheet;
+
+- (id <AudioDecoderMethods>) decoder:(NSError **)error;
 
 @end

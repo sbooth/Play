@@ -24,6 +24,8 @@
 #import "AudioMetadataReader.h"
 #import "AudioMetadataWriter.h"
 #import "AudioLibrary.h"
+#import "AudioDecoder.h"
+#import "LoopableRegionDecoder.h"
 
 NSString * const	StreamURLKey							= @"url";
 NSString * const	StreamStartingFrameKey					= @"startingFrame";
@@ -262,7 +264,19 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	NSNumber	*startingFrame	= [self valueForKey:StreamStartingFrameKey];
 	NSNumber	*frameCount		= [self valueForKey:StreamFrameCountKey];
 	
+	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
 	return (-1 != [startingFrame longLongValue] && -1 != [frameCount unsignedIntValue]);
+}
+
+- (id <AudioDecoderMethods>) decoder:(NSError **)error
+{
+	if([self isPartOfCueSheet])
+		return [LoopableRegionDecoder decoderWithURL:[self valueForKey:StreamURLKey] 
+									  startingFrame:[[self valueForKey:StreamStartingFrameKey] longLongValue]
+										 frameCount:[[self valueForKey:StreamFrameCountKey] unsignedIntValue]
+											  error:error];
+	else
+		return [AudioDecoder decoderWithURL:[self valueForKey:StreamURLKey] error:error];
 }
 
 - (void) save

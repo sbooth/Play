@@ -46,7 +46,7 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	[self setKeys:[NSArray arrayWithObjects:@"currentFrame", @"totalFrames", nil] triggerChangeNotificationsForDependentKey:@"framesRemaining"];
 }
 
-+ (AudioDecoder *) audioDecoderForURL:(NSURL *)url error:(NSError **)error
++ (AudioDecoder *) decoderWithURL:(NSURL *)url error:(NSError **)error
 {
 	NSParameterAssert(nil != url);
 	NSParameterAssert([url isFileURL]);
@@ -165,7 +165,7 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	NSParameterAssert(nil != url);
 	
 	if((self = [super init])) {
-		_url = [url retain];
+		_url = [url copy];
 
 		// Canonical Core Audio format
 		_format.mFormatID			= kAudioFormatLinearPCM;
@@ -256,8 +256,8 @@ NSString *const AudioDecoderErrorDomain = @"org.sbooth.Play.ErrorDomain.AudioDec
 	return [sourceFormatName autorelease];
 }
 
-- (SInt64)			totalFrames								{ return -1; }
-- (SInt64)			currentFrame							{ return -1; }
+- (SInt64)			totalFrames								{ return 0; }
+- (SInt64)			currentFrame							{ return 0; }
 - (SInt64)			framesRemaining 						{ return ([self totalFrames] - [self currentFrame]); }
 
 - (BOOL)			supportsSeeking							{ return NO; }

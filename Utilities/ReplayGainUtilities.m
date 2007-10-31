@@ -20,7 +20,7 @@
 
 #import "ReplayGainUtilities.h"
 #import "AudioStream.h"
-#import "AudioDecoder.h"
+#import "AudioDecoderMethods.h"
 
 #include "replaygain_analysis.h"
 
@@ -71,7 +71,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 		clock_t track_start = clock();
 #endif
 		
-		AudioDecoder *decoder = [AudioDecoder audioDecoderForURL:[stream valueForKey:StreamURLKey] error:nil];
+		id <AudioDecoderMethods> decoder = [stream decoder:nil];
 		
 		// Skip this stream if any errors occurred
 		if(nil == decoder)

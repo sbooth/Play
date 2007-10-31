@@ -20,7 +20,6 @@
 
 #import "AudioScheduler.h"
 #import "ScheduledAudioRegion.h"
-#import "AudioDecoder.h"
 
 // ========================================
 // Dictionary keys
@@ -93,7 +92,8 @@ scheduledAudioSliceCompletionProc(void *userData, ScheduledAudioSlice *slice)
 	semaphore_signal([scheduler semaphore]);
 
 	// Determine if region rendering is complete
-	if([[scheduler regionBeingRendered] atEnd] && [[scheduler regionBeingRendered] framesRendered] == [[scheduler regionBeingRendered] framesScheduled]) {
+	if([[[scheduler regionBeingRendered] decoder] currentFrame] == [[[scheduler regionBeingRendered] decoder] totalFrames] 
+	   && [[scheduler regionBeingRendered] framesRendered] == [[scheduler regionBeingRendered] framesScheduled]) {
 
 		// Notify the delegate
 		if(nil != [scheduler delegate] && [[scheduler delegate] respondsToSelector:@selector(audioSchedulerFinishedRenderingRegion:)])

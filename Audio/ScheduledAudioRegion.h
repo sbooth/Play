@@ -19,92 +19,42 @@
  */
 
 #import <Cocoa/Cocoa.h>
-
 #include <AudioToolbox/AudioToolbox.h>
 
-@class AudioDecoder;
+#import "AudioDecoderMethods.h"
 
-// This class is a bit of an amalgam- it contains all the logic for accessing a subrange of 
-// audio from a Decoder, but also the buffers and associated internal state that 
-// AudioScheduler needs to use an object of this class.
+// A class encapsulating an AudioDecoder and the buffers and associated internal state that 
+// AudioScheduler needs to use a decoder
 @interface ScheduledAudioRegion : NSObject
 {
-	AudioDecoder			*_decoder;
-	AudioTimeStamp			_startTime;
-	SInt64					_startingFrame;
-	UInt32					_frameCount;
-	unsigned				_loopCount;
+	id <AudioDecoderMethods>	_decoder;
 	
-	UInt32					_framesReadInCurrentLoop;
-	SInt64					_totalFramesRead;
-	unsigned				_completedLoops;
-
-	BOOL					_atEnd;
+	AudioTimeStamp				_startTime;
 	
-	// ========================================
-	// AudioScheduler members
-	ScheduledAudioSlice		*_sliceBuffer;
+	ScheduledAudioSlice			*_sliceBuffer;
 
-	unsigned				_numberSlices;
-	unsigned				_framesPerSlice;
+	unsigned					_numberSlices;
+	unsigned					_framesPerSlice;
 
-	SInt64					_framesScheduled;
-	SInt64					_framesRendered;
+	SInt64						_framesScheduled;
+	SInt64						_framesRendered;
 }	
 
-// ========================================
-// Creation
-// ========================================
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder;
++ (ScheduledAudioRegion *) scheduledAudioRegionWithDecoder:(id <AudioDecoderMethods>)decoder;
++ (ScheduledAudioRegion *) scheduledAudioRegionWithDecoder:(id <AudioDecoderMethods>)decoder startTime:(AudioTimeStamp)startTime;
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount;
+- (id) initWithDecoder:(id <AudioDecoderMethods>)decoder;
+- (id) initWithDecoder:(id <AudioDecoderMethods>)decoder startTime:(AudioTimeStamp)startTime;
 
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount;
-+ (ScheduledAudioRegion *) scheduledAudioRegionForDecoder:(AudioDecoder *)decoder startTime:(AudioTimeStamp)startTime startingFrame:(SInt64)startingFrame frameCount:(unsigned)frameCount loopCount:(unsigned)loopCount;
-
-// ========================================
-// Properties
-// ========================================
-- (AudioDecoder *) decoder;
-- (void) setDecoder:(AudioDecoder *)decoder;
+- (id <AudioDecoderMethods>) decoder;
+- (void) setDecoder:(id <AudioDecoderMethods>)decoder;
 
 - (AudioTimeStamp) startTime;
 - (void) setStartTime:(AudioTimeStamp)startTime;
 
-- (SInt64) startingFrame;
-- (void) setStartingFrame:(SInt64)startingFrame;
-
-- (UInt32) frameCount;
-- (void) setFrameCount:(UInt32)frameCount;
-
-- (unsigned) loopCount;
-- (void) setLoopCount:(unsigned)loopCount;
-
-// ========================================
-// Audio access
-// ========================================
-- (unsigned) completedLoops;
-
-- (SInt64) totalFrames;
-- (SInt64) currentFrame;
-- (SInt64) framesRemaining;
-
-- (BOOL) supportsSeeking;
-- (SInt64) seekToFrame:(SInt64)frame;
-
 - (SInt64) framesScheduled;
 - (SInt64) framesRendered;
 
-@end
-
-// ========================================
-// AudioScheduler methods
-// ========================================
-@interface ScheduledAudioRegion (AudioSchedulerMethods)
 - (unsigned) numberOfSlicesInBuffer;
 - (unsigned) numberOfFramesPerSlice;
 
@@ -112,12 +62,9 @@
 - (void) clearSliceBuffer;
 - (void) clearSlice:(unsigned)sliceIndex;
 
-- (void) reset;
-
 - (void) clearFramesScheduled;
 - (void) clearFramesRendered;
 
-- (UInt32) readAudio:(AudioBufferList *)bufferList frameCount:(UInt32)frameCount;
 - (UInt32) readAudioInSlice:(unsigned)sliceIndex;
 
 - (ScheduledAudioSlice *) buffer;
@@ -125,6 +72,4 @@
 
 - (void) scheduledAdditionalFrames:(UInt32)frameCount;
 - (void) renderedAdditionalFrames:(UInt32)frameCount;
-
-- (BOOL) atEnd;
 @end
