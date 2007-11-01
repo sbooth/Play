@@ -699,15 +699,18 @@ audio_linear_round(unsigned int bits,
 		_currentFrame				= 0;
 		_samplesToSkipInNextFrame	= 0;
 		_samplesDecoded				= 0;
-		
-		// Zero the buffers
-		unsigned i;
-		for(i = 0; i < _bufferList->mNumberBuffers; ++i)
-			_bufferList->mBuffers[i].mDataByteSize = 0;
-		
+
 		mad_stream_buffer(&_mad_stream, NULL, 0);
 	}
-
+	// Mark any buffered audio as read
+	else
+		_currentFrame += _bufferList->mBuffers[0].mDataByteSize / sizeof(float);
+	
+	// Zero the buffers
+	unsigned i;
+	for(i = 0; i < _bufferList->mNumberBuffers; ++i)
+		_bufferList->mBuffers[i].mDataByteSize = 0;
+	
 	for(;;) {
 		// All requested frames were skipped or read
 		if(_samplesDecoded >= frame)
@@ -757,8 +760,8 @@ audio_linear_round(unsigned int bits,
 			_mad_stream.error = MAD_ERROR_NONE;
 		}
 		
-		// Decode the header only of the MPEG frame for speed
-		int result = mad_header_decode(&_mad_frame.header, &_mad_stream);
+		// Decode the MPEG frame
+		int result = mad_frame_decode(&_mad_frame, &_mad_stream);
 		if(-1 == result) {
 			if(MAD_RECOVERABLE(_mad_stream.error)) {
 				// Prevent ID3 tags from reporting recoverable frame errors
@@ -827,23 +830,6 @@ audio_linear_round(unsigned int bits,
 
 		// If this MPEG frame contains the desired seek frame, synthesize its audio to PCM
 		if(_samplesDecoded + (sampleCount - startingSample) > frame) {
-			// Finish decoding the MPEG frame
-			result = mad_frame_decode(&_mad_frame, &_mad_stream);
-			if(-1 == result) {
-				if(MAD_RECOVERABLE(_mad_stream.error)) {
-	#if DEBUG
-					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
-	#endif
-					continue;
-				}
-				else {
-	#if DEBUG
-					NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
-	#endif
-					break;
-				}
-			}
-			
 			// Synthesize the frame into PCM
 			mad_synth_frame(&_mad_synth, &_mad_frame);
 
@@ -869,14 +855,15 @@ audio_linear_round(unsigned int bits,
 			}
 
 			// Only a portion of the frame was skipped- the rest was synthesized and stored in our buffers
-			_samplesDecoded += additionalSamplesToSkip;
+			_samplesDecoded		+= (sampleCount - startingSample);
+			_currentFrame		+= additionalSamplesToSkip;
 		}
 		// The entire frame was skipped
-		else
-			_samplesDecoded += (sampleCount - startingSample);
+		else {
+			_samplesDecoded		+= (sampleCount - startingSample);
+			_currentFrame		+= (sampleCount - startingSample);
+		}
 	}
-	
-	_currentFrame = _samplesDecoded;
 	
 	return [self currentFrame];
 }
