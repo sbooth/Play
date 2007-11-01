@@ -496,13 +496,10 @@ audio_linear_round(unsigned int bits,
 			ancillaryBitsRemaining -= 32;
 			
 			if('Xing' == magic || 'Info' == magic) {
-				unsigned	i;
-				uint32_t	flags = 0, frames = 0, bytes = 0, vbrScale = 0;
-				
 				if(32 > ancillaryBitsRemaining)
 					continue;
 				
-				flags = mad_bit_read(&stream.anc_ptr, 32);
+				uint32_t flags = mad_bit_read(&stream.anc_ptr, 32);
 				ancillaryBitsRemaining -= 32;
 				
 				// 4 byte value containing total frames
@@ -511,7 +508,7 @@ audio_linear_round(unsigned int bits,
 					if(32 > ancillaryBitsRemaining)
 						continue;
 					
-					frames = mad_bit_read(&stream.anc_ptr, 32);
+					uint32_t frames = mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 					
 					_totalMPEGFrames = frames;
@@ -526,7 +523,7 @@ audio_linear_round(unsigned int bits,
 					if(32 > ancillaryBitsRemaining)
 						continue;
 					
-					bytes = mad_bit_read(&stream.anc_ptr, 32);
+					/*uint32_t bytes =*/ mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 				}
 				
@@ -535,6 +532,7 @@ audio_linear_round(unsigned int bits,
 					if(8 * 100 > ancillaryBitsRemaining)
 						continue;
 					
+					unsigned i;
 					for(i = 0; i < 100; ++i)
 						_xingTOC[i] = mad_bit_read(&stream.anc_ptr, 8);
 					
@@ -546,7 +544,7 @@ audio_linear_round(unsigned int bits,
 					if(32 > ancillaryBitsRemaining)
 						continue;
 					
-					vbrScale = mad_bit_read(&stream.anc_ptr, 32);
+					/*uint32_t vbrScale =*/ mad_bit_read(&stream.anc_ptr, 32);
 					ancillaryBitsRemaining -= 32;
 				}
 				
@@ -568,6 +566,7 @@ audio_linear_round(unsigned int bits,
 					/*unsigned char versionString [5 + 1];
 					memset(versionString, 0, 6);*/
 					
+					unsigned i;
 					for(i = 0; i < 5; ++i)
 						/*versionString[i] =*/ mad_bit_read(&stream.anc_ptr, 8);
 					
