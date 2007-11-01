@@ -1920,6 +1920,7 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				8C9C2ECA0B73138500CE799A /* Copy Frameworks */,
+				8CD103BF0CD9990300A7354A /* Fix libcurl for Tiger */,
 			);
 			buildRules = (
 			);
@@ -2083,6 +2084,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		8CD103BF0CD9990300A7354A /* Fix libcurl for Tiger */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Fix libcurl for Tiger";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "INSTALL_NAME_TOOL=/usr/bin/install_name_tool\nTIGER_CURL=/usr/lib/libcurl.3.dylib\nLEOPARD_CURL=/usr/lib/libcurl.4.dylib\nEXECUTABLE=$TARGET_BUILD_DIR/$WRAPPER_NAME/Contents/MacOS/$TARGET_NAME\n\nif [ -e  $EXECUTABLE ]; then\n\t$INSTALL_NAME_TOOL -change $LEOPARD_CURL $TIGER_CURL $EXECUTABLE\nfi";
+		};
 		8CDE3D860C40136A008E66EB /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
