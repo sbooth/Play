@@ -26,7 +26,6 @@
 #include <sys/stat.h>
 
 #define INPUT_BUFFER_SIZE	(5 * 8192)
-#define SEEK_BUFFER_SIZE	1024
 #define LAME_HEADER_SIZE	((8 * 5) + 4 + 4 + 8 + 32 + 16 + 16 + 4 + 4 + 8 + 12 + 12 + 8 + 8 + 2 + 3 + 11 + 32 + 32 + 32)
 
 #define BIT_RESOLUTION		24
@@ -681,7 +680,15 @@ audio_linear_round(unsigned int bits,
 {
 	NSParameterAssert(0 <= frame && frame < [self totalFrames]);
 	
-	// Brute-force seeking is necessary since frame-accurate seeking is required
+	// Brute force seeking is necessary since frame-accurate seeking is required
+	
+	UInt32			bytesToRead;
+	UInt32			bytesRemaining;
+	unsigned char	*readStartPointer;
+	int32_t			audioSample;
+	
+	BOOL			readEOF					= NO;
+	float			scaleFactor				= (1L << (BIT_RESOLUTION - 1));
 	
 	// To seek to a frame earlier in the file, rewind to the beginning
 	if([self currentFrame] > frame) {
@@ -701,37 +708,176 @@ audio_linear_round(unsigned int bits,
 		
 		mad_stream_buffer(&_mad_stream, NULL, 0);
 	}
-	
-	// Allocate a buffer list to use for seeking
-	AudioBufferList *bufferList = calloc(sizeof(AudioBufferList) + (sizeof(AudioBuffer) * (_format.mChannelsPerFrame - 1)), 1);
-	NSAssert(NULL != bufferList, @"Unable to allocate memory");
-	
-	bufferList->mNumberBuffers = _format.mChannelsPerFrame;
-	
-	unsigned i;
-	for(i = 0; i < bufferList->mNumberBuffers; ++i) {
-		bufferList->mBuffers[i].mData = calloc(SEEK_BUFFER_SIZE, sizeof(float));
-		NSAssert(NULL != bufferList->mBuffers[i].mData, @"Unable to allocate memory");
-		
-		bufferList->mBuffers[i].mNumberChannels = 1;
-	}
-	
-	// Decode until the desired frame is reached		
+
 	for(;;) {
-		UInt32 framesRemaining	= frame - [self currentFrame];
-		UInt32 framesToRead		= (SEEK_BUFFER_SIZE > framesRemaining ? framesRemaining : SEEK_BUFFER_SIZE);;
-		
-		if(0 == framesRemaining)
+		// All requested frames were skipped or read
+		if(_samplesDecoded >= frame)
+			break;
+
+		// If the file contains a Xing header but not LAME gapless information,
+		// decode the number of MPEG frames specified by the Xing header
+		if(_foundXingHeader && NO == _foundLAMEHeader && 1 + _mpegFramesDecoded == _totalMPEGFrames)
 			break;
 		
-		UInt32 framesRead = [self readAudio:bufferList frameCount:framesToRead];
-		if(0 == framesRead)
+		// The LAME header indicates how many samples are in the file
+		if(_foundLAMEHeader && [self totalFrames] == _samplesDecoded)
 			break;
+		
+		// Feed the input buffer if necessary
+		if(NULL == _mad_stream.buffer || MAD_ERROR_BUFLEN == _mad_stream.error) {
+			if(NULL != _mad_stream.next_frame) {
+				bytesRemaining = _mad_stream.bufend - _mad_stream.next_frame;
+				memmove(_inputBuffer, _mad_stream.next_frame, bytesRemaining);
+				
+				readStartPointer	= _inputBuffer + bytesRemaining;
+				bytesToRead			= INPUT_BUFFER_SIZE - bytesRemaining;
+			}
+			else {
+				bytesToRead			= INPUT_BUFFER_SIZE,
+				readStartPointer	= _inputBuffer,
+				bytesRemaining		= 0;
+			}
+			
+			// Read raw bytes from the MP3 file
+			size_t bytesRead = fread(readStartPointer, 1, bytesToRead, _file);
+			if(ferror(_file)) {
+#if DEBUG
+				NSLog(@"Read error: %s.", strerror(errno));
+#endif
+				break;
+			}
+			
+			// MAD_BUFFER_GUARD zeroes are required to decode the last frame of the file
+			if(feof(_file)) {
+				memset(readStartPointer + bytesRead, 0, MAD_BUFFER_GUARD);
+				bytesRead	+= MAD_BUFFER_GUARD;
+				readEOF		= YES;
+			}
+			
+			mad_stream_buffer(&_mad_stream, _inputBuffer, bytesRead + bytesRemaining);
+			_mad_stream.error = MAD_ERROR_NONE;
+		}
+		
+		// Decode the header only of the MPEG frame for speed
+		int result = mad_header_decode(&_mad_frame.header, &_mad_stream);
+		if(-1 == result) {
+			if(MAD_RECOVERABLE(_mad_stream.error)) {
+				// Prevent ID3 tags from reporting recoverable frame errors
+				const uint8_t	*buffer			= _mad_stream.this_frame;
+				unsigned		buflen			= _mad_stream.bufend - _mad_stream.this_frame;
+				uint32_t		id3_length		= 0;
+				
+				if(10 <= buflen && 0x49 == buffer[0] && 0x44 == buffer[1] && 0x33 == buffer[2]) {
+					id3_length = (((buffer[6] & 0x7F) << (3 * 7)) | ((buffer[7] & 0x7F) << (2 * 7)) |
+								  ((buffer[8] & 0x7F) << (1 * 7)) | ((buffer[9] & 0x7F) << (0 * 7)));
+					
+					// Add 10 bytes for ID3 header
+					id3_length += 10;
+					
+					mad_stream_skip(&_mad_stream, id3_length);
+				}
+#if DEBUG
+				else
+					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+#endif
+				
+				continue;
+			}
+			// EOS for non-Xing streams occurs when EOF is reached and no further frames can be decoded
+			else if(MAD_ERROR_BUFLEN == _mad_stream.error && readEOF)
+				break;
+			else if(MAD_ERROR_BUFLEN == _mad_stream.error)
+				continue;
+			else {
+#if DEBUG
+				NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+#endif
+				break;
+			}
+		}
+		
+		// Housekeeping
+		++_mpegFramesDecoded;
+
+		// Skip any samples that remain from last frame
+		// This can happen if the encoder delay is greater than the number of samples in a frame
+		unsigned startingSample = _samplesToSkipInNextFrame;
+		
+		// Skip the Xing header (it contains empty audio)
+		if(_foundXingHeader && 1 == _mpegFramesDecoded)
+			continue;
+		// Adjust the first real audio frame for gapless playback
+		else if(_foundLAMEHeader && 2 == _mpegFramesDecoded)
+			startingSample += _encoderDelay;
+
+		// The number of samples in this frame
+		unsigned sampleCount = 32 * MAD_NSBSAMPLES(&_mad_frame.header);
+		
+		// Skip this entire frame if necessary
+		if(startingSample > sampleCount) {
+			_samplesToSkipInNextFrame += startingSample - sampleCount;
+			continue;
+		}
+		else
+			_samplesToSkipInNextFrame = 0;
+		
+		// If a LAME header was found, the total number of audio frames (AKA samples) 
+		// is known.  Ensure only that many are output
+		if(_foundLAMEHeader && [self totalFrames] < _samplesDecoded + (sampleCount - startingSample))
+			sampleCount = [self totalFrames] - _samplesDecoded;
+
+		// If this MPEG frame contains the desired seek frame, synthesize its audio to PCM
+		if(_samplesDecoded + (sampleCount - startingSample) > frame) {
+			// Finish decoding the MPEG frame
+			result = mad_frame_decode(&_mad_frame, &_mad_stream);
+			if(-1 == result) {
+				if(MAD_RECOVERABLE(_mad_stream.error)) {
+	#if DEBUG
+					NSLog(@"Recoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+	#endif
+					continue;
+				}
+				else {
+	#if DEBUG
+					NSLog(@"Unrecoverable frame level error (%s)", mad_stream_errorstr(&_mad_stream));
+	#endif
+					break;
+				}
+			}
+			
+			// Synthesize the frame into PCM
+			mad_synth_frame(&_mad_synth, &_mad_frame);
+
+			// Skip any audio frames before the sample we are seeking to
+			unsigned additionalSamplesToSkip = frame - _samplesDecoded;
+			
+			// Output samples in 32-bit float PCM
+			unsigned channel, sample;
+			for(channel = 0; channel < MAD_NCHANNELS(&_mad_frame.header); ++channel) {
+				float *floatBuffer = _bufferList->mBuffers[channel].mData;
+				
+				for(sample = startingSample + additionalSamplesToSkip; sample < sampleCount; ++sample) {
+					audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[channel][sample]);
+					
+					if(0 <= audioSample)
+						*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
+					else
+						*floatBuffer++ = (float)(audioSample / scaleFactor);
+				}
+				
+				_bufferList->mBuffers[channel].mNumberChannels	= 1;
+				_bufferList->mBuffers[channel].mDataByteSize	= (sampleCount - (startingSample + additionalSamplesToSkip)) * sizeof(float);
+			}
+
+			// Only a portion of the frame was skipped- the rest was synthesized and stored in our buffers
+			_samplesDecoded += additionalSamplesToSkip;
+		}
+		// The entire frame was skipped
+		else
+			_samplesDecoded += (sampleCount - startingSample);
 	}
 	
-	for(i = 0; i < bufferList->mNumberBuffers; ++i)
-		free(bufferList->mBuffers[i].mData), bufferList->mBuffers[i].mData = NULL;	
-	free(bufferList), bufferList = NULL;
+	_currentFrame = _samplesDecoded;
 	
 	return [self currentFrame];
 }
