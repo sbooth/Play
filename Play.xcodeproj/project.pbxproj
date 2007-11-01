@@ -372,7 +372,7 @@
 		8CF539760C4EDB56002E59E7 /* discid.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF539510C4EDB43002E59E7 /* discid.framework */; };
 		8CF539820C4EDBAF002E59E7 /* neon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF5397F0C4EDBAE002E59E7 /* neon.framework */; };
 		8CF539830C4EDBB5002E59E7 /* neon.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF5397F0C4EDBAE002E59E7 /* neon.framework */; };
-		8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */; };
+		8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CFBD2BA0CD910E6009A57C9 /* MPEGPropertiesReader.m */; };
 		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -653,7 +653,6 @@
 		8C9C37FA0B73ABAF00CE799A /* FLACPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FLACPropertiesReader.m; path = Audio/Properties/FLACPropertiesReader.m; sourceTree = "<group>"; };
 		8C9C37FB0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MonkeysAudioPropertiesReader.h; path = Audio/Properties/MonkeysAudioPropertiesReader.h; sourceTree = "<group>"; };
 		8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MonkeysAudioPropertiesReader.mm; path = Audio/Properties/MonkeysAudioPropertiesReader.mm; sourceTree = "<group>"; };
-		8C9C37FD0B73ABAF00CE799A /* MP3PropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MP3PropertiesReader.h; path = Audio/Properties/MP3PropertiesReader.h; sourceTree = "<group>"; };
 		8C9C37FF0B73ABAF00CE799A /* MusepackPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MusepackPropertiesReader.h; path = Audio/Properties/MusepackPropertiesReader.h; sourceTree = "<group>"; };
 		8C9C38000B73ABAF00CE799A /* MusepackPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MusepackPropertiesReader.m; path = Audio/Properties/MusepackPropertiesReader.m; sourceTree = "<group>"; };
 		8C9C38010B73ABAF00CE799A /* OggFLACPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OggFLACPropertiesReader.h; path = Audio/Properties/OggFLACPropertiesReader.h; sourceTree = "<group>"; };
@@ -951,7 +950,8 @@
 		8CF539510C4EDB43002E59E7 /* discid.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = discid.framework; path = Frameworks/discid.framework; sourceTree = "<group>"; };
 		8CF539520C4EDB43002E59E7 /* musicbrainz3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = musicbrainz3.framework; path = Frameworks/musicbrainz3.framework; sourceTree = "<group>"; };
 		8CF5397F0C4EDBAE002E59E7 /* neon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = neon.framework; path = Frameworks/neon.framework; sourceTree = "<group>"; };
-		8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; name = MP3PropertiesReader.mm; path = Audio/Properties/MP3PropertiesReader.mm; sourceTree = "<group>"; };
+		8CFBD2B90CD910E6009A57C9 /* MPEGPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MPEGPropertiesReader.h; path = Audio/Properties/MPEGPropertiesReader.h; sourceTree = "<group>"; };
+		8CFBD2BA0CD910E6009A57C9 /* MPEGPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MPEGPropertiesReader.m; path = Audio/Properties/MPEGPropertiesReader.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -1720,7 +1720,8 @@
 		8C9C37F40B73AB8F00CE799A /* Properties Readers */ = {
 			isa = PBXGroup;
 			children = (
-				8CF741D10BC71A9700B70F86 /* MP3PropertiesReader.mm */,
+				8CFBD2B90CD910E6009A57C9 /* MPEGPropertiesReader.h */,
+				8CFBD2BA0CD910E6009A57C9 /* MPEGPropertiesReader.m */,
 				8C9C37F50B73ABAF00CE799A /* AudioPropertiesReader.h */,
 				8C9C37F60B73ABAF00CE799A /* AudioPropertiesReader.m */,
 				8C9C37F70B73ABAF00CE799A /* CoreAudioPropertiesReader.h */,
@@ -1729,7 +1730,6 @@
 				8C9C37FA0B73ABAF00CE799A /* FLACPropertiesReader.m */,
 				8C9C37FB0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.h */,
 				8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */,
-				8C9C37FD0B73ABAF00CE799A /* MP3PropertiesReader.h */,
 				8C9C37FF0B73ABAF00CE799A /* MusepackPropertiesReader.h */,
 				8C9C38000B73ABAF00CE799A /* MusepackPropertiesReader.m */,
 				8C9C38010B73ABAF00CE799A /* OggFLACPropertiesReader.h */,
@@ -2184,7 +2184,6 @@
 				8C220A700BB8A35700808450 /* SmartPlaylistCriterion.m in Sources */,
 				8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */,
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
-				8CF741D20BC71A9700B70F86 /* MP3PropertiesReader.mm in Sources */,
 				8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */,
 				8C6ACE760BD55F6E00CDFEB2 /* RBSplitSubview.m in Sources */,
 				8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */,
@@ -2294,6 +2293,7 @@
 				8CF2C3BF0CB9C89E0051FC67 /* opcodes.c in Sources */,
 				8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */,
 				8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */,
+				8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2709,6 +2709,7 @@
 			buildSettings = {
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
@@ -2719,6 +2720,7 @@
 			buildSettings = {
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};

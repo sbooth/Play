@@ -20,7 +20,7 @@
 
 #import "AudioPropertiesReader.h"
 
-@interface MP3PropertiesReader : AudioPropertiesReader
+@interface MPEGPropertiesReader : AudioPropertiesReader
 {
 }
 

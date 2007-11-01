@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#import "MP3PropertiesReader.h"
+#import "MPEGPropertiesReader.h"
 #import "AudioStream.h"
 #include <mad/mad.h>
 
@@ -50,7 +50,7 @@
 #define TOC_FLAG        0x0004
 #define VBR_SCALE_FLAG  0x0008
 
-@implementation MP3PropertiesReader
+@implementation MPEGPropertiesReader
 
 - (BOOL) readProperties:(NSError **)error
 {
