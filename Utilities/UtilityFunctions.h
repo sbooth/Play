@@ -44,7 +44,9 @@ extern "C" {
 	NSData * getPNGDataForImage(NSImage *image);
 	NSData * getBitmapDataForImage(NSImage *image, NSBitmapImageFileType type);
 	
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
 	NSTreeNode * treeNodeForRepresentedObject(NSTreeNode *root, id representedObject);
+#endif
 
 #ifdef __cplusplus
 }

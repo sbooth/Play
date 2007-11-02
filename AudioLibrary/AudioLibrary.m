@@ -92,7 +92,9 @@
 #import "ImageAndTextCell.h"
 
 // Hacky 10.4 workarounds
+#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4
 #import "NSTreeController_Extensions.h"
+#endif
 
 #include "sfmt19937.h"
 
@@ -162,12 +164,14 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 #define PLAY_QUEUE_TABLE_COLUMNS_MENU_ITEM_INDEX	5
 #define STREAM_TABLE_COLUMNS_MENU_ITEM_INDEX		6
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4
 // ========================================
 // Completely bogus NSTreeController bindings hack (unnecessary on 10.5)
 // ========================================
 @interface NSObject (NSTreeControllerBogosity)
 - (id) observedObject;
 @end
+#endif
 
 // ========================================
 // Callback Methods (for sheets, etc.)
@@ -1765,13 +1769,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (BOOL) outlineView:(NSOutlineView *)outlineView shouldEditTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-	BrowserNode *node = nil;
-	
-	// In Leopard observedObject no longer works (which is a good thing)
-	if(nil != NSClassFromString(@"NSTreeNode"))
-		node = [item representedObject];
-	else
-		node = [item observedObject];
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
+	BrowserNode *node = [item representedObject];
+#else
+	BrowserNode *node = [item observedObject];
+#endif
 
 	return [node nameIsEditable];
 }
@@ -1788,14 +1790,12 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-	BrowserNode *node = nil;
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
+	BrowserNode *node = [item representedObject];
+#else
+	BrowserNode *node = [item observedObject];
+#endif
 	
-	// In Leopard observedObject no longer works (which is a good thing)
-	if(nil != NSClassFromString(@"NSTreeNode"))
-		node = [item representedObject];
-	else
-		node = [item observedObject];
-
 	[(ImageAndTextCell *)cell setImage:[node icon]];
 
 	// If the row is selected but isn't being edited and the current drawing isn't being used to create a drag image,
@@ -1810,16 +1810,15 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	NSOutlineView				*outlineView		= [notification object];
 	int							selectedRow			= [outlineView selectedRow];
 	id							opaqueNode			= [outlineView itemAtRow:selectedRow];
-	BrowserNode					*node				= nil;
 	NSArray						*selected			= [_streamController selectedObjects];
 	NSDictionary				*bindingInfo		= [_streamController infoForBinding:@"contentArray"];
 	AudioStreamCollectionNode	*oldStreamsNode		= [bindingInfo valueForKey:NSObservedObjectKey];
 
-	// In Leopard observedObject no longer works (which is a good thing)
-	if(nil != NSClassFromString(@"NSTreeNode"))
-		node = [opaqueNode representedObject];
-	else
-		node = [opaqueNode observedObject];
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
+	BrowserNode					*node				= [opaqueNode representedObject];
+#else
+	BrowserNode					*node				= [opaqueNode observedObject];
+#endif
 
 	// Unbind the current stream source
 	[_streamController unbind:@"contentArray"];
@@ -2512,22 +2511,19 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != node);
 	
-	NSIndexPath *indexPath = nil;
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
+	NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
+	NSTreeNode		*child			= nil;
+	NSTreeNode		*match			= nil;
 	
-	// If the NSTreeNode class is present, use it
-	if(nil != NSClassFromString(@"NSTreeNode")) {
-		NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
-		NSTreeNode		*child			= nil;
-		NSTreeNode		*match			= nil;
-		
-		while(nil == match && (child = [enumerator nextObject]))
-			match = treeNodeForRepresentedObject(child, node);
-		
-		indexPath = [match indexPath];
-	}
-	// Otherwise use hacky-10.4 workarounds
-	else
-		indexPath = [_browserController arrangedIndexPathForObject:node];
+	while(nil == match && (child = [enumerator nextObject]))
+		match = treeNodeForRepresentedObject(child, node);
+	
+	NSIndexPath *indexPath = [match indexPath];
+#else
+	// Use hacky-10.4 workarounds
+	NSIndexPath *indexPath = [_browserController arrangedIndexPathForObject:node];
+#endif
 	
 	return [_browserController setSelectionIndexPath:indexPath];	
 }
