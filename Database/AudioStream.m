@@ -265,7 +265,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	NSNumber	*frameCount		= [self valueForKey:StreamFrameCountKey];
 	
 	// For reasons related to SQLite (see http://sqlite.org/nulls.html), -1 is used instead of NULL
-	return (-1 != [startingFrame longLongValue] && -1 != [frameCount unsignedIntValue]);
+	return (-1 != [startingFrame longLongValue] && -1 != [frameCount intValue]);
 }
 
 - (id <AudioDecoderMethods>) decoder:(NSError **)error

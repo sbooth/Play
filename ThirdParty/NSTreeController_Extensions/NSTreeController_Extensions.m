@@ -97,7 +97,7 @@
 		if ( [node observedObject] == object )
 			return path;
 		else
-			if ( path = [node arrangedIndexPathForObject: object startingAt: path] )
+			if ( (path = [node arrangedIndexPathForObject: object startingAt: path]) )
 				return path;
 	}
 	
@@ -215,7 +215,7 @@
 	NSEnumerator *pathEnumerator = [paths objectEnumerator];
 	NSIndexPath  *path1 = [pathEnumerator nextObject], *path, *result = [path1 indexPathByRemovingLastIndex];
 	
-	while ( path = [pathEnumerator nextObject] ) {
+	while ( (path = [pathEnumerator nextObject]) ) {
 		NSIndexPath *candidate = [path firstCommonAncestorWithIndexPath: path1];
 		
 		if ( !candidate ) return nil;
@@ -284,7 +284,7 @@
 	
 	_NSArrayControllerTreeNode *node;
 	
-	while ( node = [enumerator nextObject] )
+	while ( (node = [enumerator nextObject]) )
 		[selectedObjects addObject: [node observedObject]];
 	
 	return selectedObjects;
@@ -301,7 +301,7 @@
 	NSEnumerator	*enumerator = [objects objectEnumerator];
 	NSIndexPath		*object;
 	
-	while ( object = [enumerator nextObject] )
+	while ( (object = [enumerator nextObject]) )
 		[outlineItems addObject: [self outlineItemForArrangedIndexPath: [self arrangedIndexPathForObject: object]]];
 	
 	return outlineItems;	
@@ -323,7 +323,7 @@
 	NSEnumerator	*enumerator = [paths objectEnumerator];
 	NSIndexPath		*path;
 	
-	while ( path = [enumerator nextObject] )
+	while ( (path = [enumerator nextObject]) )
 		[outlineItems addObject: [[self arrangedObjects] nodeAtIndexPath: path]];
 	
 	return outlineItems;	
@@ -344,7 +344,7 @@
 		NSEnumerator	*enumerator = [items objectEnumerator];
 		id				 item;
 		
-		while ( item = [enumerator nextObject] )
+		while ( (item = [enumerator nextObject]) )
 			[result addObject: [item observedObject]];
 		
 		return result;

@@ -226,7 +226,6 @@
 		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
 		8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */; };
-		8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */; };
 		8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */; };
 		8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */; };
 		8CA662080C8E33CA00E03092 /* CancelableProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA662060C8E33CA00E03092 /* CancelableProgressSheet.m */; };
@@ -1920,7 +1919,6 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				8C9C2ECA0B73138500CE799A /* Copy Frameworks */,
-				8CD103BF0CD9990300A7354A /* Fix libcurl for Tiger */,
 			);
 			buildRules = (
 			);
@@ -2084,20 +2082,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8CD103BF0CD9990300A7354A /* Fix libcurl for Tiger */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Fix libcurl for Tiger";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "INSTALL_NAME_TOOL=/usr/bin/install_name_tool\nTIGER_CURL=/usr/lib/libcurl.3.dylib\nLEOPARD_CURL=/usr/lib/libcurl.4.dylib\nEXECUTABLE=$TARGET_BUILD_DIR/$WRAPPER_NAME/Contents/MacOS/$TARGET_NAME\n\nif [ -e  $EXECUTABLE ]; then\n\t$INSTALL_NAME_TOOL -change $LEOPARD_CURL $TIGER_CURL $EXECUTABLE\nfi";
-		};
 		8CDE3D860C40136A008E66EB /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2180,7 +2164,6 @@
 				8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */,
 				8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */,
 				8CAFB69B0B87A6AB00B3A0EB /* BrowserOutlineView.m in Sources */,
-				8CA1EE680B89698600AE4C2E /* NSTreeController_Extensions.m in Sources */,
 				8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */,
 				8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */,
 				8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */,
@@ -2662,7 +2645,6 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lcurl",
@@ -2707,7 +2689,6 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lcurl",
@@ -2722,10 +2703,12 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Debug;
@@ -2733,10 +2716,12 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Release;

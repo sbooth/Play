@@ -360,6 +360,10 @@
 		case kRemoteButtonLeft:
 			[[self library] playPreviousStream:remoteControl];
 			break;
+
+		default:
+			break;
+
 	}
 }
 

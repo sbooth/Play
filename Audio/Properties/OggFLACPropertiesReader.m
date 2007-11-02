@@ -64,6 +64,8 @@ metadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata 
 				 }
 					 break;
 				 */
+		default:
+			break;
 	}
 }
 

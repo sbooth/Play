@@ -59,7 +59,7 @@
 @implementation GlobalKeyboardDevice
 
 - (id) initWithDelegate: (id) _remoteControlDelegate {	
-	if (self = [super initWithDelegate: _remoteControlDelegate]) {
+	if ((self = [super initWithDelegate: _remoteControlDelegate])) {
 		hotKeyRemoteEventMapping = [[NSMutableDictionary alloc] init];
 		
 		unsigned int modifiers = cmdKey + shiftKey /*+ optionKey*/ + controlKey;

@@ -257,11 +257,12 @@ scanMSF(NSScanner		*scanner,
 		}
 		else if([command isEqualToString:@"PERFORMER"]) {
 			NSString *performer = nil;
-			if(scanPossiblyQuotedString(lineScanner, &performer))
+			if(scanPossiblyQuotedString(lineScanner, &performer)) {
 				if(nil == currentTrack)
 					[cueSheet setValue:performer forKey:MetadataArtistKey];
 				else
 					[currentTrack setValue:performer forKey:MetadataArtistKey];
+			}
 		}
 		else if([command isEqualToString:@"POSTGAP"])
 			;
@@ -271,20 +272,22 @@ scanMSF(NSScanner		*scanner,
 			;
 		else if([command isEqualToString:@"SONGWRITER"]) {
 			NSString *songwriter = nil;
-			if(scanPossiblyQuotedString(lineScanner, &songwriter))
+			if(scanPossiblyQuotedString(lineScanner, &songwriter)) {
 				if(nil == currentTrack)
 					[cueSheet setValue:songwriter forKey:MetadataComposerKey];
 				else
 					[currentTrack setValue:songwriter forKey:MetadataComposerKey];
+			}
 		}
 		else if([command isEqualToString:@"TITLE"]) {
 			NSString *title = nil;
 			
-			if(scanPossiblyQuotedString(lineScanner, &title))
+			if(scanPossiblyQuotedString(lineScanner, &title)) {
 				if(nil == currentTrack)
 					[cueSheet setValue:title forKey:MetadataAlbumTitleKey];
 				else
 					[currentTrack setValue:title forKey:MetadataTitleKey];
+			}
 		}
 		else if([command isEqualToString:@"TRACK"]) {
 			currentTrack = nil;

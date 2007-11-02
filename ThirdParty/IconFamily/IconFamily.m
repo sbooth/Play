@@ -1366,7 +1366,7 @@
     ScrapRef scrap = NULL;
     ScrapFlavorInfo* scrapInfos = NULL;
     UInt32 numInfos = 0;
-    int i = 0;
+    unsigned i = 0;
     BOOL canInit = NO;
 
     GetCurrentScrap(&scrap);
