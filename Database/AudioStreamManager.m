@@ -560,7 +560,12 @@
 {
 	NSParameterAssert(nil != playlist);
 
-	return [[self streams] filteredArrayUsingPredicate:[playlist valueForKey:SmartPlaylistPredicateKey]];
+	// In Leopard passing nil as a predicate to filteredArrayUsingPredicate: causes a crash
+	NSPredicate *playlistPredicate = [playlist valueForKey:SmartPlaylistPredicateKey];
+	if(nil != playlistPredicate)
+		return [[self streams] filteredArrayUsingPredicate:playlistPredicate];
+	else
+		return nil;
 }
 
 @end
