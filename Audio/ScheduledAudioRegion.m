@@ -196,6 +196,7 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 
 - (SInt64)			framesScheduled							{ return _framesScheduled; }
 - (SInt64)			framesRendered							{ return _framesRendered; }
+- (BOOL)			atEnd									{ return _atEnd; }
 
 - (unsigned) numberOfSlicesInBuffer
 {
@@ -240,7 +241,12 @@ clear_slice_buffer(ScheduledAudioSlice *sliceBuffer, unsigned numberOfSlicesInBu
 {
 	NSParameterAssert(sliceIndex < [self numberOfSlicesInBuffer]);
 
-	return [[self decoder] readAudio:_sliceBuffer[sliceIndex].mBufferList frameCount:[self numberOfFramesPerSlice]];
+	UInt32 framesRead = [[self decoder] readAudio:_sliceBuffer[sliceIndex].mBufferList frameCount:[self numberOfFramesPerSlice]];
+	
+	if(0 == framesRead)
+		_atEnd = YES;
+	
+	return framesRead;
 }
 
 - (ScheduledAudioSlice *) buffer

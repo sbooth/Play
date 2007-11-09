@@ -28,6 +28,7 @@
 @interface ScheduledAudioRegion : NSObject
 {
 	id <AudioDecoderMethods>	_decoder;
+	BOOL						_atEnd;
 	
 	AudioTimeStamp				_startTime;
 	
@@ -48,6 +49,8 @@
 
 - (id <AudioDecoderMethods>) decoder;
 - (void) setDecoder:(id <AudioDecoderMethods>)decoder;
+
+- (BOOL) atEnd;
 
 - (AudioTimeStamp) startTime;
 - (void) setStartTime:(AudioTimeStamp)startTime;
