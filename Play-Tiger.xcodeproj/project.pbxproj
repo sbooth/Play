@@ -953,7 +953,7 @@
 		8CFBD2B90CD910E6009A57C9 /* MPEGPropertiesReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MPEGPropertiesReader.h; path = Audio/Properties/MPEGPropertiesReader.h; sourceTree = "<group>"; };
 		8CFBD2BA0CD910E6009A57C9 /* MPEGPropertiesReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MPEGPropertiesReader.m; path = Audio/Properties/MPEGPropertiesReader.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* Play-Tiger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Play-Tiger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Play.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Play.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1015,7 +1015,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* Play-Tiger.app */,
+				8D1107320486CEB800E47090 /* Play.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1929,7 +1929,7 @@
 			name = Play;
 			productInstallPath = "$(HOME)/Applications";
 			productName = Play;
-			productReference = 8D1107320486CEB800E47090 /* Play-Tiger.app */;
+			productReference = 8D1107320486CEB800E47090 /* Play.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2652,7 +2652,7 @@
 					"$(inherited)",
 					"-lcurl",
 				);
-				PRODUCT_NAME = "Play-Tiger";
+				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
@@ -2697,7 +2697,7 @@
 					"$(inherited)",
 					"-lcurl",
 				);
-				PRODUCT_NAME = "Play-Tiger";
+				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
