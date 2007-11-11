@@ -105,7 +105,7 @@ getAPETag(CAPETag		*f,
 	// Discs in set
 	NSString *discTotal = getAPETag(f, "DISCTOTAL");
 	if(nil != discTotal)
-		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataDiscTotalKey];	
 	
 	// Compilation
 	NSString *compilation = getAPETag(f, "COMPILATION");
