@@ -56,6 +56,7 @@
 		8C0CF21D0CE829A00086CAFB /* sqlite3.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF2190CE8298F0086CAFB /* sqlite3.framework */; };
 		8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF23B0CE82BE70086CAFB /* libcurl.framework */; };
 		8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF23B0CE82BE70086CAFB /* libcurl.framework */; };
+		8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */; };
 		8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */; };
 		8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */; };
 		8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F6E30B912006009200C4 /* WatchFolderNode.m */; };
@@ -1984,6 +1985,7 @@
 				8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */,
 				8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */,
 				8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */,
+				8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2337,6 +2339,7 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;
@@ -2377,6 +2380,7 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;

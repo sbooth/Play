@@ -219,7 +219,7 @@ getBitmapDataForImage(NSImage					*image,
 	return [bitmapRep representationUsingType:type properties:nil]; 
 }
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
+//#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
 NSTreeNode * 
 treeNodeForRepresentedObject(NSTreeNode *root, id representedObject)
 {
@@ -250,4 +250,4 @@ treeNodeForRepresentedObject(NSTreeNode *root, id representedObject)
 	
 	return match;
 }
-#endif
+//#endif
