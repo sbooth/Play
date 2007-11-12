@@ -619,7 +619,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 	[searchSheet setTitle:[stream valueForKey:MetadataTitleKey]];
 	[searchSheet setArtist:[stream valueForKey:MetadataArtistKey]];
 	[searchSheet setAlbumTitle:[stream valueForKey:MetadataAlbumTitleKey]];
-	[searchSheet setDuration:[stream valueForKey:PropertiesDurationKey]];
+	[searchSheet setDuration:[stream duration]];
 
 	[[NSApplication sharedApplication] beginSheet:[searchSheet sheet] 
 								   modalForWindow:[self window] 

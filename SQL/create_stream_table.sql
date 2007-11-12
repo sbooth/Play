@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS 'streams' (
 	'channels_per_frame'		INTEGER,
 	'sample_rate'				REAL,
 	'total_frames'				INTEGER,
-	'duration'					REAL,
 	'bitrate'					REAL,
 	
 	UNIQUE (url, starting_frame, frame_count)

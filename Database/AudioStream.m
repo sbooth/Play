@@ -71,7 +71,6 @@ NSString * const	PropertiesBitsPerChannelKey				= @"bitsPerChannel";
 NSString * const	PropertiesChannelsPerFrameKey			= @"channelsPerFrame";
 NSString * const	PropertiesSampleRateKey					= @"sampleRate";
 NSString * const	PropertiesTotalFramesKey				= @"totalFrames";
-NSString * const	PropertiesDurationKey					= @"duration";
 NSString * const	PropertiesBitrateKey					= @"bitrate";
 
 @implementation AudioStream
@@ -256,6 +255,19 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	return [[self valueForKey:StreamURLKey] path];
 }
 
+- (NSNumber *) duration
+{
+	if([self isPartOfCueSheet])
+		return [NSNumber numberWithDouble:[[self valueForKey:StreamFrameCountKey] longLongValue] / [[self valueForKey:PropertiesSampleRateKey] floatValue]];
+	else
+		return [self totalDuration];
+}
+
+- (NSNumber *) totalDuration
+{
+	return [NSNumber numberWithDouble:[[self valueForKey:PropertiesTotalFramesKey] longLongValue] / [[self valueForKey:PropertiesSampleRateKey] floatValue]];
+}
+
 - (BOOL) isPlaying							{ return _playing; }
 - (void) setPlaying:(BOOL)playing			{ _playing = playing; }
 
@@ -356,7 +368,6 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 			PropertiesChannelsPerFrameKey,
 			PropertiesSampleRateKey,
 			PropertiesTotalFramesKey,
-			PropertiesDurationKey,
 			PropertiesBitrateKey,
 			
 			nil];

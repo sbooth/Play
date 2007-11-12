@@ -62,7 +62,6 @@
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_BITS_PER_SAMPLE)] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_CHANNELS)] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:PropertiesSampleRateKey];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)decompressor->GetInfo(APE_DECOMPRESS_TOTAL_BLOCKS) / decompressor->GetInfo(APE_INFO_SAMPLE_RATE)] forKey:PropertiesDurationKey];
 		
 	[self setValue:propertiesDictionary forKey:@"properties"];
 		

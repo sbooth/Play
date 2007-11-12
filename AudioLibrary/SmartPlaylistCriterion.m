@@ -288,7 +288,7 @@ enum {
 		@"-", 
 		PropertiesFileTypeKey, PropertiesDataFormatKey, PropertiesFormatDescriptionKey, 
 		PropertiesBitsPerChannelKey, PropertiesChannelsPerFrameKey, PropertiesSampleRateKey, 
-		PropertiesTotalFramesKey, PropertiesDurationKey, PropertiesBitrateKey,
+		PropertiesTotalFramesKey, @"duration", PropertiesBitrateKey,
 		@"-",
 		StatisticsDateAddedKey, StatisticsFirstPlayedDateKey, StatisticsLastPlayedDateKey, StatisticsLastSkippedDateKey,
 		StatisticsPlayCountKey, StatisticsSkipCountKey, StatisticsRatingKey,
@@ -547,7 +547,7 @@ enum {
 		displayName		= NSLocalizedStringFromTable(@"Total Frames", @"AudioStream", @"");
 		attributeType	= NSInteger64AttributeType;
 	}
-	else if([keyPath isEqualToString:PropertiesDurationKey]) {
+	else if([keyPath isEqualToString:@"duration"]) {
 		displayName		= NSLocalizedStringFromTable(@"Duration", @"AudioStream", @"");
 		attributeType	= NSDoubleAttributeType;
 	}

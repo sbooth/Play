@@ -45,7 +45,6 @@ INSERT INTO 'streams' (
 		channels_per_frame,
 		sample_rate,
 		total_frames,
-		duration,
 		bitrate
 
 	) 
@@ -93,7 +92,6 @@ INSERT INTO 'streams' (
 		?,
 		?,
 		?,
-		?, 
 		?, 
 		?, 
 		?, 

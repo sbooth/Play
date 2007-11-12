@@ -329,13 +329,11 @@ scanMSF(NSScanner		*scanner,
 		if(0 != i)
 			previousTrack = [cueSheetTracks objectAtIndex:(i - 1)];
 
-		// Fill in frame counts and duration
+		// Fill in frame counts
 		if(nil != previousTrack && [[previousTrack valueForKey:StreamURLKey] isEqual:[thisTrack valueForKey:StreamURLKey]]) {
 			unsigned frameCount = ([[thisTrack valueForKey:StreamStartingFrameKey] longLongValue] - 1) - [[previousTrack valueForKey:StreamStartingFrameKey] longLongValue];
 			
 			[previousTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
-			[previousTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
-			[previousTrack setValue:[NSNumber numberWithDouble:(double)frameCount / [[thisTrack valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
 		}
 		
 		// Special handling for last tracks
@@ -343,8 +341,6 @@ scanMSF(NSScanner		*scanner,
 			unsigned frameCount = [[thisTrack valueForKey:PropertiesTotalFramesKey] unsignedIntValue] - [[thisTrack valueForKey:StreamStartingFrameKey] longLongValue] + 1;
 			
 			[thisTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
-			[thisTrack setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
-			[thisTrack setValue:[NSNumber numberWithDouble:(double)frameCount / [[thisTrack valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
 		}
 	}
 	

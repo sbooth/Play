@@ -45,8 +45,6 @@ metadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata 
 			[source setValue:[NSNumber numberWithUnsignedInt:metadata->data.stream_info.channels] forKeyPath:@"localProperties.channelsPerFrame"];
 			
 			[source setValue:[NSNumber numberWithLongLong:metadata->data.stream_info.total_samples] forKeyPath:@"localProperties.totalFrames"];
-
-			[source setValue:[NSNumber numberWithDouble:(double)metadata->data.stream_info.total_samples / metadata->data.stream_info.sample_rate] forKeyPath:@"localProperties.duration"];
 			break;
 			
 			/*

@@ -110,7 +110,7 @@ escapeForLastFM(NSString *string)
 		escapeForLastFM([stream valueForKey:MetadataTitleKey]), 
 		escapeForLastFM([stream valueForKey:MetadataAlbumTitleKey]), 
 		escapeForLastFM([stream valueForKey:MetadataMusicBrainzIDKey]), 
-		[[stream valueForKey:PropertiesDurationKey] intValue], 
+		[[stream duration] intValue], 
 		escapeForLastFM([[stream valueForKey:StreamURLKey] path])
 		]];	
 }

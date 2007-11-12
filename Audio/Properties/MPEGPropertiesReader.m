@@ -220,7 +220,6 @@
 					xingTotalFrames = frames * samplesPerMPEGFrame;
 
 					[propertiesDictionary setValue:[NSNumber numberWithUnsignedLong:xingTotalFrames] forKey:PropertiesTotalFramesKey];
-					[propertiesDictionary setValue:[NSNumber numberWithFloat:(xingTotalFrames / frame.header.samplerate)] forKey:PropertiesDurationKey];
 				}
 				
 				// 4 byte value containing total bytes
@@ -341,7 +340,6 @@
 			unsigned totalFrames = (double)frame.header.samplerate * ((stat.st_size - id3_length) / (frame.header.bitrate / 8.0));
 
 			[propertiesDictionary setValue:[NSNumber numberWithUnsignedLong:totalFrames] forKey:PropertiesTotalFramesKey];
-			[propertiesDictionary setValue:[NSNumber numberWithFloat:(totalFrames / frame.header.samplerate)] forKey:PropertiesDurationKey];
 
 			// For now, quit after second frame
 			break;

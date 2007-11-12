@@ -93,7 +93,6 @@
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.bits_per_sample] forKey:PropertiesBitsPerChannelKey];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.channels] forKey:PropertiesChannelsPerFrameKey];
 				[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:block->data.stream_info.sample_rate] forKey:PropertiesSampleRateKey];				
-				[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)block->data.stream_info.total_samples / block->data.stream_info.sample_rate] forKey:PropertiesDurationKey];
 				break;
 				
 			case FLAC__METADATA_TYPE_CUESHEET:
@@ -139,13 +138,11 @@
 						[trackDictionary setValue:[NSNumber numberWithInt:block->data.cue_sheet.tracks[i].number] forKey:MetadataTrackNumberKey];
 						[trackDictionary setValue:[NSNumber numberWithUnsignedLongLong:block->data.cue_sheet.tracks[i].offset] forKey:StreamStartingFrameKey];
 						
-						// Fill in frame counts and duration
+						// Fill in frame counts
 						if(0 < i) {
 							unsigned frameCount = (block->data.cue_sheet.tracks[i].offset - 1) - block->data.cue_sheet.tracks[i - 1].offset;
 							
 							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
-							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
-							[[cueSheetTracks objectAtIndex:(i - 1)] setValue:[NSNumber numberWithDouble:(double)frameCount / [[propertiesDictionary valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
 						}
 						
 						// Special handling for the last audio track
@@ -154,8 +151,6 @@
 							unsigned frameCount = [[propertiesDictionary valueForKey:PropertiesTotalFramesKey] unsignedLongLongValue] - block->data.cue_sheet.tracks[i].offset + 1;
 
 							[trackDictionary setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
-							[trackDictionary setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:PropertiesTotalFramesKey];
-							[trackDictionary setValue:[NSNumber numberWithDouble:(double)frameCount / [[propertiesDictionary valueForKey:PropertiesSampleRateKey] floatValue]] forKey:PropertiesDurationKey];
 						}
 
 						[cueSheetTracks addObject:trackDictionary];

@@ -790,8 +790,7 @@
 	getColumnValue(statement, 38, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInt);
 	getColumnValue(statement, 39, stream, PropertiesSampleRateKey, eObjectTypeDouble);
 	getColumnValue(statement, 40, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-	getColumnValue(statement, 41, stream, PropertiesDurationKey, eObjectTypeDouble);
-	getColumnValue(statement, 42, stream, PropertiesBitrateKey, eObjectTypeDouble);
+	getColumnValue(statement, 41, stream, PropertiesBitrateKey, eObjectTypeDouble);
 		
 	// Register the object	
 	NSMapInsert(_registeredStreams, (void *)objectID, (void *)stream);
@@ -867,8 +866,7 @@
 		bindParameter(statement, 38, stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInt);
 		bindParameter(statement, 39, stream, PropertiesSampleRateKey, eObjectTypeDouble);
 		bindParameter(statement, 40, stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-		bindParameter(statement, 41, stream, PropertiesDurationKey, eObjectTypeDouble);
-		bindParameter(statement, 42, stream, PropertiesBitrateKey, eObjectTypeDouble);
+		bindParameter(statement, 41, stream, PropertiesBitrateKey, eObjectTypeDouble);
 		
 		result = sqlite3_step(statement);
 		NSAssert2(SQLITE_DONE == result, @"Unable to insert a record for %@ (%@).", [[NSFileManager defaultManager] displayNameAtPath:[[stream valueForKey:StreamURLKey] path]], [NSString stringWithUTF8String:sqlite3_errmsg(_db)]);
@@ -970,7 +968,6 @@
 	bindNamedParameter(statement, ":channels_per_frame", stream, PropertiesChannelsPerFrameKey, eObjectTypeUnsignedInt);
 	bindNamedParameter(statement, ":sample_rate", stream, PropertiesSampleRateKey, eObjectTypeDouble);
 	bindNamedParameter(statement, ":total_frames", stream, PropertiesTotalFramesKey, eObjectTypeLongLong);
-	bindNamedParameter(statement, ":duration", stream, PropertiesDurationKey, eObjectTypeDouble);
 	bindNamedParameter(statement, ":bitrate", stream, PropertiesBitrateKey, eObjectTypeDouble);
 	
 	result = sqlite3_step(statement);
@@ -1081,7 +1078,6 @@
 				PropertiesChannelsPerFrameKey,
 				PropertiesSampleRateKey,
 				PropertiesTotalFramesKey,
-				PropertiesDurationKey,
 				PropertiesBitrateKey,
 								
 				nil];			

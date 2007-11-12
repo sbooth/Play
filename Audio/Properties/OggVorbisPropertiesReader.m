@@ -89,7 +89,6 @@
 //	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->channels] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:ovInfo->rate] forKey:PropertiesSampleRateKey];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / ovInfo->rate] forKey:PropertiesDurationKey];
 	
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	

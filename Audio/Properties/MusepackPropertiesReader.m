@@ -92,7 +92,6 @@
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:streaminfo.average_bitrate] forKey:PropertiesBitrateKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.channels] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:streaminfo.sample_freq] forKey:PropertiesSampleRateKey];
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)mpc_streaminfo_get_length_samples(&streaminfo) / streaminfo.sample_freq] forKey:PropertiesDurationKey];
 
 	if(0 != streaminfo.gain_title)
 		[propertiesDictionary setValue:[NSNumber numberWithShort:streaminfo.gain_title] forKey:ReplayGainTrackGainKey];

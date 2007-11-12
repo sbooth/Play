@@ -69,7 +69,6 @@ extern NSString * const		PropertiesBitsPerChannelKey;
 extern NSString * const		PropertiesChannelsPerFrameKey;
 extern NSString * const		PropertiesSampleRateKey;
 extern NSString * const		PropertiesTotalFramesKey;
-extern NSString * const		PropertiesDurationKey;
 extern NSString * const		PropertiesBitrateKey;
 
 @interface AudioStream : DatabaseObject
@@ -95,6 +94,9 @@ extern NSString * const		PropertiesBitrateKey;
 
 - (NSString *) filename;
 - (NSString *) pathname;
+
+- (NSNumber *) duration;
+- (NSNumber *) totalDuration;
 
 - (BOOL) isPlaying;
 - (void) setPlaying:(BOOL)playing;

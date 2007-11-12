@@ -109,9 +109,6 @@
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:PropertiesSampleRateKey];
 	
-	// Save sample rate for duration calcuation
-	Float64 sampleRate = asbd.mSampleRate;
-	
 	// Zero out part of the asbd so we only get the format's name
 	asbd.mSampleRate		= 0;
 	asbd.mBytesPerPacket	= 0;
@@ -142,9 +139,7 @@
 	NSAssert1(noErr == result, @"ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) failed: %@", UTCreateStringForOSType(result));
 
 	[propertiesDictionary setValue:[NSNumber numberWithLongLong:totalFrames] forKey:PropertiesTotalFramesKey];
-	
-	[propertiesDictionary setValue:[NSNumber numberWithDouble:(double)totalFrames / sampleRate] forKey:PropertiesDurationKey];
-	
+		
 	[self setValue:propertiesDictionary forKey:@"properties"];
 	
 	// Close the files
