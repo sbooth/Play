@@ -44,7 +44,7 @@ UPDATE 'streams' SET
 		channels_per_frame = :channels_per_frame,
 		sample_rate = :sample_rate,
 		total_frames = :total_frames,
-		duration = :duration,
 		bitrate = :bitrate
 
 	WHERE id == :id;
+	
