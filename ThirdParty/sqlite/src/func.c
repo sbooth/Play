@@ -16,7 +16,7 @@
 ** sqliteRegisterBuildinFunctions() found at the bottom of the file.
 ** All other code has file scope.
 **
-** $Id: func.c,v 1.174 2007/09/03 11:04:22 danielk1977 Exp $
+** $Id: func.c,v 1.176 2007/11/01 17:38:31 drh Exp $
 */
 #include "sqliteInt.h"
 #include <ctype.h>
@@ -169,7 +169,7 @@ static void substrFunc(
   int p0type;
   i64 p1, p2;
 
-  assert( argc==3 );
+  assert( argc==3 || argc==2 );
   p0type = sqlite3_value_type(argv[0]);
   if( p0type==SQLITE_BLOB ){
     len = sqlite3_value_bytes(argv[0]);
@@ -185,7 +185,11 @@ static void substrFunc(
     }
   }
   p1 = sqlite3_value_int(argv[1]);
-  p2 = sqlite3_value_int(argv[2]);
+  if( argc==3 ){
+    p2 = sqlite3_value_int(argv[2]);
+  }else{
+    p2 = SQLITE_MAX_LENGTH;
+  }
   if( p1<0 ){
     p1 += len;
     if( p1<0 ){
@@ -1308,6 +1312,42 @@ static void minMaxFinalize(sqlite3_context *context){
   }
 }
 
+#ifdef SQLITE_GROUP_CONCAT
+/*
+** group_concat(EXPR, ?SEPARATOR?)
+*/
+static void groupConcatStep(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zVal;
+  char **pzAccumulator;
+  const char *zSep;
+  if( sqlite3_value_type(argv[0])==SQLITE_NULL ) return;
+  zVal = sqlite3_value_text(argv[0]);
+  pzAccumulator = (char**)sqlite3_aggregate_context(context, sizeof(char*));
+  if( pzAccumulator ){
+    if( *pzAccumulator==0 ){
+      *pzAccumulator = sqlite3_mprintf("%s", zVal);
+    }else{
+      if( argc==2 ){
+        zSep = sqlite3_value_text(argv[1]);
+      }else{
+        zSep = ",";
+      }
+      *pzAccumulator = sqlite3_mprintf("%z%s%s", *pzAccumulator, zSep, zVal);
+    }
+  }
+}
+static void groupConcatFinalize(sqlite3_context *context){
+  char **pzAccum;
+  pzAccum = sqlite3_aggregate_context(context, 0);
+  if( pzAccum ){
+    sqlite3_result_text(context, *pzAccum, -1, sqlite3_free);
+  }
+}
+#endif /*SQLITE_GROUP_CONCAT*/
 
 /*
 ** This function registered all of the above C functions as SQL
@@ -1329,6 +1369,7 @@ void sqlite3RegisterBuiltinFunctions(sqlite3 *db){
     { "max",                0, 1, SQLITE_UTF8,    1, 0          },
     { "typeof",             1, 0, SQLITE_UTF8,    0, typeofFunc },
     { "length",             1, 0, SQLITE_UTF8,    0, lengthFunc },
+    { "substr",             2, 0, SQLITE_UTF8,    0, substrFunc },
     { "substr",             3, 0, SQLITE_UTF8,    0, substrFunc },
     { "abs",                1, 0, SQLITE_UTF8,    0, absFunc    },
     { "round",              1, 0, SQLITE_UTF8,    0, roundFunc  },
@@ -1386,6 +1427,10 @@ void sqlite3RegisterBuiltinFunctions(sqlite3 *db){
     { "avg",    1, 0, 0, sumStep,      avgFinalize    },
     { "count",  0, 0, 0, countStep,    countFinalize  },
     { "count",  1, 0, 0, countStep,    countFinalize  },
+#ifdef SQLITE_GROUP_CONCAT
+    { "group_concat", 1, 0, 0, groupConcatStep, groupConcatFinalize },
+    { "group_concat", 2, 0, 0, groupConcatStep, groupConcatFinalize },
+#endif
   };
   int i;
 

@@ -22,7 +22,7 @@
 **     COMMIT
 **     ROLLBACK
 **
-** $Id: build.c,v 1.444 2007/09/03 15:19:35 drh Exp $
+** $Id: build.c,v 1.447 2007/10/15 07:08:44 danielk1977 Exp $
 */
 #include "sqliteInt.h"
 #include <ctype.h>
@@ -1679,6 +1679,7 @@ int sqlite3ViewGetColumnNames(Parse *pParse, Table *pTable){
   int nErr = 0;     /* Number of errors encountered */
   int n;            /* Temporarily holds the number of cursors assigned */
   sqlite3 *db = pParse->db;  /* Database connection for malloc errors */
+  int (*xAuth)(void*,int,const char*,const char*,const char*,const char*);
 
   assert( pTable );
 
@@ -1724,7 +1725,14 @@ int sqlite3ViewGetColumnNames(Parse *pParse, Table *pTable){
     n = pParse->nTab;
     sqlite3SrcListAssignCursors(pParse, pSel->pSrc);
     pTable->nCol = -1;
+#ifndef SQLITE_OMIT_AUTHORIZATION
+    xAuth = db->xAuth;
+    db->xAuth = 0;
     pSelTab = sqlite3ResultSetOfSelect(pParse, 0, pSel);
+    db->xAuth = xAuth;
+#else
+    pSelTab = sqlite3ResultSetOfSelect(pParse, 0, pSel);
+#endif
     pParse->nTab = n;
     if( pSelTab ){
       assert( pTable->aCol==0 );
@@ -1912,6 +1920,13 @@ void sqlite3DropTable(Parse *pParse, SrcList *pName, int isView, int noErr){
   }
   iDb = sqlite3SchemaToIndex(db, pTab->pSchema);
   assert( iDb>=0 && iDb<db->nDb );
+
+  /* If pTab is a virtual table, call ViewGetColumnNames() to ensure
+  ** it is initialized.
+  */
+  if( IsVirtual(pTab) && sqlite3ViewGetColumnNames(pParse, pTab) ){
+    goto exit_drop_table;
+  }
 #ifndef SQLITE_OMIT_AUTHORIZATION
   {
     int code;
@@ -1929,9 +1944,6 @@ void sqlite3DropTable(Parse *pParse, SrcList *pName, int isView, int noErr){
       }
 #ifndef SQLITE_OMIT_VIRTUALTABLE
     }else if( IsVirtual(pTab) ){
-      if( sqlite3ViewGetColumnNames(pParse, pTab) ){
-        goto exit_drop_table;
-      }
       code = SQLITE_DROP_VTABLE;
       zArg2 = pTab->pMod->zName;
 #endif

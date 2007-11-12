@@ -431,12 +431,6 @@ static void winceDestroyLock(winFile *pFile){
     UnmapViewOfFile(pFile->shared);
     CloseHandle(pFile->hShared);
 
-    if( pFile->zDeleteOnClose ){
-      DeleteFileW(pFile->zDeleteOnClose);
-      free(pFile->zDeleteOnClose);
-      pFile->zDeleteOnClose = 0;
-    }
-
     /* Done with the mutex */
     winceMutexRelease(pFile->hMutex);    
     CloseHandle(pFile->hMutex);
@@ -613,6 +607,10 @@ static int winClose(sqlite3_file *id){
   }while( rc==0 && cnt++ < MX_CLOSE_ATTEMPT && (Sleep(100), 1) );
 #if OS_WINCE
   winceDestroyLock(pFile);
+  if( pFile->zDeleteOnClose ){
+    DeleteFileW(pFile->zDeleteOnClose);
+    free(pFile->zDeleteOnClose);
+  }
 #endif
   OpenCounter(-1);
   return rc ? SQLITE_OK : SQLITE_IOERR;
@@ -1083,6 +1081,7 @@ static int winOpen(
   DWORD dwShareMode;
   DWORD dwCreationDisposition;
   DWORD dwFlagsAndAttributes = 0;
+  int isTemp;
   winFile *pFile = (winFile*)id;
   void *zConverted = convertUtf8Filename(zName);
   if( zConverted==0 ){
@@ -1106,17 +1105,21 @@ static int winOpen(
   }
   if( flags & (SQLITE_OPEN_TEMP_DB | SQLITE_OPEN_TEMP_JOURNAL
                     | SQLITE_OPEN_SUBJOURNAL) ){
+#if OS_WINCE
+    dwFlagsAndAttributes = FILE_ATTRIBUTE_HIDDEN;
+#else
     dwFlagsAndAttributes = FILE_ATTRIBUTE_TEMPORARY
                                | FILE_ATTRIBUTE_HIDDEN
                                | FILE_FLAG_DELETE_ON_CLOSE;
+#endif
+    isTemp = 1;
   }else{
     dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+    isTemp = 0;
   }
-  if( flags & (SQLITE_OPEN_MAIN_DB | SQLITE_OPEN_TEMP_DB) ){
-    dwFlagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
-  }else{
-    dwFlagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
-  }
+  /* Reports from the internet are that performance is always
+  ** better if FILE_FLAG_RANDOM_ACCESS is used.  Ticket #2699. */
+  dwFlagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
   if( isNT() ){
     h = CreateFileW((WCHAR*)zConverted,
        dwDesiredAccess,
@@ -1162,13 +1165,13 @@ static int winOpen(
 #if OS_WINCE
   if( (flags & (SQLITE_OPEN_READWRITE|SQLITE_OPEN_MAIN_DB)) ==
                (SQLITE_OPEN_READWRITE|SQLITE_OPEN_MAIN_DB)
-       && !winceCreateLock(zFilename, pFile)
+       && !winceCreateLock(zName, pFile)
   ){
     CloseHandle(h);
     free(zConverted);
     return SQLITE_CANTOPEN;
   }
-  if( dwFlagsAndAttributes & FILE_FLAG_DELETE_ON_CLOSE ){
+  if( isTemp ){
     pFile->zDeleteOnClose = zConverted;
   }else
 #endif
@@ -1333,6 +1336,7 @@ static int winFullPathname(
 #if OS_WINCE
   /* WinCE has no concept of a relative pathname, or so I am told. */
   sqlite3_snprintf(pVfs->mxPathname, zFull, "%s", zRelative);
+  return SQLITE_OK;
 #endif
 
 #if !OS_WINCE && !defined(__CYGWIN__)
@@ -1403,7 +1407,7 @@ static void *winDlOpen(sqlite3_vfs *pVfs, const char *zFilename){
   return (void*)h;
 }
 static void winDlError(sqlite3_vfs *pVfs, int nBuf, char *zBufOut){
-  FormatMessage(
+  FormatMessageA(
     FORMAT_MESSAGE_FROM_SYSTEM,
     NULL,
     GetLastError(),

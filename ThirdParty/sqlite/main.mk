@@ -51,7 +51,7 @@ TCCX = $(TCC) $(OPTS) -I. -I$(TOP)/src
 LIBOBJ+= alter.o analyze.o attach.o auth.o btmutex.o btree.o build.o \
          callback.o complete.o date.o delete.o \
          expr.o func.o hash.o insert.o journal.o loadext.o \
-         main.o malloc.o mem1.o mem2.o mutex.o mutex_os2.o \
+         main.o malloc.o mem1.o mem2.o mem3.o mutex.o mutex_os2.o \
          mutex_unix.o mutex_w32.o \
          opcodes.o os.o os_os2.o os_unix.o os_win.o \
          pager.o parse.o pragma.o prepare.o printf.o random.o \
@@ -106,6 +106,7 @@ SRC = \
   $(TOP)/src/malloc.c \
   $(TOP)/src/mem1.c \
   $(TOP)/src/mem2.c \
+  $(TOP)/src/mem3.c \
   $(TOP)/src/mutex.c \
   $(TOP)/src/mutex.h \
   $(TOP)/src/mutex_os2.c \
@@ -305,7 +306,6 @@ sqlite3.c:	target_source $(TOP)/tool/mksqlite3c.tcl
 	tclsh $(TOP)/tool/mksqlite3c.tcl
 	cp sqlite3.c tclsqlite3.c
 	cat $(TOP)/src/tclsqlite.c >>tclsqlite3.c
-	tclsh $(TOP)/tool/mksqlite3internalh.tcl
 
 fts2amal.c:	target_source $(TOP)/ext/fts2/mkfts2amal.tcl
 	tclsh $(TOP)/ext/fts2/mkfts2amal.tcl
@@ -353,6 +353,7 @@ parse.h:	parse.c
 
 parse.c:	$(TOP)/src/parse.y lemon $(TOP)/addopcodes.awk
 	cp $(TOP)/src/parse.y .
+	rm -f parse.h
 	./lemon $(OPTS) parse.y
 	mv parse.h parse.h.temp
 	awk -f $(TOP)/addopcodes.awk parse.h.temp >parse.h
@@ -450,7 +451,7 @@ sqlite3_analyzer$(EXE):	$(TOP)/src/tclsqlite.c sqlite3.c $(TESTSRC) \
 	  -e 's,^,",' \
 	  -e 's,$$,\\n",' \
 	  $(TOP)/tool/spaceanal.tcl >spaceanal_tcl.h
-	$(TCCX) $(TCL_FLAGS)                                                   \
+	$(TCCX) $(TCL_FLAGS)                  $(TESTFIXTURE_FLAGS)                                 \
 		-DTCLSH=2 -DSQLITE_TEST=1 -DSQLITE_DEBUG=1 -DSQLITE_PRIVATE="" \
 		$(TESTSRC) $(TOP)/src/tclsqlite.c sqlite3.c                    \
 		-o sqlite3_analyzer$(EXE)                                      \

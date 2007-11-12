@@ -11,7 +11,7 @@
 # This file implements regression tests for SQLite library.  The
 # focus of this file is creating and dropping virtual tables.
 #
-# $Id: vtab1.test,v 1.46 2007/09/03 15:03:21 danielk1977 Exp $
+# $Id: vtab1.test,v 1.48 2007/11/05 05:12:53 danielk1977 Exp $
 
 set testdir [file dirname $argv0]
 source $testdir/tester.tcl
@@ -762,20 +762,24 @@ do_test vtab1.7-13 {
   }
 } {}
 
-do_test vtab1.8-1 {
-  set echo_module ""
-  execsql {
-    ATTACH 'test2.db' AS aux;
-    CREATE VIRTUAL TABLE aux.e2 USING echo(real_abc);
-  }
-  set echo_module
-} [list xCreate echo aux e2 real_abc   \
-        xSync   echo(real_abc)         \
-        xCommit echo(real_abc)         \
-]
+ifcapable attach {
+  do_test vtab1.8-1 {
+    set echo_module ""
+    execsql {
+      ATTACH 'test2.db' AS aux;
+      CREATE VIRTUAL TABLE aux.e2 USING echo(real_abc);
+    }
+    set echo_module
+  } [list xCreate echo aux e2 real_abc   \
+          xSync   echo(real_abc)         \
+          xCommit echo(real_abc)         \
+  ]
+}
 do_test vtab1.8-2 {
-  execsql {
+  catchsql {
     DROP TABLE aux.e2;
+  }
+  execsql {
     DROP TABLE treal;
     DROP TABLE techo;
     DROP TABLE echo_abc;
@@ -941,6 +945,36 @@ do_test vtab1.12-6 {
   execsql { COMMIT }
   execsql { SELECT * FROM c }
 } {3 G H}
+
+# At one point (ticket #2759), a WHERE clause of the form "<column> IS NULL"
+# on a virtual table was causing an assert() to fail in the compiler.
+#
+# "IS NULL" clauses should not be passed through to the virtual table
+# implementation. They are handled by SQLite after the vtab returns it's
+# data.
+#
+do_test vtab1.13-1 {
+  execsql { 
+    SELECT * FROM echo_c WHERE a IS NULL 
+  }
+} {}
+do_test vtab1.13-2 {
+  execsql { 
+    INSERT INTO c VALUES(NULL, 15, 16);
+    SELECT * FROM echo_c WHERE a IS NULL 
+  }
+} {{} 15 16}
+do_test vtab1.13-3 {
+  execsql { 
+    INSERT INTO c VALUES(15, NULL, 16);
+    SELECT * FROM echo_c WHERE b IS NULL 
+  }
+} {15 {} 16}
+do_test vtab1.13-3 {
+  execsql { 
+    SELECT * FROM echo_c WHERE b IS NULL AND a = 15;
+  }
+} {15 {} 16}
 
 unset -nocomplain echo_module_begin_fail
 finish_test

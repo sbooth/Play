@@ -255,13 +255,14 @@ static int sqlite3Step(Vdbe *p){
   sqlite3 *db;
   int rc;
 
+  if( p==0 || p->magic!=VDBE_MAGIC_RUN ){
+    return SQLITE_MISUSE;
+  }
+
   /* Assert that malloc() has not failed */
   db = p->db;
   assert( !db->mallocFailed );
 
-  if( p==0 || p->magic!=VDBE_MAGIC_RUN ){
-    return SQLITE_MISUSE;
-  }
   if( p->aborted ){
     return SQLITE_ABORT;
   }
@@ -445,12 +446,7 @@ void *sqlite3_aggregate_context(sqlite3_context *p, int nByte){
       pMem->flags = MEM_Agg;
       pMem->xDel = sqlite3_free;
       pMem->u.pDef = p->pFunc;
-      if( nByte<=NBFS ){
-        pMem->z = pMem->zShort;
-        memset(pMem->z, 0, nByte);
-      }else{
-        pMem->z = sqlite3DbMallocZero(p->s.db, nByte);
-      }
+      pMem->z = sqlite3DbMallocZero(p->s.db, nByte);
     }
   }
   return (void*)pMem->z;

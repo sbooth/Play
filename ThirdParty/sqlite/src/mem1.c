@@ -12,7 +12,7 @@
 ** This file contains the C functions that implement a memory
 ** allocation subsystem for use by SQLite.  
 **
-** $Id: mem1.c,v 1.10 2007/09/02 17:50:35 drh Exp $
+** $Id: mem1.c,v 1.13 2007/11/05 17:54:17 drh Exp $
 */
 
 /*
@@ -20,7 +20,7 @@
 ** used when no other memory allocator is specified using compile-time
 ** macros.
 */
-#if !defined(SQLITE_MEMDEBUG) && !defined(SQLITE_OMIT_MEMORY_ALLOCATION)
+#if !defined(SQLITE_MEMDEBUG) && !defined(SQLITE_MEMORY_SIZE)
 
 /*
 ** We will eventually construct multiple memory allocation subsystems
@@ -212,6 +212,8 @@ void *sqlite3_realloc(void *pPrior, int nBytes){
   p = realloc(p, nBytes+8);
   if( p==0 ){
     sqlite3MemsysAlarm(nBytes);
+    p = pPrior;
+    p--;
     p = realloc(p, nBytes+8);
   }
   if( p ){

@@ -43,11 +43,10 @@
 ** in this file for details.  If in doubt, do not deviate from existing
 ** commenting and indentation practices when changing or adding code.
 **
-** $Id: vdbe.c,v 1.650 2007/09/03 15:19:36 drh Exp $
+** $Id: vdbe.c,v 1.653 2007/10/23 15:39:45 drh Exp $
 */
 #include "sqliteInt.h"
 #include <ctype.h>
-#include <math.h>
 #include "vdbeInt.h"
 
 /*
@@ -706,34 +705,26 @@ case OP_Integer: {
 
 /* Opcode: Int64 * * P3
 **
-** P3 is a string representation of an integer.  Convert that integer
-** to a 64-bit value and push it onto the stack.
+** P3 is a pointer to a 64-bit integer value.
+** Push  that value onto  the stack.
 */
 case OP_Int64: {
   pTos++;
   assert( pOp->p3!=0 );
-  pTos->flags = MEM_Str|MEM_Static|MEM_Term;
-  pTos->z = pOp->p3;
-  pTos->n = strlen(pTos->z);
-  pTos->enc = SQLITE_UTF8;
-  pTos->u.i = sqlite3VdbeIntValue(pTos);
-  pTos->flags |= MEM_Int;
+  pTos->flags = MEM_Int;
+  memcpy(&pTos->u.i, pOp->p3, 8);
   break;
 }
 
 /* Opcode: Real * * P3
 **
-** The string value P3 is converted to a real and pushed on to the stack.
+** P3 is a pointer to a 64-bit floating point value.  Push that value
+** onto the stack.
 */
 case OP_Real: {            /* same as TK_FLOAT, */
   pTos++;
-  pTos->flags = MEM_Str|MEM_Static|MEM_Term;
-  pTos->z = pOp->p3;
-  pTos->n = strlen(pTos->z);
-  pTos->enc = SQLITE_UTF8;
-  pTos->r = sqlite3VdbeRealValue(pTos);
-  pTos->flags |= MEM_Real;
-  sqlite3VdbeChangeEncoding(pTos, encoding);
+  pTos->flags = MEM_Real;
+  memcpy(&pTos->r, pOp->p3, 8);
   break;
 }
 
@@ -746,8 +737,8 @@ case OP_String8: {         /* same as TK_STRING */
   assert( pOp->p3!=0 );
   pOp->opcode = OP_String;
   pOp->p1 = strlen(pOp->p3);
-  assert( SQLITE_MAX_SQL_LENGTH < SQLITE_MAX_LENGTH );
-  assert( pOp->p1 < SQLITE_MAX_LENGTH );
+  assert( SQLITE_MAX_SQL_LENGTH <= SQLITE_MAX_LENGTH );
+  assert( pOp->p1 <= SQLITE_MAX_LENGTH );
 
 #ifndef SQLITE_OMIT_UTF16
   if( encoding!=SQLITE_UTF8 ){
@@ -763,7 +754,7 @@ case OP_String8: {         /* same as TK_STRING */
     pOp->p3type = P3_DYNAMIC;
     pOp->p3 = pTos->z;
     pOp->p1 = pTos->n;
-    assert( pOp->p1 < SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
+    assert( pOp->p1 <= SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
     break;
   }
 #endif
@@ -775,7 +766,7 @@ case OP_String8: {         /* same as TK_STRING */
 ** The string value P3 of length P1 (bytes) is pushed onto the stack.
 */
 case OP_String: {
-  assert( pOp->p1 < SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
+  assert( pOp->p1 <= SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
   pTos++;
   assert( pOp->p3!=0 );
   pTos->flags = MEM_Str|MEM_Static|MEM_Term;
@@ -809,8 +800,8 @@ case OP_Null: {
 case OP_HexBlob: {            /* same as TK_BLOB */
   pOp->opcode = OP_Blob;
   pOp->p1 = strlen(pOp->p3)/2;
-  assert( SQLITE_MAX_SQL_LENGTH < SQLITE_MAX_LENGTH );
-  assert( pOp->p1 < SQLITE_MAX_LENGTH );
+  assert( SQLITE_MAX_SQL_LENGTH <= SQLITE_MAX_LENGTH );
+  assert( pOp->p1 <= SQLITE_MAX_LENGTH );
   if( pOp->p1 ){
     char *zBlob = sqlite3HexToBlob(db, pOp->p3);
     if( !zBlob ) goto no_mem;
@@ -841,7 +832,7 @@ case OP_HexBlob: {            /* same as TK_BLOB */
 */
 case OP_Blob: {
   pTos++;
-  assert( pOp->p1 < SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
+  assert( pOp->p1 <= SQLITE_MAX_LENGTH ); /* Due to SQLITE_MAX_SQL_LENGTH */
   sqlite3VdbeMemSetStr(pTos, pOp->p3, pOp->p1, 0, 0);
   pTos->enc = encoding;
   break;

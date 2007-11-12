@@ -99,10 +99,7 @@ void sqlite3VdbeTrace(Vdbe *p, FILE *trace){
 
 /*
 ** Resize the Vdbe.aOp array so that it contains at least N
-** elements. If the Vdbe is in VDBE_MAGIC_RUN state, then
-** the Vdbe.aOp array will be sized to contain exactly N
-** elements. Vdbe.nOpAlloc is set to reflect the new size of
-** the array.
+** elements.
 **
 ** If an out-of-memory error occurs while resizing the array,
 ** Vdbe.aOp and Vdbe.nOpAlloc remain unchanged (this is so that
@@ -110,18 +107,14 @@ void sqlite3VdbeTrace(Vdbe *p, FILE *trace){
 ** along with the rest of the Vdbe).
 */
 static void resizeOpArray(Vdbe *p, int N){
-  int runMode = p->magic==VDBE_MAGIC_RUN;
-  if( runMode || p->nOpAlloc<N ){
-    VdbeOp *pNew;
-    int nNew = N + 100*(!runMode);
-    int oldSize = p->nOpAlloc;
-    pNew = sqlite3DbRealloc(p->db, p->aOp, nNew*sizeof(Op));
-    if( pNew ){
-      p->nOpAlloc = nNew;
-      p->aOp = pNew;
-      if( nNew>oldSize ){
-        memset(&p->aOp[oldSize], 0, (nNew-oldSize)*sizeof(Op));
-      }
+  VdbeOp *pNew;
+  int oldSize = p->nOpAlloc;
+  pNew = sqlite3DbRealloc(p->db, p->aOp, N*sizeof(Op));
+  if( pNew ){
+    p->nOpAlloc = N;
+    p->aOp = pNew;
+    if( N>oldSize ){
+      memset(&p->aOp[oldSize], 0, (N-oldSize)*sizeof(Op));
     }
   }
 }
@@ -149,7 +142,7 @@ int sqlite3VdbeAddOp(Vdbe *p, int op, int p1, int p2){
   i = p->nOp;
   assert( p->magic==VDBE_MAGIC_INIT );
   if( p->nOpAlloc<=i ){
-    resizeOpArray(p, i+1);
+    resizeOpArray(p, p->nOpAlloc*2 + 100);
     if( p->db->mallocFailed ){
       return 0;
     }
@@ -360,7 +353,9 @@ int sqlite3VdbeCurrentAddr(Vdbe *p){
 int sqlite3VdbeAddOpList(Vdbe *p, int nOp, VdbeOpList const *aOp){
   int addr;
   assert( p->magic==VDBE_MAGIC_INIT );
-  resizeOpArray(p, p->nOp + nOp);
+  if( p->nOp + nOp > p->nOpAlloc ){
+    resizeOpArray(p, p->nOp*2 + nOp);
+  }
   if( p->db->mallocFailed ){
     return 0;
   }
@@ -437,13 +432,12 @@ static void freeEphemeralFunction(FuncDef *pDef){
 static void freeP3(int p3type, void *p3){
   if( p3 ){
     switch( p3type ){
+      case P3_REAL:
+      case P3_INT64:
+      case P3_MPRINTF:
       case P3_DYNAMIC:
       case P3_KEYINFO:
       case P3_KEYINFO_HANDOFF: {
-        sqlite3_free(p3);
-        break;
-      }
-      case P3_MPRINTF: {
         sqlite3_free(p3);
         break;
       }
@@ -633,6 +627,16 @@ static char *displayP3(Op *pOp, char *zTemp, int nTemp){
     case P3_FUNCDEF: {
       FuncDef *pDef = (FuncDef*)pOp->p3;
       sqlite3_snprintf(nTemp, zTemp, "%s(%d)", pDef->zName, pDef->nArg);
+      zP3 = zTemp;
+      break;
+    }
+    case P3_INT64: {
+      sqlite3_snprintf(nTemp, zTemp, "%lld", *(sqlite3_int64*)pOp->p3);
+      zP3 = zTemp;
+      break;
+    }
+    case P3_REAL: {
+      sqlite3_snprintf(nTemp, zTemp, "%.16g", *(double*)pOp->p3);
       zP3 = zTemp;
       break;
     }
