@@ -48,6 +48,10 @@
 		8C06F87A0B86C9D800E8ADB6 /* PlaylistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */; };
 		8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */; };
 		8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */; };
+		8C0CF05D0CE806FA0086CAFB /* check_for_cue_sheet_support.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C0CF05C0CE806FA0086CAFB /* check_for_cue_sheet_support.sql */; };
+		8C0CF0610CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C0CF0600CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql */; };
+		8C0CF0830CE80EAB0086CAFB /* check_for_musicbrainz_support.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C0CF0820CE80EAB0086CAFB /* check_for_musicbrainz_support.sql */; };
+		8C0CF0860CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C0CF0850CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql */; };
 		8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */; };
 		8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */; };
 		8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F6E30B912006009200C4 /* WatchFolderNode.m */; };
@@ -232,9 +236,6 @@
 		8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CA6621F0C8E344C00E03092 /* CancelableProgressSheet.nib */; };
 		8CA662AA0C8E3EA100E03092 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CA662A70C8E3EA100E03092 /* SystemConfiguration.framework */; };
 		8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */; };
-		8CA8B2EA0C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CA8B2E90C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql */; };
-		8CA8B3510C8E037C00B56CCB /* add_musicbrainz_id_column.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CA8B34F0C8E037C00B56CCB /* add_musicbrainz_id_column.sql */; };
-		8CA8B3520C8E037C00B56CCB /* add_musicdns_puid_column.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CA8B3500C8E037C00B56CCB /* add_musicdns_puid_column.sql */; };
 		8CA8B41F0C8E083900B56CCB /* protocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8B41D0C8E083900B56CCB /* protocol.cpp */; };
 		8CAFAFF20B878B8A00B3A0EB /* AudioStreamArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFAFF00B878B8A00B3A0EB /* AudioStreamArrayController.m */; };
 		8CAFB6560B87A35800B3A0EB /* BrowserTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CAFB6540B87A35800B3A0EB /* BrowserTreeController.m */; };
@@ -455,6 +456,10 @@
 		8C06F8780B86C9D800E8ADB6 /* PlaylistNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlaylistNode.m; path = Browser/PlaylistNode.m; sourceTree = "<group>"; };
 		8C06FB480B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = delete_playlist_entries_for_playlist.sql; path = SQL/delete_playlist_entries_for_playlist.sql; sourceTree = "<group>"; };
 		8C06FB580B86E97600E8ADB6 /* insert_playlist_entry.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = insert_playlist_entry.sql; path = SQL/insert_playlist_entry.sql; sourceTree = "<group>"; };
+		8C0CF05C0CE806FA0086CAFB /* check_for_cue_sheet_support.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = check_for_cue_sheet_support.sql; path = SQL/check_for_cue_sheet_support.sql; sourceTree = "<group>"; };
+		8C0CF0600CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = upgrade_database_for_cue_sheets.sql; path = SQL/upgrade_database_for_cue_sheets.sql; sourceTree = "<group>"; };
+		8C0CF0820CE80EAB0086CAFB /* check_for_musicbrainz_support.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = check_for_musicbrainz_support.sql; path = SQL/check_for_musicbrainz_support.sql; sourceTree = "<group>"; };
+		8C0CF0850CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = upgrade_database_for_musicbrainz.sql; path = SQL/upgrade_database_for_musicbrainz.sql; sourceTree = "<group>"; };
 		8C16C6D70BCB1F3700126A45 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FileAdditionProgressSheet.nib; sourceTree = "<group>"; };
 		8C16C6DD0BCB1FEA00126A45 /* FileAdditionProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileAdditionProgressSheet.h; path = AudioLibrary/FileAdditionProgressSheet.h; sourceTree = "<group>"; };
 		8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileAdditionProgressSheet.m; path = AudioLibrary/FileAdditionProgressSheet.m; sourceTree = "<group>"; };
@@ -724,9 +729,6 @@
 		8CA662A70C8E3EA100E03092 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		8CA8345C0BF3850F00E98527 /* ReplayGainUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReplayGainUtilities.h; path = Utilities/ReplayGainUtilities.h; sourceTree = "<group>"; };
 		8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReplayGainUtilities.m; path = Utilities/ReplayGainUtilities.m; sourceTree = "<group>"; };
-		8CA8B2E90C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = check_for_musicdns_puid_and_musicbrainz_id_columns.sql; path = SQL/check_for_musicdns_puid_and_musicbrainz_id_columns.sql; sourceTree = "<group>"; };
-		8CA8B34F0C8E037C00B56CCB /* add_musicbrainz_id_column.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = add_musicbrainz_id_column.sql; path = SQL/add_musicbrainz_id_column.sql; sourceTree = "<group>"; };
-		8CA8B3500C8E037C00B56CCB /* add_musicdns_puid_column.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = add_musicdns_puid_column.sql; path = SQL/add_musicdns_puid_column.sql; sourceTree = "<group>"; };
 		8CA8B41D0C8E083900B56CCB /* protocol.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = protocol.cpp; path = ThirdParty/MusicDNS/protocol.cpp; sourceTree = "<group>"; };
 		8CA8B41E0C8E083900B56CCB /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = protocol.h; path = ThirdParty/MusicDNS/protocol.h; sourceTree = "<group>"; };
 		8CAFAFEF0B878B8A00B3A0EB /* AudioStreamArrayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamArrayController.h; path = AudioLibrary/AudioStreamArrayController.h; sourceTree = "<group>"; };
@@ -1675,9 +1677,10 @@
 		8C9C377C0B739C9800CE799A /* SQL */ = {
 			isa = PBXGroup;
 			children = (
-				8CA8B34F0C8E037C00B56CCB /* add_musicbrainz_id_column.sql */,
-				8CA8B3500C8E037C00B56CCB /* add_musicdns_puid_column.sql */,
-				8CA8B2E90C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql */,
+				8C0CF0850CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql */,
+				8C0CF0820CE80EAB0086CAFB /* check_for_musicbrainz_support.sql */,
+				8C0CF0600CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql */,
+				8C0CF05C0CE806FA0086CAFB /* check_for_cue_sheet_support.sql */,
 				8C2209D50BB82C2700808450 /* update_smart_playlist.sql */,
 				8C2209CC0BB82C0A00808450 /* select_smart_playlist_by_id.sql */,
 				8C2209C50BB82BE700808450 /* select_all_smart_playlists.sql */,
@@ -1954,8 +1957,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CA8B3510C8E037C00B56CCB /* add_musicbrainz_id_column.sql in Resources */,
-				8CA8B3520C8E037C00B56CCB /* add_musicdns_puid_column.sql in Resources */,
 				8CB3FECB0BDDB28200B5E828 /* Defaults.plist in Resources */,
 				8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */,
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
@@ -2055,7 +2056,6 @@
 				8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */,
 				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
 				8CF0D92D0C836DD500728E39 /* AdvancedPreferences.nib in Resources */,
-				8CA8B2EA0C8DFF4300B56CCB /* check_for_musicdns_puid_and_musicbrainz_id_columns.sql in Resources */,
 				8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */,
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
 				8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */,
@@ -2076,6 +2076,10 @@
 				8C05E8230CC29E1E006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff in Resources */,
 				8C05E8260CC29E6B006E5746 /* MaximumVolume.png in Resources */,
 				8C05E8270CC29E6B006E5746 /* MinimumVolume.png in Resources */,
+				8C0CF05D0CE806FA0086CAFB /* check_for_cue_sheet_support.sql in Resources */,
+				8C0CF0610CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql in Resources */,
+				8C0CF0830CE80EAB0086CAFB /* check_for_musicbrainz_support.sql in Resources */,
+				8C0CF0860CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

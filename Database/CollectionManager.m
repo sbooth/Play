@@ -39,64 +39,69 @@ executeSQLFromFileInBundle(sqlite3		*db,
 {
 	NSCParameterAssert(NULL != db);
 	NSCParameterAssert(nil != filename);
-
-//	NSAssert([self isConnectedToDatabase], NSLocalizedStringFromTable(@"Not connected to database", @"Database", @""));
 	
 	sqlite3_stmt	*statement		= NULL;
-	const char		*tail			= NULL;
 	NSString		*path			= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
 	NSString		*sql			= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 	
 	if(nil == sql)
 		return NO;
-	
-	if(SQLITE_OK != sqlite3_prepare_v2(db, [sql UTF8String], -1, &statement, &tail)) {
-		if(nil != error) {
-			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
-			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:DatabaseErrorDomain 
-										 code:DatabaseSQLiteError 
-									 userInfo:errorDictionary];
-		}
-		
-		return NO;
-	}
 
-	if(SQLITE_DONE != sqlite3_step(statement)) {
-		if(nil != error) {
-			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+	const char		*sqlUTF8		= [sql UTF8String];
+	
+	// Process every statement in the SQL file
+	for(;;) {
+		if(SQLITE_OK != sqlite3_prepare_v2(db, sqlUTF8, -1, &statement, &sqlUTF8)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be prepared.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to prepare SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
 			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be executed.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to execute SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:DatabaseErrorDomain 
-										 code:DatabaseSQLiteError 
-									 userInfo:errorDictionary];
+			return NO;
 		}
 		
-		return NO;
-	}
-	
-	
-	if(SQLITE_OK != sqlite3_finalize(statement)) {
-		if(nil != error) {
-			NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+		// If sqlite3_prepare_v2 returns NULL with no error, the end of input has been reached
+		if(NULL == statement)
+			break;
+		
+		if(SQLITE_DONE != sqlite3_step(statement)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be executed.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to execute SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
 			
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
-			[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
-			[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
-			
-			*error = [NSError errorWithDomain:DatabaseErrorDomain 
-										 code:DatabaseSQLiteError 
-									 userInfo:errorDictionary];
+			return NO;
 		}
 		
-		return NO;
+		if(SQLITE_OK != sqlite3_finalize(statement)) {
+			if(nil != error) {
+				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
+				
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQL statement for \"%@\" could not be finalized.", @"Errors", @""), filename] forKey:NSLocalizedDescriptionKey];
+				[errorDictionary setObject:NSLocalizedStringFromTable(@"Unable to finalize SQL statement", @"Errors", @"") forKey:NSLocalizedFailureReasonErrorKey];
+				[errorDictionary setObject:[NSString stringWithFormat:NSLocalizedStringFromTable(@"The SQLite error was: %@", @"Errors", @""), [NSString stringWithUTF8String:sqlite3_errmsg(db)]] forKey:NSLocalizedRecoverySuggestionErrorKey];
+				
+				*error = [NSError errorWithDomain:DatabaseErrorDomain 
+											 code:DatabaseSQLiteError 
+										 userInfo:errorDictionary];
+			}
+			
+			return NO;
+		}
 	}
 	
 	return YES;
@@ -257,9 +262,18 @@ static CollectionManager *collectionManagerInstance = nil;
 		return NO;
 	}
 
-	if(NO == executeSQLFromFileInBundle(db, @"check_for_musicdns_puid_and_musicbrainz_id_columns", error)) {
-		if(NO == executeSQLFromFileInBundle(db, @"add_musicdns_puid_column", error) || NO == executeSQLFromFileInBundle(db, @"add_musicbrainz_id_column", error))
+	// The first database upgrade involved adding columns for MusicBrainz support
+	if(NO == executeSQLFromFileInBundle(db, @"check_for_musicbrainz_support", error)) {
+		if(NO == executeSQLFromFileInBundle(db, @"upgrade_database_for_musicbrainz", error))
+			return NO;		
+	}
+	
+	// The second databse upgrade consisted of removing the duration column and adding cue sheet support
+	if(NO == executeSQLFromFileInBundle(db, @"check_for_cue_sheet_support", error)) {
+		if(NO == executeSQLFromFileInBundle(db, @"upgrade_database_for_cue_sheets", error))
 			return NO;
+		
+		// Unfortunately past versions did not properly set the totalFrames value for MP3s
 	}
 
 	if(SQLITE_OK != sqlite3_close(db)) {
