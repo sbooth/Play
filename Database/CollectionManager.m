@@ -245,6 +245,8 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSParameterAssert(nil != databasePath);
 
+	BOOL rescanMP3s = NO;
+	
 	sqlite3 *db = NULL;
 	if(SQLITE_OK != sqlite3_open([databasePath UTF8String], &db)) {
 		if(nil != error) {
@@ -274,6 +276,7 @@ static CollectionManager *collectionManagerInstance = nil;
 			return NO;
 		
 		// Unfortunately past versions did not properly set the totalFrames value for MP3s
+		rescanMP3s = YES;
 	}
 
 	if(SQLITE_OK != sqlite3_close(db)) {
@@ -290,6 +293,34 @@ static CollectionManager *collectionManagerInstance = nil;
 		}
 		
 		return NO;
+	}
+	
+	if(rescanMP3s) {
+		// Display an alert since this could take a while
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:@"OK"];
+		[alert setMessageText:NSLocalizedStringFromTable(@"Database Update Required", @"Database", @"")];
+		[alert setInformativeText:NSLocalizedStringFromTable(@"After the update is complete durations for MP3 files in your collection will be recalculated.", @"Database", @"")];
+		[alert setAlertStyle:NSInformationalAlertStyle];
+		
+		// Display the alert
+		[alert runModal];
+		[alert release];
+		
+		if(NO == [self connectToDatabase:databasePath error:error])
+			return NO;
+		
+		// Grab all MP3 files
+		NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathname ENDSWITH %@", @".mp3"];		
+		NSArray *streams = [[[self streamManager] streams] filteredArrayUsingPredicate:predicate];
+		
+		// Rescan file properties to update total frames
+		[self beginUpdate];
+		[streams makeObjectsPerformSelector:@selector(rescanProperties:) withObject:self];
+		[self finishUpdate];
+									
+		if(NO == [self disconnectFromDatabase:error])
+			return NO;
 	}
 	
 	return YES;
