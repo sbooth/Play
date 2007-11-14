@@ -21,6 +21,7 @@
 #import "AudioStream.h"
 #import "CollectionManager.h"
 #import "AudioStreamManager.h"
+#import "AudioPropertiesReader.h"
 #import "AudioMetadataReader.h"
 #import "AudioMetadataWriter.h"
 #import "AudioLibrary.h"
@@ -125,6 +126,18 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self setValue:nil forKey:StatisticsLastSkippedDateKey];
 }
 
+- (IBAction) clearProperties:(id)sender
+{
+	[self setValue:nil forKey:PropertiesFileTypeKey];
+	[self setValue:nil forKey:PropertiesDataFormatKey];
+	[self setValue:nil forKey:PropertiesFormatDescriptionKey];
+	[self setValue:nil forKey:PropertiesBitsPerChannelKey];
+	[self setValue:nil forKey:PropertiesChannelsPerFrameKey];
+	[self setValue:nil forKey:PropertiesSampleRateKey];
+	[self setValue:nil forKey:PropertiesTotalFramesKey];
+	[self setValue:nil forKey:PropertiesBitrateKey];
+}
+
 - (IBAction) clearMetadata:(id)sender
 {
 	[self setValue:nil forKey:MetadataTitleKey];
@@ -156,6 +169,40 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self setValue:nil forKey:ReplayGainAlbumPeakKey];
 }
 
+- (IBAction) rescanProperties:(id)sender
+{
+	NSError					*error				= nil;
+	AudioPropertiesReader	*propertiesReader	= [AudioPropertiesReader propertiesReaderForURL:[self valueForKey:StreamURLKey] error:&error];
+	
+	if(nil == propertiesReader) {
+/*		if(nil != error)
+			[[AudioLibrary library] presentError:error];
+		 */
+		return;
+	}
+	
+	BOOL result = [propertiesReader readProperties:&error];
+	if(NO == result) {
+/*		if(nil != error)
+			[[AudioLibrary library] presentError:error];
+		 */
+		return;
+	}
+	
+	// Empty old properties
+	[self clearProperties:sender];
+	
+	NSDictionary	*properties		= [propertiesReader properties];
+	NSEnumerator	*enumerator		= [properties keyEnumerator];
+	NSString		*key;
+	id				value;
+	
+	while((key = [enumerator nextObject])) {
+		value = [properties valueForKey:key];
+		[self setValue:value forKey:key];
+	}
+}
+
 - (IBAction) rescanMetadata:(id)sender
 {
 	NSError					*error				= nil;
@@ -179,7 +226,7 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	// Empty old metadata
 	[self clearMetadata:sender];
 
-	NSDictionary	*metadata		= [metadataReader valueForKey:@"metadata"];
+	NSDictionary	*metadata		= [metadataReader metadata];
 	NSEnumerator	*enumerator		= [metadata keyEnumerator];
 	NSString		*key;
 	id				value;
