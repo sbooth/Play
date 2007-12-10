@@ -418,7 +418,6 @@
 		8C0CF0600CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = upgrade_database_for_cue_sheets.sql; path = SQL/upgrade_database_for_cue_sheets.sql; sourceTree = "<group>"; };
 		8C0CF0820CE80EAB0086CAFB /* check_for_musicbrainz_support.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = check_for_musicbrainz_support.sql; path = SQL/check_for_musicbrainz_support.sql; sourceTree = "<group>"; };
 		8C0CF0850CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = upgrade_database_for_musicbrainz.sql; path = SQL/upgrade_database_for_musicbrainz.sql; sourceTree = "<group>"; };
-		8C0CF0C00CE813CA0086CAFB /* sqlite3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "sqlite3-Info.plist"; sourceTree = "<group>"; };
 		8C0CF2190CE8298F0086CAFB /* sqlite3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = sqlite3.framework; path = Frameworks/sqlite3.framework; sourceTree = "<group>"; };
 		8C0CF23B0CE82BE70086CAFB /* libcurl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libcurl.framework; path = Frameworks/libcurl.framework; sourceTree = "<group>"; };
 		8C16C6D70BCB1F3700126A45 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FileAdditionProgressSheet.nib; sourceTree = "<group>"; };
@@ -934,7 +933,6 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8C0CF0C00CE813CA0086CAFB /* sqlite3-Info.plist */,
 				8CA6621F0C8E344C00E03092 /* CancelableProgressSheet.nib */,
 				8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */,
 				8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */,
