@@ -162,6 +162,10 @@
 			NSLog(@"Monkey's Audio invalid checksum.");
 			break;
 		}
+
+		// End of input
+		if(0 == blocksRetrieved)
+			break;
 		
 		float		scaleFactor		= (1L << ((((_bitsPerSample + 7) / 8) * 8) - 1));
 		int32_t		actualSample	= 0;
