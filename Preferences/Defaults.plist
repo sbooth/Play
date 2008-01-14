@@ -9,6 +9,8 @@
 	<key>playerVolume</key>
 	<real>1.0</real>
 	<key>enableAudioScrobbler</key>
+	<false/>
+	<key>enableiScrobbler</key>
 	<true/>
 	<key>enableGrowlNotifications</key>
 	<true/>

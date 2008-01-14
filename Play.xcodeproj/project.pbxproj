@@ -287,6 +287,7 @@
 		8CC1B8000B7C4D1D006BF010 /* delete_stream_trigger.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1B7FF0B7C4D1D006BF010 /* delete_stream_trigger.sql */; };
 		8CC1B83C0B7C58E9006BF010 /* DatabaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */; };
 		8CC1BA150B7C70D0006BF010 /* select_playlist_by_id.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */; };
+		8CC86DB60D39EBB400A4E608 /* iScrobbler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC86DB50D39EBB400A4E608 /* iScrobbler.m */; };
 		8CDF26D30BEBF8FF00D82E81 /* HighestRatedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CDF26D10BEBF8FF00D82E81 /* HighestRatedNode.m */; };
 		8CE620DB0C11E8530073ADC3 /* AudioDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE620C90C11E8530073ADC3 /* AudioDecoder.m */; };
 		8CE620DD0C11E8530073ADC3 /* CoreAudioDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE620CB0C11E8530073ADC3 /* CoreAudioDecoder.m */; };
@@ -756,6 +757,8 @@
 		8CC1B8390B7C58E9006BF010 /* DatabaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseObject.h; path = Database/DatabaseObject.h; sourceTree = "<group>"; };
 		8CC1B83A0B7C58E9006BF010 /* DatabaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseObject.m; path = Database/DatabaseObject.m; sourceTree = "<group>"; };
 		8CC1BA140B7C70D0006BF010 /* select_playlist_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_playlist_by_id.sql; path = SQL/select_playlist_by_id.sql; sourceTree = "<group>"; };
+		8CC86DB40D39EBB400A4E608 /* iScrobbler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iScrobbler.h; path = AudioScrobbler/iScrobbler.h; sourceTree = "<group>"; };
+		8CC86DB50D39EBB400A4E608 /* iScrobbler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iScrobbler.m; path = AudioScrobbler/iScrobbler.m; sourceTree = "<group>"; };
 		8CDE3D8F0C4013A4008E66EB /* generate_svn_revision.sh */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; name = generate_svn_revision.sh; path = Scripts/generate_svn_revision.sh; sourceTree = "<group>"; };
 		8CDF26D00BEBF8FF00D82E81 /* HighestRatedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = HighestRatedNode.h; path = Browser/HighestRatedNode.h; sourceTree = "<group>"; };
 		8CDF26D10BEBF8FF00D82E81 /* HighestRatedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = HighestRatedNode.m; path = Browser/HighestRatedNode.m; sourceTree = "<group>"; };
@@ -1243,6 +1246,8 @@
 				8C9C28930B724D5400CE799A /* AudioScrobbler.m */,
 				8C9C28940B724D5400CE799A /* AudioScrobblerClient.h */,
 				8C9C28950B724D5400CE799A /* AudioScrobblerClient.m */,
+				8CC86DB40D39EBB400A4E608 /* iScrobbler.h */,
+				8CC86DB50D39EBB400A4E608 /* iScrobbler.m */,
 			);
 			name = AudioScrobbler;
 			sourceTree = "<group>";
@@ -1984,6 +1989,7 @@
 				8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */,
 				8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */,
 				8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */,
+				8CC86DB60D39EBB400A4E608 /* iScrobbler.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

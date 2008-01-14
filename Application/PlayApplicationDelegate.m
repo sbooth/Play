@@ -24,6 +24,7 @@
 #import "ServicesProvider.h"
 #import "AudioLibrary.h"
 #import "AudioScrobbler.h"
+#import "iScrobbler.h"
 #import "AudioStream.h"
 #import "AudioMetadataWriter.h"
 #import "PreferencesController.h"
@@ -71,13 +72,22 @@
 	return [AudioLibrary library];
 }
 
-- (AudioScrobbler *) scrobbler
+- (AudioScrobbler *) audioScrobbler
 {
 	@synchronized(self) {
-		if(nil == _scrobbler)
-			_scrobbler = [[AudioScrobbler alloc] init];
+		if(nil == _audioScrobbler)
+			_audioScrobbler = [[AudioScrobbler alloc] init];
 	}
-	return _scrobbler;
+	return _audioScrobbler;
+}
+
+- (iScrobbler *) iScrobbler
+{
+	@synchronized(self) {
+		if(nil == _iScrobbler)
+			_iScrobbler = [[iScrobbler alloc] init];
+	}
+	return _iScrobbler;
 }
 
 - (void) awakeFromNib
@@ -179,7 +189,10 @@
 {
 	// Make sure AS receives the STOP command
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
-		[[self scrobbler] shutdown];
+		[[self audioScrobbler] shutdown];
+
+//	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableiScrobbler"])
+//		[[self iScrobbler] shutdown];
 
 	// Just unregister for all notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -395,26 +408,45 @@
 	[self setWindowTitleForStream:stream];
 	
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
-		[[self scrobbler] start:stream];
+		[[self audioScrobbler] start:stream];
+
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableiScrobbler"])
+		[[self iScrobbler] playbackDidStartForStream:stream];
 }
 
 - (void) playbackDidStop:(NSNotification *)aNotification
 {
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
+
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
-		[[self scrobbler] stop];
+		[[self audioScrobbler] stop];
+
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableiScrobbler"])
+		[[self iScrobbler] playbackDidPauseForStream:stream];
+	
 	[self setWindowTitleForStream:nil];
 }
 
 - (void) playbackDidPause:(NSNotification *)aNotification
 {
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
+
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
-		[[self scrobbler] pause];
+		[[self audioScrobbler] pause];
+
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableiScrobbler"])
+		[[self iScrobbler] playbackDidPauseForStream:stream];
 }
 
 - (void) playbackDidResume:(NSNotification *)aNotification
 {
+	AudioStream *stream = [[aNotification userInfo] objectForKey:AudioStreamObjectKey];
+
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableAudioScrobbler"])
-		[[self scrobbler] resume];
+		[[self audioScrobbler] resume];
+
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"enableiScrobbler"])
+		[[self iScrobbler] playbackDidResumeForStream:stream];
 }
 
 - (void) playbackDidComplete:(NSNotification *)aNotification

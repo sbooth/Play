@@ -21,16 +21,18 @@
 #import <Cocoa/Cocoa.h>
 #import <Growl/GrowlApplicationBridge.h>
 
-@class AudioLibrary, AudioScrobbler, PTKeyCombo, RemoteControl;
+@class AudioLibrary, AudioScrobbler, iScrobbler, PTKeyCombo, RemoteControl;
 
 @interface PlayApplicationDelegate : NSObject <GrowlApplicationBridgeDelegate>
 {
-	AudioScrobbler		*_scrobbler;
+	AudioScrobbler		*_audioScrobbler;
+	iScrobbler			*_iScrobbler;
 	RemoteControl		*_remoteControl;
 }
 
 - (AudioLibrary *) library;
-- (AudioScrobbler *) scrobbler;
+- (AudioScrobbler *) audioScrobbler;
+- (iScrobbler *) iScrobbler;
 
 - (IBAction) showPreferences:(id)sender;
 
