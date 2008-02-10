@@ -198,6 +198,10 @@
 			break;
 		}
 		
+		// End of input
+		if(0 == framesDecoded)
+			break;
+		
 #ifdef MPC_FIXED_POINT
 #error "Fixed point not yet supported"
 #else
