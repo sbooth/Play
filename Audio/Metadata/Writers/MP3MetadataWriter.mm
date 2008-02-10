@@ -257,20 +257,28 @@
 		f.ID3v2Tag()->addFrame(userTextFrame);
 	}
 	
-	// Also write the RVA2 frame
+	// Also write the RVA2 frames
 	f.ID3v2Tag()->removeFrames("RVA2");
-	if(nil != trackGain || nil != albumGain) {
+	if(nil != trackGain) {
 		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
 		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
-		
-		if(nil != trackGain)
-			relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
-		else if(nil != albumGain)
-			relativeVolume->setVolumeAdjustment([albumGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
+
+		relativeVolume->setIdentification(TagLib::String("replaygain_track_gain", TagLib::String::Latin1));
+		relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
 		
 		f.ID3v2Tag()->addFrame(relativeVolume);
 	}
 
+	if(nil != albumGain) {
+		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
+		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
+		
+		relativeVolume->setIdentification(TagLib::String("replaygain_album_gain", TagLib::String::Latin1));
+		relativeVolume->setVolumeAdjustment([albumGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
+		
+		f.ID3v2Tag()->addFrame(relativeVolume);
+	}
+	
 	// Album art
 /*	NSImage *albumArt = [metadata valueForKey:@"albumArt"];
 	if(nil != albumArt) {
