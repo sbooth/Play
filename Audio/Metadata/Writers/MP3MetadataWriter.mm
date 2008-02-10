@@ -263,7 +263,7 @@
 		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
 		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
 
-		relativeVolume->setIdentification(TagLib::String("replaygain_track_gain", TagLib::String::Latin1));
+		relativeVolume->setIdentification(TagLib::String("track", TagLib::String::Latin1));
 		relativeVolume->setVolumeAdjustment([trackGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
 		
 		f.ID3v2Tag()->addFrame(relativeVolume);
@@ -273,7 +273,7 @@
 		TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = new TagLib::ID3v2::RelativeVolumeFrame();
 		NSAssert(NULL != relativeVolume, @"Unable to allocate memory.");
 		
-		relativeVolume->setIdentification(TagLib::String("replaygain_album_gain", TagLib::String::Latin1));
+		relativeVolume->setIdentification(TagLib::String("album", TagLib::String::Latin1));
 		relativeVolume->setVolumeAdjustment([albumGain doubleValue], TagLib::ID3v2::RelativeVolumeFrame::MasterVolume);
 		
 		f.ID3v2Tag()->addFrame(relativeVolume);

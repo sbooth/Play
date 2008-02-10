@@ -256,7 +256,7 @@
 				if(NULL == relativeVolume)
 					continue;
 				
-				if(TagLib::String("replaygain_track_gain", TagLib::String::Latin1) == relativeVolume->identification()) {
+				if(TagLib::String("track", TagLib::String::Latin1) == relativeVolume->identification()) {
 					// Attempt to use the master volume if present
 					TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
 					TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
@@ -272,7 +272,7 @@
 						foundReplayGain = YES;
 					}
 				}
-				else if(TagLib::String("replaygain_album_gain", TagLib::String::Latin1) == relativeVolume->identification()) {
+				else if(TagLib::String("album", TagLib::String::Latin1) == relativeVolume->identification()) {
 					// Attempt to use the master volume if present
 					TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
 					TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
