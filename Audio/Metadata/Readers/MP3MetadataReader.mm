@@ -248,25 +248,64 @@
 
 		// If nothing found check for RVA2 frame
 		if(NO == foundReplayGain) {
-			TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = NULL;
 			frameList = id3v2tag->frameListMap()["RVA2"];
-			if(NO == frameList.isEmpty() && NULL != (relativeVolume = dynamic_cast<TagLib::ID3v2::RelativeVolumeFrame *>(frameList.front()))) {
+			
+			TagLib::ID3v2::FrameList::Iterator frameIterator;
+			for(frameIterator = frameList.begin(); frameIterator != frameList.end(); ++frameIterator) {
+				TagLib::ID3v2::RelativeVolumeFrame *relativeVolume = dynamic_cast<TagLib::ID3v2::RelativeVolumeFrame *>(*frameIterator);
+				if(NULL == relativeVolume)
+					continue;
 				
-				// Attempt to use the master volume if present
-				TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
-				TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
-				
-				// Fall back on whatever else exists in the frame
-				if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume))
-					channelType = channels.front();
-				
-				float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
-				
-				if(0 != volumeAdjustment) {
-					[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
-					foundReplayGain = YES;
+				if(TagLib::String("replaygain_track_gain", TagLib::String::Latin1) == relativeVolume->identification()) {
+					// Attempt to use the master volume if present
+					TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
+					TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
+					
+					// Fall back on whatever else exists in the frame
+					if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume))
+						channelType = channels.front();
+					
+					float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
+					
+					if(0 != volumeAdjustment) {
+						[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
+						foundReplayGain = YES;
+					}
 				}
-			}
+				else if(TagLib::String("replaygain_album_gain", TagLib::String::Latin1) == relativeVolume->identification()) {
+					// Attempt to use the master volume if present
+					TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
+					TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
+					
+					// Fall back on whatever else exists in the frame
+					if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume))
+						channelType = channels.front();
+					
+					float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
+					
+					if(0 != volumeAdjustment) {
+						[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainAlbumGainKey];
+						foundReplayGain = YES;
+					}
+				}
+				// Fall back to track gain if identification is not specified
+				else {
+					// Attempt to use the master volume if present
+					TagLib::List<TagLib::ID3v2::RelativeVolumeFrame::ChannelType>	channels		= relativeVolume->channels();
+					TagLib::ID3v2::RelativeVolumeFrame::ChannelType					channelType		= TagLib::ID3v2::RelativeVolumeFrame::MasterVolume;
+					
+					// Fall back on whatever else exists in the frame
+					if(NO == channels.contains(TagLib::ID3v2::RelativeVolumeFrame::MasterVolume))
+						channelType = channels.front();
+					
+					float volumeAdjustment = relativeVolume->volumeAdjustment(channelType);
+					
+					if(0 != volumeAdjustment) {
+						[metadataDictionary setValue:[NSNumber numberWithFloat:volumeAdjustment] forKey:ReplayGainTrackGainKey];
+						foundReplayGain = YES;
+					}
+				}
+			}			
 		}	
 	}
 	
