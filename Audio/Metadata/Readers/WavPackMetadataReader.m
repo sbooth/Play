@@ -113,7 +113,7 @@ getWavPackTag(WavpackContext	*wpc,
 	// Discs in set
 	NSString *discTotal = getWavPackTag(wpc, "DISCTOTAL");
 	if(nil != discTotal)
-		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataAlbumTitleKey];	
+		[metadataDictionary setValue:[NSNumber numberWithInt:[discTotal intValue]] forKey:MetadataDiscTotalKey];	
 	
 	// Compilation
 	NSString *compilation = getWavPackTag(wpc, "COMPILATION");
