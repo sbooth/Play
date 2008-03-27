@@ -31,7 +31,7 @@
 		char errorBuf [80];
 		
 		// Setup converter
-		_wpc = WavpackOpenFileInput([[[self URL] path] fileSystemRepresentation], errorBuf, OPEN_NORMALIZE, 0);
+		_wpc = WavpackOpenFileInput([[[self URL] path] fileSystemRepresentation], errorBuf, OPEN_WVC | OPEN_NORMALIZE, 0);
 		if(NULL == _wpc) {
 			if(nil != error) {
 				NSMutableDictionary *errorDictionary = [NSMutableDictionary dictionary];
