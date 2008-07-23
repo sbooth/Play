@@ -98,13 +98,13 @@
 	
 	if(0 != asbd.mBitsPerChannel)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mBitsPerChannel] forKey:PropertiesBitsPerChannelKey];
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData & asbd.mFormatFlags)
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_16BitSourceData == asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:16] forKey:PropertiesBitsPerChannelKey];
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData & asbd.mFormatFlags)
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_20BitSourceData == asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:20] forKey:PropertiesBitsPerChannelKey];
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData & asbd.mFormatFlags)
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_24BitSourceData == asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:24] forKey:PropertiesBitsPerChannelKey];
-	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData & asbd.mFormatFlags)
+	else if(kAudioFormatAppleLossless == asbd.mFormatID && kAppleLosslessFormatFlag_32BitSourceData == asbd.mFormatFlags)
 		[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:32] forKey:PropertiesBitsPerChannelKey];
 	[propertiesDictionary setValue:[NSNumber numberWithUnsignedInt:asbd.mChannelsPerFrame] forKey:PropertiesChannelsPerFrameKey];
 	[propertiesDictionary setValue:[NSNumber numberWithDouble:asbd.mSampleRate] forKey:PropertiesSampleRateKey];
