@@ -153,7 +153,9 @@
 							[trackDictionary setValue:[NSNumber numberWithUnsignedInt:frameCount] forKey:StreamFrameCountKey];
 						}
 
-						[cueSheetTracks addObject:trackDictionary];
+						// Don't add the lead-out as a track
+						if(1 <= block->data.cue_sheet.tracks[i].number && 99 >= block->data.cue_sheet.tracks[i].number)
+							[cueSheetTracks addObject:trackDictionary];
 					}
 				}
 
