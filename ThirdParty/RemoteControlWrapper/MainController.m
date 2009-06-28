@@ -10,6 +10,7 @@
 #import "AppleRemote.h"
 #import "KeyspanFrontRowControl.h"
 #import "GlobalKeyboardDevice.h"
+#import "IRKeyboardEmuRemote.h"
 #import "RemoteControlContainer.h"
 #import "MultiClickRemoteBehavior.h"
 
@@ -95,7 +96,8 @@
 	[container instantiateAndAddRemoteControlDeviceWithClass: [AppleRemote class]];	
 	[container instantiateAndAddRemoteControlDeviceWithClass: [KeyspanFrontRowControl class]];
 	[container instantiateAndAddRemoteControlDeviceWithClass: [GlobalKeyboardDevice class]];	
-	
+	[container instantiateAndAddRemoteControlDeviceWithClass: [IRKeyboardEmuRemote class]];
+
 	// to give the binding mechanism a chance to see the change of the attribute
 	[self setValue: container forKey: @"remoteControl"];	
 }
