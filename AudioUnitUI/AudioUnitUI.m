@@ -367,7 +367,11 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 
 - (void) selectPresetNumber:(NSNumber *)presetNumber presetName:(NSString *)presetName presetPath:(NSString *)presetPath
 {
-	NSParameterAssert(nil != presetNumber);
+	// NSNull indicates a preset category that cannot be double-clicked
+	if(nil == presetNumber || [NSNull null] == (id)presetNumber) {
+		NSBeep();
+		return;
+	}
 	
 	if(-1 == [presetNumber intValue])
 		[self loadCustomPresetFromURL:[NSURL fileURLWithPath:presetPath]];
@@ -612,22 +616,22 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			NSNumber *presetNumber = [NSNumber numberWithInt:preset->presetNumber];
 			NSString *presetName = [(NSString *)preset->presetName copy];
 			
-			[factoryPresetsArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:presetNumber, @"presetNumber", presetName, @"presetName", [NSNull null], @"presetPath", nil]];
+			[factoryPresetsArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:presetNumber, @"presetNumber", presetName, @"presetName", [NSNull null], @"presetPath", [NSNull null], @"children", nil]];
 
 			[presetName release];
 		}
 	}
 
 	if(0 != [factoryPresetsArray count])
-		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:factoryPresetsArray, @"children", NSLocalizedStringFromTable(@"Factory", @"AudioUnitUI", @""), @"presetName", nil]];
+		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:factoryPresetsArray, @"children", NSLocalizedStringFromTable(@"Factory", @"AudioUnitUI", @""), @"presetName", [NSNull null], @"presetNumber", [NSNull null], @"presetPath", nil]];
 	
 	NSArray *localPresetsArray = [self localPresets];
 	if(0 != [localPresetsArray count])
-		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:localPresetsArray, @"children", NSLocalizedStringFromTable(@"Local", @"AudioUnitUI", @""), @"presetName", nil]];
+		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:localPresetsArray, @"children", NSLocalizedStringFromTable(@"Local", @"AudioUnitUI", @""), @"presetName", [NSNull null], @"presetNumber", [NSNull null], @"presetPath", nil]];
 
 	NSArray *userPresetsArray = [self userPresets];
 	if(0 != [userPresetsArray count])
-		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:userPresetsArray, @"children", NSLocalizedStringFromTable(@"User", @"AudioUnitUI", @""), @"presetName", nil]];
+		[_presetsTree addObject:[NSDictionary dictionaryWithObjectsAndKeys:userPresetsArray, @"children", NSLocalizedStringFromTable(@"User", @"AudioUnitUI", @""), @"presetName", [NSNull null], @"presetNumber", [NSNull null], @"presetPath", nil]];
 	
 	[self didChangeValueForKey:@"presetsTree"];
 	
@@ -672,7 +676,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		NSString *presetName = [[path lastPathComponent] stringByDeletingPathExtension];
 		NSString *presetPath = [auPresetsPath stringByAppendingPathComponent:path];
 		
-		[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:presetNumber, @"presetNumber", presetName, @"presetName", presetPath, @"presetPath", nil]];
+		[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:presetNumber, @"presetNumber", presetName, @"presetName", presetPath, @"presetPath", [NSNull null], @"children", nil]];
 	}
 	
 	[presetsFolderURL release];
