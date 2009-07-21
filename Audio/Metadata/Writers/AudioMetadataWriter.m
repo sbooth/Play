@@ -27,6 +27,7 @@
 #import "MP4MetadataWriter.h"
 #import "WavPackMetadataWriter.h"
 #import "MonkeysAudioMetadataWriter.h"
+#import "AIFFMetadataWriter.h"
 
 #import "AudioStream.h"
 #import "UtilityFunctions.h"
@@ -112,6 +113,10 @@ NSString *const AudioMetadataWriterErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result = [[MonkeysAudioMetadataWriter alloc] init];
+		[result setValue:url forKey:StreamURLKey];
+	}
+	else if([pathExtension isEqualToString:@"aiff"] || [pathExtension isEqualToString:@"aif"]) {
+		result = [[AIFFMetadataWriter alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {

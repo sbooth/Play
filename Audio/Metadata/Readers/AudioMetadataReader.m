@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2006 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2006 - 2009 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #import "MP4MetadataReader.h"
 #import "WavPackMetadataReader.h"
 #import "MonkeysAudioMetadataReader.h"
+#import "AIFFMetadataReader.h"
 
 #import "AudioStream.h"
 #import "UtilityFunctions.h"
@@ -112,6 +113,10 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"ape"]) {
 		result = [[MonkeysAudioMetadataReader alloc] init];
+		[result setValue:url forKey:StreamURLKey];
+	}
+	else if([pathExtension isEqualToString:@"aiff"] || [pathExtension isEqualToString:@"aif"]) {
+		result = [[AIFFMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {

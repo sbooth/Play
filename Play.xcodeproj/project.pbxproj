@@ -21,6 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
+		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
 		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
@@ -383,6 +385,10 @@
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		3257169B10155E3400EA44DB /* AIFFMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataReader.h; path = Audio/Metadata/Readers/AIFFMetadataReader.h; sourceTree = "<group>"; };
+		3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataReader.mm; path = Audio/Metadata/Readers/AIFFMetadataReader.mm; sourceTree = "<group>"; };
+		325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataWriter.h; path = Audio/Metadata/Writers/AIFFMetadataWriter.h; sourceTree = "<group>"; };
+		325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataWriter.mm; path = Audio/Metadata/Writers/AIFFMetadataWriter.mm; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
@@ -1514,6 +1520,8 @@
 				8C9C382F0B73AC0300CE799A /* OggVorbisMetadataReader.mm */,
 				8C9C38300B73AC0300CE799A /* WavPackMetadataReader.h */,
 				8C9C38310B73AC0300CE799A /* WavPackMetadataReader.m */,
+				3257169B10155E3400EA44DB /* AIFFMetadataReader.h */,
+				3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */,
 			);
 			name = "Metadata Readers";
 			sourceTree = "<group>";
@@ -1539,6 +1547,8 @@
 				8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */,
 				8C9C3EAC0B742FEE00CE799A /* WavPackMetadataWriter.h */,
 				8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */,
+				325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */,
+				325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */,
 			);
 			name = "Metadata Writers";
 			sourceTree = "<group>";
@@ -1990,6 +2000,8 @@
 				8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */,
 				8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */,
 				8CC86DB60D39EBB400A4E608 /* iScrobbler.m in Sources */,
+				3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */,
+				325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
