@@ -23,6 +23,8 @@
 /* Begin PBXBuildFile section */
 		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
+		32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */; };
+		32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
 		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
@@ -389,6 +391,10 @@
 		3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataReader.mm; path = Audio/Metadata/Readers/AIFFMetadataReader.mm; sourceTree = "<group>"; };
 		325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataWriter.h; path = Audio/Metadata/Writers/AIFFMetadataWriter.h; sourceTree = "<group>"; };
 		325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataWriter.mm; path = Audio/Metadata/Writers/AIFFMetadataWriter.mm; sourceTree = "<group>"; };
+		32875D591025157A001E06F2 /* WAVEMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataReader.h; path = Audio/Metadata/Readers/WAVEMetadataReader.h; sourceTree = "<group>"; };
+		32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WAVEMetadataReader.mm; path = Audio/Metadata/Readers/WAVEMetadataReader.mm; sourceTree = "<group>"; };
+		32875D6F1025163E001E06F2 /* WAVEMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataWriter.h; path = Audio/Metadata/Writers/WAVEMetadataWriter.h; sourceTree = "<group>"; };
+		32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WAVEMetadataWriter.mm; path = Audio/Metadata/Writers/WAVEMetadataWriter.mm; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
@@ -1502,6 +1508,8 @@
 		8C9C381F0B73ABEA00CE799A /* Metadata Readers */ = {
 			isa = PBXGroup;
 			children = (
+				32875D591025157A001E06F2 /* WAVEMetadataReader.h */,
+				32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */,
 				8C9C38200B73AC0300CE799A /* AudioMetadataReader.h */,
 				8C9C38210B73AC0300CE799A /* AudioMetadataReader.m */,
 				8C9C38220B73AC0300CE799A /* FLACMetadataReader.h */,
@@ -1529,6 +1537,8 @@
 		8C9C3E9B0B742FCF00CE799A /* Metadata Writers */ = {
 			isa = PBXGroup;
 			children = (
+				32875D6F1025163E001E06F2 /* WAVEMetadataWriter.h */,
+				32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */,
 				8C9C3E9C0B742FEE00CE799A /* AudioMetadataWriter.h */,
 				8C9C3E9D0B742FEE00CE799A /* AudioMetadataWriter.m */,
 				8C9C3E9E0B742FEE00CE799A /* FLACMetadataWriter.h */,
@@ -2002,6 +2012,8 @@
 				8CC86DB60D39EBB400A4E608 /* iScrobbler.m in Sources */,
 				3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */,
 				325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */,
+				32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */,
+				32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,7 @@
 #import "WavPackMetadataReader.h"
 #import "MonkeysAudioMetadataReader.h"
 #import "AIFFMetadataReader.h"
+#import "WAVEMetadataReader.h"
 
 #import "AudioStream.h"
 #import "UtilityFunctions.h"
@@ -117,6 +118,10 @@ NSString *const AudioMetadataReaderErrorDomain = @"org.sbooth.Play.ErrorDomain.A
 	}
 	else if([pathExtension isEqualToString:@"aiff"] || [pathExtension isEqualToString:@"aif"]) {
 		result = [[AIFFMetadataReader alloc] init];
+		[result setValue:url forKey:StreamURLKey];
+	}
+	else if([pathExtension isEqualToString:@"wave"] || [pathExtension isEqualToString:@"wav"]) {
+		result = [[WAVEMetadataReader alloc] init];
 		[result setValue:url forKey:StreamURLKey];
 	}
 	else {
