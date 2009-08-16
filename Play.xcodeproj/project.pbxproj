@@ -45,11 +45,11 @@
 		32CF6CA110371A79006F9D62 /* AudioUnitUI.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */; };
 		32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8E10371A79006F9D62 /* MainMenu.xib */; };
 		32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6D7310373B39006F9D62 /* AudioLibrary.xib */; };
-		32CF6DD310387F8B006F9D62 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
-		32CF6DD410387F8C006F9D62 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */; };
 		32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
 		32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
 		32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */; };
+		32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
+		32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
 		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
@@ -351,6 +351,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */,
 				32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */,
 				8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */,
 				8C0CF21D0CE829A00086CAFB /* sqlite3.framework in Copy Frameworks */,
@@ -412,6 +413,7 @@
 		32CF6D7410373B39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioLibrary.xib; sourceTree = "<group>"; };
 		32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
 		32CF6E401038BD39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/HotKeyPreferences.xib; sourceTree = "<group>"; };
+		32CF6EC71038C392006F9D62 /* RBSplitView.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RBSplitView.framework; path = Frameworks/RBSplitView.framework; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
@@ -577,11 +579,6 @@
 		8C6639020B7FAAAD00A226F0 /* Ogg.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Ogg.icns; path = Icons/Ogg.icns; sourceTree = "<group>"; };
 		8C6639030B7FAAAD00A226F0 /* WAV.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = WAV.icns; path = Icons/WAV.icns; sourceTree = "<group>"; };
 		8C663A200B7FB1C800A226F0 /* Library.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Library.icns; path = Icons/Library.icns; sourceTree = "<group>"; };
-		8C6ACE6F0BD55F6D00CDFEB2 /* RBSplitSubview.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitSubview.h; path = ThirdParty/RBSplitView/Source/RBSplitSubview.h; sourceTree = "<group>"; };
-		8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitSubview.m; path = ThirdParty/RBSplitView/Source/RBSplitSubview.m; sourceTree = "<group>"; };
-		8C6ACE720BD55F6D00CDFEB2 /* RBSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitView.h; path = ThirdParty/RBSplitView/Source/RBSplitView.h; sourceTree = "<group>"; };
-		8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitView.m; path = ThirdParty/RBSplitView/Source/RBSplitView.m; sourceTree = "<group>"; };
-		8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPrivateDefines.h; path = ThirdParty/RBSplitView/Source/RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
 		8C6D026C0CCEFAEE00A597AE /* CueSheetParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CueSheetParser.h; path = Utilities/CueSheetParser.h; sourceTree = "<group>"; };
 		8C6D026D0CCEFAEE00A597AE /* CueSheetParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CueSheetParser.m; path = Utilities/CueSheetParser.m; sourceTree = "<group>"; };
 		8C84BACA0C619F6800D8D221 /* ofa1.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ofa1.framework; path = Frameworks/ofa1.framework; sourceTree = "<group>"; };
@@ -734,14 +731,6 @@
 		8CB3EC830BDDA2B000B5E828 /* PTHotKeyCenter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PTHotKeyCenter.m; path = ThirdParty/PTHotKey/PTHotKeyCenter.m; sourceTree = "<group>"; };
 		8CB3EC840BDDA2B000B5E828 /* PTKeyCombo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PTKeyCombo.h; path = ThirdParty/PTHotKey/PTKeyCombo.h; sourceTree = "<group>"; };
 		8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PTKeyCombo.m; path = ThirdParty/PTHotKey/PTKeyCombo.m; sourceTree = "<group>"; };
-		8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcut.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcut.tif; sourceTree = "<group>"; };
-		8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcutPressed.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcutPressed.tif; sourceTree = "<group>"; };
-		8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RemoveShortcutRollover.tif; path = ThirdParty/ShortcutRecorder/RemoveShortcutRollover.tif; sourceTree = "<group>"; };
-		8CB3EC930BDDA2FD00B5E828 /* ShortcutRecorder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ShortcutRecorder.h; path = ThirdParty/ShortcutRecorder/ShortcutRecorder.h; sourceTree = "<group>"; };
-		8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ShortcutRecorder.m; path = ThirdParty/ShortcutRecorder/ShortcutRecorder.m; sourceTree = "<group>"; };
-		8CB3EC950BDDA2FD00B5E828 /* ShortcutRecorderCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ShortcutRecorderCell.h; path = ThirdParty/ShortcutRecorder/ShortcutRecorderCell.h; sourceTree = "<group>"; };
-		8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ShortcutRecorderCell.m; path = ThirdParty/ShortcutRecorder/ShortcutRecorderCell.m; sourceTree = "<group>"; };
-		8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = Snapback.tiff; path = ThirdParty/ShortcutRecorder/Snapback.tiff; sourceTree = "<group>"; };
 		8CB3F2980BDDA75300B5E828 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PreferencesController.h; path = Preferences/PreferencesController.h; sourceTree = "<group>"; };
 		8CB3F2990BDDA75300B5E828 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PreferencesController.m; path = Preferences/PreferencesController.m; sourceTree = "<group>"; };
 		8CB3F2CC0BDDAD5B00B5E828 /* GeneralPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = GeneralPreferencesController.h; path = Preferences/GeneralPreferencesController.h; sourceTree = "<group>"; };
@@ -867,6 +856,7 @@
 				8C0CF21A0CE8298F0086CAFB /* sqlite3.framework in Frameworks */,
 				8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */,
 				32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */,
+				32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -977,6 +967,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32CF6EC71038C392006F9D62 /* RBSplitView.framework */,
 				32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */,
 				8C0CF23B0CE82BE70086CAFB /* libcurl.framework */,
 				8C0CF2190CE8298F0086CAFB /* sqlite3.framework */,
@@ -1180,18 +1171,6 @@
 			name = "Gain Analysis";
 			sourceTree = "<group>";
 		};
-		8C6ACE6C0BD55F4700CDFEB2 /* RBSplitView */ = {
-			isa = PBXGroup;
-			children = (
-				8C6ACE6F0BD55F6D00CDFEB2 /* RBSplitSubview.h */,
-				8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */,
-				8C6ACE720BD55F6D00CDFEB2 /* RBSplitView.h */,
-				8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */,
-				8C6ACE740BD55F6E00CDFEB2 /* RBSplitViewPrivateDefines.h */,
-			);
-			name = RBSplitView;
-			sourceTree = "<group>";
-		};
 		8C8E3D200BDF266F00605141 /* Strings */ = {
 			isa = PBXGroup;
 			children = (
@@ -1224,10 +1203,8 @@
 				8C53D8DC0BAEFCE000F21790 /* NSBezierPath_RoundRectMethods */,
 				8CA1EE640B89697300AE4C2E /* NSTreeController Extensions */,
 				8CB3EC7F0BDDA29700B5E828 /* PTHotKey */,
-				8C6ACE6C0BD55F4700CDFEB2 /* RBSplitView */,
 				8C55A8800CA5B8FB00C7B3F9 /* RemoteControlWrapper */,
 				8C9C30C60B73277000CE799A /* SFMT */,
-				8CB3EC8F0BDDA2DD00B5E828 /* ShortcutRecorder */,
 			);
 			name = "Third Party";
 			sourceTree = "<group>";
@@ -1591,21 +1568,6 @@
 				8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */,
 			);
 			name = PTHotKey;
-			sourceTree = "<group>";
-		};
-		8CB3EC8F0BDDA2DD00B5E828 /* ShortcutRecorder */ = {
-			isa = PBXGroup;
-			children = (
-				8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */,
-				8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */,
-				8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */,
-				8CB3EC930BDDA2FD00B5E828 /* ShortcutRecorder.h */,
-				8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */,
-				8CB3EC950BDDA2FD00B5E828 /* ShortcutRecorderCell.h */,
-				8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */,
-				8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */,
-			);
-			name = ShortcutRecorder;
 			sourceTree = "<group>";
 		};
 		8CB3F2940BDDA72500B5E828 /* Preferences */ = {
@@ -2004,8 +1966,6 @@
 				325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */,
 				32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */,
 				32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */,
-				32CF6DD310387F8B006F9D62 /* RBSplitView.m in Sources */,
-				32CF6DD410387F8C006F9D62 /* RBSplitSubview.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
