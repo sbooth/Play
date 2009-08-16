@@ -12,15 +12,15 @@
 
 + (id)clearKeyCombo
 {
-	return [self keyComboWithKeyCode: -1 modifiers: -1];
+	return [self keyComboWithKeyCode: -1 modifiers: 0];
 }
 
-+ (id)keyComboWithKeyCode: (int)keyCode modifiers: (int)modifiers
++ (id)keyComboWithKeyCode: (NSInteger)keyCode modifiers: (NSUInteger)modifiers
 {
 	return [[[self alloc] initWithKeyCode: keyCode modifiers: modifiers] autorelease];
 }
 
-- (id)initWithKeyCode: (int)keyCode modifiers: (int)modifiers
+- (id)initWithKeyCode: (NSInteger)keyCode modifiers: (NSUInteger)modifiers
 {
 	self = [super init];
 	
@@ -35,20 +35,19 @@
 
 - (id)initWithPlistRepresentation: (id)plist
 {
-	int keyCode, modifiers;
+	NSInteger keyCode, modifiers;
 	
 	if( !plist || ![plist count] )
 	{
 		keyCode = -1;
-		modifiers = -1;
+		modifiers = 0;
 	}
 	else
 	{
-		keyCode = [[plist objectForKey: @"keyCode"] intValue];
-		if( keyCode <= 0 ) keyCode = -1;
+		keyCode = [[plist objectForKey: @"keyCode"] integerValue];
+		if( keyCode < 0 ) keyCode = -1;
 	
-		modifiers = [[plist objectForKey: @"modifiers"] intValue];
-		if( modifiers <= 0 ) modifiers = -1;
+		modifiers = [[plist objectForKey: @"modifiers"] unsignedIntegerValue];
 	}
 
 	return [self initWithKeyCode: keyCode modifiers: modifiers];
@@ -57,8 +56,8 @@
 - (id)plistRepresentation
 {
 	return [NSDictionary dictionaryWithObjectsAndKeys:
-				[NSNumber numberWithInt: [self keyCode]], @"keyCode",
-				[NSNumber numberWithInt: [self modifiers]], @"modifiers",
+				[NSNumber numberWithInteger:[self keyCode]], @"keyCode",
+				[NSNumber numberWithUnsignedInteger:[self modifiers]], @"modifiers",
 				nil];
 }
 
@@ -75,24 +74,24 @@
 
 #pragma mark -
 
-- (int)keyCode
+- (NSInteger)keyCode
 {
 	return mKeyCode;
 }
 
-- (int)modifiers
+- (NSUInteger)modifiers
 {
 	return mModifiers;
 }
 
 - (BOOL)isValidHotKeyCombo
 {
-	return mKeyCode >= 0 && mModifiers > 0;
+	return mKeyCode >= 0;
 }
 
 - (BOOL)isClearCombo
 {
-	return mKeyCode == -1 && mModifiers == -1;
+	return mKeyCode == -1;
 }
 
 @end

@@ -91,11 +91,6 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
-// Hacky 10.4 workarounds
-//#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_4
-#import "NSTreeController_Extensions.h"
-//#endif
-
 #include "sfmt19937.h"
 
 // ========================================
@@ -2520,26 +2515,14 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != node);
 
-	NSIndexPath *indexPath = nil;
-
-//#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_4
-	if(nil != NSClassFromString(@"NSTreeNode")) {
-		NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
-		NSTreeNode		*child			= nil;
-		NSTreeNode		*match			= nil;
-		
-		while(nil == match && (child = [enumerator nextObject]))
-			match = treeNodeForRepresentedObject(child, node);
-		
-		indexPath = [match indexPath];
-	}
-//#else
-	else
-	// Use hacky-10.4 workarounds
-		indexPath = [_browserController arrangedIndexPathForObject:node];
-//#endif
+	NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
+	NSTreeNode		*child			= nil;
+	NSTreeNode		*match			= nil;
 	
-	return [_browserController setSelectionIndexPath:indexPath];	
+	while(nil == match && (child = [enumerator nextObject]))
+		match = treeNodeForRepresentedObject(child, node);	
+	
+	return [_browserController setSelectionIndexPath:[match indexPath]];
 }
 
 - (void) setupStreamTableColumns

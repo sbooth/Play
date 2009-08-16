@@ -1,7 +1,7 @@
 /*
  *  $Id$
  *
- *  Copyright (C) 2005 - 2007 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2005 - 2009 Stephen F. Booth <me@sbooth.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
  */
 
 #import "HotKeyPreferencesController.h"
-#import "ShortcutRecorder.h"
 #import "PTKeyCombo.h"
 #import "PlayApplicationDelegate.h"
+
+#import "ShortcutRecorder/ShortcutRecorder.h"
 
 @implementation HotKeyPreferencesController
 
@@ -71,7 +72,7 @@
 
 @implementation HotKeyPreferencesController (ShortcutRecorderDelegateMethods)
 
-- (void) shortcutRecorder:(ShortcutRecorder *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo
+- (void) shortcutRecorder:(SRRecorderControl *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo
 {
 	if(aRecorder == _playPauseShortcutRecorder) {
 		PTKeyCombo *keyCombo = [PTKeyCombo keyComboWithKeyCode:[aRecorder keyCombo].code

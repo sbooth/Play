@@ -25,6 +25,31 @@
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
 		32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */; };
 		32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */; };
+		32CF6C9010371A79006F9D62 /* AdvancedPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C6A10371A79006F9D62 /* AdvancedPreferences.xib */; };
+		32CF6C9110371A79006F9D62 /* AudioStreamInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C6C10371A79006F9D62 /* AudioStreamInformationSheet.xib */; };
+		32CF6C9210371A79006F9D62 /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C6E10371A79006F9D62 /* Preferences.xib */; };
+		32CF6C9310371A79006F9D62 /* CancelableProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7010371A79006F9D62 /* CancelableProgressSheet.xib */; };
+		32CF6C9410371A79006F9D62 /* PlaylistInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7210371A79006F9D62 /* PlaylistInformationSheet.xib */; };
+		32CF6C9510371A79006F9D62 /* FileAdditionProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7410371A79006F9D62 /* FileAdditionProgressSheet.xib */; };
+		32CF6C9610371A79006F9D62 /* MusicBrainzSearchSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7610371A79006F9D62 /* MusicBrainzSearchSheet.xib */; };
+		32CF6C9710371A79006F9D62 /* AudioMetadataEditingSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7810371A79006F9D62 /* AudioMetadataEditingSheet.xib */; };
+		32CF6C9810371A79006F9D62 /* GeneralPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7A10371A79006F9D62 /* GeneralPreferences.xib */; };
+		32CF6C9910371A79006F9D62 /* DSPPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7C10371A79006F9D62 /* DSPPreferences.xib */; };
+		32CF6C9A10371A79006F9D62 /* OutputPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7E10371A79006F9D62 /* OutputPreferences.xib */; };
+		32CF6C9B10371A79006F9D62 /* SaveAUPresetSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */; };
+		32CF6C9C10371A79006F9D62 /* SmartPlaylistInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */; };
+		32CF6C9D10371A79006F9D62 /* WatchFolderInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8410371A79006F9D62 /* WatchFolderInformationSheet.xib */; };
+		32CF6C9E10371A79006F9D62 /* NewWatchFolderSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8610371A79006F9D62 /* NewWatchFolderSheet.xib */; };
+		32CF6C9F10371A79006F9D62 /* MusicBrainzMatchesSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8810371A79006F9D62 /* MusicBrainzMatchesSheet.xib */; };
+		32CF6CA010371A79006F9D62 /* SmartPlaylistCriterion.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8A10371A79006F9D62 /* SmartPlaylistCriterion.xib */; };
+		32CF6CA110371A79006F9D62 /* AudioUnitUI.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */; };
+		32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8E10371A79006F9D62 /* MainMenu.xib */; };
+		32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6D7310373B39006F9D62 /* AudioLibrary.xib */; };
+		32CF6DD310387F8B006F9D62 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
+		32CF6DD410387F8C006F9D62 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */; };
+		32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
+		32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
+		32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
 		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
@@ -60,8 +85,6 @@
 		8C0CF21D0CE829A00086CAFB /* sqlite3.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF2190CE8298F0086CAFB /* sqlite3.framework */; };
 		8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF23B0CE82BE70086CAFB /* libcurl.framework */; };
 		8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C0CF23B0CE82BE70086CAFB /* libcurl.framework */; };
-		8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */; };
-		8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */; };
 		8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */; };
 		8C17F6E50B912006009200C4 /* WatchFolderNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F6E30B912006009200C4 /* WatchFolderNode.m */; };
 		8C17F7520B9128AC009200C4 /* GenresNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F7500B9128AC009200C4 /* GenresNode.m */; };
@@ -75,12 +98,10 @@
 		8C17F8FA0B928B28009200C4 /* update_watch_folder.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8F60B928B28009200C4 /* update_watch_folder.sql */; };
 		8C17F9000B928B5C009200C4 /* select_all_watch_folders.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */; };
 		8C17F9060B928B7C009200C4 /* WatchFoldersNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */; };
-		8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */; };
 		8C17F95C0B929003009200C4 /* NewWatchFolderSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */; };
 		8C1A63470B7E8873008A04AB /* BrowserNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1A63410B7E8872008A04AB /* BrowserNode.m */; };
 		8C1A6C3B0B7EBACE008A04AB /* select_stream_by_url.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */; };
 		8C1DA9A80B8D4BE400CF9D25 /* PlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */; };
-		8C1DA9D00B8D4DA400CF9D25 /* PlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */; };
 		8C22083B0BB7007D00808450 /* RecentlyAddedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208390BB7007C00808450 /* RecentlyAddedNode.m */; };
 		8C2208720BB7028900808450 /* RecentlyPlayedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208700BB7028900808450 /* RecentlyPlayedNode.m */; };
 		8C2208DB0BB70E8A00808450 /* SmartPlaylist.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2208D70BB70E8A00808450 /* SmartPlaylist.m */; };
@@ -95,17 +116,12 @@
 		8C2209FC0BB87B4000808450 /* SmartPlaylistNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2209FA0BB87B4000808450 /* SmartPlaylistNode.m */; };
 		8C220A700BB8A35700808450 /* SmartPlaylistCriterion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220A6C0BB8A35700808450 /* SmartPlaylistCriterion.m */; };
 		8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220A6E0BB8A35700808450 /* SmartPlaylistInformationSheet.m */; };
-		8C220AD40BB8A79F00808450 /* SmartPlaylistCriterion.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */; };
-		8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */; };
-		8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */; };
 		8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C220CC70BB978C100808450 /* MostPopularNode.m */; };
 		8C2957EB0C26E64800C155A7 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C2957C60C26E64800C155A7 /* QuickTime.framework */; };
 		8C2B356A0C18EEEC000E28B9 /* DSPPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2B35680C18EEEC000E28B9 /* DSPPreferencesController.m */; };
-		8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */; };
 		8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */; };
 		8C2D524B0B802115005C3426 /* SQLiteUtilityFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */; };
 		8C2D56FC0B81A217005C3426 /* AudioStreamCollectionNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */; };
-		8C2E0AD60C98764500E8BB6F /* MusicBrainzSearchSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C2E0AD40C98764500E8BB6F /* MusicBrainzSearchSheet.nib */; };
 		8C2E0AE10C98786700E8BB6F /* MusicBrainzSearchSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C2E0ADF0C98786700E8BB6F /* MusicBrainzSearchSheet.m */; };
 		8C3033A20BE6F40E00E37350 /* WatchFolderInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C3033A00BE6F40D00E37350 /* WatchFolderInformationSheet.m */; };
 		8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C30A0520B74F6220007204B /* ServicesProvider.m */; };
@@ -114,7 +130,6 @@
 		8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */; };
 		8C47A9580C93618B00D71633 /* MusicBrainzUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */; };
 		8C47AB010C94690800D71633 /* MusicBrainzMatchesSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C47AAFF0C94690800D71633 /* MusicBrainzMatchesSheet.m */; };
-		8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */; };
 		8C49DCC00CA2F7EC00F7C69E /* MonkeysAudioMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EA10B742FEE00CE799A /* MonkeysAudioMetadataWriter.mm */; };
 		8C49DCC10CA2F7F000F7C69E /* MonkeysAudioDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CE620CF0C11E8530073ADC3 /* MonkeysAudioDecoder.mm */; };
 		8C49DCC20CA2F7F300F7C69E /* MonkeysAudioPropertiesReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C37FC0B73ABAF00CE799A /* MonkeysAudioPropertiesReader.mm */; };
@@ -144,7 +159,6 @@
 		8C5838150BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C58380A0BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings */; };
 		8C5838210BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838200BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff */; };
 		8C58382C0BDFD04400E43C9E /* OutputPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58382A0BDFD04400E43C9E /* OutputPreferencesController.m */; };
-		8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */; };
 		8C5838750BDFD44000E43C9E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C58386B0BDFD44000E43C9E /* CoreAudio.framework */; };
 		8C58468E0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */; };
 		8C5849CE0BE1A59800E43C9E /* RecentlySkippedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C5849CC0BE1A59800E43C9E /* RecentlySkippedNode.m */; };
@@ -159,8 +173,6 @@
 		8C6639070B7FAAAD00A226F0 /* Ogg.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C6639020B7FAAAD00A226F0 /* Ogg.icns */; };
 		8C6639080B7FAAAD00A226F0 /* WAV.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C6639030B7FAAAD00A226F0 /* WAV.icns */; };
 		8C663A210B7FB1C800A226F0 /* Library.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C663A200B7FB1C800A226F0 /* Library.icns */; };
-		8C6ACE760BD55F6E00CDFEB2 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE700BD55F6D00CDFEB2 /* RBSplitSubview.m */; };
-		8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACE730BD55F6E00CDFEB2 /* RBSplitView.m */; };
 		8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C6D026D0CCEFAEE00A597AE /* CueSheetParser.m */; };
 		8C84BACF0C619F6800D8D221 /* ofa1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
 		8C84BAD00C619F7400D8D221 /* ofa1.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C84BACA0C619F6800D8D221 /* ofa1.framework */; };
@@ -177,7 +189,6 @@
 		8C9C2E960B7310E200CE799A /* Play.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C2E940B7310E200CE799A /* Play.icns */; };
 		8C9C2E9A0B73116500CE799A /* AudioScrobblerClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C28950B724D5400CE799A /* AudioScrobblerClient.m */; };
 		8C9C2E9B0B73116600CE799A /* AudioScrobbler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C28930B724D5400CE799A /* AudioScrobbler.m */; };
-		8C9C2EB40B73131900CE799A /* AudioLibrary.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C2EB20B73131900CE799A /* AudioLibrary.nib */; };
 		8C9C2EC90B73137A00CE799A /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2EC30B73137A00CE799A /* Growl.framework */; };
 		8C9C2ECE0B73139B00CE799A /* Growl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2EC30B73137A00CE799A /* Growl.framework */; };
 		8C9C2EEB0B7313E800CE799A /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2ED90B7313E800CE799A /* Sparkle.framework */; };
@@ -235,14 +246,11 @@
 		8C9C3EBD0B742FEE00CE799A /* OggVorbisMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */; };
 		8C9C3EBF0B742FEE00CE799A /* WavPackMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */; };
 		8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */; };
-		8C9C3EFB0B74340A00CE799A /* AudioStreamInformationSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */; };
 		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
-		8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */; };
 		8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */; };
 		8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */; };
 		8CA662080C8E33CA00E03092 /* CancelableProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA662060C8E33CA00E03092 /* CancelableProgressSheet.m */; };
-		8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CA6621F0C8E344C00E03092 /* CancelableProgressSheet.nib */; };
 		8CA662AA0C8E3EA100E03092 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CA662A70C8E3EA100E03092 /* SystemConfiguration.framework */; };
 		8CA8345F0BF3850F00E98527 /* ReplayGainUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */; };
 		8CA8B41F0C8E083900B56CCB /* protocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8CA8B41D0C8E083900B56CCB /* protocol.cpp */; };
@@ -261,19 +269,10 @@
 		8CB3EC870BDDA2B000B5E828 /* PTHotKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC810BDDA2B000B5E828 /* PTHotKey.m */; };
 		8CB3EC890BDDA2B000B5E828 /* PTHotKeyCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC830BDDA2B000B5E828 /* PTHotKeyCenter.m */; };
 		8CB3EC8B0BDDA2B000B5E828 /* PTKeyCombo.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC850BDDA2B000B5E828 /* PTKeyCombo.m */; };
-		8CB3EC980BDDA2FD00B5E828 /* RemoveShortcut.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC900BDDA2FD00B5E828 /* RemoveShortcut.tif */; };
-		8CB3EC990BDDA2FD00B5E828 /* RemoveShortcutPressed.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC910BDDA2FD00B5E828 /* RemoveShortcutPressed.tif */; };
-		8CB3EC9A0BDDA2FD00B5E828 /* RemoveShortcutRollover.tif in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC920BDDA2FD00B5E828 /* RemoveShortcutRollover.tif */; };
-		8CB3EC9C0BDDA2FD00B5E828 /* ShortcutRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC940BDDA2FD00B5E828 /* ShortcutRecorder.m */; };
-		8CB3EC9E0BDDA2FD00B5E828 /* ShortcutRecorderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3EC960BDDA2FD00B5E828 /* ShortcutRecorderCell.m */; };
-		8CB3EC9F0BDDA2FD00B5E828 /* Snapback.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */; };
 		8CB3F29B0BDDA75300B5E828 /* PreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3F2990BDDA75300B5E828 /* PreferencesController.m */; };
-		8CB3F2BF0BDDAC4900B5E828 /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */; };
-		8CB3F2C70BDDACC800B5E828 /* GeneralPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */; };
 		8CB3F2CF0BDDAD5B00B5E828 /* GeneralPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */; };
 		8CB3FECB0BDDB28200B5E828 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8CB3FECA0BDDB28200B5E828 /* Defaults.plist */; };
 		8CB9408A0BDEF76700405DB4 /* HotKeyPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CB940880BDEF76700405DB4 /* HotKeyPreferencesController.m */; };
-		8CB940910BDEF79000405DB4 /* HotKeyPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */; };
 		8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */; };
 		8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */; };
 		8CBEF1B50B7733770067CAE1 /* begin_transaction.sql in Resources */ = {isa = PBXBuildFile; fileRef = 8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */; };
@@ -305,12 +304,9 @@
 		8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE6210E0C11E8A50073ADC3 /* ScheduledAudioRegion.m */; };
 		8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */; };
 		8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */; };
-		8CE631D00C161CD20073ADC3 /* AudioUnitUI.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */; };
-		8CE631D10C161CD20073ADC3 /* SaveAUPresetSheet.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */; };
 		8CE632040C161E5E0073ADC3 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */; };
 		8CE6A43F0C3F4CBB005A221B /* ImageAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24FA0B724AE500CE799A /* ImageAndTextCell.m */; };
 		8CF0D90E0C836D0200728E39 /* AdvancedPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */; };
-		8CF0D92D0C836DD500728E39 /* AdvancedPreferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 8CF0D92B0C836DD400728E39 /* AdvancedPreferences.nib */; };
 		8CF257B20BF543FA00A8520E /* AIPlasticButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A10BF543FA00A8520E /* AIPlasticButton.m */; };
 		8CF257B40BF543FA00A8520E /* AIPlasticInfoButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A30BF543FA00A8520E /* AIPlasticInfoButton.m */; };
 		8CF257B60BF543FA00A8520E /* AIPlasticMinusButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF257A50BF543FA00A8520E /* AIPlasticMinusButton.m */; };
@@ -334,7 +330,6 @@
 		8CF539820C4EDBAF002E59E7 /* neon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF5397F0C4EDBAE002E59E7 /* neon.framework */; };
 		8CF539830C4EDBB5002E59E7 /* neon.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF5397F0C4EDBAE002E59E7 /* neon.framework */; };
 		8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CFBD2BA0CD910E6009A57C9 /* MPEGPropertiesReader.m */; };
-		8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -356,6 +351,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */,
 				8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */,
 				8C0CF21D0CE829A00086CAFB /* sqlite3.framework in Copy Frameworks */,
 				8C84BAD00C619F7400D8D221 /* ofa1.framework in Copy Frameworks */,
@@ -384,7 +380,6 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		3257169B10155E3400EA44DB /* AIFFMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataReader.h; path = Audio/Metadata/Readers/AIFFMetadataReader.h; sourceTree = "<group>"; };
@@ -395,6 +390,28 @@
 		32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WAVEMetadataReader.mm; path = Audio/Metadata/Readers/WAVEMetadataReader.mm; sourceTree = "<group>"; };
 		32875D6F1025163E001E06F2 /* WAVEMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataWriter.h; path = Audio/Metadata/Writers/WAVEMetadataWriter.h; sourceTree = "<group>"; };
 		32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WAVEMetadataWriter.mm; path = Audio/Metadata/Writers/WAVEMetadataWriter.mm; sourceTree = "<group>"; };
+		32CF6C6B10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AdvancedPreferences.xib; sourceTree = "<group>"; };
+		32CF6C6D10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioStreamInformationSheet.xib; sourceTree = "<group>"; };
+		32CF6C6F10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Preferences.xib; sourceTree = "<group>"; };
+		32CF6C7110371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/CancelableProgressSheet.xib; sourceTree = "<group>"; };
+		32CF6C7310371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/PlaylistInformationSheet.xib; sourceTree = "<group>"; };
+		32CF6C7510371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/FileAdditionProgressSheet.xib; sourceTree = "<group>"; };
+		32CF6C7710371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MusicBrainzSearchSheet.xib; sourceTree = "<group>"; };
+		32CF6C7910371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioMetadataEditingSheet.xib; sourceTree = "<group>"; };
+		32CF6C7B10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/GeneralPreferences.xib; sourceTree = "<group>"; };
+		32CF6C7D10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/DSPPreferences.xib; sourceTree = "<group>"; };
+		32CF6C7F10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/OutputPreferences.xib; sourceTree = "<group>"; };
+		32CF6C8110371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SaveAUPresetSheet.xib; sourceTree = "<group>"; };
+		32CF6C8310371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SmartPlaylistInformationSheet.xib; sourceTree = "<group>"; };
+		32CF6C8510371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/WatchFolderInformationSheet.xib; sourceTree = "<group>"; };
+		32CF6C8710371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/NewWatchFolderSheet.xib; sourceTree = "<group>"; };
+		32CF6C8910371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MusicBrainzMatchesSheet.xib; sourceTree = "<group>"; };
+		32CF6C8B10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SmartPlaylistCriterion.xib; sourceTree = "<group>"; };
+		32CF6C8D10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioUnitUI.xib; sourceTree = "<group>"; };
+		32CF6C8F10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		32CF6D7410373B39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioLibrary.xib; sourceTree = "<group>"; };
+		32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
+		32CF6E401038BD39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/HotKeyPreferences.xib; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
@@ -433,7 +450,6 @@
 		8C0CF0850CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = upgrade_database_for_musicbrainz.sql; path = SQL/upgrade_database_for_musicbrainz.sql; sourceTree = "<group>"; };
 		8C0CF2190CE8298F0086CAFB /* sqlite3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = sqlite3.framework; path = Frameworks/sqlite3.framework; sourceTree = "<group>"; };
 		8C0CF23B0CE82BE70086CAFB /* libcurl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libcurl.framework; path = Frameworks/libcurl.framework; sourceTree = "<group>"; };
-		8C16C6D70BCB1F3700126A45 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FileAdditionProgressSheet.nib; sourceTree = "<group>"; };
 		8C16C6DD0BCB1FEA00126A45 /* FileAdditionProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileAdditionProgressSheet.h; path = AudioLibrary/FileAdditionProgressSheet.h; sourceTree = "<group>"; };
 		8C16C6DE0BCB1FEA00126A45 /* FileAdditionProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FileAdditionProgressSheet.m; path = AudioLibrary/FileAdditionProgressSheet.m; sourceTree = "<group>"; };
 		8C17F6E20B912006009200C4 /* WatchFolderNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFolderNode.h; path = Browser/WatchFolderNode.h; sourceTree = "<group>"; };
@@ -454,7 +470,6 @@
 		8C17F8FF0B928B5C009200C4 /* select_all_watch_folders.sql */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = select_all_watch_folders.sql; path = SQL/select_all_watch_folders.sql; sourceTree = "<group>"; };
 		8C17F9030B928B7C009200C4 /* WatchFoldersNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WatchFoldersNode.h; path = Browser/WatchFoldersNode.h; sourceTree = "<group>"; };
 		8C17F9040B928B7C009200C4 /* WatchFoldersNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WatchFoldersNode.m; path = Browser/WatchFoldersNode.m; sourceTree = "<group>"; };
-		8C17F9530B928FA7009200C4 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/NewWatchFolderSheet.nib; sourceTree = "<group>"; };
 		8C17F9590B929002009200C4 /* NewWatchFolderSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NewWatchFolderSheet.h; path = AudioLibrary/NewWatchFolderSheet.h; sourceTree = "<group>"; };
 		8C17F95A0B929002009200C4 /* NewWatchFolderSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NewWatchFolderSheet.m; path = AudioLibrary/NewWatchFolderSheet.m; sourceTree = "<group>"; };
 		8C1A63400B7E8872008A04AB /* BrowserNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = BrowserNode.h; path = Browser/BrowserNode.h; sourceTree = "<group>"; };
@@ -462,7 +477,6 @@
 		8C1A6C3A0B7EBACE008A04AB /* select_stream_by_url.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_url.sql; path = SQL/select_stream_by_url.sql; sourceTree = "<group>"; };
 		8C1DA9A50B8D4BE400CF9D25 /* PlaylistInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PlaylistInformationSheet.h; path = AudioLibrary/PlaylistInformationSheet.h; sourceTree = "<group>"; };
 		8C1DA9A60B8D4BE400CF9D25 /* PlaylistInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PlaylistInformationSheet.m; path = AudioLibrary/PlaylistInformationSheet.m; sourceTree = "<group>"; };
-		8C1DA9CB0B8D4DA400CF9D25 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PlaylistInformationSheet.nib; sourceTree = "<group>"; };
 		8C2208380BB7007C00808450 /* RecentlyAddedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlyAddedNode.h; path = Browser/RecentlyAddedNode.h; sourceTree = "<group>"; };
 		8C2208390BB7007C00808450 /* RecentlyAddedNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RecentlyAddedNode.m; path = Browser/RecentlyAddedNode.m; sourceTree = "<group>"; };
 		8C22086F0BB7028900808450 /* RecentlyPlayedNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RecentlyPlayedNode.h; path = Browser/RecentlyPlayedNode.h; sourceTree = "<group>"; };
@@ -485,21 +499,16 @@
 		8C220A6C0BB8A35700808450 /* SmartPlaylistCriterion.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SmartPlaylistCriterion.m; path = AudioLibrary/SmartPlaylistCriterion.m; sourceTree = "<group>"; };
 		8C220A6D0BB8A35700808450 /* SmartPlaylistInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SmartPlaylistInformationSheet.h; path = AudioLibrary/SmartPlaylistInformationSheet.h; sourceTree = "<group>"; };
 		8C220A6E0BB8A35700808450 /* SmartPlaylistInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SmartPlaylistInformationSheet.m; path = AudioLibrary/SmartPlaylistInformationSheet.m; sourceTree = "<group>"; };
-		8C220AC30BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SmartPlaylistCriterion.nib; sourceTree = "<group>"; };
-		8C220AC50BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SmartPlaylistInformationSheet.nib; sourceTree = "<group>"; };
-		8C220AC70BB8A79E00808450 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/WatchFolderInformationSheet.nib; sourceTree = "<group>"; };
 		8C220CC60BB978C100808450 /* MostPopularNode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = MostPopularNode.h; path = Browser/MostPopularNode.h; sourceTree = "<group>"; };
 		8C220CC70BB978C100808450 /* MostPopularNode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = MostPopularNode.m; path = Browser/MostPopularNode.m; sourceTree = "<group>"; };
 		8C2957C60C26E64800C155A7 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = /System/Library/Frameworks/QuickTime.framework; sourceTree = "<absolute>"; };
 		8C2B35670C18EEEC000E28B9 /* DSPPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DSPPreferencesController.h; path = Preferences/DSPPreferencesController.h; sourceTree = "<group>"; };
 		8C2B35680C18EEEC000E28B9 /* DSPPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DSPPreferencesController.m; path = Preferences/DSPPreferencesController.m; sourceTree = "<group>"; };
-		8C2B358F0C1903D2000E28B9 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DSPPreferences.nib; sourceTree = "<group>"; };
 		8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DSPPreferencesToolbarImage.png; path = Images/DSPPreferencesToolbarImage.png; sourceTree = "<group>"; };
 		8C2D52480B802115005C3426 /* SQLiteUtilityFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteUtilityFunctions.h; path = Utilities/SQLiteUtilityFunctions.h; sourceTree = "<group>"; };
 		8C2D52490B802115005C3426 /* SQLiteUtilityFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SQLiteUtilityFunctions.m; path = Utilities/SQLiteUtilityFunctions.m; sourceTree = "<group>"; };
 		8C2D56F90B81A217005C3426 /* AudioStreamCollectionNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioStreamCollectionNode.h; path = Browser/AudioStreamCollectionNode.h; sourceTree = "<group>"; };
 		8C2D56FA0B81A217005C3426 /* AudioStreamCollectionNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioStreamCollectionNode.m; path = Browser/AudioStreamCollectionNode.m; sourceTree = "<group>"; };
-		8C2E0AD50C98764500E8BB6F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MusicBrainzSearchSheet.nib; sourceTree = "<group>"; };
 		8C2E0ADE0C98786700E8BB6F /* MusicBrainzSearchSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicBrainzSearchSheet.h; path = AudioLibrary/MusicBrainzSearchSheet.h; sourceTree = "<group>"; };
 		8C2E0ADF0C98786700E8BB6F /* MusicBrainzSearchSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MusicBrainzSearchSheet.m; path = AudioLibrary/MusicBrainzSearchSheet.m; sourceTree = "<group>"; };
 		8C30339F0BE6F40D00E37350 /* WatchFolderInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = WatchFolderInformationSheet.h; path = AudioLibrary/WatchFolderInformationSheet.h; sourceTree = "<group>"; };
@@ -514,7 +523,6 @@
 		8C47A9560C93618B00D71633 /* MusicBrainzUtilities.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MusicBrainzUtilities.mm; path = Utilities/MusicBrainzUtilities.mm; sourceTree = "<group>"; };
 		8C47AAFE0C94690800D71633 /* MusicBrainzMatchesSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicBrainzMatchesSheet.h; path = AudioLibrary/MusicBrainzMatchesSheet.h; sourceTree = "<group>"; };
 		8C47AAFF0C94690800D71633 /* MusicBrainzMatchesSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MusicBrainzMatchesSheet.m; path = AudioLibrary/MusicBrainzMatchesSheet.m; sourceTree = "<group>"; };
-		8C47AB2B0C946C2900D71633 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MusicBrainzMatchesSheet.nib; sourceTree = "<group>"; };
 		8C50FF930B7ADEC8005419EF /* select_stream_by_id.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = select_stream_by_id.sql; path = SQL/select_stream_by_id.sql; sourceTree = "<group>"; };
 		8C53D8DD0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSBezierPath_RoundRectMethods.h; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.h; sourceTree = "<group>"; };
 		8C53D8DE0BAEFCF800F21790 /* NSBezierPath_RoundRectMethods.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSBezierPath_RoundRectMethods.m; path = ThirdParty/NSBezierPath_RoundRectMethods/NSBezierPath_RoundRectMethods.m; sourceTree = "<group>"; };
@@ -548,7 +556,6 @@
 		8C5838200BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = OutputPreferencesToolbarImage.tiff; path = Images/OutputPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8C5838290BDFD04400E43C9E /* OutputPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OutputPreferencesController.h; path = Preferences/OutputPreferencesController.h; sourceTree = "<group>"; };
 		8C58382A0BDFD04400E43C9E /* OutputPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = OutputPreferencesController.m; path = Preferences/OutputPreferencesController.m; sourceTree = "<group>"; };
-		8C5838360BDFD0B400E43C9E /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/OutputPreferences.nib; sourceTree = "<group>"; };
 		8C58386B0BDFD44000E43C9E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		8C58468B0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = IntegerToDoubleRoundingValueTransformer.h; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.h; sourceTree = "<group>"; };
 		8C58468C0BE162D600E43C9E /* IntegerToDoubleRoundingValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = IntegerToDoubleRoundingValueTransformer.m; path = ValueTransformers/IntegerToDoubleRoundingValueTransformer.m; sourceTree = "<group>"; };
@@ -599,7 +606,6 @@
 		8C9C2E7C0B7310C100CE799A /* Remove.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Remove.png; path = Images/Remove.png; sourceTree = "<group>"; };
 		8C9C2E930B7310E200CE799A /* LibraryDocument.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = LibraryDocument.icns; path = Icons/LibraryDocument.icns; sourceTree = "<group>"; };
 		8C9C2E940B7310E200CE799A /* Play.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Play.icns; path = Icons/Play.icns; sourceTree = "<group>"; };
-		8C9C2EB30B73131900CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioLibrary.nib; sourceTree = "<group>"; };
 		8C9C2EC30B73137A00CE799A /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = Frameworks/Growl.framework; sourceTree = "<group>"; };
 		8C9C2ED90B7313E800CE799A /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
 		8C9C30C70B7327AB00CE799A /* sfmt19937.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = sfmt19937.c; path = ThirdParty/SFMT/sfmt19937.c; sourceTree = "<group>"; };
@@ -684,12 +690,10 @@
 		8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataWriter.m; path = Audio/Metadata/Writers/WavPackMetadataWriter.m; sourceTree = "<group>"; };
 		8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamInformationSheet.h; path = AudioLibrary/AudioStreamInformationSheet.h; sourceTree = "<group>"; };
 		8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamInformationSheet.m; path = AudioLibrary/AudioStreamInformationSheet.m; sourceTree = "<group>"; };
-		8C9C3EFA0B74340900CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioStreamInformationSheet.nib; sourceTree = "<group>"; };
 		8C9C3F2F0B74388300CE799A /* FileURLFormatter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FileURLFormatter.h; path = Formatters/FileURLFormatter.h; sourceTree = "<group>"; };
 		8C9C3F300B74388300CE799A /* FileURLFormatter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FileURLFormatter.m; path = Formatters/FileURLFormatter.m; sourceTree = "<group>"; };
 		8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioMetadataEditingSheet.h; path = AudioLibrary/AudioMetadataEditingSheet.h; sourceTree = "<group>"; };
 		8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataEditingSheet.m; path = AudioLibrary/AudioMetadataEditingSheet.m; sourceTree = "<group>"; };
-		8C9C40210B745B4700CE799A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioMetadataEditingSheet.nib; sourceTree = "<group>"; };
 		8CA1EE650B89698600AE4C2E /* NSTreeController_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSTreeController_Extensions.h; path = ThirdParty/NSTreeController_Extensions/NSTreeController_Extensions.h; sourceTree = "<group>"; };
 		8CA1EE660B89698600AE4C2E /* NSTreeController_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSTreeController_Extensions.m; path = ThirdParty/NSTreeController_Extensions/NSTreeController_Extensions.m; sourceTree = "<group>"; };
 		8CA56CD00BD63EC900225BB4 /* PlayQueueTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayQueueTableView.h; path = AudioLibrary/PlayQueueTableView.h; sourceTree = "<group>"; };
@@ -698,7 +702,6 @@
 		8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PlayQueueArrayController.m; path = AudioLibrary/PlayQueueArrayController.m; sourceTree = "<group>"; };
 		8CA662050C8E33CA00E03092 /* CancelableProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CancelableProgressSheet.h; path = AudioLibrary/CancelableProgressSheet.h; sourceTree = "<group>"; };
 		8CA662060C8E33CA00E03092 /* CancelableProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = CancelableProgressSheet.m; path = AudioLibrary/CancelableProgressSheet.m; sourceTree = "<group>"; };
-		8CA662200C8E344C00E03092 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/CancelableProgressSheet.nib; sourceTree = "<group>"; };
 		8CA662A70C8E3EA100E03092 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		8CA8345C0BF3850F00E98527 /* ReplayGainUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReplayGainUtilities.h; path = Utilities/ReplayGainUtilities.h; sourceTree = "<group>"; };
 		8CA8345D0BF3850F00E98527 /* ReplayGainUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReplayGainUtilities.m; path = Utilities/ReplayGainUtilities.m; sourceTree = "<group>"; };
@@ -741,14 +744,11 @@
 		8CB3EC970BDDA2FD00B5E828 /* Snapback.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = Snapback.tiff; path = ThirdParty/ShortcutRecorder/Snapback.tiff; sourceTree = "<group>"; };
 		8CB3F2980BDDA75300B5E828 /* PreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = PreferencesController.h; path = Preferences/PreferencesController.h; sourceTree = "<group>"; };
 		8CB3F2990BDDA75300B5E828 /* PreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = PreferencesController.m; path = Preferences/PreferencesController.m; sourceTree = "<group>"; };
-		8CB3F2BA0BDDAC4900B5E828 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Preferences.nib; sourceTree = "<group>"; };
-		8CB3F2C20BDDACC800B5E828 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/GeneralPreferences.nib; sourceTree = "<group>"; };
 		8CB3F2CC0BDDAD5B00B5E828 /* GeneralPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = GeneralPreferencesController.h; path = Preferences/GeneralPreferencesController.h; sourceTree = "<group>"; };
 		8CB3F2CD0BDDAD5B00B5E828 /* GeneralPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = GeneralPreferencesController.m; path = Preferences/GeneralPreferencesController.m; sourceTree = "<group>"; };
 		8CB3FECA0BDDB28200B5E828 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; name = Defaults.plist; path = Preferences/Defaults.plist; sourceTree = "<group>"; };
 		8CB940870BDEF76700405DB4 /* HotKeyPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = HotKeyPreferencesController.h; path = Preferences/HotKeyPreferencesController.h; sourceTree = "<group>"; };
 		8CB940880BDEF76700405DB4 /* HotKeyPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = HotKeyPreferencesController.m; path = Preferences/HotKeyPreferencesController.m; sourceTree = "<group>"; };
-		8CB9408C0BDEF79000405DB4 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/HotKeyPreferences.nib; sourceTree = "<group>"; };
 		8CB940A00BDEFB0000405DB4 /* GeneralPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = GeneralPreferencesToolbarImage.tiff; path = Images/GeneralPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8CB940A30BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = HotKeyPreferencesToolbarImage.tiff; path = Images/HotKeyPreferencesToolbarImage.tiff; sourceTree = "<group>"; };
 		8CBEF1B40B7733770067CAE1 /* begin_transaction.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = begin_transaction.sql; path = SQL/begin_transaction.sql; sourceTree = "<group>"; };
@@ -800,12 +800,9 @@
 		8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioUnitUI.m; path = AudioUnitUI/AudioUnitUI.m; sourceTree = "<group>"; };
 		8CE631BC0C161CAB0073ADC3 /* SaveAUPresetSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SaveAUPresetSheet.h; path = AudioUnitUI/SaveAUPresetSheet.h; sourceTree = "<group>"; };
 		8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SaveAUPresetSheet.m; path = AudioUnitUI/SaveAUPresetSheet.m; sourceTree = "<group>"; };
-		8CE631C50C161CD20073ADC3 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AudioUnitUI.nib; sourceTree = "<group>"; };
-		8CE631C70C161CD20073ADC3 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/SaveAUPresetSheet.nib; sourceTree = "<group>"; };
 		8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		8CF0D90B0C836D0200728E39 /* AdvancedPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdvancedPreferencesController.h; path = Preferences/AdvancedPreferencesController.h; sourceTree = "<group>"; };
 		8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdvancedPreferencesController.m; path = Preferences/AdvancedPreferencesController.m; sourceTree = "<group>"; };
-		8CF0D92C0C836DD500728E39 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AdvancedPreferences.nib; sourceTree = "<group>"; };
 		8CF257A00BF543FA00A8520E /* AIPlasticButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticButton.h; path = ThirdParty/AIPlasticButton/AIPlasticButton.h; sourceTree = "<group>"; };
 		8CF257A10BF543FA00A8520E /* AIPlasticButton.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIPlasticButton.m; path = ThirdParty/AIPlasticButton/AIPlasticButton.m; sourceTree = "<group>"; };
 		8CF257A20BF543FA00A8520E /* AIPlasticInfoButton.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIPlasticInfoButton.h; path = ThirdParty/AIPlasticButton/AIPlasticInfoButton.h; sourceTree = "<group>"; };
@@ -869,6 +866,7 @@
 				8C55A8C00CA5B9EF00C7B3F9 /* IOKit.framework in Frameworks */,
 				8C0CF21A0CE8298F0086CAFB /* sqlite3.framework in Frameworks */,
 				8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */,
+				32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -948,30 +946,30 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8CA6621F0C8E344C00E03092 /* CancelableProgressSheet.nib */,
-				8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */,
-				8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */,
-				8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */,
-				8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */,
-				8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */,
+				32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */,
+				32CF6D7310373B39006F9D62 /* AudioLibrary.xib */,
+				32CF6C6A10371A79006F9D62 /* AdvancedPreferences.xib */,
+				32CF6C6C10371A79006F9D62 /* AudioStreamInformationSheet.xib */,
+				32CF6C6E10371A79006F9D62 /* Preferences.xib */,
+				32CF6C7010371A79006F9D62 /* CancelableProgressSheet.xib */,
+				32CF6C7210371A79006F9D62 /* PlaylistInformationSheet.xib */,
+				32CF6C7410371A79006F9D62 /* FileAdditionProgressSheet.xib */,
+				32CF6C7610371A79006F9D62 /* MusicBrainzSearchSheet.xib */,
+				32CF6C7810371A79006F9D62 /* AudioMetadataEditingSheet.xib */,
+				32CF6C7A10371A79006F9D62 /* GeneralPreferences.xib */,
+				32CF6C7C10371A79006F9D62 /* DSPPreferences.xib */,
+				32CF6C7E10371A79006F9D62 /* OutputPreferences.xib */,
+				32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */,
+				32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */,
+				32CF6C8410371A79006F9D62 /* WatchFolderInformationSheet.xib */,
+				32CF6C8610371A79006F9D62 /* NewWatchFolderSheet.xib */,
+				32CF6C8810371A79006F9D62 /* MusicBrainzMatchesSheet.xib */,
+				32CF6C8A10371A79006F9D62 /* SmartPlaylistCriterion.xib */,
+				32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */,
+				32CF6C8E10371A79006F9D62 /* MainMenu.xib */,
 				8CB3E3E90BDD40E800B5E828 /* Credits.rtf */,
-				8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */,
-				8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */,
-				8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */,
-				8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */,
-				8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */,
-				8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */,
-				8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */,
-				8C9C2EB20B73131900CE799A /* AudioLibrary.nib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
-				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
-				8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */,
-				8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */,
-				8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */,
-				8CF0D92B0C836DD400728E39 /* AdvancedPreferences.nib */,
-				8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */,
-				8C2E0AD40C98764500E8BB6F /* MusicBrainzSearchSheet.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -979,6 +977,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */,
 				8C0CF23B0CE82BE70086CAFB /* libcurl.framework */,
 				8C0CF2190CE8298F0086CAFB /* sqlite3.framework */,
 				8C55A8BD0CA5B9EF00C7B3F9 /* IOKit.framework */,
@@ -1719,7 +1718,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8CB3FECB0BDDB28200B5E828 /* Defaults.plist in Resources */,
-				8D11072A0486CEB800E47090 /* MainMenu.nib in Resources */,
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				8C9C28890B724D2600CE799A /* Play.sdef in Resources */,
 				8C9C2E7F0B7310C200CE799A /* Add_Pressed.png in Resources */,
@@ -1727,14 +1725,11 @@
 				8C9C2E8E0B7310C200CE799A /* Remove_Pressed.png in Resources */,
 				8C9C2E8F0B7310C200CE799A /* Remove.png in Resources */,
 				8C9C2E960B7310E200CE799A /* Play.icns in Resources */,
-				8C9C2EB40B73131900CE799A /* AudioLibrary.nib in Resources */,
 				8C9C3DDB0B741F4400CE799A /* create_stream_table.sql in Resources */,
 				8C9C3DDC0B741F4400CE799A /* delete_stream.sql in Resources */,
 				8C9C3DDD0B741F4400CE799A /* insert_stream.sql in Resources */,
 				8C9C3DDE0B741F4400CE799A /* select_all_streams.sql in Resources */,
 				8C9C3DDF0B741F4400CE799A /* update_stream.sql in Resources */,
-				8C9C3EFB0B74340A00CE799A /* AudioStreamInformationSheet.nib in Resources */,
-				8C9C40220B745B4700CE799A /* AudioMetadataEditingSheet.nib in Resources */,
 				8CBEF1B50B7733770067CAE1 /* begin_transaction.sql in Resources */,
 				8CBEF1BB0B77338C0067CAE1 /* commit_transaction.sql in Resources */,
 				8CBEF1C70B7735140067CAE1 /* rollback_transaction.sql in Resources */,
@@ -1762,32 +1757,19 @@
 				8C06F02F0B866F2D00E8ADB6 /* CTBadge_5.pdf in Resources */,
 				8C06FB490B86E7FE00E8ADB6 /* delete_playlist_entries_for_playlist.sql in Resources */,
 				8C06FB590B86E97600E8ADB6 /* insert_playlist_entry.sql in Resources */,
-				8C1DA9D00B8D4DA400CF9D25 /* PlaylistInformationSheet.nib in Resources */,
 				8C17F7CC0B913DD2009200C4 /* create_watch_folder_table.sql in Resources */,
 				8C17F8F70B928B28009200C4 /* delete_watch_folder.sql in Resources */,
 				8C17F8F80B928B28009200C4 /* insert_watch_folder.sql in Resources */,
 				8C17F8F90B928B28009200C4 /* select_watch_folder_by_id.sql in Resources */,
 				8C17F8FA0B928B28009200C4 /* update_watch_folder.sql in Resources */,
 				8C17F9000B928B5C009200C4 /* select_all_watch_folders.sql in Resources */,
-				8C17F9580B928FA7009200C4 /* NewWatchFolderSheet.nib in Resources */,
 				8C2209820BB82B1A00808450 /* create_smart_playlist_table.sql in Resources */,
 				8C22098E0BB82B5800808450 /* delete_smart_playlist.sql in Resources */,
 				8C2209970BB82B7800808450 /* insert_smart_playlist.sql in Resources */,
 				8C2209C60BB82BE700808450 /* select_all_smart_playlists.sql in Resources */,
 				8C2209CD0BB82C0A00808450 /* select_smart_playlist_by_id.sql in Resources */,
 				8C2209D60BB82C2700808450 /* update_smart_playlist.sql in Resources */,
-				8C220AD40BB8A79F00808450 /* SmartPlaylistCriterion.nib in Resources */,
-				8C220AD50BB8A79F00808450 /* SmartPlaylistInformationSheet.nib in Resources */,
-				8C220AD60BB8A79F00808450 /* WatchFolderInformationSheet.nib in Resources */,
-				8C16C6D80BCB1F3700126A45 /* FileAdditionProgressSheet.nib in Resources */,
 				8CB3E3EB0BDD40E800B5E828 /* Credits.rtf in Resources */,
-				8CB3EC980BDDA2FD00B5E828 /* RemoveShortcut.tif in Resources */,
-				8CB3EC990BDDA2FD00B5E828 /* RemoveShortcutPressed.tif in Resources */,
-				8CB3EC9A0BDDA2FD00B5E828 /* RemoveShortcutRollover.tif in Resources */,
-				8CB3EC9F0BDDA2FD00B5E828 /* Snapback.tiff in Resources */,
-				8CB3F2BF0BDDAC4900B5E828 /* Preferences.nib in Resources */,
-				8CB3F2C70BDDACC800B5E828 /* GeneralPreferences.nib in Resources */,
-				8CB940910BDEF79000405DB4 /* HotKeyPreferences.nib in Resources */,
 				8CB940A10BDEFB0100405DB4 /* GeneralPreferencesToolbarImage.tiff in Resources */,
 				8CB940A40BDEFB2E00405DB4 /* HotKeyPreferencesToolbarImage.tiff in Resources */,
 				8C8E3D2C0BDF26D600605141 /* ShortcutRecorder.strings in Resources */,
@@ -1802,7 +1784,6 @@
 				8C5838140BDFBCCF00E43C9E /* Preferences.strings in Resources */,
 				8C5838150BDFBCCF00E43C9E /* SmartPlaylistCriteria.strings in Resources */,
 				8C5838210BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff in Resources */,
-				8C5838370BDFD0B400E43C9E /* OutputPreferences.nib in Resources */,
 				8CF257B90BF543FA00A8520E /* i.png in Resources */,
 				8CF257BA0BF543FA00A8520E /* minus.png in Resources */,
 				8CF257BB0BF543FA00A8520E /* PlasticButtonDefault_Caps.png in Resources */,
@@ -1812,15 +1793,8 @@
 				8CF257BF0BF543FA00A8520E /* PlasticButtonPressed_Caps.png in Resources */,
 				8CF257C00BF543FA00A8520E /* PlasticButtonPressed_Middle.png in Resources */,
 				8CF257C10BF543FA00A8520E /* plus.png in Resources */,
-				8CE631D00C161CD20073ADC3 /* AudioUnitUI.nib in Resources */,
-				8CE631D10C161CD20073ADC3 /* SaveAUPresetSheet.nib in Resources */,
-				8C2B35900C1903D2000E28B9 /* DSPPreferences.nib in Resources */,
 				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
-				8CF0D92D0C836DD500728E39 /* AdvancedPreferences.nib in Resources */,
-				8CA662210C8E344C00E03092 /* CancelableProgressSheet.nib in Resources */,
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
-				8C47AB2C0C946C2900D71633 /* MusicBrainzMatchesSheet.nib in Resources */,
-				8C2E0AD60C98764500E8BB6F /* MusicBrainzSearchSheet.nib in Resources */,
 				8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */,
 				8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */,
 				8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */,
@@ -1841,6 +1815,27 @@
 				8C0CF0610CE807B10086CAFB /* upgrade_database_for_cue_sheets.sql in Resources */,
 				8C0CF0830CE80EAB0086CAFB /* check_for_musicbrainz_support.sql in Resources */,
 				8C0CF0860CE80F6B0086CAFB /* upgrade_database_for_musicbrainz.sql in Resources */,
+				32CF6C9010371A79006F9D62 /* AdvancedPreferences.xib in Resources */,
+				32CF6C9110371A79006F9D62 /* AudioStreamInformationSheet.xib in Resources */,
+				32CF6C9210371A79006F9D62 /* Preferences.xib in Resources */,
+				32CF6C9310371A79006F9D62 /* CancelableProgressSheet.xib in Resources */,
+				32CF6C9410371A79006F9D62 /* PlaylistInformationSheet.xib in Resources */,
+				32CF6C9510371A79006F9D62 /* FileAdditionProgressSheet.xib in Resources */,
+				32CF6C9610371A79006F9D62 /* MusicBrainzSearchSheet.xib in Resources */,
+				32CF6C9710371A79006F9D62 /* AudioMetadataEditingSheet.xib in Resources */,
+				32CF6C9810371A79006F9D62 /* GeneralPreferences.xib in Resources */,
+				32CF6C9910371A79006F9D62 /* DSPPreferences.xib in Resources */,
+				32CF6C9A10371A79006F9D62 /* OutputPreferences.xib in Resources */,
+				32CF6C9B10371A79006F9D62 /* SaveAUPresetSheet.xib in Resources */,
+				32CF6C9C10371A79006F9D62 /* SmartPlaylistInformationSheet.xib in Resources */,
+				32CF6C9D10371A79006F9D62 /* WatchFolderInformationSheet.xib in Resources */,
+				32CF6C9E10371A79006F9D62 /* NewWatchFolderSheet.xib in Resources */,
+				32CF6C9F10371A79006F9D62 /* MusicBrainzMatchesSheet.xib in Resources */,
+				32CF6CA010371A79006F9D62 /* SmartPlaylistCriterion.xib in Resources */,
+				32CF6CA110371A79006F9D62 /* AudioUnitUI.xib in Resources */,
+				32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */,
+				32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */,
+				32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1948,15 +1943,11 @@
 				8C220A720BB8A35700808450 /* SmartPlaylistInformationSheet.m in Sources */,
 				8C220CC90BB978C100808450 /* MostPopularNode.m in Sources */,
 				8C16C6E00BCB1FEA00126A45 /* FileAdditionProgressSheet.m in Sources */,
-				8C6ACE760BD55F6E00CDFEB2 /* RBSplitSubview.m in Sources */,
-				8C6ACE790BD55F6E00CDFEB2 /* RBSplitView.m in Sources */,
 				8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */,
 				8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */,
 				8CB3EC870BDDA2B000B5E828 /* PTHotKey.m in Sources */,
 				8CB3EC890BDDA2B000B5E828 /* PTHotKeyCenter.m in Sources */,
 				8CB3EC8B0BDDA2B000B5E828 /* PTKeyCombo.m in Sources */,
-				8CB3EC9C0BDDA2FD00B5E828 /* ShortcutRecorder.m in Sources */,
-				8CB3EC9E0BDDA2FD00B5E828 /* ShortcutRecorderCell.m in Sources */,
 				8CB3F29B0BDDA75300B5E828 /* PreferencesController.m in Sources */,
 				8CB3F2CF0BDDAD5B00B5E828 /* GeneralPreferencesController.m in Sources */,
 				8CB9408A0BDEF76700405DB4 /* HotKeyPreferencesController.m in Sources */,
@@ -2008,12 +1999,13 @@
 				8C6D026F0CCEFAEE00A597AE /* CueSheetParser.m in Sources */,
 				8C590A150CD6EE860062E77C /* LoopableRegionDecoder.m in Sources */,
 				8CFBD2BB0CD910E6009A57C9 /* MPEGPropertiesReader.m in Sources */,
-				8C0CF2630CE82D2A0086CAFB /* NSTreeController_Extensions.m in Sources */,
 				8CC86DB60D39EBB400A4E608 /* iScrobbler.m in Sources */,
 				3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */,
 				325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */,
 				32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */,
 				32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */,
+				32CF6DD310387F8B006F9D62 /* RBSplitView.m in Sources */,
+				32CF6DD410387F8C006F9D62 /* RBSplitSubview.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2036,12 +2028,172 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		29B97318FDCFA39411CA2CEA /* MainMenu.nib */ = {
+		32CF6C6A10371A79006F9D62 /* AdvancedPreferences.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				29B97319FDCFA39411CA2CEA /* English */,
+				32CF6C6B10371A79006F9D62 /* English */,
 			);
-			name = MainMenu.nib;
+			name = AdvancedPreferences.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C6C10371A79006F9D62 /* AudioStreamInformationSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C6D10371A79006F9D62 /* English */,
+			);
+			name = AudioStreamInformationSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C6E10371A79006F9D62 /* Preferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C6F10371A79006F9D62 /* English */,
+			);
+			name = Preferences.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7010371A79006F9D62 /* CancelableProgressSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7110371A79006F9D62 /* English */,
+			);
+			name = CancelableProgressSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7210371A79006F9D62 /* PlaylistInformationSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7310371A79006F9D62 /* English */,
+			);
+			name = PlaylistInformationSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7410371A79006F9D62 /* FileAdditionProgressSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7510371A79006F9D62 /* English */,
+			);
+			name = FileAdditionProgressSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7610371A79006F9D62 /* MusicBrainzSearchSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7710371A79006F9D62 /* English */,
+			);
+			name = MusicBrainzSearchSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7810371A79006F9D62 /* AudioMetadataEditingSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7910371A79006F9D62 /* English */,
+			);
+			name = AudioMetadataEditingSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7A10371A79006F9D62 /* GeneralPreferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7B10371A79006F9D62 /* English */,
+			);
+			name = GeneralPreferences.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7C10371A79006F9D62 /* DSPPreferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7D10371A79006F9D62 /* English */,
+			);
+			name = DSPPreferences.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C7E10371A79006F9D62 /* OutputPreferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C7F10371A79006F9D62 /* English */,
+			);
+			name = OutputPreferences.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8110371A79006F9D62 /* English */,
+			);
+			name = SaveAUPresetSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8310371A79006F9D62 /* English */,
+			);
+			name = SmartPlaylistInformationSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8410371A79006F9D62 /* WatchFolderInformationSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8510371A79006F9D62 /* English */,
+			);
+			name = WatchFolderInformationSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8610371A79006F9D62 /* NewWatchFolderSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8710371A79006F9D62 /* English */,
+			);
+			name = NewWatchFolderSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8810371A79006F9D62 /* MusicBrainzMatchesSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8910371A79006F9D62 /* English */,
+			);
+			name = MusicBrainzMatchesSheet.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8A10371A79006F9D62 /* SmartPlaylistCriterion.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8B10371A79006F9D62 /* English */,
+			);
+			name = SmartPlaylistCriterion.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8D10371A79006F9D62 /* English */,
+			);
+			name = AudioUnitUI.xib;
+			sourceTree = "<group>";
+		};
+		32CF6C8E10371A79006F9D62 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6C8F10371A79006F9D62 /* English */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		32CF6D7310373B39006F9D62 /* AudioLibrary.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6D7410373B39006F9D62 /* English */,
+			);
+			name = AudioLibrary.xib;
+			sourceTree = "<group>";
+		};
+		32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32CF6E401038BD39006F9D62 /* English */,
+			);
+			name = HotKeyPreferences.xib;
 			sourceTree = "<group>";
 		};
 		8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */ = {
@@ -2050,78 +2202,6 @@
 				8C05E62B0CC27FE4006E5746 /* English */,
 			);
 			name = AudioUnitUI.strings;
-			sourceTree = "<group>";
-		};
-		8C16C6D60BCB1F3700126A45 /* FileAdditionProgressSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C16C6D70BCB1F3700126A45 /* English */,
-			);
-			name = FileAdditionProgressSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C17F9520B928FA7009200C4 /* NewWatchFolderSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C17F9530B928FA7009200C4 /* English */,
-			);
-			name = NewWatchFolderSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C1DA9CA0B8D4DA400CF9D25 /* PlaylistInformationSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C1DA9CB0B8D4DA400CF9D25 /* English */,
-			);
-			name = PlaylistInformationSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C220AC20BB8A79E00808450 /* SmartPlaylistCriterion.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C220AC30BB8A79E00808450 /* English */,
-			);
-			name = SmartPlaylistCriterion.nib;
-			sourceTree = "<group>";
-		};
-		8C220AC40BB8A79E00808450 /* SmartPlaylistInformationSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C220AC50BB8A79E00808450 /* English */,
-			);
-			name = SmartPlaylistInformationSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C220AC60BB8A79E00808450 /* WatchFolderInformationSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C220AC70BB8A79E00808450 /* English */,
-			);
-			name = WatchFolderInformationSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C2B358E0C1903D2000E28B9 /* DSPPreferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C2B358F0C1903D2000E28B9 /* English */,
-			);
-			name = DSPPreferences.nib;
-			sourceTree = "<group>";
-		};
-		8C2E0AD40C98764500E8BB6F /* MusicBrainzSearchSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C2E0AD50C98764500E8BB6F /* English */,
-			);
-			name = MusicBrainzSearchSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C47AB2A0C946C2900D71633 /* MusicBrainzMatchesSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C47AB2B0C946C2900D71633 /* English */,
-			);
-			name = MusicBrainzMatchesSheet.nib;
 			sourceTree = "<group>";
 		};
 		8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */ = {
@@ -2204,14 +2284,6 @@
 			name = SmartPlaylistCriteria.strings;
 			sourceTree = "<group>";
 		};
-		8C5838350BDFD0B400E43C9E /* OutputPreferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C5838360BDFD0B400E43C9E /* English */,
-			);
-			name = OutputPreferences.nib;
-			sourceTree = "<group>";
-		};
 		8C8E3D2A0BDF26D500605141 /* ShortcutRecorder.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -2220,92 +2292,12 @@
 			name = ShortcutRecorder.strings;
 			sourceTree = "<group>";
 		};
-		8C9C2EB20B73131900CE799A /* AudioLibrary.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C9C2EB30B73131900CE799A /* English */,
-			);
-			name = AudioLibrary.nib;
-			sourceTree = "<group>";
-		};
-		8C9C3EF90B74340900CE799A /* AudioStreamInformationSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C9C3EFA0B74340900CE799A /* English */,
-			);
-			name = AudioStreamInformationSheet.nib;
-			sourceTree = "<group>";
-		};
-		8C9C40200B745B4700CE799A /* AudioMetadataEditingSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C9C40210B745B4700CE799A /* English */,
-			);
-			name = AudioMetadataEditingSheet.nib;
-			sourceTree = "<group>";
-		};
-		8CA6621F0C8E344C00E03092 /* CancelableProgressSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CA662200C8E344C00E03092 /* English */,
-			);
-			name = CancelableProgressSheet.nib;
-			sourceTree = "<group>";
-		};
 		8CB3E3E90BDD40E800B5E828 /* Credits.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
 				8CB3E3EA0BDD40E800B5E828 /* English */,
 			);
 			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
-		8CB3F2B90BDDAC4900B5E828 /* Preferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CB3F2BA0BDDAC4900B5E828 /* English */,
-			);
-			name = Preferences.nib;
-			sourceTree = "<group>";
-		};
-		8CB3F2C10BDDACC800B5E828 /* GeneralPreferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CB3F2C20BDDACC800B5E828 /* English */,
-			);
-			name = GeneralPreferences.nib;
-			sourceTree = "<group>";
-		};
-		8CB9408B0BDEF79000405DB4 /* HotKeyPreferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CB9408C0BDEF79000405DB4 /* English */,
-			);
-			name = HotKeyPreferences.nib;
-			sourceTree = "<group>";
-		};
-		8CE631C40C161CD20073ADC3 /* AudioUnitUI.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CE631C50C161CD20073ADC3 /* English */,
-			);
-			name = AudioUnitUI.nib;
-			sourceTree = "<group>";
-		};
-		8CE631C60C161CD20073ADC3 /* SaveAUPresetSheet.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CE631C70C161CD20073ADC3 /* English */,
-			);
-			name = SaveAUPresetSheet.nib;
-			sourceTree = "<group>";
-		};
-		8CF0D92B0C836DD400728E39 /* AdvancedPreferences.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8CF0D92C0C836DD500728E39 /* English */,
-			);
-			name = AdvancedPreferences.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -2367,7 +2359,6 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;
@@ -2408,7 +2399,6 @@
 				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
 				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
 				WRAPPER_EXTENSION = app;
