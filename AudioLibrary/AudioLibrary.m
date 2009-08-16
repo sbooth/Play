@@ -64,7 +64,6 @@
 #import "AudioStreamTableView.h"
 #import "PlayQueueTableView.h"
 #import "BrowserOutlineView.h"
-#import "RBSplitView.h"
 
 #import "BrowserNode.h"
 #import "AudioStreamCollectionNode.h"
@@ -92,6 +91,8 @@
 #import "ImageAndTextCell.h"
 
 #include "sfmt19937.h"
+
+#import "RBSplitView/RBSplitView.h"
 
 // ========================================
 // The global instance
