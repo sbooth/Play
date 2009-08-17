@@ -2023,7 +2023,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) windowWillClose:(NSNotification *)aNotification
 {
-	[self stop:self];
+	if([[self player] isPlaying])
+		[self stop:self];
 }
 
 - (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)sender
