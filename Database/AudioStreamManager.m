@@ -52,7 +52,7 @@
 - (id) init
 {
 	if((self = [super init])) {
-		_registeredStreams	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
+		_registeredStreams	= NSCreateMapTable(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
 		_sql				= [[NSMutableDictionary alloc] init];
 		_insertedStreams	= [[NSMutableSet alloc] init];
 		_updatedStreams		= [[NSMutableSet alloc] init];

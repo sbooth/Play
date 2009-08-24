@@ -51,7 +51,7 @@
 - (id) init
 {
 	if((self = [super init])) {
-		_registeredFolders	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
+		_registeredFolders	= NSCreateMapTable(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
 		_sql				= [[NSMutableDictionary alloc] init];
 		_insertedFolders	= [[NSMutableSet alloc] init];
 		_updatedFolders		= [[NSMutableSet alloc] init];

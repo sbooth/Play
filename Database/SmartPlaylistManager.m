@@ -49,7 +49,7 @@
 - (id) init
 {
 	if((self = [super init])) {
-		_registeredPlaylists	= NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
+		_registeredPlaylists	= NSCreateMapTable(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 4096);		
 		_sql					= [[NSMutableDictionary alloc] init];
 		_insertedPlaylists		= [[NSMutableSet alloc] init];
 		_updatedPlaylists		= [[NSMutableSet alloc] init];
