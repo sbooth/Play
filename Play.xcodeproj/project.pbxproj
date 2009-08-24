@@ -6,20 +6,6 @@
 	objectVersion = 44;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		8CDE3D870C40136A008E66EB /* Generate SVNRevision */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 8CDE3D8A0C40138B008E66EB /* Build configuration list for PBXAggregateTarget "Generate SVNRevision" */;
-			buildPhases = (
-				8CDE3D860C40136A008E66EB /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = "Generate SVNRevision";
-			productName = "Generate SVNRevision";
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
@@ -50,6 +36,8 @@
 		32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */; };
 		32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
 		32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
+		32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2396104336FC0069EB9B /* Version.xcconfig */; };
+		32FF2425104338C30069EB9B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2424104338C30069EB9B /* Base.xcconfig */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
 		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
@@ -334,16 +322,6 @@
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		8CDE3D920C4013B1008E66EB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8CDE3D870C40136A008E66EB;
-			remoteInfo = "Generate SVNRevision";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		8C9C2ECA0B73138500CE799A /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -414,6 +392,8 @@
 		32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
 		32CF6E401038BD39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/HotKeyPreferences.xib; sourceTree = "<group>"; };
 		32CF6EC71038C392006F9D62 /* RBSplitView.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RBSplitView.framework; path = Frameworks/RBSplitView.framework; sourceTree = "<group>"; };
+		32FF2396104336FC0069EB9B /* Version.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		32FF2424104338C30069EB9B /* Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
@@ -911,6 +891,7 @@
 				8C9C377C0B739C9800CE799A /* SQL */,
 				8CDE3D890C40138B008E66EB /* Scripts */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				32FF2395104336EA0069EB9B /* Configs */,
 				8C8E3D200BDF266F00605141 /* Strings */,
 				8C9C2E920B7310D100CE799A /* Icons */,
 				8C9C2E690B7310AC00CE799A /* Images */,
@@ -1001,6 +982,15 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		32FF2395104336EA0069EB9B /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				32FF2424104338C30069EB9B /* Base.xcconfig */,
+				32FF2396104336FC0069EB9B /* Version.xcconfig */,
+			);
+			path = Configs;
 			sourceTree = "<group>";
 		};
 		8C06F0190B866EA700E8ADB6 /* CTGradient */ = {
@@ -1648,7 +1638,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				8CDE3D930C4013B1008E66EB /* PBXTargetDependency */,
 			);
 			name = Play;
 			productInstallPath = "$(HOME)/Applications";
@@ -1668,7 +1657,6 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8CDE3D870C40136A008E66EB /* Generate SVNRevision */,
 				8D1107260486CEB800E47090 /* Play */,
 			);
 		};
@@ -1798,27 +1786,12 @@
 				32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */,
 				32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */,
 				32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */,
+				32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */,
+				32FF2425104338C30069EB9B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		8CDE3D860C40136A008E66EB /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/SVNRevision.h",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "PATH=\"$PATH:/opt/local/bin:/usr/local/bin:/usr/local/subversion/bin:/sw/bin\"\nREVISION=`svnversion .`\n\n## SVN_REVISION is a string because it may look like \"4168M\" or \"4123:4168MS\"\necho \"/* This file is automatically generated */\" > $SCRIPT_OUTPUT_FILE_0\necho \"#define SVN_REVISION \\\"$REVISION\\\"\" >> $SCRIPT_OUTPUT_FILE_0\necho \"#define SVN_REVISION_UNQUOTED $REVISION\" >> $SCRIPT_OUTPUT_FILE_0\n\nexit 0";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
@@ -1970,14 +1943,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		8CDE3D930C4013B1008E66EB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8CDE3D870C40136A008E66EB /* Generate SVNRevision */;
-			targetProxy = 8CDE3D920C4013B1008E66EB /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -2263,30 +2228,9 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		8CDE3D8B0C40138B008E66EB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = "Generate SVNRevision";
-			};
-			name = Debug;
-		};
-		8CDE3D8C0C40138B008E66EB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PRODUCT_NAME = "Generate SVNRevision";
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
@@ -2309,15 +2253,13 @@
 					"SQL_DEBUG=1",
 					"DEBUG=1",
 				);
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Frameworks/taglib.framework/Headers\"",
 					"\"$(SRCROOT)/Frameworks/mp4v2.framework/Headers\"",
 				);
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
-				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
@@ -2328,6 +2270,7 @@
 		};
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
@@ -2355,9 +2298,6 @@
 					"\"$(SRCROOT)/Frameworks/mp4v2.framework/Headers\"",
 				);
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_OTHER_PREPROCESSOR_FLAGS = "-traditional";
-				INFOPLIST_PREFIX_HEADER = $SRCROOT/SVNRevision.h;
-				INFOPLIST_PREPROCESS = YES;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Play;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
@@ -2395,15 +2335,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8CDE3D8A0C40138B008E66EB /* Build configuration list for PBXAggregateTarget "Generate SVNRevision" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8CDE3D8B0C40138B008E66EB /* Debug */,
-				8CDE3D8C0C40138B008E66EB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Play" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
