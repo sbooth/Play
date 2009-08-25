@@ -33,12 +33,10 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 {
 	NSCParameterAssert(nil != streams);
 	
-	NSEnumerator			*enumerator		= [streams objectEnumerator];
-	AudioStream				*stream			= nil;
-	Float64					sampleRate		= 0;
-	float					scale			= (1L << (16 - 1));
-	float					albumPeak		= 0;
-	float					*rgBuffers		[2];
+	Float64			sampleRate		= 0;
+	float			scale			= (1L << (16 - 1));
+	float			albumPeak		= 0;
+	float			*rgBuffers		[2];
 	
 	// Allocate RG buffers (only two are needed because the RG analysis code only works on mono or stereo)
 	rgBuffers[0] = (float *)calloc(BUFFER_LENGTH, sizeof(float));
@@ -65,7 +63,7 @@ calculateReplayGain(NSArray *streams, BOOL calculateAlbumGain, NSModalSession mo
 	clock_t album_start = clock();
 #endif
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in streams) {
 		
 #if DEBUG
 		clock_t track_start = clock();

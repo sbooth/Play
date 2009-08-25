@@ -93,18 +93,18 @@
 	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataGenreKey];
 	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
 	NSArray			*genres			= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
-	NSEnumerator	*enumerator		= [genres objectEnumerator];
-	NSString		*genre			= nil;
 	GenreNode		*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
+	
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((genre = [enumerator nextObject])) {
+	for(NSString *genre in genres) {
 		node = [[GenreNode alloc] initWithName:genre];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
 	}
+	
 	[self didChangeValueForKey:@"children"];
 }
 

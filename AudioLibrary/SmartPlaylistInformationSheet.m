@@ -120,11 +120,10 @@
 		if([playlistPredicate isKindOfClass:[NSCompoundPredicate class]]) {
 			
 			NSCompoundPredicate *compoundPredicate		= (NSCompoundPredicate *)playlistPredicate;
-			NSEnumerator		*enumerator				= [[compoundPredicate subpredicates] objectEnumerator];
 			
 			[self setPredicateType:[compoundPredicate compoundPredicateType]];
 			
-			while((playlistPredicate = [enumerator nextObject])) {
+			for(playlistPredicate in [compoundPredicate subpredicates]) {
 				criterion = [[SmartPlaylistCriterion alloc] init];
 				
 				if([playlistPredicate isKindOfClass:[NSComparisonPredicate class]]) {
@@ -220,16 +219,13 @@
 	
 	if(0 < [[self criteria] count]) {
 		NSRect			windowFrame;
-		NSEnumerator	*enumerator;
-		NSView			*subview;
 		NSRect			subviewFrame;
 		
 		windowFrame					= [_sheet frame];
 		windowFrame.size.height		+= viewHeight;
 		windowFrame.origin.y		-= viewHeight;
-		enumerator					= [[_criteriaView subviews] objectEnumerator];
 		
-		while((subview = [enumerator nextObject])) {
+		for(NSView *subview in [_criteriaView subviews]) {
 			subviewFrame			= [subview frame];
 			subviewFrame.origin.y	+= viewHeight;
 			
@@ -261,16 +257,13 @@
 	
 	if(0 < [[self criteria] count]) {
 		NSRect			windowFrame;
-		NSEnumerator	*enumerator;
-		NSView			*subview;
 		NSRect			subviewFrame;
 		
 		windowFrame					= [_sheet frame];
 		windowFrame.size.height		-= viewHeight;
 		windowFrame.origin.y		+= viewHeight;
-		enumerator					= [[_criteriaView subviews] objectEnumerator];
 		
-		while((subview = [enumerator nextObject])) {
+		for(NSView *subview in [_criteriaView subviews]) {
 			subviewFrame			= [subview frame];
 			subviewFrame.origin.y	-= viewHeight;
 			

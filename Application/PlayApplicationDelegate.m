@@ -125,12 +125,10 @@
 	// Restore the play queue
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"rememberPlayQueue"]) {
 		NSArray				*objectIDs		= [[NSUserDefaults standardUserDefaults] arrayForKey:@"savedPlayQueueStreams"];
-		NSEnumerator		*enumerator		= [objectIDs objectEnumerator];
-		NSNumber			*objectID		= nil;
 		NSMutableArray		*streams		= [NSMutableArray array];
 		AudioStream			*stream			= nil;
 		
-		while((objectID = [enumerator nextObject])) {
+		for(NSNumber *objectID in objectIDs) {
 			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 			if(nil != stream)
 				[streams addObject:stream];
@@ -465,11 +463,7 @@
 
 - (void) streamsDidChange:(NSNotification *)aNotification
 {
-	NSArray					*streams		= [[aNotification userInfo] objectForKey:AudioStreamsObjectKey];
-	NSEnumerator			*enumerator		= [streams objectEnumerator];
-	AudioStream				*stream			= nil;
-	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [[aNotification userInfo] objectForKey:AudioStreamsObjectKey]) {
 		if([stream isPlaying])
 			[self setWindowTitleForStream:stream];
 	}
@@ -535,12 +529,10 @@
 	id directParameter = [command directParameter];
 	
 	if([directParameter isKindOfClass:[NSArray class]]) {
-		NSArray						*trackSpecifiers	= (NSArray *)directParameter;
-		NSEnumerator				*enumerator			= [trackSpecifiers objectEnumerator];
-		NSScriptObjectSpecifier		*specifier			= nil;
-		NSMutableArray				*tracksToAdd		= [NSMutableArray array];
+		NSArray				*trackSpecifiers	= (NSArray *)directParameter;
+		NSMutableArray		*tracksToAdd		= [NSMutableArray array];
 		
-		while((specifier = [enumerator nextObject])) {
+		for(NSScriptObjectSpecifier *specifier in trackSpecifiers) {
 			AudioStream *evaluatedObject = [specifier objectsByEvaluatingSpecifier];
 			if(nil != evaluatedObject)
 				[tracksToAdd addObject:evaluatedObject];

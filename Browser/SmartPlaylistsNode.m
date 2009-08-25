@@ -56,23 +56,20 @@
 	NSArray			*new			= [change valueForKey:NSKeyValueChangeNewKey];
 	int				changeKind		= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
 	BOOL			needsSort		= NO;
-	NSEnumerator	*enumerator		= nil;
 	BrowserNode		*node			= nil;
 	SmartPlaylist	*playlist		= nil;
 	unsigned		i;
 	
 	switch(changeKind) {
 		case NSKeyValueChangeInsertion:
-			enumerator = [new objectEnumerator];
-			while((playlist = [enumerator nextObject])) {
+			for(playlist in new) {
 				node = [[SmartPlaylistNode alloc] initWithSmartPlaylist:playlist];
 				[self addChild:node];
 			}
 			break;
 			
 		case NSKeyValueChangeRemoval:
-			enumerator = [old objectEnumerator];
-			while((playlist = [enumerator nextObject])) {
+			for(playlist in old) {
 				node = [self findChildForSmartPlaylist:playlist];
 				if(nil != node) {
 					[self removeChild:node];
@@ -123,14 +120,13 @@
 - (void) loadChildren
 {
 	NSArray				*playlists		= [[[CollectionManager manager] smartPlaylistManager] smartPlaylists];
-	NSEnumerator		*enumerator		= [playlists objectEnumerator];
 	SmartPlaylist		*playlist		= nil;
 	SmartPlaylistNode	*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((playlist = [enumerator nextObject])) {
+	for(playlist in playlists) {
 		node = [[SmartPlaylistNode alloc] initWithSmartPlaylist:playlist];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
@@ -141,13 +137,12 @@
 - (SmartPlaylistNode *) findChildForSmartPlaylist:(SmartPlaylist *)playlist
 {
 	// Breadth-first search
-	NSEnumerator		*enumerator = [_children objectEnumerator];
-	SmartPlaylistNode 	*child 		= nil;
 	SmartPlaylistNode 	*match 		= nil;
 	
-	while(match == nil && (child = [enumerator nextObject])) {
+	for(SmartPlaylistNode *child in _children) {
 		if([[child smartPlaylist] isEqual:playlist]) {
 			match = child;
+			break;
 		}
 	}
 	

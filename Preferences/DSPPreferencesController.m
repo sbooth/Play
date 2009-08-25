@@ -47,17 +47,13 @@
 
 - (void) awakeFromNib
 {
-	NSArray			*effects		= [[[AudioLibrary library] player] availableEffects];
-	NSArray			*manufacturers	= [effects valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", AUManufacturerStringKey]];
-	NSEnumerator	*enumerator		= nil;
-	NSDictionary	*auDictionary	= nil;
+	NSArray *effects		= [[[AudioLibrary library] player] availableEffects];
+	NSArray *manufacturers	= [effects valueForKeyPath:[NSString stringWithFormat:@"@distinctUnionOfObjects.%@", AUManufacturerStringKey]];
 
 	NSMenu *auMenu = [[NSMenu alloc] init];
 
 	if(1 >= [manufacturers count]) {
-		enumerator = [effects objectEnumerator];
-		
-		while((auDictionary = [enumerator nextObject])) {
+		for(NSDictionary *auDictionary in effects) {
 			NSMenuItem *menuItem = [[NSMenuItem alloc] init];
 			[menuItem setTitle:[auDictionary valueForKey:AUNameStringKey]];
 //			[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
@@ -70,10 +66,7 @@
 		}
 	}
 	else {
-		NSEnumerator	*manufacturersEnumerator	= [manufacturers objectEnumerator];
-		NSString		*manufacturer				= nil;
-		
-		while((manufacturer = [manufacturersEnumerator nextObject])) {
+		for(NSString *manufacturer in manufacturers) {
 			NSPredicate		*manufacturerPredicate	= [NSPredicate predicateWithFormat:@"%K == %@", AUManufacturerStringKey, manufacturer];
 			NSArray			*manufacturerEffects	= [effects filteredArrayUsingPredicate:manufacturerPredicate];
 			NSMenu			*manufacturerSubMenu	= [[NSMenu alloc] init];
@@ -81,8 +74,7 @@
 			
 			[manufacturerMenuItem setTitle:manufacturer];
 						
-			enumerator = [manufacturerEffects objectEnumerator];
-			while((auDictionary = [enumerator nextObject])) {
+			for(NSDictionary *auDictionary in manufacturerEffects) {
 				NSMenuItem *menuItem = [[NSMenuItem alloc] init];
 				[menuItem setTitle:[auDictionary valueForKey:AUNameStringKey]];
 //				[menuItem setImage:[auDictionary valueForKey:AUIconKey]];
@@ -103,8 +95,7 @@
 	
 	[_removeEffectButton bind:@"enabled" toObject:_effectsArrayController withKeyPath:@"selectedObjects.@count" options:nil];
 	
-	enumerator = [[[[AudioLibrary library] player] currentEffects] objectEnumerator];
-	while((auDictionary = [enumerator nextObject]))
+	for(NSDictionary *auDictionary in [[[AudioLibrary library] player] currentEffects])
 		[_effectsArrayController addObject:auDictionary];
 	
 	// Setup the custom data cell

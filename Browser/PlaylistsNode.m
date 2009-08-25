@@ -56,23 +56,20 @@
 	NSArray			*new			= [change valueForKey:NSKeyValueChangeNewKey];
 	int				changeKind		= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
 	BOOL			needsSort		= NO;
-	NSEnumerator	*enumerator		= nil;
 	BrowserNode		*node			= nil;
 	Playlist		*playlist		= nil;
 	unsigned		i;
 	
 	switch(changeKind) {
 		case NSKeyValueChangeInsertion:
-			enumerator = [new objectEnumerator];
-			while((playlist = [enumerator nextObject])) {
+			for(playlist in new) {
 				node = [[PlaylistNode alloc] initWithPlaylist:playlist];
 				[self addChild:node];
 			}
 			break;
 
 		case NSKeyValueChangeRemoval:
-			enumerator = [old objectEnumerator];
-			while((playlist = [enumerator nextObject])) {
+			for(playlist in old) {
 				node = [self findChildForPlaylist:playlist];
 				if(nil != node) {
 					[self removeChild:node];
@@ -122,32 +119,30 @@
 
 - (void) loadChildren
 {
-	NSArray			*playlists		= [[[CollectionManager manager] playlistManager] playlists];
-	NSEnumerator	*enumerator		= [playlists objectEnumerator];
-	Playlist		*playlist		= nil;
 	PlaylistNode	*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
+
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((playlist = [enumerator nextObject])) {
+	for(Playlist *playlist in [[[CollectionManager manager] playlistManager] playlists]) {
 		node = [[PlaylistNode alloc] initWithPlaylist:playlist];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
 	}
+	
 	[self didChangeValueForKey:@"children"];
 }
 
 - (PlaylistNode *) findChildForPlaylist:(Playlist *)playlist
 {
 	// Breadth-first search
-	NSEnumerator 	*enumerator = [_children objectEnumerator];
-	PlaylistNode 	*child 		= nil;
 	PlaylistNode 	*match 		= nil;
 	
-	while(match == nil && (child = [enumerator nextObject])) {
+	for(PlaylistNode *child in _children) {
 		if([[child playlist] isEqual:playlist]) {
 			match = child;
+			break;
 		}
 	}
 

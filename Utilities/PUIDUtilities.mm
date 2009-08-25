@@ -57,10 +57,8 @@ calculateFingerprintsAndRequestPUIDs(NSArray *streams, NSModalSession modalSessi
 {
 	NSCParameterAssert(nil != streams);
 	
-	NSEnumerator			*enumerator			= [streams objectEnumerator];
-	AudioStream				*stream				= nil;
-	float					scale				= (1L << (16 - 1));
-	int16_t					*fingerprintBuffer	= NULL;
+	float		scale				= (1L << (16 - 1));
+	int16_t		*fingerprintBuffer	= NULL;
 	
 	// Allocate the AudioBufferList for the decoder to use (2 channels regardless of channels in file)
 	AudioBufferList *bufferList = (AudioBufferList *)calloc(sizeof(AudioBufferList) + sizeof(AudioBuffer), 1);
@@ -76,7 +74,7 @@ calculateFingerprintsAndRequestPUIDs(NSArray *streams, NSModalSession modalSessi
 		bufferList->mBuffers[i].mNumberChannels = 1;
 	}
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in streams) {
 		
 #if DEBUG
 		clock_t track_start = clock();

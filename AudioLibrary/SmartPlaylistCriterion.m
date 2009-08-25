@@ -273,7 +273,6 @@ enum {
 - (void) setupKeyPathPopUpButton
 {
 	NSMenuItem	*menuItem	= nil;
-	NSString	*keyPath	= nil;
 	
 	NSPopUpButton *keyPathPopUpButton = [[self view] viewWithTag:KeyPathPopupButtonTag];
 	[keyPathPopUpButton removeAllItems];
@@ -293,9 +292,8 @@ enum {
 		StatisticsDateAddedKey, StatisticsFirstPlayedDateKey, StatisticsLastPlayedDateKey, StatisticsLastSkippedDateKey,
 		StatisticsPlayCountKey, StatisticsSkipCountKey, StatisticsRatingKey,
 		nil];
-	NSEnumerator *enumerator = [keyPaths objectEnumerator];
 	
-	while((keyPath = [enumerator nextObject])) {
+	for(NSString *keyPath in keyPaths) {
 		if([keyPath isEqualToString:@"-"]) {
 			[buttonMenu addItem:[NSMenuItem separatorItem]];
 		}

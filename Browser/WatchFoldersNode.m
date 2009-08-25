@@ -56,23 +56,20 @@
 	NSArray			*new			= [change valueForKey:NSKeyValueChangeNewKey];
 	int				changeKind		= [[change valueForKey:NSKeyValueChangeKindKey] intValue];
 	BOOL			needsSort		= NO;
-	NSEnumerator	*enumerator		= nil;
 	BrowserNode		*node			= nil;
 	WatchFolder		*folder			= nil;
 	unsigned		i;
 	
 	switch(changeKind) {
 		case NSKeyValueChangeInsertion:
-			enumerator = [new objectEnumerator];
-			while((folder = [enumerator nextObject])) {
+			for(folder in new) {
 				node = [[WatchFolderNode alloc] initWithWatchFolder:folder];
 				[self addChild:node];
 			}
 			break;
 			
 		case NSKeyValueChangeRemoval:
-			enumerator = [old objectEnumerator];
-			while((folder = [enumerator nextObject])) {
+			for(folder in old) {
 				node = [self findChildForWatchFolder:folder];
 				if(nil != node) {
 					[self removeChild:node];
@@ -119,14 +116,13 @@
 - (void) loadChildren
 {
 	NSArray			*watchFolders	= [[[CollectionManager manager] watchFolderManager] watchFolders];
-	NSEnumerator	*enumerator		= [watchFolders objectEnumerator];
 	WatchFolder		*folder			= nil;
 	WatchFolderNode	*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((folder = [enumerator nextObject])) {
+	for(folder in watchFolders) {
 		node = [[WatchFolderNode alloc] initWithWatchFolder:folder];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
@@ -137,13 +133,12 @@
 - (WatchFolderNode *) findChildForWatchFolder:(WatchFolder *)folder
 {
 	// Breadth-first search
-	NSEnumerator		*enumerator = [_children objectEnumerator];
-	WatchFolderNode		*child 		= nil;
 	WatchFolderNode 	*match 		= nil;
 	
-	while(match == nil && (child = [enumerator nextObject])) {
+	for(WatchFolderNode *child in _children) {
 		if([[child watchFolder] isEqual:folder]) {
 			match = child;
+			break;
 		}
 	}
 		

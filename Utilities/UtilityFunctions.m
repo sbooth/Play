@@ -196,13 +196,10 @@ getBitmapDataForImage(NSImage					*image,
 {
 	NSCParameterAssert(nil != image);
 	
-	NSEnumerator		*enumerator					= nil;
-	NSImageRep			*currentRepresentation		= nil;
-	NSBitmapImageRep	*bitmapRep					= nil;
+	NSBitmapImageRep	*bitmapRep		= nil;
 	NSSize				size;
 	
-	enumerator = [[image representations] objectEnumerator];
-	while((currentRepresentation = [enumerator nextObject])) {
+	for(NSImageRep *currentRepresentation in [image representations]) {
 		if([currentRepresentation isKindOfClass:[NSBitmapImageRep class]]) {
 			bitmapRep = (NSBitmapImageRep *)currentRepresentation;
 		}
@@ -230,22 +227,22 @@ treeNodeForRepresentedObject(NSTreeNode *root, id representedObject)
 	if([[root representedObject] isEqual:representedObject])
 		return root;
 	
-	NSEnumerator	*enumerator		= [[root childNodes] objectEnumerator];
-	NSTreeNode		*child			= nil;
-	NSTreeNode		*match			= nil;
+	NSTreeNode *match = nil;
 	
 	// Perform a breadth-first search
-	while(nil == match && (child = [enumerator nextObject])) {
-		if([[child representedObject] isEqual:representedObject])
+	for(NSTreeNode *child in [root childNodes]) {
+		if([[child representedObject] isEqual:representedObject]) {
 			match = child;
+			break;
+		}
 	}
 	
 	if(nil == match) {
-		enumerator 	= [[root childNodes] objectEnumerator];
-		child 		= nil;
-		
-		while(nil == match && (child = [enumerator nextObject]))
+		for(NSTreeNode *child in [root childNodes]) {
 			match = treeNodeForRepresentedObject(child, representedObject);
+			if(match)
+				break;
+		}
 	}
 	
 	return match;

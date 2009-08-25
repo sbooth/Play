@@ -724,11 +724,9 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 
 - (IBAction) openWithFinder:(id)sender
 {
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSString		*path			= nil;
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [_streamController selectedObjects]) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] openFile:path];
 	}
@@ -736,11 +734,9 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 
 - (IBAction) revealInFinder:(id)sender
 {
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSString		*path			= nil;
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [_streamController selectedObjects]) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] selectFile:path inFileViewerRootedAtPath:nil];
 	}
@@ -1099,11 +1095,9 @@ bail:
 
 - (IBAction) convertWithMax:(id)sender
 {
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSString		*path			= nil;
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [_streamController selectedObjects]) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Max"];
 	}
@@ -1111,11 +1105,9 @@ bail:
 
 - (IBAction) editWithTag:(id)sender
 {
-	NSEnumerator	*enumerator		= [[_streamController selectedObjects] objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSString		*path			= nil;
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [_streamController selectedObjects]) {
 		path = [[stream valueForKey:StreamURLKey] path];
 		[[NSWorkspace sharedWorkspace] openFile:path withApplication:@"Tag"];
 	}
@@ -1203,8 +1195,6 @@ bail:
 - (void) openWithPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {	
 	if(NSOKButton == returnCode) {
-		NSEnumerator	*enumerator			= nil;
-		AudioStream		*stream				= nil;
 		NSString		*path				= nil;
 		NSArray			*applications		= [panel filenames];
 		NSString		*applicationPath	= nil;
@@ -1212,9 +1202,8 @@ bail:
 		
 		for(i = 0; i < [applications count]; ++i) {
 			applicationPath		= [applications objectAtIndex:i];
-			enumerator			= [[_streamController selectedObjects] objectEnumerator];
 			
-			while((stream = [enumerator nextObject])) {
+			for(AudioStream *stream in [_streamController selectedObjects]) {
 				path = [[stream valueForKey:StreamURLKey] path];
 				[[NSWorkspace sharedWorkspace] openFile:path withApplication:applicationPath];
 			}

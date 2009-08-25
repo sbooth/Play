@@ -102,10 +102,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) revert
 {
-	NSEnumerator	*changedKeys	= [[_changedValues allKeys] objectEnumerator];
-	NSString		*key			= nil;
-
-	while((key = [changedKeys nextObject])) {		
+	for(NSString *key in _changedValues) {		
 		[self willChangeValueForKey:key];
 		[[CollectionManager manager] databaseObject:self willChangeValueForKey:key];
 		[_changedValues removeObjectForKey:key];
@@ -140,10 +137,7 @@ NSString * const	ObjectIDKey								= @"id";
 
 - (void) initValuesForKeysWithDictionary:(NSDictionary *)keyedValues
 {
-	NSEnumerator	*savedKeys		= [keyedValues keyEnumerator];
-	NSString		*key			= nil;
-	
-	while((key = [savedKeys nextObject]))
+	for(NSString *key in keyedValues)
 		[self initValue:[keyedValues valueForKey:key] forKey:key];
 }
 

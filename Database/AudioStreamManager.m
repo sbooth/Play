@@ -123,13 +123,10 @@
 {
 	NSParameterAssert(nil != url);
 	
-	NSArray			*allStreams		= [self streams];
 	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
-	NSEnumerator	*enumerator		= [allStreams objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSURL			*streamURL		= nil;
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [self streams]) {
 		streamURL = [stream valueForKey:StreamURLKey];
 		if([[streamURL path] hasPrefix:[url path]])
 			[streams addObject:stream];
@@ -364,31 +361,25 @@
 - (void) processUpdate
 {
 	NSAssert(YES == _updating, @"No update in progress");
-	
-	NSEnumerator 		*enumerator 	= nil;
-	AudioStream 		*stream 		= nil;
-	
+		
 	// ========================================
 	// Process updates first
 	if(0 != [_updatedStreams count]) {
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject]))
+		for(AudioStream *stream in _updatedStreams)
 			[self doUpdateStream:stream];
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedStreams count]) {
-		enumerator = [_deletedStreams objectEnumerator];
-		while((stream = [enumerator nextObject]))
+		for(AudioStream *stream in _deletedStreams)
 			[self doDeleteStream:stream];
 	}
 	
 	// ========================================
 	// Finally, process inserts, removing any that fail
 	if(0 != [_insertedStreams count]) {
-		enumerator = [[_insertedStreams allObjects] objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+		for(AudioStream *stream in _insertedStreams) {
 			if(NO == [self doInsertStream:stream])
 				[_insertedStreams removeObject:stream];
 		}
@@ -399,8 +390,6 @@
 {
 	NSAssert(YES == _updating, @"No update in progress");
 
-	NSEnumerator 		*enumerator 	= nil;
-	AudioStream 		*stream 		= nil;
 	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
 	NSMutableArray		*streams		= nil;
 	
@@ -417,18 +406,18 @@
 	// ========================================
 	// Handle deletes
 	if(0 != [_deletedStreams count]) {
-		streams		= [NSMutableArray array];
-		enumerator	= [_deletedStreams objectEnumerator];
+		streams = [NSMutableArray array];
 		
-		while((stream = [enumerator nextObject]))
+		for(AudioStream *stream in _deletedStreams)
 			[indexes addIndex:[_cachedStreams indexOfObject:stream]];
 
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];
-		enumerator = [_deletedStreams objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+		
+		for(AudioStream *stream in _deletedStreams) {
 			[streams addObject:stream];
 			[_cachedStreams removeObject:stream];
 		}
+		
 		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"streams"];		
 
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamsRemovedFromLibraryNotification 
@@ -446,11 +435,12 @@
 		
 		[indexes addIndexesInRange:NSMakeRange([_cachedStreams count], [_insertedStreams count])];
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
-		enumerator = [[_insertedStreams allObjects] objectEnumerator];
-		while((stream = [enumerator nextObject])) {
+
+		for(AudioStream *stream in _insertedStreams) {
 			[streams addObject:stream];
 			[_cachedStreams addObject:stream];
 		}
+		
 		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"streams"];
 		
 		[[NSNotificationCenter defaultCenter] postNotificationName:AudioStreamsAddedToLibraryNotification 
@@ -471,11 +461,7 @@
 
 	// For a canceled update, revert the updated streams and forget about anything else
 	if(0 != [_updatedStreams count]) {		
-		NSEnumerator	*enumerator 	= nil;
-		AudioStream 	*stream 		= nil;
-		
-		enumerator = [_updatedStreams objectEnumerator];
-		while((stream = [enumerator nextObject]))
+		for(AudioStream *stream in _updatedStreams)
 			[stream revert];
 	}
 
@@ -576,14 +562,11 @@
 {
 	NSParameterAssert(nil != folder);
 
-	NSArray			*allStreams		= [self streams];
 	NSMutableArray	*streams		= [[NSMutableArray alloc] init];
 	NSURL			*folderURL		= [folder valueForKey:WatchFolderURLKey];
-	NSEnumerator	*enumerator		= [allStreams objectEnumerator];
-	AudioStream		*stream			= nil;
 	NSURL			*streamURL		= nil;
 
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [self streams]) {
 		streamURL = [stream valueForKey:StreamURLKey];
 		if([[streamURL path] hasPrefix:[folderURL path]])
 			[streams addObject:stream];
@@ -602,14 +585,12 @@
 {
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
-	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
 		@"select_all_streams", @"select_stream_by_id", @"select_stream_by_url", @"select_streams_for_playlist", @"insert_stream", @"update_stream", @"delete_stream", nil];
-	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	const char		*tail				= NULL;
 	
-	while((filename = [enumerator nextObject])) {
+	for(NSString *filename in files) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
 		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
@@ -640,11 +621,9 @@
 
 - (BOOL) finalizeSQL:(NSError **)error
 {
-	NSEnumerator	*enumerator			= [_sql objectEnumerator];
-	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
 	
-	while((wrappedPtr = [enumerator nextObject])) {
+	for(NSNumber *wrappedPtr in _sql) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];
 		if(SQLITE_OK != sqlite3_finalize(statement)) {
 			if(nil != error) {

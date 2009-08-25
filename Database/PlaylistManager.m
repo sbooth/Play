@@ -261,31 +261,25 @@
 - (void) processUpdate
 {
 	NSAssert(YES == _updating, @"No update in progress");
-	
-	NSEnumerator 		*enumerator 	= nil;
-	Playlist			*playlist 		= nil;
-	
+		
 	// ========================================
 	// Process updates first
 	if(0 != [_updatedPlaylists count]) {
-		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject]))
+		for(Playlist *playlist in _updatedPlaylists)
 			[self doUpdatePlaylist:playlist];
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedPlaylists count]) {
-		enumerator = [_deletedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject]))
+		for(Playlist *playlist in _deletedPlaylists)
 			[self doDeletePlaylist:playlist];
 	}
 	
 	// ========================================
 	// Finally, process inserts, removing any that fail
 	if(0 != [_insertedPlaylists count]) {
-		enumerator = [[_insertedPlaylists allObjects] objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		for(Playlist *playlist in _insertedPlaylists) {
 			if(NO == [self doInsertPlaylist:playlist])
 				[_insertedPlaylists removeObject:playlist];
 		}
@@ -296,15 +290,12 @@
 {
 	NSAssert(YES == _updating, @"No update in progress");
 	
-	NSEnumerator 		*enumerator 	= nil;
-	Playlist			*playlist 		= nil;
 	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
 	
 	// ========================================
 	// Broadcast the notifications
 	if(0 != [_updatedPlaylists count]) {
-		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject]))
+		for(Playlist *playlist in _updatedPlaylists)
 			[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistDidChangeNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];		
@@ -315,19 +306,19 @@
 	// ========================================
 	// Handle deletes
 	if(0 != [_deletedPlaylists count]) {
-		enumerator = [_deletedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject]))
+		for(Playlist *playlist in _deletedPlaylists)
 			[indexes addIndex:[_cachedPlaylists indexOfObject:playlist]];
 		
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"playlists"];
-		enumerator = [_deletedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+		
+		for(Playlist *playlist in _deletedPlaylists) {
 			[_cachedPlaylists removeObject:playlist];
 			
 			[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistRemovedFromLibraryNotification 
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
 		}
+		
 		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"playlists"];		
 		
 		[_deletedPlaylists removeAllObjects];
@@ -340,14 +331,15 @@
 		[indexes addIndexesInRange:NSMakeRange([_cachedPlaylists count], [_insertedPlaylists count])];
 		
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
-		enumerator = [[_insertedPlaylists allObjects] objectEnumerator];
-		while((playlist = [enumerator nextObject])) {
+
+		for(Playlist *playlist in _insertedPlaylists) {
 			[_cachedPlaylists addObject:playlist];
 			
 			[[NSNotificationCenter defaultCenter] postNotificationName:PlaylistAddedToLibraryNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:playlist forKey:PlaylistObjectKey]];
 		}
+		
 		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"playlists"];
 		
 		[_insertedPlaylists removeAllObjects];
@@ -364,11 +356,7 @@
 	
 	// For a canceled update, revert the updated streams and forget about anything else
 	if(0 != [_updatedPlaylists count]) {		
-		NSEnumerator	*enumerator 	= nil;
-		Playlist		*playlist 		= nil;
-		
-		enumerator = [_updatedPlaylists objectEnumerator];
-		while((playlist = [enumerator nextObject]))
+		for(Playlist *playlist in _updatedPlaylists)
 			[playlist revert];
 	}
 	
@@ -427,15 +415,13 @@
 {
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
-	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
 		@"select_all_playlists", @"select_playlist_by_id", @"insert_playlist", @"update_playlist", @"delete_playlist", 
 		@"delete_playlist_entries_for_playlist", @"insert_playlist_entry", nil];
-	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	const char		*tail				= NULL;
 	
-	while((filename = [enumerator nextObject])) {
+	for(NSString *filename in files) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
 		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
@@ -466,11 +452,9 @@
 
 - (BOOL) finalizeSQL:(NSError **)error
 {
-	NSEnumerator	*enumerator			= [_sql objectEnumerator];
-	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
 	
-	while((wrappedPtr = [enumerator nextObject])) {
+	for(NSNumber *wrappedPtr in _sql) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];
 		if(SQLITE_OK != sqlite3_finalize(statement)) {
 			if(nil != error) {

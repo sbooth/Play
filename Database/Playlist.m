@@ -91,12 +91,9 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSParameterAssert(nil != streams);
 	NSParameterAssert(0 != [streams count]);
 	
-	NSEnumerator	*enumerator		= [streams objectEnumerator];
-	AudioStream		*stream			= nil;
-	
 	[[CollectionManager manager] beginUpdate];
 	
-	while((stream = [enumerator nextObject]))
+	for(AudioStream *stream in streams)
 		[self addStream:stream];
 	
 	[[CollectionManager manager] finishUpdate];
@@ -147,13 +144,11 @@ NSString * const	StatisticsDateCreatedKey				= @"dateCreated";
 	NSParameterAssert(nil != objectIDs);
 	NSParameterAssert(0 != [objectIDs count]);
 
-	NSEnumerator	*enumerator		= [objectIDs objectEnumerator];
-	NSNumber		*objectID		= nil;
 	AudioStream		*stream			= nil;
 	
 	[[CollectionManager manager] beginUpdate];
 
-	while((objectID = [enumerator nextObject])) {
+	for(NSNumber *objectID in objectIDs) {
 		stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 		[self addStream:stream];
 	}

@@ -987,11 +987,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 
 - (void) restoreEffectsFromDefaults
 {
-	NSArray			*effects		= [[NSUserDefaults standardUserDefaults] arrayForKey:@"playerDSPEffects"];
-	NSEnumerator	*enumerator		= [effects objectEnumerator];
-	NSDictionary	*auDictionary	= nil;
-	
-	while((auDictionary = [enumerator nextObject])) {
+	for(NSDictionary *auDictionary in [[NSUserDefaults standardUserDefaults] arrayForKey:@"playerDSPEffects"]) {
 		AUNode node;
 		/*BOOL result =*/ [self addEffectToAUGraph:auDictionary newNode:&node error:nil];
 	}

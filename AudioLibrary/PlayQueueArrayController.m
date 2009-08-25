@@ -138,12 +138,9 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	NSString		*bestType			= [[info draggingPasteboard] availableTypeFromArray:supportedTypes];	
 	
 	if([bestType isEqualToString:AudioStreamPboardType]) {
-		NSArray			*objectIDs		= [[info draggingPasteboard] propertyListForType:AudioStreamPboardType];		
-		NSEnumerator	*enumerator		= [objectIDs reverseObjectEnumerator];
-		NSNumber		*objectID		= nil;
 		AudioStream		*stream			= nil;
 			
-		while((objectID = [enumerator nextObject])) {
+		for(NSNumber *objectID in [[info draggingPasteboard] propertyListForType:AudioStreamPboardType]) {
 			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
 			[self insertObject:stream atArrangedObjectIndex:row];
 		}
@@ -175,11 +172,9 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		
 		if(result) {
 			NSMutableArray	*streams		= [NSMutableArray array];
-			NSEnumerator	*enumerator		= [filenames objectEnumerator];
-			NSString		*filename		= nil;
 			NSURL			*url			= nil;
 			
-			while((filename = [enumerator nextObject])) {
+			for(NSString *filename in filenames) {
 				url = [NSURL fileURLWithPath:filename];
 				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
 			}
@@ -208,12 +203,10 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	else if([bestType isEqualToString:iTunesPboardType]) {
 		NSDictionary	*iTunesDictionary	= [[info draggingPasteboard] propertyListForType:iTunesPboardType];
 		NSArray			*tracks				= [iTunesDictionary valueForKey:@"Tracks"];
-		NSEnumerator	*enumerator			= [tracks objectEnumerator];
-		NSDictionary	*track				= nil;
 		NSURL			*url				= nil;
 		BOOL			success				= NO;
 		
-		while((track = [enumerator nextObject])) {
+		for(NSDictionary *track in tracks) {
 			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
 			if([url isFileURL])
 				success |= [[AudioLibrary library] addFile:[url path]];
@@ -222,8 +215,7 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 		if(success) {
 			NSMutableArray *streams = [NSMutableArray array];
 
-			enumerator = [tracks objectEnumerator];
-			while((track = [enumerator nextObject])) {
+			for(NSDictionary *track in tracks) {
 				url = [NSURL URLWithString:[track valueForKey:@"Location"]];
 				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
 			}

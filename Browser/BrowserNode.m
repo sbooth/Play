@@ -172,21 +172,21 @@
 - (BrowserNode *) findChildNamed:(NSString *)name
 {
 	// Breadth-first search
-	NSEnumerator 	*enumerator = [_children objectEnumerator];
-	BrowserNode 	*child 		= nil;
-	BrowserNode 	*match 		= nil;
+	BrowserNode *match = nil;
 	
-	while(nil == match && (child = [enumerator nextObject])) {
-		if([[child name] isEqualToString:name])
+	for(BrowserNode *child in _children) {
+		if([[child name] isEqualToString:name]) {
 			match = child;
+			break;
+		}
 	}
 	
 	if(nil == match) {
-		enumerator 	= [_children objectEnumerator];
-		child 		= nil;
-
-		while(match == nil && (child = [enumerator nextObject]))
+		for(BrowserNode *child in _children) {
 			match = [child findChildNamed:name];
+			if(match)
+				break;
+		}
 	}
 	
 	return match;

@@ -585,13 +585,11 @@ static CollectionManager *collectionManagerInstance = nil;
 {
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
-	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:@"begin_transaction", @"commit_transaction", @"rollback_transaction", nil];
-	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	const char		*tail				= NULL;
 	
-	while((filename = [enumerator nextObject])) {
+	for(NSString *filename in files) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
 		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
@@ -622,11 +620,9 @@ static CollectionManager *collectionManagerInstance = nil;
 
 - (BOOL) finalizeSQL:(NSError **)error
 {
-	NSEnumerator	*enumerator			= [_sql objectEnumerator];
-	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
 	
-	while((wrappedPtr = [enumerator nextObject])) {
+	for(NSNumber *wrappedPtr in _sql) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
 		if(SQLITE_OK != sqlite3_finalize(statement)) {
 			if(nil != error) {

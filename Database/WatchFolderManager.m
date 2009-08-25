@@ -262,30 +262,24 @@
 {
 	NSAssert(YES == _updating, @"No update in progress");
 	
-	NSEnumerator 		*enumerator 	= nil;
-	WatchFolder			*folder 		= nil;
-	
 	// ========================================
 	// Process updates first
 	if(0 != [_updatedFolders count]) {
-		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject]))
+		for(WatchFolder *folder in _updatedFolders)
 			[self doUpdateWatchFolder:folder];
 	}
 	
 	// ========================================
 	// Processes deletes next
 	if(0 != [_deletedFolders count]) {
-		enumerator = [_deletedFolders objectEnumerator];
-		while((folder = [enumerator nextObject]))
+		for(WatchFolder *folder in _deletedFolders)
 			[self doDeleteWatchFolder:folder];
 	}
 	
 	// ========================================
 	// Finally, process inserts, removing any that fail
 	if(0 != [_insertedFolders count]) {
-		enumerator = [[_insertedFolders allObjects] objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+		for(WatchFolder *folder in _insertedFolders) {
 			if(NO == [self doInsertWatchFolder:folder])
 				[_insertedFolders removeObject:folder];
 		}
@@ -296,15 +290,12 @@
 {
 	NSAssert(YES == _updating, @"No update in progress");
 	
-	NSEnumerator 		*enumerator 	= nil;
-	WatchFolder			*folder 		= nil;
 	NSMutableIndexSet 	*indexes 		= [[NSMutableIndexSet alloc] init];
 	
 	// ========================================
 	// Broadcast the notifications
 	if(0 != [_updatedFolders count]) {
-		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject]))
+		for(WatchFolder *folder in _updatedFolders)
 			[[NSNotificationCenter defaultCenter] postNotificationName:WatchFolderDidChangeNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:folder forKey:WatchFolderObjectKey]];		
@@ -315,19 +306,19 @@
 	// ========================================
 	// Handle deletes
 	if(0 != [_deletedFolders count]) {
-		enumerator = [_deletedFolders objectEnumerator];
-		while((folder = [enumerator nextObject]))
+		for(WatchFolder *folder in _deletedFolders)
 			[indexes addIndex:[_cachedFolders indexOfObject:folder]];
 		
 		[self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"watchFolders"];
-		enumerator = [_deletedFolders objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+
+		for(WatchFolder *folder in _deletedFolders) {
 			[_cachedFolders removeObject:folder];
 			
 			[[NSNotificationCenter defaultCenter] postNotificationName:WatchFolderRemovedFromLibraryNotification 
 																object:self
 															  userInfo:[NSDictionary dictionaryWithObject:folder forKey:WatchFolderObjectKey]];
 		}
+		
 		[self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexes forKey:@"watchFolders"];		
 		
 		[_deletedFolders removeAllObjects];
@@ -340,14 +331,15 @@
 		[indexes addIndexesInRange:NSMakeRange([_cachedFolders count], [_insertedFolders count])];
 		
 		[self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"watchFolders"];
-		enumerator = [[_insertedFolders allObjects] objectEnumerator];
-		while((folder = [enumerator nextObject])) {
+
+		for(WatchFolder *folder in _insertedFolders) {
 			[_cachedFolders addObject:folder];
 			
 			[[NSNotificationCenter defaultCenter] postNotificationName:WatchFolderAddedToLibraryNotification 
 																object:self 
 															  userInfo:[NSDictionary dictionaryWithObject:folder forKey:WatchFolderObjectKey]];
 		}
+		
 		[self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexes forKey:@"watchFolders"];
 		
 		[_insertedFolders removeAllObjects];
@@ -364,11 +356,7 @@
 	
 	// For a canceled update, revert the updated streams and forget about anything else
 	if(0 != [_updatedFolders count]) {		
-		NSEnumerator	*enumerator 	= nil;
-		WatchFolder		*folder 		= nil;
-		
-		enumerator = [_updatedFolders objectEnumerator];
-		while((folder = [enumerator nextObject]))
+		for(WatchFolder *folder in _updatedFolders)
 			[folder revert];
 	}
 	
@@ -407,14 +395,12 @@
 {
 	NSString		*path				= nil;
 	NSString		*sql				= nil;
-	NSString		*filename			= nil;
 	NSArray			*files				= [NSArray arrayWithObjects:
 		@"select_all_watch_folders", @"select_watch_folder_by_id", @"insert_watch_folder", @"update_watch_folder", @"delete_watch_folder", nil];
-	NSEnumerator	*enumerator			= [files objectEnumerator];
 	sqlite3_stmt	*statement			= NULL;
 	const char		*tail				= NULL;
 	
-	while((filename = [enumerator nextObject])) {
+	for(NSString *filename in files) {
 		path 	= [[NSBundle mainBundle] pathForResource:filename ofType:@"sql"];
 		sql 	= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:error];
 		
@@ -445,11 +431,9 @@
 
 - (BOOL) finalizeSQL:(NSError **)error
 {
-	NSEnumerator	*enumerator			= [_sql objectEnumerator];
-	NSNumber		*wrappedPtr			= nil;
 	sqlite3_stmt	*statement			= NULL;
 	
-	while((wrappedPtr = [enumerator nextObject])) {
+	for(NSNumber *wrappedPtr in _sql) {
 		statement = (sqlite3_stmt *)[wrappedPtr unsignedLongValue];		
 		if(SQLITE_OK != sqlite3_finalize(statement)) {
 			if(nil != error) {

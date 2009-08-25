@@ -150,13 +150,10 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	// Handle iTunes drops
 	else if([bestType isEqualToString:iTunesPboardType]) {
 		NSDictionary	*iTunesDictionary	= [[info draggingPasteboard] propertyListForType:iTunesPboardType];
-		NSArray			*tracks				= [iTunesDictionary valueForKey:@"Tracks"];
-		NSEnumerator	*enumerator			= [tracks objectEnumerator];
-		NSDictionary	*track				= nil;
 		NSURL			*url				= nil;
 		BOOL			success				= YES;
 		
-		while((track = [enumerator nextObject])) {
+		for(NSDictionary *track in [iTunesDictionary valueForKey:@"Tracks"]) {
 			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
 			if([url isFileURL])
 				success &= [[AudioLibrary library] addFile:[url path]];
@@ -204,15 +201,10 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 - (NSIndexSet *) indexSetForRows:(NSArray *)rows
 {
 	NSArray					*arrangedObjects		= [self arrangedObjects];
-	NSEnumerator			*enumerator				= nil;
 	NSMutableIndexSet		*indexSet				= [NSMutableIndexSet indexSet];
-	NSEnumerator			*rowEnumerator			= [rows objectEnumerator];
-	id						object;
-	NSNumber				*objectID;
 	
-	while((objectID = [rowEnumerator nextObject])) {
-		enumerator = [arrangedObjects objectEnumerator];
-		while((object = [enumerator nextObject])) {
+	for(NSNumber *objectID in rows) {
+		for(id object in arrangedObjects) {
 			if([[object valueForKey:ObjectIDKey] isEqual:objectID])
 				[indexSet addIndex:[arrangedObjects indexOfObject:object]];
 		}

@@ -91,10 +91,8 @@
 - (NSArray *) changedStreams
 {
 	NSMutableArray	*result			= [[NSMutableArray alloc] init];
-	AudioStream		*stream			= nil;
-	NSEnumerator	*enumerator		= [[_streamController arrangedObjects] objectEnumerator];
 	
-	while((stream = [enumerator nextObject])) {
+	for(AudioStream *stream in [_streamController arrangedObjects]) {
 		if([stream hasChanges])
 			[result addObject:stream];
 	}

@@ -92,19 +92,19 @@
 {
 	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataComposerKey];
 	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
-	NSArray			*genres			= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
-	NSEnumerator	*enumerator		= [genres objectEnumerator];
-	NSString		*composer		= nil;
+	NSArray			*composers		= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
 	ComposerNode	*node			= nil;
 	
 	[self willChangeValueForKey:@"children"];
+	
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((composer = [enumerator nextObject])) {
+	for(NSString *composer in composers) {
 		node = [[ComposerNode alloc] initWithName:composer];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
 	}
+	
 	[self didChangeValueForKey:@"children"];
 }
 

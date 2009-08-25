@@ -193,11 +193,9 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self clearProperties:sender];
 	
 	NSDictionary	*properties		= [propertiesReader properties];
-	NSEnumerator	*enumerator		= [properties keyEnumerator];
-	NSString		*key;
 	id				value;
 	
-	while((key = [enumerator nextObject])) {
+	for(NSString *key in [properties allKeys]) {
 		value = [properties valueForKey:key];
 		[self setValue:value forKey:key];
 	}
@@ -227,11 +225,10 @@ NSString * const	PropertiesBitrateKey					= @"bitrate";
 	[self clearMetadata:sender];
 
 	NSDictionary	*metadata		= [metadataReader metadata];
-	NSEnumerator	*enumerator		= [metadata keyEnumerator];
 	NSString		*key;
 	id				value;
 	
-	while((key = [enumerator nextObject])) {
+	for(NSString *key in [metadata allKeys]) {
 		value = [metadata valueForKey:key];
 		[self setValue:value forKey:key];
 	}

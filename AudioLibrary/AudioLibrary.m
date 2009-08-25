@@ -838,10 +838,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 			return NO;
 
 		// Iterate through each track in the cue sheet, adding it to the library if required
-		NSEnumerator	*enumerator		= [[cueSheet valueForKey:AudioPropertiesCueSheetTracksKey] objectEnumerator];
-		NSDictionary	*cueSheetTrack	= nil;
-		
-		while((cueSheetTrack = [enumerator nextObject])) {
+		for(NSDictionary *cueSheetTrack in [cueSheet valueForKey:AudioPropertiesCueSheetTracksKey]) {
 			// If the stream already exists in the library, skip it
 			AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[NSURL fileURLWithPath:filename] 
 																			  startingFrame:[cueSheetTrack valueForKey:StreamStartingFrameKey] 
@@ -902,17 +899,15 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != filenames);
 	
-	NSString				*filename				= nil;
 	NSString				*path					= nil;
 	NSFileManager			*fileManager			= [NSFileManager defaultManager];
-	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
 	NSDirectoryEnumerator	*directoryEnumerator	= nil;
 	BOOL					isDirectory				= NO;
 	BOOL					openSuccessful			= NO;
 	
 	[[CollectionManager manager] beginUpdate];
 	
-	while((filename = [filesEnumerator nextObject])) {
+	for(NSString *filename in filenames) {
 		
 		// Perform a deep search for directories
 		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
@@ -960,17 +955,15 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != filenames);
 	
-	NSString				*filename				= nil;
 	NSString				*path					= nil;
 	NSFileManager			*fileManager			= [NSFileManager defaultManager];
-	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
 	NSDirectoryEnumerator	*directoryEnumerator	= nil;
 	BOOL					isDirectory				= NO;
 	BOOL					removeSuccessful		= YES;
 	
 	[[CollectionManager manager] beginUpdate];
 	
-	while((filename = [filesEnumerator nextObject])) {
+	for(NSString *filename in filenames) {
 		
 		// Perform a deep search for directories
 		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
@@ -1075,10 +1068,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != filenames);
 
-	NSString				*filename				= nil;
 	NSString				*path					= nil;
 	NSFileManager			*fileManager			= [NSFileManager defaultManager];
-	NSEnumerator			*filesEnumerator		= [filenames objectEnumerator];
 	NSDirectoryEnumerator	*directoryEnumerator	= nil;
 	BOOL					isDirectory				= NO;
 	BOOL					playSuccessful			= NO;
@@ -1087,7 +1078,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	NSMutableArray			*streams				= [NSMutableArray array];
 	
 	// First try to find these files in our library
-	while((filename = [filesEnumerator nextObject])) {
+	for(NSString * filename in filenames) {
 		
 		// Perform a deep search for directories
 		if([fileManager fileExistsAtPath:filename isDirectory:&isDirectory] && isDirectory) {
@@ -1724,20 +1715,16 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	if([aNotification object] == _streamTable) {
 		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
-		NSEnumerator			*enumerator		= [[_streamTable tableColumns] objectEnumerator];
-		id						column;
 		
-		while((column = [enumerator nextObject]))
+		for(id column in [_streamTable tableColumns])
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
 		
 		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"streamTableColumnSizes"];
 	}
 	else if([aNotification object] == _playQueueTable) {
 		NSMutableDictionary		*sizes			= [NSMutableDictionary dictionary];
-		NSEnumerator			*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
-		id						column;
 		
-		while((column = [enumerator nextObject]))
+		for(id column in [_playQueueTable tableColumns])
 			[sizes setObject:[NSNumber numberWithFloat:[column width]] forKey:[column identifier]];
 		
 		[[NSUserDefaults standardUserDefaults] setObject:sizes forKey:@"playQueueTableColumnSizes"];
@@ -2342,10 +2329,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		return NO;
 	
 	// Iterate through each track in the cue sheet, adding it to the library if required
-	NSEnumerator	*enumerator		= [[cueSheetParser cueSheetTracks] objectEnumerator];
-	NSDictionary	*cueSheetTrack	= nil;
-	
-	while((cueSheetTrack = [enumerator nextObject])) {
+	for(NSDictionary *cueSheetTrack in [cueSheetParser cueSheetTracks]) {
 		// If the stream already exists in the library, skip it
 		AudioStream *stream = [[[CollectionManager manager] streamManager] streamForURL:[cueSheetTrack valueForKey:StreamURLKey] 
 																		  startingFrame:[cueSheetTrack valueForKey:StreamStartingFrameKey] 
@@ -2517,12 +2501,13 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 {
 	NSParameterAssert(nil != node);
 
-	NSEnumerator	*enumerator		= [[[_browserController arrangedObjects] childNodes] objectEnumerator];
-	NSTreeNode		*child			= nil;
-	NSTreeNode		*match			= nil;
+	NSTreeNode *match = nil;
 	
-	while(nil == match && (child = [enumerator nextObject]))
-		match = treeNodeForRepresentedObject(child, node);	
+	for(NSTreeNode *child in [[_browserController arrangedObjects] childNodes]) {
+		match = treeNodeForRepresentedObject(child, node);
+		if(match)
+			break;
+	}
 	
 	return [_browserController setSelectionIndexPath:[match indexPath]];
 }
@@ -2530,17 +2515,13 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 - (void) setupStreamTableColumns
 {
 	NSMenuItem		*contextMenuItem;	
-	id				obj;
 	int				menuIndex, i;
 	
 	// Setup stream table columns
 	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnVisibility"];
 	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnSizes"];
 	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"streamTableColumnOrder"];
-	
-	NSArray			*tableColumns		= [_streamTable tableColumns];
-	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
-	
+		
 	_streamTableVisibleColumns			= [[NSMutableSet alloc] init];
 	_streamTableHiddenColumns			= [[NSMutableSet alloc] init];
 	_streamTableHeaderContextMenu		= [[NSMenu alloc] initWithTitle:@"Stream Table Header Context Menu"];
@@ -2581,7 +2562,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	// Keep our changes from generating notifications to ourselves
 	[_streamTable setDelegate:nil];
 	
-	while((obj = [enumerator nextObject])) {
+	for(id obj in [_streamTable tableColumns]) {
 		menuIndex = 0;
 		
 		while(menuIndex < [_streamTableHeaderContextMenu numberOfItems] 
@@ -2604,13 +2585,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	}
 
 	// Don't modify table columns while enumerating
-	enumerator = [_streamTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject]))
+	for(id obj in _streamTableHiddenColumns)
 		[_streamTable removeTableColumn:obj];
 
 	i = 0;
-	enumerator = [orderArray objectEnumerator];
-	while((obj = [enumerator nextObject])) {
+	for(id obj in orderArray) {
 		[_streamTable moveColumn:[_streamTable columnWithIdentifier:obj] toColumn:i];
 		++i;
 	}
@@ -2621,17 +2600,12 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 - (void) setupPlayQueueTableColumns
 {
 	NSMenuItem		*contextMenuItem;	
-	id				obj;
 	int				menuIndex, i;
 	
 	// Setup stream table columns
 	NSDictionary	*visibleDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnVisibility"];
 	NSDictionary	*sizesDictionary	= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnSizes"];
-	NSArray			*orderArray			= [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnOrder"];
 
-	NSArray			*tableColumns		= [_playQueueTable tableColumns];
-	NSEnumerator	*enumerator			= [tableColumns objectEnumerator];
-	
 	_playQueueTableVisibleColumns		= [[NSMutableSet alloc] init];
 	_playQueueTableHiddenColumns		= [[NSMutableSet alloc] init];
 	_playQueueTableHeaderContextMenu	= [[NSMenu alloc] initWithTitle:@"Play Queue Table Header Context Menu"];
@@ -2672,7 +2646,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	// Keep our changes from generating notifications to ourselves
 	[_playQueueTable setDelegate:nil];
 	
-	while((obj = [enumerator nextObject])) {
+	for(id obj in [_playQueueTable tableColumns]) {
 		menuIndex = 0;
 		
 		while(menuIndex < [_playQueueTableHeaderContextMenu numberOfItems] 
@@ -2695,13 +2669,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	}
 
 	// Don't modify table columns while enumerating
-	enumerator = [_playQueueTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject]))
+	for(id obj in _playQueueTableHiddenColumns)
 		[_playQueueTable removeTableColumn:obj];
 	
 	i = 0;
-	enumerator = [orderArray objectEnumerator];
-	while((obj = [enumerator nextObject])) {
+	for(id obj in [[NSUserDefaults standardUserDefaults] objectForKey:@"playQueueTableColumnOrder"]) {
 		[_playQueueTable moveColumn:[_playQueueTable columnWithIdentifier:obj] toColumn:i];
 		++i;
 	}
@@ -2712,10 +2684,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 - (void) scanWatchFolders
 {
 	// Load all the watch folders and update the library contents (in the background because this is a potentially slow operation)
-	NSEnumerator	*enumerator		= [[[[CollectionManager manager] watchFolderManager] watchFolders] objectEnumerator];
-	WatchFolder		*watchFolder	= nil;
-	
-	while((watchFolder = [enumerator nextObject])) {
+	for(WatchFolder *watchFolder in [[[CollectionManager manager] watchFolderManager] watchFolders]) {
 //		[NSThread detachNewThreadSelector:@selector(synchronizeWithWatchFolder:) toTarget:self withObject:watchFolder];
 		[self synchronizeWithWatchFolder:watchFolder];
 	}	
@@ -2727,9 +2696,6 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	
 	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
 	NSURL				*url				= [watchFolder valueForKey:WatchFolderURLKey];
-	NSArray				*libraryStreams		= [[[CollectionManager manager] streamManager] streamsContainedByURL:url];
-	NSEnumerator		*enumerator			= [libraryStreams objectEnumerator];
-	AudioStream			*stream				= nil;
 	NSMutableSet		*libraryFilenames	= [NSMutableSet set];
 	
 	// Attempt to set the thread's priority (should be low)
@@ -2738,7 +2704,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		NSLog(@"Unable to set thread priority");
 	}*/
 	
-	while((stream = [enumerator nextObject]))
+	for(AudioStream *stream in [[[CollectionManager manager] streamManager] streamsContainedByURL:url])
 		[libraryFilenames addObject:[[stream valueForKey:StreamURLKey] path]];
 	
 	// Next iterate through and see what is actually in the directory
@@ -2791,10 +2757,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 - (void) saveStreamTableColumnOrder
 {
 	NSMutableArray	*identifiers	= [NSMutableArray array];
-	NSEnumerator	*enumerator		= [[_streamTable tableColumns] objectEnumerator];
-	id				obj;
 	
-	while((obj = [enumerator nextObject]))
+	for(id obj in [_streamTable tableColumns])
 		[identifiers addObject:[obj identifier]];
 	
 	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"streamTableColumnOrder"];
@@ -2804,10 +2768,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 - (void) savePlayQueueTableColumnOrder
 {
 	NSMutableArray	*identifiers	= [NSMutableArray array];
-	NSEnumerator	*enumerator		= [[_playQueueTable tableColumns] objectEnumerator];
-	id				obj;
 	
-	while((obj = [enumerator nextObject]))
+	for(id obj in [_playQueueTable tableColumns])
 		[identifiers addObject:[obj identifier]];
 	
 	[[NSUserDefaults standardUserDefaults] setObject:identifiers forKey:@"playQueueTableColumnOrder"];
@@ -2830,14 +2792,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	}
 	
 	NSMutableDictionary	*visibleDictionary	= [NSMutableDictionary dictionary];
-	NSEnumerator		*enumerator			= [_streamTableVisibleColumns objectEnumerator];
-	id					obj;
 	
-	while((obj = [enumerator nextObject]))
+	for(id obj in _streamTableVisibleColumns)
 		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
 	
-	enumerator = [_streamTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject]))
+	for(id obj in _streamTableHiddenColumns)
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"streamTableColumnVisibility"];
@@ -2861,14 +2820,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	}
 	
 	NSMutableDictionary	*visibleDictionary	= [NSMutableDictionary dictionary];
-	NSEnumerator		*enumerator			= [_playQueueTableVisibleColumns objectEnumerator];
-	id					obj;
 	
-	while((obj = [enumerator nextObject]))
+	for(id obj in _playQueueTableVisibleColumns)
 		[visibleDictionary setObject:[NSNumber numberWithBool:YES] forKey:[obj identifier]];
 	
-	enumerator = [_playQueueTableHiddenColumns objectEnumerator];
-	while((obj = [enumerator nextObject]))
+	for(id obj in _playQueueTableHiddenColumns)
 		[visibleDictionary setObject:[NSNumber numberWithBool:NO] forKey:[obj identifier]];
 	
 	[[NSUserDefaults standardUserDefaults] setObject:visibleDictionary forKey:@"playQueueTableColumnVisibility"];
@@ -2911,13 +2867,11 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (void) streamsRemoved:(NSNotification *)aNotification
 {
-	NSArray					*streams		= [[aNotification userInfo] objectForKey:AudioStreamsObjectKey];
-	NSEnumerator			*enumerator		= [streams objectEnumerator];
-	AudioStream				*stream			= nil;
-	
 	[self willChangeValueForKey:PlayQueueKey];
-	while((stream = [enumerator nextObject]))
+	
+	for(AudioStream *stream in [[aNotification userInfo] objectForKey:AudioStreamsObjectKey])
 		[_playQueue removeObject:stream];
+	
 	[self didChangeValueForKey:PlayQueueKey];
 
 	[self updatePlayButtonState];

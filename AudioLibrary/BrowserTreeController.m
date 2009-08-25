@@ -100,10 +100,7 @@ NSString * const SmartPlaylistPboardType				= @"org.sbooth.Play.SmartPlaylist.Pb
 
 - (BOOL) canRemove
 {
-	NSEnumerator	*enumerator		= [[self selectedObjects] objectEnumerator];
-	BrowserNode		*node			= nil;
-	
-	while((node = [enumerator nextObject])) {
+	for(BrowserNode *node in [self selectedObjects]) {
 		if([node isKindOfClass:[PlaylistNode class]] || [node isKindOfClass:[SmartPlaylistNode class]] || [node isKindOfClass:[WatchFolderNode class]])
 			return YES;
 	}

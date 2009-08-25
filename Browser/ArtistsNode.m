@@ -93,14 +93,12 @@
 	NSString		*keyName		= [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", MetadataArtistKey];
 	NSArray			*streams		= [[[CollectionManager manager] streamManager] streams];
 	NSArray			*artists		= [[streams valueForKeyPath:keyName] sortedArrayUsingSelector:@selector(compare:)];
-	NSEnumerator	*enumerator		= [artists objectEnumerator];
-	NSString		*artist			= nil;
 	ArtistNode		*node			= nil;
 
 	[self willChangeValueForKey:@"children"];
 	[_children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
 	[_children removeAllObjects];
-	while((artist = [enumerator nextObject])) {
+	for(NSString *artist in artists) {
 		node = [[ArtistNode alloc] initWithName:artist];
 		[node setParent:self];
 		[_children addObject:[node autorelease]];
