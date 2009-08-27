@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
+		3277A960104648A4006777F8 /* SFBAudioUnitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
+		3277A961104648A4006777F8 /* SFBCrashReporter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95F104648A4006777F8 /* SFBCrashReporter.framework */; };
+		3277A965104648B0006777F8 /* SFBAudioUnitUI.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
+		3277A966104648B0006777F8 /* SFBCrashReporter.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95F104648A4006777F8 /* SFBCrashReporter.framework */; };
 		32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */; };
 		32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32875D701025163E001E06F2 /* WAVEMetadataWriter.mm */; };
 		32CF6C9010371A79006F9D62 /* AdvancedPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C6A10371A79006F9D62 /* AdvancedPreferences.xib */; };
@@ -22,13 +26,11 @@
 		32CF6C9810371A79006F9D62 /* GeneralPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7A10371A79006F9D62 /* GeneralPreferences.xib */; };
 		32CF6C9910371A79006F9D62 /* DSPPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7C10371A79006F9D62 /* DSPPreferences.xib */; };
 		32CF6C9A10371A79006F9D62 /* OutputPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C7E10371A79006F9D62 /* OutputPreferences.xib */; };
-		32CF6C9B10371A79006F9D62 /* SaveAUPresetSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */; };
 		32CF6C9C10371A79006F9D62 /* SmartPlaylistInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */; };
 		32CF6C9D10371A79006F9D62 /* WatchFolderInformationSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8410371A79006F9D62 /* WatchFolderInformationSheet.xib */; };
 		32CF6C9E10371A79006F9D62 /* NewWatchFolderSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8610371A79006F9D62 /* NewWatchFolderSheet.xib */; };
 		32CF6C9F10371A79006F9D62 /* MusicBrainzMatchesSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8810371A79006F9D62 /* MusicBrainzMatchesSheet.xib */; };
 		32CF6CA010371A79006F9D62 /* SmartPlaylistCriterion.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8A10371A79006F9D62 /* SmartPlaylistCriterion.xib */; };
-		32CF6CA110371A79006F9D62 /* AudioUnitUI.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */; };
 		32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6C8E10371A79006F9D62 /* MainMenu.xib */; };
 		32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6D7310373B39006F9D62 /* AudioLibrary.xib */; };
 		32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
@@ -39,10 +41,6 @@
 		32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2396104336FC0069EB9B /* Version.xcconfig */; };
 		32FF2425104338C30069EB9B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2424104338C30069EB9B /* Base.xcconfig */; };
 		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
-		8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */; };
-		8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */; };
-		8C05E7EC0CC28310006E5746 /* ImportAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E80CC28310006E5746 /* ImportAUPresetToolbarImage.png */; };
-		8C05E7ED0CC28310006E5746 /* SaveAUPresetToolbarImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7E90CC28310006E5746 /* SaveAUPresetToolbarImage.png */; };
 		8C05E7FE0CC283BD006E5746 /* NowPlayingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */; };
 		8C05E8150CC29D81006E5746 /* FastForward.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80E0CC29D81006E5746 /* FastForward.png */; };
 		8C05E8160CC29D81006E5746 /* LoopPlayback.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80F0CC29D81006E5746 /* LoopPlayback.png */; };
@@ -51,7 +49,6 @@
 		8C05E8190CC29D82006E5746 /* PreviousTrack.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8120CC29D81006E5746 /* PreviousTrack.png */; };
 		8C05E81A0CC29D82006E5746 /* RandomPlayback.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8130CC29D81006E5746 /* RandomPlayback.png */; };
 		8C05E81B0CC29D82006E5746 /* Rewind.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8140CC29D81006E5746 /* Rewind.png */; };
-		8C05E8230CC29E1E006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8220CC29E1D006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff */; };
 		8C05E8260CC29E6B006E5746 /* MaximumVolume.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8240CC29E6A006E5746 /* MaximumVolume.png */; };
 		8C05E8270CC29E6B006E5746 /* MinimumVolume.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E8250CC29E6A006E5746 /* MinimumVolume.png */; };
 		8C06F0240B866F1900E8ADB6 /* CTGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C06F0220B866F1900E8ADB6 /* CTGradient.m */; };
@@ -290,8 +287,6 @@
 		8CE620EB0C11E8530073ADC3 /* WavPackDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE620D90C11E8530073ADC3 /* WavPackDecoder.m */; };
 		8CE621100C11E8A50073ADC3 /* AudioScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE6210C0C11E8A50073ADC3 /* AudioScheduler.m */; };
 		8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE6210E0C11E8A50073ADC3 /* ScheduledAudioRegion.m */; };
-		8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */; };
-		8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */; };
 		8CE632040C161E5E0073ADC3 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */; };
 		8CE6A43F0C3F4CBB005A221B /* ImageAndTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C24FA0B724AE500CE799A /* ImageAndTextCell.m */; };
 		8CF0D90E0C836D0200728E39 /* AdvancedPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */; };
@@ -329,6 +324,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				3277A965104648B0006777F8 /* SFBAudioUnitUI.framework in Copy Frameworks */,
+				3277A966104648B0006777F8 /* SFBCrashReporter.framework in Copy Frameworks */,
 				32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */,
 				32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */,
 				8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */,
@@ -365,6 +362,8 @@
 		3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataReader.mm; path = Audio/Metadata/Readers/AIFFMetadataReader.mm; sourceTree = "<group>"; };
 		325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataWriter.h; path = Audio/Metadata/Writers/AIFFMetadataWriter.h; sourceTree = "<group>"; };
 		325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataWriter.mm; path = Audio/Metadata/Writers/AIFFMetadataWriter.mm; sourceTree = "<group>"; };
+		3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBAudioUnitUI.framework; path = Frameworks/SFBAudioUnitUI.framework; sourceTree = "<group>"; };
+		3277A95F104648A4006777F8 /* SFBCrashReporter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBCrashReporter.framework; path = Frameworks/SFBCrashReporter.framework; sourceTree = "<group>"; };
 		32875D591025157A001E06F2 /* WAVEMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataReader.h; path = Audio/Metadata/Readers/WAVEMetadataReader.h; sourceTree = "<group>"; };
 		32875D5A1025157A001E06F2 /* WAVEMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WAVEMetadataReader.mm; path = Audio/Metadata/Readers/WAVEMetadataReader.mm; sourceTree = "<group>"; };
 		32875D6F1025163E001E06F2 /* WAVEMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataWriter.h; path = Audio/Metadata/Writers/WAVEMetadataWriter.h; sourceTree = "<group>"; };
@@ -380,13 +379,11 @@
 		32CF6C7B10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/GeneralPreferences.xib; sourceTree = "<group>"; };
 		32CF6C7D10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/DSPPreferences.xib; sourceTree = "<group>"; };
 		32CF6C7F10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/OutputPreferences.xib; sourceTree = "<group>"; };
-		32CF6C8110371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SaveAUPresetSheet.xib; sourceTree = "<group>"; };
 		32CF6C8310371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SmartPlaylistInformationSheet.xib; sourceTree = "<group>"; };
 		32CF6C8510371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/WatchFolderInformationSheet.xib; sourceTree = "<group>"; };
 		32CF6C8710371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/NewWatchFolderSheet.xib; sourceTree = "<group>"; };
 		32CF6C8910371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MusicBrainzMatchesSheet.xib; sourceTree = "<group>"; };
 		32CF6C8B10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/SmartPlaylistCriterion.xib; sourceTree = "<group>"; };
-		32CF6C8D10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioUnitUI.xib; sourceTree = "<group>"; };
 		32CF6C8F10371A79006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		32CF6D7410373B39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioLibrary.xib; sourceTree = "<group>"; };
 		32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
@@ -395,10 +392,6 @@
 		32FF2396104336FC0069EB9B /* Version.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		32FF2424104338C30069EB9B /* Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
-		8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BypassAUToolbarImage.png; path = Images/BypassAUToolbarImage.png; sourceTree = "<group>"; };
-		8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ExportAUPresetToolbarImage.png; path = Images/ExportAUPresetToolbarImage.png; sourceTree = "<group>"; };
-		8C05E7E80CC28310006E5746 /* ImportAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ImportAUPresetToolbarImage.png; path = Images/ImportAUPresetToolbarImage.png; sourceTree = "<group>"; };
-		8C05E7E90CC28310006E5746 /* SaveAUPresetToolbarImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SaveAUPresetToolbarImage.png; path = Images/SaveAUPresetToolbarImage.png; sourceTree = "<group>"; };
 		8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NowPlayingImage.png; path = Images/NowPlayingImage.png; sourceTree = "<group>"; };
 		8C05E80E0CC29D81006E5746 /* FastForward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FastForward.png; path = Images/FastForward.png; sourceTree = "<group>"; };
 		8C05E80F0CC29D81006E5746 /* LoopPlayback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LoopPlayback.png; path = Images/LoopPlayback.png; sourceTree = "<group>"; };
@@ -407,7 +400,6 @@
 		8C05E8120CC29D81006E5746 /* PreviousTrack.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PreviousTrack.png; path = Images/PreviousTrack.png; sourceTree = "<group>"; };
 		8C05E8130CC29D81006E5746 /* RandomPlayback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = RandomPlayback.png; path = Images/RandomPlayback.png; sourceTree = "<group>"; };
 		8C05E8140CC29D81006E5746 /* Rewind.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Rewind.png; path = Images/Rewind.png; sourceTree = "<group>"; };
-		8C05E8220CC29E1D006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = ToggleAUPresetDrawerToolbarImage.tiff; path = Images/ToggleAUPresetDrawerToolbarImage.tiff; sourceTree = "<group>"; };
 		8C05E8240CC29E6A006E5746 /* MaximumVolume.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = MaximumVolume.png; path = Images/MaximumVolume.png; sourceTree = "<group>"; };
 		8C05E8250CC29E6A006E5746 /* MinimumVolume.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = MinimumVolume.png; path = Images/MinimumVolume.png; sourceTree = "<group>"; };
 		8C06F0210B866F1900E8ADB6 /* CTGradient.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = CTGradient.h; path = ThirdParty/CTGradient/CTGradient.h; sourceTree = "<group>"; };
@@ -765,10 +757,6 @@
 		8CE6210C0C11E8A50073ADC3 /* AudioScheduler.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioScheduler.m; path = Audio/AudioScheduler.m; sourceTree = "<group>"; };
 		8CE6210D0C11E8A50073ADC3 /* ScheduledAudioRegion.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ScheduledAudioRegion.h; path = Audio/ScheduledAudioRegion.h; sourceTree = "<group>"; };
 		8CE6210E0C11E8A50073ADC3 /* ScheduledAudioRegion.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = ScheduledAudioRegion.m; path = Audio/ScheduledAudioRegion.m; sourceTree = "<group>"; };
-		8CE631BA0C161CAB0073ADC3 /* AudioUnitUI.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioUnitUI.h; path = AudioUnitUI/AudioUnitUI.h; sourceTree = "<group>"; };
-		8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioUnitUI.m; path = AudioUnitUI/AudioUnitUI.m; sourceTree = "<group>"; };
-		8CE631BC0C161CAB0073ADC3 /* SaveAUPresetSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SaveAUPresetSheet.h; path = AudioUnitUI/SaveAUPresetSheet.h; sourceTree = "<group>"; };
-		8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SaveAUPresetSheet.m; path = AudioUnitUI/SaveAUPresetSheet.m; sourceTree = "<group>"; };
 		8CE631FE0C161E5E0073ADC3 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = /System/Library/Frameworks/CoreAudioKit.framework; sourceTree = "<absolute>"; };
 		8CF0D90B0C836D0200728E39 /* AdvancedPreferencesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AdvancedPreferencesController.h; path = Preferences/AdvancedPreferencesController.h; sourceTree = "<group>"; };
 		8CF0D90C0C836D0200728E39 /* AdvancedPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AdvancedPreferencesController.m; path = Preferences/AdvancedPreferencesController.m; sourceTree = "<group>"; };
@@ -837,6 +825,8 @@
 				8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */,
 				32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */,
 				32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */,
+				3277A960104648A4006777F8 /* SFBAudioUnitUI.framework in Frameworks */,
+				3277A961104648A4006777F8 /* SFBCrashReporter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -882,7 +872,6 @@
 				8C9C3E9B0B742FCF00CE799A /* Metadata Writers */,
 				8C9C288A0B724D3200CE799A /* AudioScrobbler */,
 				29B97315FDCFA39411CA2CEA /* Application */,
-				8CE631B90C161C940073ADC3 /* AudioUnitUI */,
 				8CB3F2940BDDA72500B5E828 /* Preferences */,
 				8C5846460BE159B100E43C9E /* Value Transformers */,
 				8C9C32240B73340700CE799A /* Formatters */,
@@ -930,13 +919,11 @@
 				32CF6C7A10371A79006F9D62 /* GeneralPreferences.xib */,
 				32CF6C7C10371A79006F9D62 /* DSPPreferences.xib */,
 				32CF6C7E10371A79006F9D62 /* OutputPreferences.xib */,
-				32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */,
 				32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */,
 				32CF6C8410371A79006F9D62 /* WatchFolderInformationSheet.xib */,
 				32CF6C8610371A79006F9D62 /* NewWatchFolderSheet.xib */,
 				32CF6C8810371A79006F9D62 /* MusicBrainzMatchesSheet.xib */,
 				32CF6C8A10371A79006F9D62 /* SmartPlaylistCriterion.xib */,
-				32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */,
 				32CF6C8E10371A79006F9D62 /* MainMenu.xib */,
 				8CB3E3E90BDD40E800B5E828 /* Credits.rtf */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -948,6 +935,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */,
+				3277A95F104648A4006777F8 /* SFBCrashReporter.framework */,
 				32CF6EC71038C392006F9D62 /* RBSplitView.framework */,
 				32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */,
 				8C0CF23B0CE82BE70086CAFB /* libcurl.framework */,
@@ -1278,7 +1267,6 @@
 			children = (
 				8C05E8240CC29E6A006E5746 /* MaximumVolume.png */,
 				8C05E8250CC29E6A006E5746 /* MinimumVolume.png */,
-				8C05E8220CC29E1D006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff */,
 				8C05E80E0CC29D81006E5746 /* FastForward.png */,
 				8C05E80F0CC29D81006E5746 /* LoopPlayback.png */,
 				8C05E8100CC29D81006E5746 /* NextTrack.png */,
@@ -1287,10 +1275,6 @@
 				8C05E8130CC29D81006E5746 /* RandomPlayback.png */,
 				8C05E8140CC29D81006E5746 /* Rewind.png */,
 				8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */,
-				8C05E7E60CC28310006E5746 /* BypassAUToolbarImage.png */,
-				8C05E7E70CC28310006E5746 /* ExportAUPresetToolbarImage.png */,
-				8C05E7E80CC28310006E5746 /* ImportAUPresetToolbarImage.png */,
-				8C05E7E90CC28310006E5746 /* SaveAUPresetToolbarImage.png */,
 				8C47A8E10C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff */,
 				8C2B35970C19042A000E28B9 /* DSPPreferencesToolbarImage.png */,
 				8C5838200BDFCFC400E43C9E /* OutputPreferencesToolbarImage.tiff */,
@@ -1588,17 +1572,6 @@
 			name = Scripts;
 			sourceTree = "<group>";
 		};
-		8CE631B90C161C940073ADC3 /* AudioUnitUI */ = {
-			isa = PBXGroup;
-			children = (
-				8CE631BA0C161CAB0073ADC3 /* AudioUnitUI.h */,
-				8CE631BB0C161CAB0073ADC3 /* AudioUnitUI.m */,
-				8CE631BC0C161CAB0073ADC3 /* SaveAUPresetSheet.h */,
-				8CE631BD0C161CAB0073ADC3 /* SaveAUPresetSheet.m */,
-			);
-			name = AudioUnitUI;
-			sourceTree = "<group>";
-		};
 		8CF2579D0BF543E700A8520E /* AIPlasticButton */ = {
 			isa = PBXGroup;
 			children = (
@@ -1746,10 +1719,6 @@
 				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
 				8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */,
-				8C05E7EA0CC28310006E5746 /* BypassAUToolbarImage.png in Resources */,
-				8C05E7EB0CC28310006E5746 /* ExportAUPresetToolbarImage.png in Resources */,
-				8C05E7EC0CC28310006E5746 /* ImportAUPresetToolbarImage.png in Resources */,
-				8C05E7ED0CC28310006E5746 /* SaveAUPresetToolbarImage.png in Resources */,
 				8C05E7FE0CC283BD006E5746 /* NowPlayingImage.png in Resources */,
 				8C05E8150CC29D81006E5746 /* FastForward.png in Resources */,
 				8C05E8160CC29D81006E5746 /* LoopPlayback.png in Resources */,
@@ -1758,7 +1727,6 @@
 				8C05E8190CC29D82006E5746 /* PreviousTrack.png in Resources */,
 				8C05E81A0CC29D82006E5746 /* RandomPlayback.png in Resources */,
 				8C05E81B0CC29D82006E5746 /* Rewind.png in Resources */,
-				8C05E8230CC29E1E006E5746 /* ToggleAUPresetDrawerToolbarImage.tiff in Resources */,
 				8C05E8260CC29E6B006E5746 /* MaximumVolume.png in Resources */,
 				8C05E8270CC29E6B006E5746 /* MinimumVolume.png in Resources */,
 				8C0CF05D0CE806FA0086CAFB /* check_for_cue_sheet_support.sql in Resources */,
@@ -1776,13 +1744,11 @@
 				32CF6C9810371A79006F9D62 /* GeneralPreferences.xib in Resources */,
 				32CF6C9910371A79006F9D62 /* DSPPreferences.xib in Resources */,
 				32CF6C9A10371A79006F9D62 /* OutputPreferences.xib in Resources */,
-				32CF6C9B10371A79006F9D62 /* SaveAUPresetSheet.xib in Resources */,
 				32CF6C9C10371A79006F9D62 /* SmartPlaylistInformationSheet.xib in Resources */,
 				32CF6C9D10371A79006F9D62 /* WatchFolderInformationSheet.xib in Resources */,
 				32CF6C9E10371A79006F9D62 /* NewWatchFolderSheet.xib in Resources */,
 				32CF6C9F10371A79006F9D62 /* MusicBrainzMatchesSheet.xib in Resources */,
 				32CF6CA010371A79006F9D62 /* SmartPlaylistCriterion.xib in Resources */,
-				32CF6CA110371A79006F9D62 /* AudioUnitUI.xib in Resources */,
 				32CF6CA210371A79006F9D62 /* MainMenu.xib in Resources */,
 				32CF6D7510373B39006F9D62 /* AudioLibrary.xib in Resources */,
 				32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */,
@@ -1909,8 +1875,6 @@
 				8CE620EB0C11E8530073ADC3 /* WavPackDecoder.m in Sources */,
 				8CE621100C11E8A50073ADC3 /* AudioScheduler.m in Sources */,
 				8CE621120C11E8A50073ADC3 /* ScheduledAudioRegion.m in Sources */,
-				8CE631BF0C161CAB0073ADC3 /* AudioUnitUI.m in Sources */,
-				8CE631C10C161CAB0073ADC3 /* SaveAUPresetSheet.m in Sources */,
 				8C2B356A0C18EEEC000E28B9 /* DSPPreferencesController.m in Sources */,
 				8CE6A43F0C3F4CBB005A221B /* ImageAndTextCell.m in Sources */,
 				8CF538230C4E93D1002E59E7 /* PUIDUtilities.mm in Sources */,
@@ -2041,14 +2005,6 @@
 			name = OutputPreferences.xib;
 			sourceTree = "<group>";
 		};
-		32CF6C8010371A79006F9D62 /* SaveAUPresetSheet.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				32CF6C8110371A79006F9D62 /* English */,
-			);
-			name = SaveAUPresetSheet.xib;
-			sourceTree = "<group>";
-		};
 		32CF6C8210371A79006F9D62 /* SmartPlaylistInformationSheet.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -2087,14 +2043,6 @@
 				32CF6C8B10371A79006F9D62 /* English */,
 			);
 			name = SmartPlaylistCriterion.xib;
-			sourceTree = "<group>";
-		};
-		32CF6C8C10371A79006F9D62 /* AudioUnitUI.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				32CF6C8D10371A79006F9D62 /* English */,
-			);
-			name = AudioUnitUI.xib;
 			sourceTree = "<group>";
 		};
 		32CF6C8E10371A79006F9D62 /* MainMenu.xib */ = {

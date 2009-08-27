@@ -22,10 +22,10 @@
 #import "AudioLibrary.h"
 #import "AudioPlayer.h"
 #import "PreferencesController.h"
-#import "AudioUnitUI.h"
 #import "ImageAndTextCell.h"
 
 #include <AudioUnit/AudioUnit.h>
+#import <SFBAudioUnitUI/SFBAudioUnitUIWindowController.h>
 
 @implementation DSPPreferencesController
 
@@ -33,7 +33,7 @@
 {
 	if((self = [super initWithWindowNibName:@"DSPPreferences"])) {
 		_effects			= [[NSMutableArray alloc] init];
-		_audioUnitUIEditor	= [[AudioUnitUI alloc] init];
+		_audioUnitUIEditor	= [[SFBAudioUnitUIWindowController alloc] init];
 	}
 	return self;
 }
@@ -126,7 +126,7 @@
 	[nodeInfo setValue:[NSNumber numberWithInt:node] forKey:AUNodeKey];
 	
 	[self willChangeValueForKey:@"effects"];
-	[_effects addObject:nodeInfo];
+	[_effects addObject:[nodeInfo autorelease]];
 	[self didChangeValueForKey:@"effects"];
 }
 

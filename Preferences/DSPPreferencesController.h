@@ -20,7 +20,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class AudioUnitUI;
+@class SFBAudioUnitUIWindowController;
 
 @interface DSPPreferencesController : NSWindowController
 {
@@ -29,7 +29,7 @@
 	IBOutlet NSButton			*_addEffectButton;
 	IBOutlet NSButton			*_removeEffectButton;
 
-	AudioUnitUI					*_audioUnitUIEditor;
+	SFBAudioUnitUIWindowController *_audioUnitUIEditor;
 	NSMutableArray				*_effects;
 }
 
