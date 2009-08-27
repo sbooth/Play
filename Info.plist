@@ -365,7 +365,13 @@
 	</array>
 	<key>OSAScriptingDefinition</key>
 	<string>Play.sdef</string>
+	<key>SUEnableSystemProfiling</key>
+	<true/>
 	<key>SUFeedURL</key>
 	<string>http://sbooth.org/Play/appcast.xml</string>
+	<key>SUPublicDSAKeyFile</key>
+	<string>dsa_pub.pem</string>
+	<key>SFBCrashReporterCrashSubmissionURL</key>
+	<string>http://sbooth.org/Play/handle_crash_report.php</string>
 </dict>
 </plist>

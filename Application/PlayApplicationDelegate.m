@@ -34,6 +34,8 @@
 #import "AppleRemote.h"
 #import "IntegerToDoubleRoundingValueTransformer.h"
 
+#import <SFBCrashReporter/SFBCrashReporter.h>
+
 @interface PlayApplicationDelegate (Private)
 - (void) playbackDidStart:(NSNotification *)aNotification;
 - (void) playbackDidStop:(NSNotification *)aNotification;
@@ -181,6 +183,9 @@
 											 selector:@selector(streamsDidChange:) 
 												 name:AudioStreamsDidChangeNotification
 											   object:nil];
+
+	// Check for and send crash reports
+	[SFBCrashReporter checkForNewCrashes];
 }
 
 - (void) applicationWillTerminate:(NSNotification *)aNotification
