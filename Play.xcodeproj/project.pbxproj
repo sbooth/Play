@@ -40,7 +40,6 @@
 		32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
 		32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2396104336FC0069EB9B /* Version.xcconfig */; };
 		32FF2425104338C30069EB9B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2424104338C30069EB9B /* Base.xcconfig */; };
-		8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */; };
 		8C05E7FE0CC283BD006E5746 /* NowPlayingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */; };
 		8C05E8150CC29D81006E5746 /* FastForward.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80E0CC29D81006E5746 /* FastForward.png */; };
 		8C05E8160CC29D81006E5746 /* LoopPlayback.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80F0CC29D81006E5746 /* LoopPlayback.png */; };
@@ -231,7 +230,6 @@
 		8C9C3EBD0B742FEE00CE799A /* OggVorbisMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAB0B742FEE00CE799A /* OggVorbisMetadataWriter.mm */; };
 		8C9C3EBF0B742FEE00CE799A /* WavPackMetadataWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */; };
 		8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */; };
-		8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C3F300B74388300CE799A /* FileURLFormatter.m */; };
 		8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */; };
 		8CA56CD30BD63EC900225BB4 /* PlayQueueTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56CD10BD63EC900225BB4 /* PlayQueueTableView.m */; };
 		8CA56D260BD641A800225BB4 /* PlayQueueArrayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CA56D240BD641A800225BB4 /* PlayQueueArrayController.m */; };
@@ -391,7 +389,6 @@
 		32CF6EC71038C392006F9D62 /* RBSplitView.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RBSplitView.framework; path = Frameworks/RBSplitView.framework; sourceTree = "<group>"; };
 		32FF2396104336FC0069EB9B /* Version.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		32FF2424104338C30069EB9B /* Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
-		8C05E62B0CC27FE4006E5746 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/AudioUnitUI.strings; sourceTree = "<group>"; };
 		8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NowPlayingImage.png; path = Images/NowPlayingImage.png; sourceTree = "<group>"; };
 		8C05E80E0CC29D81006E5746 /* FastForward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FastForward.png; path = Images/FastForward.png; sourceTree = "<group>"; };
 		8C05E80F0CC29D81006E5746 /* LoopPlayback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LoopPlayback.png; path = Images/LoopPlayback.png; sourceTree = "<group>"; };
@@ -659,8 +656,6 @@
 		8C9C3EAD0B742FEE00CE799A /* WavPackMetadataWriter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = WavPackMetadataWriter.m; path = Audio/Metadata/Writers/WavPackMetadataWriter.m; sourceTree = "<group>"; };
 		8C9C3EE80B74337000CE799A /* AudioStreamInformationSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioStreamInformationSheet.h; path = AudioLibrary/AudioStreamInformationSheet.h; sourceTree = "<group>"; };
 		8C9C3EE90B74337000CE799A /* AudioStreamInformationSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioStreamInformationSheet.m; path = AudioLibrary/AudioStreamInformationSheet.m; sourceTree = "<group>"; };
-		8C9C3F2F0B74388300CE799A /* FileURLFormatter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FileURLFormatter.h; path = Formatters/FileURLFormatter.h; sourceTree = "<group>"; };
-		8C9C3F300B74388300CE799A /* FileURLFormatter.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = FileURLFormatter.m; path = Formatters/FileURLFormatter.m; sourceTree = "<group>"; };
 		8C9C40100B745AC800CE799A /* AudioMetadataEditingSheet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioMetadataEditingSheet.h; path = AudioLibrary/AudioMetadataEditingSheet.h; sourceTree = "<group>"; };
 		8C9C40110B745AC800CE799A /* AudioMetadataEditingSheet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioMetadataEditingSheet.m; path = AudioLibrary/AudioMetadataEditingSheet.m; sourceTree = "<group>"; };
 		8CA1EE650B89698600AE4C2E /* NSTreeController_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSTreeController_Extensions.h; path = ThirdParty/NSTreeController_Extensions/NSTreeController_Extensions.h; sourceTree = "<group>"; };
@@ -1153,7 +1148,6 @@
 		8C8E3D200BDF266F00605141 /* Strings */ = {
 			isa = PBXGroup;
 			children = (
-				8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */,
 				8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */,
 				8C5837FA0BDFBCCF00E43C9E /* Database.strings */,
 				8C5837FC0BDFBCCF00E43C9E /* Errors.strings */,
@@ -1377,8 +1371,6 @@
 		8C9C32240B73340700CE799A /* Formatters */ = {
 			isa = PBXGroup;
 			children = (
-				8C9C3F2F0B74388300CE799A /* FileURLFormatter.h */,
-				8C9C3F300B74388300CE799A /* FileURLFormatter.m */,
 				8C9C32250B73341800CE799A /* SecondsFormatter.h */,
 				8C9C32260B73341800CE799A /* SecondsFormatter.m */,
 			);
@@ -1623,6 +1615,9 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = sbooth.org;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Play" */;
 			compatibilityVersion = "Xcode 3.0";
 			hasScannedForEncodings = 1;
@@ -1718,7 +1713,6 @@
 				8CF257C10BF543FA00A8520E /* plus.png in Resources */,
 				8C2B35980C19042A000E28B9 /* DSPPreferencesToolbarImage.png in Resources */,
 				8C47A8E20C9301B400D71633 /* AdvancedPreferencesToolbarImage.tiff in Resources */,
-				8C05E62C0CC27FE4006E5746 /* AudioUnitUI.strings in Resources */,
 				8C05E7FE0CC283BD006E5746 /* NowPlayingImage.png in Resources */,
 				8C05E8150CC29D81006E5746 /* FastForward.png in Resources */,
 				8C05E8160CC29D81006E5746 /* LoopPlayback.png in Resources */,
@@ -1797,7 +1791,6 @@
 				8C9C3EBD0B742FEE00CE799A /* OggVorbisMetadataWriter.mm in Sources */,
 				8C9C3EBF0B742FEE00CE799A /* WavPackMetadataWriter.m in Sources */,
 				8C9C3EEB0B74337000CE799A /* AudioStreamInformationSheet.m in Sources */,
-				8C9C3F320B74388300CE799A /* FileURLFormatter.m in Sources */,
 				8C9C40130B745AC800CE799A /* AudioMetadataEditingSheet.m in Sources */,
 				8C30A0540B74F6220007204B /* ServicesProvider.m in Sources */,
 				8C30A0770B74F8630007204B /* main.m in Sources */,
@@ -2069,14 +2062,6 @@
 			name = HotKeyPreferences.xib;
 			sourceTree = "<group>";
 		};
-		8C05E62A0CC27FE4006E5746 /* AudioUnitUI.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				8C05E62B0CC27FE4006E5746 /* English */,
-			);
-			name = AudioUnitUI.strings;
-			sourceTree = "<group>";
-		};
 		8C5837F80BDFBCCF00E43C9E /* AudioStream.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -2257,6 +2242,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
@@ -2270,6 +2256,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
