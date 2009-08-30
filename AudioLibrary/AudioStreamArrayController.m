@@ -150,11 +150,14 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 	// Handle iTunes drops
 	else if([bestType isEqualToString:iTunesPboardType]) {
 		NSDictionary	*iTunesDictionary	= [[info draggingPasteboard] propertyListForType:iTunesPboardType];
+		NSDictionary	*tracks				= [iTunesDictionary objectForKey:@"Tracks"];
 		NSURL			*url				= nil;
-		BOOL			success				= YES;
+		BOOL			success				= NO;
 		
-		for(NSDictionary *track in [iTunesDictionary valueForKey:@"Tracks"]) {
-			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
+		for(NSNumber *iTunesTrackNumber in [tracks allKeys]) {
+			NSDictionary *track = [tracks objectForKey:iTunesTrackNumber];
+			NSLog(@"track = %@",track);
+			url = [NSURL URLWithString:[track objectForKey:@"Location"]];
 			if([url isFileURL])
 				success &= [[AudioLibrary library] addFile:[url path]];
 		}

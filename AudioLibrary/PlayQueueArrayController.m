@@ -202,26 +202,26 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 	// Handle iTunes drops
 	else if([bestType isEqualToString:iTunesPboardType]) {
 		NSDictionary	*iTunesDictionary	= [[info draggingPasteboard] propertyListForType:iTunesPboardType];
-		NSArray			*tracks				= [iTunesDictionary valueForKey:@"Tracks"];
+		NSDictionary	*tracks				= [iTunesDictionary objectForKey:@"Tracks"];
 		NSURL			*url				= nil;
 		BOOL			success				= NO;
-		
-		for(NSDictionary *track in tracks) {
-			url = [NSURL URLWithString:[track valueForKey:@"Location"]];
-			if([url isFileURL])
-				success |= [[AudioLibrary library] addFile:[url path]];
-		}
-		
-		if(success) {
-			NSMutableArray *streams = [NSMutableArray array];
+		NSMutableArray	*streams			= [NSMutableArray array];
 
-			for(NSDictionary *track in tracks) {
-				url = [NSURL URLWithString:[track valueForKey:@"Location"]];
-				[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
+		for(NSNumber *iTunesTrackNumber in [tracks allKeys]) {
+			NSDictionary *track = [tracks objectForKey:iTunesTrackNumber];
+			url = [NSURL URLWithString:[track objectForKey:@"Location"]];
+			if([url isFileURL]) {
+				BOOL added = [[AudioLibrary library] addFile:[url path]];
+				
+				if(added)
+					[streams addObjectsFromArray:[[[CollectionManager manager] streamManager] streamsContainedByURL:url]];
+
+				success |= added;
 			}
-			
-			[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
 		}
+		
+		if(success && [streams count])
+			[self insertObjects:streams atArrangedObjectIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(row, [streams count])]];
 		
 		return success;
 	}
