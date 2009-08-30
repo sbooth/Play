@@ -301,7 +301,7 @@ dumpASBD(const AudioStreamBasicDescription *asbd)
 		[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver fraction:0.75];
 		[dragImage unlockFocus];
 				
-		return dragImage;
+		return [dragImage autorelease];
 	}
 	return [super dragImageForRowsWithIndexes:dragRows tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
 }

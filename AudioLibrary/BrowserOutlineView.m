@@ -121,7 +121,7 @@ static float heightOffset	= 3.0;
 	[genericIcon compositeToPoint:NSZeroPoint operation:NSCompositeDestinationOver fraction:0.75];
 	[dragImage unlockFocus];
 	
-	return dragImage;
+	return [dragImage autorelease];
 }
 
 - (NSMenu *) menuForEvent:(NSEvent *)event
