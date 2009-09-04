@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
+		325922471051B21300A74D37 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 325922461051B21300A74D37 /* dsa_pub.pem */; };
 		3277A960104648A4006777F8 /* SFBAudioUnitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
 		3277A961104648A4006777F8 /* SFBCrashReporter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95F104648A4006777F8 /* SFBCrashReporter.framework */; };
 		3277A965104648B0006777F8 /* SFBAudioUnitUI.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
@@ -360,6 +361,7 @@
 		3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataReader.mm; path = Audio/Metadata/Readers/AIFFMetadataReader.mm; sourceTree = "<group>"; };
 		325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataWriter.h; path = Audio/Metadata/Writers/AIFFMetadataWriter.h; sourceTree = "<group>"; };
 		325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataWriter.mm; path = Audio/Metadata/Writers/AIFFMetadataWriter.mm; sourceTree = "<group>"; };
+		325922461051B21300A74D37 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBAudioUnitUI.framework; path = Frameworks/SFBAudioUnitUI.framework; sourceTree = "<group>"; };
 		3277A95F104648A4006777F8 /* SFBCrashReporter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBCrashReporter.framework; path = Frameworks/SFBCrashReporter.framework; sourceTree = "<group>"; };
 		32875D591025157A001E06F2 /* WAVEMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataReader.h; path = Audio/Metadata/Readers/WAVEMetadataReader.h; sourceTree = "<group>"; };
@@ -901,6 +903,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				325922461051B21300A74D37 /* dsa_pub.pem */,
 				32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */,
 				32CF6D7310373B39006F9D62 /* AudioLibrary.xib */,
 				32CF6C6A10371A79006F9D62 /* AdvancedPreferences.xib */,
@@ -1748,6 +1751,7 @@
 				32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */,
 				32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */,
 				32FF2425104338C30069EB9B /* Base.xcconfig in Resources */,
+				325922471051B21300A74D37 /* dsa_pub.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
