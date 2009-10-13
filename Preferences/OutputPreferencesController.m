@@ -91,7 +91,7 @@
 #endif
 			continue;
 		}
-
+		
 		// Determine if device is an output device (it is an output device if it has output channels)
 		specifierSize = 0;
 		status = AudioDeviceGetPropertyInfo(audioDevices[i], 0, NO, kAudioDevicePropertyStreamConfiguration, &specifierSize, NULL);
@@ -114,6 +114,23 @@
 		}
 				
 		free(bufferList);
+
+		// Query sample rate
+		Float64 theAnswer = 0;
+		UInt32 theSize = sizeof(Float64);
+		status = AudioDeviceGetProperty(audioDevices[i], 0, NO, kAudioDevicePropertyNominalSampleRate, &theSize, &theAnswer);
+		NSLog(@"%@ kAudioDevicePropertyNominalSampleRate: %f",deviceName,theAnswer);
+		if(kAudioHardwareNoError != status) {
+			NSLog(@"AudioDeviceGetProperty(kAudioDevicePropertyNominalSampleRate) failed");
+		}
+		
+		// Set the sample rate
+//		theAnswer = 96000.f;
+//		status = AudioDeviceSetProperty(audioDevices[i], NULL, 0, NO, kAudioDevicePropertyNominalSampleRate, sizeof(theAnswer), &theAnswer);
+//		if(kAudioHardwareNoError != status) {
+//			NSLog(@"AudioDeviceSetProperty(kAudioDevicePropertyNominalSampleRate) failed");
+//		}
+		
 		
 		NSDictionary *deviceInfo = [NSDictionary dictionaryWithObjectsAndKeys:
 			deviceName, @"name",
