@@ -95,7 +95,11 @@
 
 - (NSAttributedString *) attributedStringForObjectValue:(id)object withDefaultAttributes:(NSDictionary *)attributes
 {
-	NSAttributedString *result = [[NSAttributedString alloc] initWithString:[self stringForObjectValue:object] attributes:attributes];
+	NSString *stringValue = [self stringForObjectValue:object];
+	if(nil == stringValue)
+		return nil;
+	
+	NSAttributedString *result = [[NSAttributedString alloc] initWithString:stringValue attributes:attributes];
 	return [result autorelease];
 }
 
