@@ -156,7 +156,6 @@ NSString * const iTunesPboardType						= @"CorePasteboardFlavorType 0x6974756E";
 		
 		for(NSNumber *iTunesTrackNumber in [tracks allKeys]) {
 			NSDictionary *track = [tracks objectForKey:iTunesTrackNumber];
-			NSLog(@"track = %@",track);
 			url = [NSURL URLWithString:[track objectForKey:@"Location"]];
 			if([url isFileURL])
 				success &= [[AudioLibrary library] addFile:[url path]];
