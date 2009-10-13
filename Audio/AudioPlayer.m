@@ -77,6 +77,8 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (OSStatus) setupAUGraph;
 - (OSStatus) teardownAUGraph;
 - (OSStatus) resetAUGraph;
+- (OSStatus) startAUGraph;
+- (OSStatus) stopAUGraph;
 - (OSStatus) getAUGraphLatency:(Float64 *)graphLatency;
 - (OSStatus) getAUGraphTailTime:(Float64 *)graphTailTime;
 - (OSStatus) setAUGraphFormat:(AudioStreamBasicDescription)format;
@@ -111,6 +113,15 @@ NSString *const		AudioPlayerErrorDomain					= @"org.sbooth.Play.ErrorDomain.Audi
 - (void) setPlayingFrame:(SInt64)playingFrame;
 
 - (void) setOutputDeviceUID:(NSString *)deviceUID;
+- (OSStatus) setOutputDeviceSampleRate:(Float64)sampleRate;
+
+- (BOOL) outputDeviceIsHogged;
+- (OSStatus) startHoggingOutputDevice;
+- (OSStatus) stopHoggingOutputDevice;
+
+- (OSStatus) startListeningForSampleRateChangesOnOutputDevice;
+- (OSStatus) stopListeningForSampleRateChangesOnOutputDevice;
+- (void) outputDeviceSampleRateChanged;
 
 - (void) setHasReplayGain:(BOOL)hasReplayGain;
 - (void) setReplayGain:(float)replayGain;
@@ -136,6 +147,24 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	if(kAudioUnitEvent_ParameterValueChange == inEvent->mEventType) {
 	}
+}
+
+// ========================================
+// AudioDevicePropertyListener callbacks
+// ========================================
+static OSStatus
+myAudioDevicePropertyListenerProc( AudioDeviceID           inDevice,
+								   UInt32                  inChannel,
+								   Boolean                 isInput,
+								   AudioDevicePropertyID   inPropertyID,
+								   void*                   inClientData)
+{
+	AudioPlayer *myself = (AudioPlayer *)inClientData;
+	
+	if(kAudioDevicePropertyNominalSampleRate == inPropertyID)
+		[myself outputDeviceSampleRateChanged];
+
+	return noErr;
 }
 
 @implementation AudioPlayer
@@ -202,6 +231,9 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 {
 	[_timer invalidate], _timer = nil;
 
+	if([self outputDeviceIsHogged])
+		[self stopHoggingOutputDevice];
+	
 	OSStatus err = AUListenerDispose(_auEventListener);
 	if(noErr != err)
 		NSLog(@"AudioPlayer: AUListenerDispose failed: %i", err);
@@ -235,7 +267,10 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	[[self scheduler] stopScheduling];
 	[[self scheduler] clear];
+
+	[self stopAUGraph];
 	[self setPlaying:NO];
+	
 	_regionStartingFrame = 0;		
 
 	OSStatus err = [self resetAUGraph];
@@ -255,8 +290,12 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	// If the sample rate or number of channels changed, change the AU formats
 	if(newFormat.mSampleRate != format.mSampleRate || newFormat.mChannelsPerFrame != format.mChannelsPerFrame) {
 		OSStatus err = [self setAUGraphFormat:newFormat];
-		if(noErr == err)
+		if(noErr == err) {
 			[self setFormat:newFormat];
+			
+			if([[NSUserDefaults standardUserDefaults] boolForKey:@"automaticallySetOutputDeviceSampleRate"])
+				[self setOutputDeviceSampleRate:newFormat.mSampleRate];
+		}
 		else {
 			if(nil != error) {
 				NSMutableDictionary		*errorDictionary	= [NSMutableDictionary dictionary];
@@ -398,6 +437,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr == err)
 		NSLog(@"started at time: %f", timeStamp.mSampleTime);*/
 	
+	[self startAUGraph];
 	[self setPlaying:YES];
 }
 
@@ -430,6 +470,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	_regionStartingFrame = 0;
 	
+	[self stopAUGraph];
 	[self setPlaying:NO];
 }
 
@@ -691,6 +732,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	// If nothing is coming up right away, stop ourselves from playing
 	if(nil == [[self scheduler] regionBeingScheduled]) {
+		[self stopAUGraph];
 		[self setPlaying:NO];
 
 		_regionStartingFrame = 0;
@@ -742,7 +784,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_generatorNode);
+	err = AUGraphAddNode([self auGraph], &desc, &_generatorNode);
 	if(noErr != err)
 		return err;
 	
@@ -753,7 +795,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_limiterNode);
+	err = AUGraphAddNode([self auGraph], &desc, &_limiterNode);
 	if(noErr != err)
 		return err;
 	
@@ -764,7 +806,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	desc.componentFlags			= 0;
 	desc.componentFlagsMask		= 0;
 	
-	err = AUGraphNewNode([self auGraph], &desc, 0, NULL, &_outputNode);
+	err = AUGraphAddNode([self auGraph], &desc, &_outputNode);
 	if(noErr != err)
 		return err;
 	
@@ -787,21 +829,16 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	if(noErr != err)
 		return err;
 	
-	// And start it up
-	err = AUGraphStart([self auGraph]);
-	if(noErr != err)
-		return err;
-	
 	// Store the audio units for later  use
-	err = AUGraphGetNodeInfo([self auGraph], _generatorNode, NULL, NULL, NULL, &_generatorUnit);
+	err = AUGraphNodeInfo([self auGraph], _generatorNode, NULL, &_generatorUnit);
 	if(noErr != err)
 		return err;
 	
-	err = AUGraphGetNodeInfo([self auGraph], _limiterNode, NULL, NULL, NULL, &_limiterUnit);
+	err = AUGraphNodeInfo([self auGraph], _limiterNode, NULL, &_limiterUnit);
 	if(noErr != err)
 		return err;
 	
-	err = AUGraphGetNodeInfo([self auGraph], _outputNode, NULL, NULL, NULL, &_outputUnit);
+	err = AUGraphNodeInfo([self auGraph], _outputNode, NULL, &_outputUnit);
 	if(noErr != err)
 		return err;
 	
@@ -863,7 +900,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			return err;
 		
 		AudioUnit au;
-		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		err = AUGraphNodeInfo([self auGraph], node, NULL, &au);
 		if(noErr != err)
 			return err;
 		
@@ -873,6 +910,27 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	}
 	
 	return noErr;
+}
+
+- (OSStatus) startAUGraph
+{
+	// Don't attempt to start an already running graph
+	Boolean graphIsRunning = NO;
+	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
+	if(noErr == err && !graphIsRunning)
+		err = AUGraphStart([self auGraph]);
+		
+	return err;
+}
+
+- (OSStatus) stopAUGraph
+{
+	Boolean graphIsRunning = NO;
+	OSStatus err = AUGraphIsRunning([self auGraph], &graphIsRunning);
+	if(noErr == err && graphIsRunning)
+		err = AUGraphStop([self auGraph]);
+	
+	return err;
 }
 
 - (OSStatus) getAUGraphLatency:(Float64 *)graphLatency
@@ -894,7 +952,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			return err;
 		
 		AudioUnit au;
-		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		err = AUGraphNodeInfo([self auGraph], node, NULL, &au);
 		if(noErr != err)
 			return err;
 		
@@ -929,7 +987,7 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 			return err;
 		
 		AudioUnit au;
-		err = AUGraphGetNodeInfo([self auGraph], node,NULL,NULL,NULL,&au);
+		err = AUGraphNodeInfo([self auGraph], node, NULL, &au);
 		if(noErr != err)
 			return err;
 		
@@ -1746,16 +1804,265 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	}
 
 	if(noErr == status && kAudioDeviceUnknown != deviceID) {
+		
+		// Stop listening for sample rate changes
+		[self stopListeningForSampleRateChangesOnOutputDevice];
+
+		// Release hog mode, regardless of the user's preference
+		if([self outputDeviceIsHogged]) {
+			OSStatus hogStatus = [self stopHoggingOutputDevice];
+			if(noErr != hogStatus)
+				NSLog(@"Unable to release hog mode");
+		}
+		
+		// Update our output AU to use the currently selected device
 		status = AudioUnitSetProperty(_outputUnit,
 									  kAudioOutputUnitProperty_CurrentDevice,
 									  kAudioUnitScope_Global,
 									  0,
 									  &deviceID,
 									  sizeof(deviceID));
+
+		// Hog the device, if specified
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"hogOutputDevice"]) {
+			OSStatus hogStatus = [self startHoggingOutputDevice];
+			if(noErr != hogStatus)
+				NSLog(@"Unable to obtain hog mode");
+		}
+		
+		// Observe sample rate changes on the device
+		[self startListeningForSampleRateChangesOnOutputDevice];
 	}
 	
 	if(noErr != status)
 		NSLog(@"Error setting output device");
+}
+
+- (OSStatus) setOutputDeviceSampleRate:(Float64)sampleRate
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return status;
+	}
+	
+	// Determine if this actually is a change
+	Float64 currentSampleRate;
+	specifierSize = sizeof(currentSampleRate);
+	status = AudioDeviceGetProperty(deviceID, 0, NO, kAudioDevicePropertyNominalSampleRate, &specifierSize, &currentSampleRate);
+	if(noErr != status) {
+		NSLog(@"AudioDeviceGetProperty(kAudioDevicePropertyNominalSampleRate) failed");
+		return status;
+	}
+	
+	// Nothing to do
+	if(currentSampleRate == sampleRate)
+		return noErr;
+	
+	// Set the sample rate
+	specifierSize = sizeof(sampleRate);
+	status = AudioDeviceSetProperty(deviceID, NULL, 0, NO, kAudioDevicePropertyNominalSampleRate, sizeof(sampleRate), &sampleRate);
+
+	if(kAudioHardwareNoError != status)
+		NSLog(@"AudioDeviceSetProperty(kAudioDevicePropertyNominalSampleRate) failed");
+	
+	return status;
+}
+
+- (BOOL) outputDeviceIsHogged
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return NO;
+	}
+
+	// Is it hogged by us?
+	pid_t hogPID;
+	specifierSize = sizeof(hogPID);
+	status = AudioDeviceGetProperty(deviceID, 0, NO, kAudioDevicePropertyHogMode, &specifierSize, &hogPID);
+
+	if(kAudioHardwareNoError != status) {
+		NSLog(@"AudioDeviceGetProperty(kAudioDevicePropertyHogMode) failed");
+		return NO;
+	}
+	
+	if(hogPID == getpid())
+		return YES;
+	else
+		return NO;
+}
+
+- (OSStatus) startHoggingOutputDevice
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return status;
+	}
+	
+	// Is it hogged already?
+	pid_t hogPID;
+	specifierSize = sizeof(hogPID);
+	status = AudioDeviceGetProperty(deviceID, 0, NO, kAudioDevicePropertyHogMode, &specifierSize, &hogPID);
+	
+	if(kAudioHardwareNoError != status) {
+		NSLog(@"AudioDeviceGetProperty(kAudioDevicePropertyHogMode) failed");
+		return status;
+	}
+		
+	// The device isn't hogged, so attempt to hog it
+	if(hogPID == (pid_t)-1) {
+		hogPID = getpid();
+		status = AudioDeviceSetProperty(deviceID, NULL, 0, NO, kAudioDevicePropertyHogMode, sizeof(hogPID), &hogPID);
+
+		if(kAudioHardwareNoError != status) {
+			NSLog(@"AudioDeviceSetProperty(kAudioDevicePropertyHogMode) failed");
+			return status;
+		}
+	}
+	else
+		NSLog(@"Device is already hogged by pid: %d", hogPID);
+	
+	return noErr;
+}
+
+- (OSStatus) stopHoggingOutputDevice
+{
+	// Since kAudioDevicePropertyHogMode is a toggle, this is identical to startHoggingOutputDevice
+	return [self startHoggingOutputDevice];
+}
+
+- (OSStatus) startListeningForSampleRateChangesOnOutputDevice
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return status;
+	}
+
+	return AudioDeviceAddPropertyListener(deviceID, 0, NO, kAudioDevicePropertyNominalSampleRate, myAudioDevicePropertyListenerProc, self);
+}
+
+- (OSStatus) stopListeningForSampleRateChangesOnOutputDevice
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return status;
+	}
+
+	return AudioDeviceRemovePropertyListener(deviceID, 0, NO, kAudioDevicePropertyNominalSampleRate, myAudioDevicePropertyListenerProc);
+}
+
+- (void) outputDeviceSampleRateChanged
+{
+	// Get the current output device
+	AudioDeviceID		deviceID		= kAudioDeviceUnknown;
+	UInt32				specifierSize	= 0;
+	OSStatus			status			= noErr;
+	
+	specifierSize = sizeof(deviceID);
+	status = AudioUnitGetProperty(_outputUnit,
+								  kAudioOutputUnitProperty_CurrentDevice,
+								  kAudioUnitScope_Global,
+								  0,
+								  &deviceID,
+								  &specifierSize);
+	
+	if(noErr != status) {
+		NSLog(@"AudioUnitGetProperty(kAudioOutputUnitProperty_CurrentDevice) failed");
+		return;
+	}
+
+	// Query sample rate
+	Float64 sampleRate = 0;
+	specifierSize = sizeof(sampleRate);
+	status = AudioDeviceGetProperty(deviceID, 0, NO, kAudioDevicePropertyNominalSampleRate, &specifierSize, &sampleRate);
+	
+	if(kAudioHardwareNoError != status) {
+		NSLog(@"AudioDeviceGetProperty(kAudioDevicePropertyNominalSampleRate) failed");
+		return;
+	}
+
+	// Determine if this is bad (ie, doesn't match the current stream's sample rate)
+	if([self format].mSampleRate == sampleRate)
+		return;
+
+	// Display an alert since this is a bad thing
+	NSAlert *alert = [[NSAlert alloc] init];
+	[alert addButtonWithTitle:@"OK"];
+	[alert setMessageText:NSLocalizedStringFromTable(@"Sample Rate Change Detected", @"Errors", @"")];
+	[alert setInformativeText:NSLocalizedStringFromTable(@"An external program has changed the sample rate of the device. This can lead to degraded audio quality.", @"Errors", @"")];
+	[alert setAlertStyle:NSInformationalAlertStyle];
+	
+	// Display the alert
+	[alert beginSheetModalForWindow:[[self owner] window] modalDelegate:nil didEndSelector:NULL contextInfo:NULL];
+	[alert release];
+	
+#if DEBUG
+	NSLog(@"External sample rate change: %f (stream sample rate %f)", sampleRate, [self format].mSampleRate);
+#endif
 }
 
 - (void) setHasReplayGain:(BOOL)hasReplayGain
@@ -1787,13 +2094,13 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 		
 		if(0 != adjustment) {
 			float	peakSample	= [peak floatValue];
-			double	multiplier	= pow(10, adjustment / 20);
+			float	multiplier	= powf(10, adjustment / 20);
 			float	sample		= peakSample * multiplier;
 			float	magnitude	= fabsf(sample);
 			
 			// If clipping will occur, reduce the preamp gain so the peak will be +/- 1.0
 			if(1.0 < magnitude)
-				[self setPreAmplification:(20 * log10(1.0 / peakSample)) - [self replayGain]];
+				[self setPreAmplification:(20 * log10f(1.0 / peakSample)) - [self replayGain]];
 		}
 	}
 
@@ -1824,23 +2131,23 @@ myAUEventListenerProc(void						*inCallbackRefCon,
 	
 	// Try to use the RG the user wants
 	if(ReplayGainTrackGain == replayGain && nil != trackGain) {
-		[self setReplayGain:[trackGain doubleValue]];
+		[self setReplayGain:[trackGain floatValue]];
 		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainTrackPeakKey];
 	}
 	else if(ReplayGainAlbumGain == replayGain && nil != albumGain) {
-		[self setReplayGain:[albumGain doubleValue]];
+		[self setReplayGain:[albumGain floatValue]];
 		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainAlbumPeakKey];
 	}
 	// Fall back to any gain if present
 	else if(ReplayGainNone != replayGain && nil != trackGain) {
-		[self setReplayGain:[trackGain doubleValue]];
+		[self setReplayGain:[trackGain floatValue]];
 		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainTrackPeakKey];
 	}
 	else if(ReplayGainNone != replayGain && nil != albumGain) {
-		[self setReplayGain:[albumGain doubleValue]];
+		[self setReplayGain:[albumGain floatValue]];
 		[self setHasReplayGain:YES];
 		return [stream valueForKey:ReplayGainAlbumPeakKey];
 	}
