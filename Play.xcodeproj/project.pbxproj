@@ -10,6 +10,7 @@
 		3257169D10155E3400EA44DB /* AIFFMetadataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3257169C10155E3400EA44DB /* AIFFMetadataReader.mm */; };
 		325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */; };
 		325922471051B21300A74D37 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = 325922461051B21300A74D37 /* dsa_pub.pem */; };
+		32596D2610862F1400BD9640 /* SFMT.c in Sources */ = {isa = PBXBuildFile; fileRef = 32596D2410862F1400BD9640 /* SFMT.c */; };
 		3277A960104648A4006777F8 /* SFBAudioUnitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
 		3277A961104648A4006777F8 /* SFBCrashReporter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95F104648A4006777F8 /* SFBCrashReporter.framework */; };
 		3277A965104648B0006777F8 /* SFBAudioUnitUI.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */; };
@@ -178,7 +179,6 @@
 		8C9C2ECE0B73139B00CE799A /* Growl.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2EC30B73137A00CE799A /* Growl.framework */; };
 		8C9C2EEB0B7313E800CE799A /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2ED90B7313E800CE799A /* Sparkle.framework */; };
 		8C9C2EEC0B7313EE00CE799A /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C2ED90B7313E800CE799A /* Sparkle.framework */; };
-		8C9C30C90B7327AB00CE799A /* sfmt19937.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C30C70B7327AB00CE799A /* sfmt19937.c */; };
 		8C9C311A0B732D8300CE799A /* AudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9C31180B732D8300CE799A /* AudioPlayer.m */; };
 		8C9C31C00B732EB600CE799A /* FLAC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C314D0B732EB600CE799A /* FLAC.framework */; };
 		8C9C31C10B732EB600CE799A /* mac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C9C314E0B732EB600CE799A /* mac.framework */; };
@@ -362,6 +362,8 @@
 		325716A410155E9C00EA44DB /* AIFFMetadataWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFFMetadataWriter.h; path = Audio/Metadata/Writers/AIFFMetadataWriter.h; sourceTree = "<group>"; };
 		325716A510155E9C00EA44DB /* AIFFMetadataWriter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AIFFMetadataWriter.mm; path = Audio/Metadata/Writers/AIFFMetadataWriter.mm; sourceTree = "<group>"; };
 		325922461051B21300A74D37 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
+		32596D2410862F1400BD9640 /* SFMT.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = SFMT.c; path = ThirdParty/SFMT/SFMT.c; sourceTree = "<group>"; };
+		32596D2510862F1400BD9640 /* SFMT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFMT.h; path = ThirdParty/SFMT/SFMT.h; sourceTree = "<group>"; };
 		3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBAudioUnitUI.framework; path = Frameworks/SFBAudioUnitUI.framework; sourceTree = "<group>"; };
 		3277A95F104648A4006777F8 /* SFBCrashReporter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SFBCrashReporter.framework; path = Frameworks/SFBCrashReporter.framework; sourceTree = "<group>"; };
 		32875D591025157A001E06F2 /* WAVEMetadataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WAVEMetadataReader.h; path = Audio/Metadata/Readers/WAVEMetadataReader.h; sourceTree = "<group>"; };
@@ -576,8 +578,6 @@
 		8C9C2E940B7310E200CE799A /* Play.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Play.icns; path = Icons/Play.icns; sourceTree = "<group>"; };
 		8C9C2EC30B73137A00CE799A /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = Frameworks/Growl.framework; sourceTree = "<group>"; };
 		8C9C2ED90B7313E800CE799A /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
-		8C9C30C70B7327AB00CE799A /* sfmt19937.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = sfmt19937.c; path = ThirdParty/SFMT/sfmt19937.c; sourceTree = "<group>"; };
-		8C9C30C80B7327AB00CE799A /* sfmt19937.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = sfmt19937.h; path = ThirdParty/SFMT/sfmt19937.h; sourceTree = "<group>"; };
 		8C9C31170B732D8300CE799A /* AudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AudioPlayer.h; path = Audio/AudioPlayer.h; sourceTree = "<group>"; };
 		8C9C31180B732D8300CE799A /* AudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AudioPlayer.m; path = Audio/AudioPlayer.m; sourceTree = "<group>"; };
 		8C9C314D0B732EB600CE799A /* FLAC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FLAC.framework; path = Frameworks/FLAC.framework; sourceTree = "<group>"; };
@@ -1303,8 +1303,8 @@
 		8C9C30C60B73277000CE799A /* SFMT */ = {
 			isa = PBXGroup;
 			children = (
-				8C9C30C70B7327AB00CE799A /* sfmt19937.c */,
-				8C9C30C80B7327AB00CE799A /* sfmt19937.h */,
+				32596D2410862F1400BD9640 /* SFMT.c */,
+				32596D2510862F1400BD9640 /* SFMT.h */,
 			);
 			name = SFMT;
 			sourceTree = "<group>";
@@ -1765,7 +1765,6 @@
 				8C9C2DC70B72AF0400CE799A /* AudioLibrary.m in Sources */,
 				8C9C2E9A0B73116500CE799A /* AudioScrobblerClient.m in Sources */,
 				8C9C2E9B0B73116600CE799A /* AudioScrobbler.m in Sources */,
-				8C9C30C90B7327AB00CE799A /* sfmt19937.c in Sources */,
 				8C9C311A0B732D8300CE799A /* AudioPlayer.m in Sources */,
 				8C9C31DE0B732F1B00CE799A /* Genres.m in Sources */,
 				8C9C31E00B732F1B00CE799A /* UtilityFunctions.m in Sources */,
@@ -1900,6 +1899,7 @@
 				325716A610155E9C00EA44DB /* AIFFMetadataWriter.mm in Sources */,
 				32875D5B1025157A001E06F2 /* WAVEMetadataReader.mm in Sources */,
 				32875D711025163E001E06F2 /* WAVEMetadataWriter.mm in Sources */,
+				32596D2610862F1400BD9640 /* SFMT.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2210,10 +2210,6 @@
 			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = (
-					ppc,
-					i386,
-				);
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Frameworks\"",
@@ -2246,6 +2242,8 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -2253,6 +2251,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Debug;
@@ -2260,6 +2259,9 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
