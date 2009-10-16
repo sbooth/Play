@@ -355,11 +355,7 @@ audio_linear_round(unsigned int bits,
 			
 			for(sample = startingSample; sample < sampleCount; ++sample) {
 				audioSample = audio_linear_round(BIT_RESOLUTION, _mad_synth.pcm.samples[channel][sample]);
-				
-				if(0 <= audioSample)
-					*floatBuffer++ = (float)(audioSample / (scaleFactor - 1));
-				else
-					*floatBuffer++ = (float)(audioSample / scaleFactor);
+				*floatBuffer++ = (float)(audioSample / scaleFactor);
 			}
 			
 			_bufferList->mBuffers[channel].mNumberChannels	= 1;

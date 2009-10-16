@@ -201,10 +201,7 @@
 						break;
 				}
 				
-				if(0 <= actualSample)
-					*floatBuffer++ = (float)(actualSample / (scaleFactor - 1));
-				else
-					*floatBuffer++ = (float)(actualSample / scaleFactor);
+				*floatBuffer++ = (float)(actualSample / scaleFactor);
 			}
 			
 			_bufferList->mBuffers[channel].mNumberChannels	= 1;

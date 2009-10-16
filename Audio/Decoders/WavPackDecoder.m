@@ -143,10 +143,7 @@
 			
 			for(sample = channel; sample < samplesRead * _format.mChannelsPerFrame; sample += _format.mChannelsPerFrame) {				
 				rawSample = buffer[sample];				
-				if(0 <= rawSample)
-					*floatBuffer++ = rawSample / (scaleFactor - 1);
-				else
-					*floatBuffer++ = rawSample / scaleFactor;
+				*floatBuffer++ = rawSample / scaleFactor;
 			}
 			
 			bufferList->mBuffers[channel].mNumberChannels	= 1;

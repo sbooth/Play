@@ -43,12 +43,8 @@ writeCallback(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, cons
 	for(channel = 0; channel < frame->header.channels; ++channel) {
 		float *floatBuffer = bufferList->mBuffers[channel].mData;
 		
-		for(sample = 0; sample < frame->header.blocksize; ++sample) {
-			if(0 <= buffer[channel][sample])
-				*floatBuffer++ = buffer[channel][sample] / (scaleFactor - 1);
-			else
-				*floatBuffer++ = buffer[channel][sample] / scaleFactor;
-		}
+		for(sample = 0; sample < frame->header.blocksize; ++sample)
+			*floatBuffer++ = buffer[channel][sample] / scaleFactor;
 		
 		bufferList->mBuffers[channel].mNumberChannels	= 1;
 		bufferList->mBuffers[channel].mDataByteSize		= frame->header.blocksize * sizeof(float);
