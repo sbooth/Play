@@ -1356,6 +1356,8 @@
 
 @end
 
+#ifndef __LP64__
+
 // Methods for interfacing with the Carbon Scrap Manager (analogous to and
 // interoperable with the Cocoa Pasteboard).
 
@@ -1430,4 +1432,4 @@
 
 @end
 
-
+#endif
