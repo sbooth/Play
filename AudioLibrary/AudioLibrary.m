@@ -90,7 +90,7 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
-#include "sfmt19937.h"
+#include "SFMT.h"
 
 #import "RBSplitView/RBSplitView.h"
 
@@ -1450,7 +1450,7 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 		[self setNextPlaybackIndex:[self nextPlaybackIndex] - 1];
 
 	if(index == [self playbackIndex]) {
-//		[self stop:self];
+		[self stop:self];
 		[self setPlaybackIndex:NSNotFound];
 	}
 	else if(NSNotFound != [self playbackIndex] && index < [self playbackIndex])
