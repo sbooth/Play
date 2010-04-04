@@ -90,7 +90,8 @@
 #import "IconFamily.h"
 #import "ImageAndTextCell.h"
 
-#include "sfmt19937.h"
+//#include "sfmt19937.h"
+#include "SFMT.h"
 
 #import "RBSplitView/RBSplitView.h"
 
