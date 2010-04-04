@@ -2202,6 +2202,7 @@
 					"SQLITE_THREAD_OVERRIDE_LOCK=-1",
 					"SQLITE_OMIT_LOAD_EXTENSION=1",
 				);
+				GCC_WARN_UNUSED_PARAMETER = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Frameworks/taglib.framework/Headers\"",
