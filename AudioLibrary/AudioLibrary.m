@@ -1413,6 +1413,22 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 	return [[self player] isPlaying];
 }
 
+- (NSNumber *) volume
+{
+	return [NSNumber numberWithFloat:(float)([[self player] volume]*100.0f)];
+}
+
+- (void) setVolume:(NSNumber *)volume
+{
+	[[self player] setVolume:(Float32)([volume floatValue]/100.0f)];
+}
+
+- (NSTimeInterval) playerPosition
+{
+	return [[self player] currentSecond];
+}
+
+
 #pragma mark Play Queue management
 
 - (unsigned) countOfPlayQueue
@@ -1598,8 +1614,8 @@ static NSString * const SearchFieldToolbarItemIdentifier		= @"org.sbooth.Play.Li
 
 - (AudioStream *) nowPlaying
 {
-	unsigned index = [self playbackIndex];
-	return (NSNotFound == index ? nil : [self objectInPlayQueueAtIndex:index]);
+	unsigned thisIndex = [self playbackIndex];
+	return (NSNotFound == thisIndex ? nil : [self objectInPlayQueueAtIndex:thisIndex]);
 }
 
 - (NSUndoManager *) undoManager

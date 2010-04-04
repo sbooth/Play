@@ -509,6 +509,16 @@
 	[[[self delegate] library] playPause:command];
 }
 
+- (void) handlePlayScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] play:command];
+}
+
+- (void) handleStopScriptCommand:(NSScriptCommand *)command
+{
+	[[[self delegate] library] stop:command];
+}
+
 - (void) handleSkipForwardScriptCommand:(NSScriptCommand *)command
 {
 	[[[self delegate] library] skipForward:command];

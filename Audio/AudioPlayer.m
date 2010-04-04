@@ -449,6 +449,12 @@ myAudioDevicePropertyListenerProc( AudioDeviceID           inDevice,
 		[self play];
 }
 
+- (void) pause
+{
+	if([self isPlaying])
+		[self stop];
+}
+
 - (void) stop
 {
 	if(NO == [self isPlaying])

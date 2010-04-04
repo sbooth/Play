@@ -98,6 +98,15 @@
 			<responds-to name="playPause">
 				<cocoa method="handlePlayPauseScriptCommand:"/>
 			</responds-to>
+			<responds-to name="pause">
+				<cocoa method="handlePauseScriptCommand:"/>
+			</responds-to>
+			<responds-to name="play">
+				<cocoa method="handlePlayScriptCommand:"/>
+			</responds-to>
+			<responds-to name="stop">
+				<cocoa method="handleStopScriptCommand:"/>
+			</responds-to>
 			<responds-to name="skip forward">
 				<cocoa method="handleSkipForwardScriptCommand:"/>
 			</responds-to>
@@ -384,6 +393,9 @@
 	-->
 	<suite name="Play Suite" code="plaY" description="Play specific classes and commands.">
 		<command name="playPause" code="plaYplps" description="Begin or suspend audio playback"/>
+		<command name="pause" code="plaYpaus" description="Begin audio playback"/>
+		<command name="play" code="plaYplpl" description="Begin audio playback"/>
+		<command name="stop" code="plaYplst" description="Stop audio playback"/>
 		<command name="skip forward" code="plaYsfwd" description="Fast forward three seconds"/>
 		<command name="skip backward" code="plaYsbwd" description="Rewind three seconds"/>
 		<command name="play next track" code="plaYpnxt" description="Play the next track in the play queue"/>
@@ -589,12 +601,31 @@
 			<property name="now playing" code="nowp" description="The track that is currently playing." type="track" access="r">
 				<cocoa key="nowPlaying"/>
 			</property>
+			<property name="is playing" code="ispl" description="Whether a track is playing." type="boolean" access="r">
+				<cocoa key="isPlaying"/>
+			</property>
 			<property name="random playback" code="rndp" description="Whether to randomize tracks for playback." type="boolean">
 				<cocoa key="randomPlayback"/>
 			</property>
 			<property name="loop playback" code="loop" description="Whether to loop tracks for playback." type="boolean">
 				<cocoa key="loopPlayback"/>
 			</property>
+			<property name="sound volume" code="sovl" description="The current playback volume (0 to 100)." type="integer" access="rw">
+				<cocoa key="volume"/>
+			</property>
+			<property name="player position" code="ppos" description="The position of the player in seconds." type="real" access="r">
+				<cocoa key="playerPosition"/>
+			</property>
+	<!--
+			<property name="player" code="pyer" description="The audio player in use" type="audio player">
+				<cocoa key="player"/>
+			</property>
+	-->
 		</class>
+	<!--
+		<class name="audio player" code="plyr" description="An audio player" plural="players">
+			<cocoa class="AudioPlayer"/>
+		</class>
+	-->
 	</suite>
 </dictionary>

@@ -167,6 +167,12 @@ extern NSString * const		PlayQueueKey;
 
 - (BOOL)		isPlaying;
 
+- (NSNumber *)	volume;
+- (void)		setVolume:(NSNumber *)volume;
+
+- (NSTimeInterval) playerPosition;
+
+
 // ========================================
 // File addition and removal
 - (IBAction)	openDocument:(id)sender;
