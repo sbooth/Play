@@ -2,29 +2,21 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10B504</string>
-		<string key="IBDocument.InterfaceBuilderVersion">732</string>
-		<string key="IBDocument.AppKitVersion">1038.2</string>
-		<string key="IBDocument.HIToolboxVersion">437.00</string>
+		<string key="IBDocument.SystemVersion">10C540</string>
+		<string key="IBDocument.InterfaceBuilderVersion">740</string>
+		<string key="IBDocument.AppKitVersion">1038.25</string>
+		<string key="IBDocument.HIToolboxVersion">458.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
-			<bool key="EncodedWithXMLCoder">YES</bool>
-			<object class="NSArray" key="dict.sortedKeys">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string>net.brockerhoff.RBsplitView.IBPlugin</string>
-			</object>
-			<object class="NSMutableArray" key="dict.values">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<string>732</string>
-				<string>1.1.4b1</string>
-			</object>
+			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
+			<string key="NS.object.0">740</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="6"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<string>net.brockerhoff.RBsplitView.IBPlugin</string>
+			<string>net.brockerhoff.RBSplitView.IBPlugin</string>
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 		</object>
 		<object class="NSMutableDictionary" key="IBDocument.Metadata">
@@ -57,10 +49,10 @@
 				<object class="NSMutableString" key="NSViewClass">
 					<characters key="NS.bytes">View</characters>
 				</object>
-				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
 				<string key="NSWindowContentMinSize">{600, 450}</string>
 				<object class="NSView" key="NSWindowView" id="185709189">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -175,7 +167,7 @@
 																			<string key="NSColorName">controlBackgroundColor</string>
 																			<object class="NSColor" key="NSColor" id="571098095">
 																				<int key="NSColorSpace">3</int>
-																				<bytes key="NSWhite">MC42NjY2NjY2ODY1AA</bytes>
+																				<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
 																			</object>
 																		</object>
 																		<object class="NSColor" key="NSTextColor" id="565205444">
@@ -776,7 +768,7 @@
 													<int key="NSsFlags">257</int>
 													<reference key="NSTarget" ref="227172491"/>
 													<string key="NSAction">_doScroller:</string>
-													<double key="NSPercent">0.5149456262588501</double>
+													<double key="NSPercent">0.51494565217391308</double>
 												</object>
 												<object class="NSClipView" id="723715363">
 													<reference key="NSNextResponder" ref="227172491"/>
@@ -810,9 +802,9 @@
 									<reference key="NSSuperview" ref="661448802"/>
 									<string key="identifier">playQueue</string>
 									<int key="tag">0</int>
-									<float key="minDimension">1</float>
-									<float key="maxDimension">1000000</float>
-									<double key="fraction">-0.4679107666015625</double>
+									<double key="minDimension">1</double>
+									<double key="maxDimension">1000000</double>
+									<double key="fraction">-0.46791644807117905</double>
 									<bool key="canCollapse">YES</bool>
 								</object>
 								<object class="RBSplitSubview" id="667825514">
@@ -1462,7 +1454,7 @@
 													<int key="NSsFlags">257</int>
 													<reference key="NSTarget" ref="1016433413"/>
 													<string key="NSAction">_doScroller:</string>
-													<double key="NSPercent">0.46163216233253479</double>
+													<double key="NSPercent">0.46163215590742995</double>
 												</object>
 												<object class="NSClipView" id="607284431">
 													<reference key="NSNextResponder" ref="1016433413"/>
@@ -1496,9 +1488,9 @@
 									<reference key="NSSuperview" ref="661448802"/>
 									<string key="identifier">audioStreams</string>
 									<int key="tag">0</int>
-									<float key="minDimension">1</float>
-									<float key="maxDimension">1000000</float>
-									<double key="fraction">0.467926025390625</double>
+									<double key="minDimension">1</double>
+									<double key="maxDimension">1000000</double>
+									<double key="fraction">0.46791644807120747</double>
 									<bool key="canCollapse">NO</bool>
 								</object>
 							</object>
@@ -1506,8 +1498,8 @@
 							<reference key="NSSuperview" ref="185709189"/>
 							<string key="identifier"/>
 							<int key="tag">0</int>
-							<float key="minDimension">1</float>
-							<float key="maxDimension">1000000</float>
+							<double key="minDimension">1</double>
+							<double key="maxDimension">1000000</double>
 							<double key="fraction">0.0</double>
 							<bool key="canCollapse">NO</bool>
 							<nil key="delegate"/>
@@ -1535,7 +1527,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdGV4dAAAAABDb3B5cmlnaHQg
 QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 							</object>
 							<nil key="background"/>
-							<float key="dividerThickness">8</float>
+							<double key="dividerThickness">8</double>
 							<bool key="isHorizontal">YES</bool>
 							<bool key="isCoupled">YES</bool>
 						</object>
@@ -1675,11 +1667,12 @@ QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 							</object>
 						</object>
 					</object>
-					<string key="NSFrame">{{1, 9}, {800, 600}}</string>
+					<string key="NSFrameSize">{800, 600}</string>
+					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMinSize">{600, 472}</string>
-				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 				<string key="NSFrameAutosaveName">library</string>
 			</object>
 			<object class="NSArrayController" id="1029773342">
@@ -7575,7 +7568,9 @@ QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 					<string>43.IBAttributePlaceholdersKey</string>
 					<string>43.IBPluginDependency</string>
 					<string>43.ImportedFromIB2</string>
+					<string>5.IBEditorWindowLastContentRect</string>
 					<string>5.IBPluginDependency</string>
+					<string>5.IBWindowTemplateEditedContentRect</string>
 					<string>5.ImportedFromIB2</string>
 					<string>5.windowTemplate.hasMinSize</string>
 					<string>5.windowTemplate.minSize</string>
@@ -8081,7 +8076,9 @@ QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="YES"/>
+					<string>{{21, 372}, {800, 600}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{21, 372}, {800, 600}}</string>
 					<boolean value="YES"/>
 					<boolean value="YES"/>
 					<string>{600, 450}</string>
@@ -9321,13 +9318,6 @@ QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="464529851">
-						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">RBSplitView.framework/Headers/RBSplitView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">ShortcutRecorder.framework/Headers/SRRecorderCell.h</string>
@@ -9559,7 +9549,10 @@ QXBwbGUgQ29tcHV0ZXIsIEluYy4sIDIwMDUAAAAAA</bytes>
 						<string key="NS.key.0">delegate</string>
 						<string key="NS.object.0">id</string>
 					</object>
-					<reference key="sourceIdentifier" ref="464529851"/>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBFrameworkSource</string>
+						<string key="minorKey">RBSplitView.framework/Headers/RBSplitView.h</string>
+					</object>
 				</object>
 			</object>
 		</object>

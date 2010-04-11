@@ -38,10 +38,10 @@
 		32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
 		32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */; };
 		32CF6E411038BD39006F9D62 /* HotKeyPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32CF6E3F1038BD39006F9D62 /* HotKeyPreferences.xib */; };
-		32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
-		32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 32CF6EC71038C392006F9D62 /* RBSplitView.framework */; };
 		32FF2397104336FC0069EB9B /* Version.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2396104336FC0069EB9B /* Version.xcconfig */; };
 		32FF2425104338C30069EB9B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 32FF2424104338C30069EB9B /* Base.xcconfig */; };
+		3D50A2B81162CDDD002A5832 /* RBSplitView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A2B71162CDDD002A5832 /* RBSplitView.framework */; };
+		3D50A2B91162CDEC002A5832 /* RBSplitView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A2B71162CDDD002A5832 /* RBSplitView.framework */; };
 		8C05E7FE0CC283BD006E5746 /* NowPlayingImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */; };
 		8C05E8150CC29D81006E5746 /* FastForward.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80E0CC29D81006E5746 /* FastForward.png */; };
 		8C05E8160CC29D81006E5746 /* LoopPlayback.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C05E80F0CC29D81006E5746 /* LoopPlayback.png */; };
@@ -323,9 +323,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				3D50A2B91162CDEC002A5832 /* RBSplitView.framework in Copy Frameworks */,
 				3277A965104648B0006777F8 /* SFBAudioUnitUI.framework in Copy Frameworks */,
 				3277A966104648B0006777F8 /* SFBCrashReporter.framework in Copy Frameworks */,
-				32CF6ECB1038C39C006F9D62 /* RBSplitView.framework in Copy Frameworks */,
 				32CF6E221038BA86006F9D62 /* ShortcutRecorder.framework in Copy Frameworks */,
 				8C0CF23F0CE82BEF0086CAFB /* libcurl.framework in Copy Frameworks */,
 				8C0CF21D0CE829A00086CAFB /* sqlite3.framework in Copy Frameworks */,
@@ -390,9 +390,9 @@
 		32CF6D7410373B39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/AudioLibrary.xib; sourceTree = "<group>"; };
 		32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
 		32CF6E401038BD39006F9D62 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/HotKeyPreferences.xib; sourceTree = "<group>"; };
-		32CF6EC71038C392006F9D62 /* RBSplitView.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RBSplitView.framework; path = Frameworks/RBSplitView.framework; sourceTree = "<group>"; };
 		32FF2396104336FC0069EB9B /* Version.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		32FF2424104338C30069EB9B /* Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		3D50A2B71162CDDD002A5832 /* RBSplitView.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RBSplitView.framework; path = Frameworks/RBSplitView.framework; sourceTree = "<group>"; };
 		8C05E7FD0CC283BD006E5746 /* NowPlayingImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NowPlayingImage.png; path = Images/NowPlayingImage.png; sourceTree = "<group>"; };
 		8C05E80E0CC29D81006E5746 /* FastForward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FastForward.png; path = Images/FastForward.png; sourceTree = "<group>"; };
 		8C05E80F0CC29D81006E5746 /* LoopPlayback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LoopPlayback.png; path = Images/LoopPlayback.png; sourceTree = "<group>"; };
@@ -821,9 +821,9 @@
 				8C0CF21A0CE8298F0086CAFB /* sqlite3.framework in Frameworks */,
 				8C0CF23C0CE82BE70086CAFB /* libcurl.framework in Frameworks */,
 				32CF6E1F1038BA79006F9D62 /* ShortcutRecorder.framework in Frameworks */,
-				32CF6EC81038C392006F9D62 /* RBSplitView.framework in Frameworks */,
 				3277A960104648A4006777F8 /* SFBAudioUnitUI.framework in Frameworks */,
 				3277A961104648A4006777F8 /* SFBCrashReporter.framework in Frameworks */,
+				3D50A2B81162CDDD002A5832 /* RBSplitView.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -933,9 +933,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3D50A2B71162CDDD002A5832 /* RBSplitView.framework */,
 				3277A95E104648A4006777F8 /* SFBAudioUnitUI.framework */,
 				3277A95F104648A4006777F8 /* SFBCrashReporter.framework */,
-				32CF6EC71038C392006F9D62 /* RBSplitView.framework */,
 				32CF6E1E1038BA79006F9D62 /* ShortcutRecorder.framework */,
 				8C0CF23B0CE82BE70086CAFB /* libcurl.framework */,
 				8C0CF2190CE8298F0086CAFB /* sqlite3.framework */,
@@ -2165,6 +2165,116 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3D33AE091169225000233A17 /* Release Clang */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LLVM_LTO = YES;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+			};
+			name = "Release Clang";
+		};
+		3D33AE0A1169225000233A17 /* Release Clang */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_FAST_OBJC_DISPATCH = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					__MACOSX__,
+					"THREADSAFE=0",
+					"SQLITE_THREAD_OVERRIDE_LOCK=-1",
+					"SQLITE_OMIT_LOAD_EXTENSION=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks/taglib.framework/Headers\"",
+					"\"$(SRCROOT)/Frameworks/mp4v2.framework/Headers\"",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Play;
+				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = "Release Clang";
+		};
+		3D33AE5B11692CB100233A17 /* Debug Clang */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
+			};
+			name = "Debug Clang";
+		};
+		3D33AE5C11692CB100233A17 /* Debug Clang */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_FAST_OBJC_DISPATCH = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					__MACOSX__,
+					"THREADSAFE=0",
+					"SQLITE_THREAD_OVERRIDE_LOCK=-1",
+					"SQLITE_OMIT_LOAD_EXTENSION=1",
+					"SQL_DEBUG=1",
+					"DEBUG=1",
+				);
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks/taglib.framework/Headers\"",
+					"\"$(SRCROOT)/Frameworks/mp4v2.framework/Headers\"",
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Play;
+				USER_HEADER_SEARCH_PATHS = "$(inherited) \"$(SRCROOT)/ThirdParty/libofa/include\"";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = "Debug Clang";
+		};
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 32FF2424104338C30069EB9B /* Base.xcconfig */;
@@ -2251,7 +2361,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
 			name = Debug;
@@ -2259,8 +2369,8 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -2280,7 +2390,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
+				3D33AE5C11692CB100233A17 /* Debug Clang */,
 				C01FCF4C08A954540054247B /* Release */,
+				3D33AE0A1169225000233A17 /* Release Clang */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -2289,7 +2401,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
+				3D33AE5B11692CB100233A17 /* Debug Clang */,
 				C01FCF5008A954540054247B /* Release */,
+				3D33AE091169225000233A17 /* Release Clang */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

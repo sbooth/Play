@@ -99,6 +99,7 @@ enum {
 
 - (void)			play;
 - (void)			playPause;
+- (void)			pause;
 - (void)			stop;
 
 - (void)			skipForward;

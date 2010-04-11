@@ -1,0 +1,1173 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		3D50A21D1162C9A1002A5832 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 3D50A22A1162C9BF002A5832 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				3D50A2231162C9AE002A5832 /* PBXTargetDependency */,
+				3D50A2251162C9B1002A5832 /* PBXTargetDependency */,
+				3D50A3511162D83D002A5832 /* PBXTargetDependency */,
+				3D50A3531162D840002A5832 /* PBXTargetDependency */,
+				3D50A3551162D84E002A5832 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		3D50A1611162C295002A5832 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EA8B87074E9C5500AE807E /* RBSplitSubview.m */; };
+		3D50A1621162C295002A5832 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0259C576FE90428111CA0C5A /* RBSplitView.m */; };
+		3D50A1631162C29F002A5832 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD92D38A0106425D02CA0E72 /* Cocoa.framework */; };
+		3D50A1B71162C784002A5832 /* Thumb8.png in Resources */ = {isa = PBXBuildFile; fileRef = D53539A4072D6E5500C2C058 /* Thumb8.png */; };
+		3D50A1B81162C784002A5832 /* RBSplitSubview.classdescription in Resources */ = {isa = PBXBuildFile; fileRef = D51D05F407FF2A55001EE379 /* RBSplitSubview.classdescription */; };
+		3D50A1B91162C784002A5832 /* RBSplitView.classdescription in Resources */ = {isa = PBXBuildFile; fileRef = D51D05FB07FF2B2E001EE379 /* RBSplitView.classdescription */; };
+		3D50A1BA1162C784002A5832 /* Thumb9.png in Resources */ = {isa = PBXBuildFile; fileRef = D5C962B1082D0B1500D90A28 /* Thumb9.png */; };
+		3D50A1BB1162C784002A5832 /* RBSplitViewPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = D52683960B61A29A009B7E9D /* RBSplitViewPlugin.icns */; };
+		3D50A1BC1162C784002A5832 /* RBSplitSubviewInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = D51189B5108E8C910074C31C /* RBSplitSubviewInspector.xib */; };
+		3D50A1BD1162C784002A5832 /* RBSplitSubviewSizeInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = D51189B7108E8C910074C31C /* RBSplitSubviewSizeInspector.xib */; };
+		3D50A1BE1162C784002A5832 /* RBSplitViewInspector.xib in Resources */ = {isa = PBXBuildFile; fileRef = D51189B9108E8C910074C31C /* RBSplitViewInspector.xib */; };
+		3D50A1BF1162C784002A5832 /* RBSplitViewPlugin.xib in Resources */ = {isa = PBXBuildFile; fileRef = D51189BB108E8C910074C31C /* RBSplitViewPlugin.xib */; };
+		3D50A1C01162C784002A5832 /* RBSplitViewPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = D51189BD108E8C910074C31C /* RBSplitViewPreferences.xib */; };
+		3D50A1C11162C784002A5832 /* RBSplitView.png in Resources */ = {isa = PBXBuildFile; fileRef = D5118C2C109297A00074C31C /* RBSplitView.png */; };
+		3D50A1C21162C791002A5832 /* RBSplitViewPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 0259C578FE90428111CA0C5A /* RBSplitViewPlugin.m */; };
+		3D50A1D11162C800002A5832 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A1D01162C800002A5832 /* Cocoa.framework */; };
+		3D50A1D41162C80D002A5832 /* InterfaceBuilderKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D57553BF1082D995008B2348 /* InterfaceBuilderKit.framework */; };
+		3D50A1E51162C850002A5832 /* RBSplitView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A1401162C029002A5832 /* RBSplitView.framework */; };
+		3D50A2321162CA7C002A5832 /* RBSplitSubview.h in Headers */ = {isa = PBXBuildFile; fileRef = D5EA8B86074E9C5500AE807E /* RBSplitSubview.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3D50A2331162CA7C002A5832 /* RBSplitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0259C57AFE90428111CA0C5A /* RBSplitView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3D50A30B1162D5E2002A5832 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A1D01162C800002A5832 /* Cocoa.framework */; };
+		3D50A31A1162D6E7002A5832 /* RBSplitSubview.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EA8B87074E9C5500AE807E /* RBSplitSubview.m */; };
+		3D50A31B1162D6E7002A5832 /* RBSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0259C576FE90428111CA0C5A /* RBSplitView.m */; };
+		3D50A3241162D76D002A5832 /* Drag.png in Resources */ = {isa = PBXBuildFile; fileRef = D5AB90AD081330A100734816 /* Drag.png */; };
+		3D50A3251162D76D002A5832 /* SampleApp.nib in Resources */ = {isa = PBXBuildFile; fileRef = D5118C811092E1B50074C31C /* SampleApp.nib */; };
+		3D50A3261162D779002A5832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EA8A2F074CF6DE00AE807E /* main.m */; };
+		3D50A3291162D7BE002A5832 /* liblibRBSplitView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A3141162D61C002A5832 /* liblibRBSplitView.a */; };
+		3D50A3411162D826002A5832 /* Drag.png in Resources */ = {isa = PBXBuildFile; fileRef = D5AB90AD081330A100734816 /* Drag.png */; };
+		3D50A3421162D826002A5832 /* SampleApp.nib in Resources */ = {isa = PBXBuildFile; fileRef = D5118C811092E1B50074C31C /* SampleApp.nib */; };
+		3D50A3441162D826002A5832 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EA8A2F074CF6DE00AE807E /* main.m */; };
+		3D50A3461162D826002A5832 /* liblibRBSplitView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A3141162D61C002A5832 /* liblibRBSplitView.a */; };
+		3D50A3471162D826002A5832 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D50A1D01162C800002A5832 /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3D50A1B51162C75E002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A13F1162C029002A5832;
+			remoteInfo = RBSplitViewFramework;
+		};
+		3D50A2221162C9AE002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A1A61162C6DF002A5832;
+			remoteInfo = RBSplitView;
+		};
+		3D50A2241162C9B1002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A13F1162C029002A5832;
+			remoteInfo = RBSplitViewFramework;
+		};
+		3D50A3221162D763002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A3131162D61C002A5832;
+			remoteInfo = Library;
+		};
+		3D50A33F1162D826002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A3131162D61C002A5832;
+			remoteInfo = Library;
+		};
+		3D50A3501162D83D002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A3131162D61C002A5832;
+			remoteInfo = Library;
+		};
+		3D50A3521162D840002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A3021162D552002A5832;
+			remoteInfo = SampleApp;
+		};
+		3D50A3541162D84E002A5832 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0259C573FE90428111CA0C5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D50A33D1162D826002A5832;
+			remoteInfo = "SampleApp (GC)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0259C576FE90428111CA0C5A /* RBSplitView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitView.m; path = Source/RBSplitView.m; sourceTree = "<group>"; };
+		0259C578FE90428111CA0C5A /* RBSplitViewPlugin.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = RBSplitViewPlugin.m; path = Plugin/RBSplitViewPlugin.m; sourceTree = "<group>"; };
+		0259C57AFE90428111CA0C5A /* RBSplitView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitView.h; path = Source/RBSplitView.h; sourceTree = "<group>"; };
+		0259C57CFE90428111CA0C5A /* RBSplitViewPlugin.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPlugin.h; path = Plugin/RBSplitViewPlugin.h; sourceTree = "<group>"; };
+		3D50A1401162C029002A5832 /* RBSplitView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RBSplitView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D50A1A71162C6DF002A5832 /* RBSplitView.ibplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RBSplitView.ibplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D50A1D01162C800002A5832 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		3D50A3031162D552002A5832 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D50A3141162D61C002A5832 /* liblibRBSplitView.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibRBSplitView.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D50A34D1162D826002A5832 /* SampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D50A34F1162D826002A5832 /* SampleApp-Info copy.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SampleApp-Info copy.plist"; path = "Sample App/SampleApp-Info copy.plist"; sourceTree = "<group>"; };
+		8D1AC9730486D14A00FE50C9 /* Plugin-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Plugin-Info.plist"; path = "Plugin/Plugin-Info.plist"; sourceTree = "<group>"; };
+		D500FD5608170D550085E138 /* Programming Topics.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; name = "Programming Topics.rtfd"; path = "Documentation/Programming Topics.rtfd"; sourceTree = "<group>"; };
+		D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = RB.xcconfig; sourceTree = "<group>"; };
+		D51189B6108E8C910074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Plugin/English.lproj/RBSplitSubviewInspector.xib; sourceTree = "<group>"; };
+		D51189B8108E8C910074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Plugin/English.lproj/RBSplitSubviewSizeInspector.xib; sourceTree = "<group>"; };
+		D51189BA108E8C910074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Plugin/English.lproj/RBSplitViewInspector.xib; sourceTree = "<group>"; };
+		D51189BC108E8C910074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Plugin/English.lproj/RBSplitViewPlugin.xib; sourceTree = "<group>"; };
+		D51189BE108E8C910074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Plugin/English.lproj/RBSplitViewPreferences.xib; sourceTree = "<group>"; };
+		D5118A9210900BD70074C31C /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		D5118C2C109297A00074C31C /* RBSplitView.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = RBSplitView.png; path = Plugin/RBSplitView.png; sourceTree = "<group>"; };
+		D5118C821092E1B50074C31C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "Sample App/English.lproj/SampleApp.nib"; sourceTree = "<group>"; };
+		D51D05F407FF2A55001EE379 /* RBSplitSubview.classdescription */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.ibClassDescription; name = RBSplitSubview.classdescription; path = Plugin/RBSplitSubview.classdescription; sourceTree = "<group>"; };
+		D51D05FB07FF2B2E001EE379 /* RBSplitView.classdescription */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.ibClassDescription; name = RBSplitView.classdescription; path = Plugin/RBSplitView.classdescription; sourceTree = "<group>"; };
+		D52683960B61A29A009B7E9D /* RBSplitViewPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = RBSplitViewPlugin.icns; path = Plugin/RBSplitViewPlugin.icns; sourceTree = "<group>"; };
+		D53539A4072D6E5500C2C058 /* Thumb8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Thumb8.png; path = Plugin/Thumb8.png; sourceTree = "<group>"; };
+		D54EA730074FC529001EDAAC /* RBSplitSubview.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = RBSplitSubview.rtf; path = Documentation/RBSplitSubview.rtf; sourceTree = "<group>"; };
+		D54EA85F0750E978001EDAAC /* RBSplitView.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = RBSplitView.rtf; path = Documentation/RBSplitView.rtf; sourceTree = "<group>"; };
+		D57553BF1082D995008B2348 /* InterfaceBuilderKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InterfaceBuilderKit.framework; path = Library/Frameworks/InterfaceBuilderKit.framework; sourceTree = DEVELOPER_DIR; };
+		D5AB90AD081330A100734816 /* Drag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Drag.png; path = "Sample App/Drag.png"; sourceTree = "<group>"; };
+		D5C962B1082D0B1500D90A28 /* Thumb9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Thumb9.png; path = Plugin/Thumb9.png; sourceTree = "<group>"; };
+		D5D769E308290CB1000E7ABB /* Read Me.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = "Read Me.rtfd"; sourceTree = "<group>"; };
+		D5E002A207328E1100594182 /* Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Framework-Info.plist"; path = "Source/Framework-Info.plist"; sourceTree = "<group>"; };
+		D5EA8A0B074CF5AB00AE807E /* SampleApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SampleApp-Info.plist"; path = "Sample App/SampleApp-Info.plist"; sourceTree = "<group>"; };
+		D5EA8A2F074CF6DE00AE807E /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "Sample App/main.m"; sourceTree = "<group>"; };
+		D5EA8B86074E9C5500AE807E /* RBSplitSubview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RBSplitSubview.h; path = Source/RBSplitSubview.h; sourceTree = "<group>"; };
+		D5EA8B87074E9C5500AE807E /* RBSplitSubview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RBSplitSubview.m; path = Source/RBSplitSubview.m; sourceTree = "<group>"; };
+		D5EA8B94074E9DA100AE807E /* RBSplitViewPrivateDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RBSplitViewPrivateDefines.h; path = Source/RBSplitViewPrivateDefines.h; sourceTree = "<group>"; };
+		DD92D38A0106425D02CA0E72 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3D50A13E1162C029002A5832 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A1631162C29F002A5832 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A1A51162C6DF002A5832 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A1D11162C800002A5832 /* Cocoa.framework in Frameworks */,
+				3D50A1D41162C80D002A5832 /* InterfaceBuilderKit.framework in Frameworks */,
+				3D50A1E51162C850002A5832 /* RBSplitView.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3011162D552002A5832 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3291162D7BE002A5832 /* liblibRBSplitView.a in Frameworks */,
+				3D50A30B1162D5E2002A5832 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3121162D61C002A5832 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3451162D826002A5832 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3461162D826002A5832 /* liblibRBSplitView.a in Frameworks */,
+				3D50A3471162D826002A5832 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0259C574FE90428111CA0C5A /* RBSplitView */ = {
+			isa = PBXGroup;
+			children = (
+				D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */,
+				D5D769E308290CB1000E7ABB /* Read Me.rtfd */,
+				D54EA7F407504E35001EDAAC /* Documentation */,
+				32DBCF9E0370C38000C91783 /* Source */,
+				32DBCF9F0370C38200C91783 /* Other Files */,
+				D54EA7EE07504D93001EDAAC /* IBPlugin */,
+				D54EA7F107504DCF001EDAAC /* Sample App */,
+				1ED78706FE9D4A0611CA0C5A /* Products */,
+				2E58F364FFB232C311CA0CBA /* Frameworks */,
+				3D50A1D01162C800002A5832 /* Cocoa.framework */,
+			);
+			name = RBSplitView;
+			sourceTree = "<group>";
+		};
+		1ED78706FE9D4A0611CA0C5A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3D50A1401162C029002A5832 /* RBSplitView.framework */,
+				3D50A1A71162C6DF002A5832 /* RBSplitView.ibplugin */,
+				3D50A3031162D552002A5832 /* SampleApp.app */,
+				3D50A3141162D61C002A5832 /* liblibRBSplitView.a */,
+				3D50A34D1162D826002A5832 /* SampleApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2E58F364FFB232C311CA0CBA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DD92D38A0106425D02CA0E72 /* Cocoa.framework */,
+				D57553BF1082D995008B2348 /* InterfaceBuilderKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		32DBCF9E0370C38000C91783 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				D5EA8B86074E9C5500AE807E /* RBSplitSubview.h */,
+				D5EA8B87074E9C5500AE807E /* RBSplitSubview.m */,
+				0259C57AFE90428111CA0C5A /* RBSplitView.h */,
+				0259C576FE90428111CA0C5A /* RBSplitView.m */,
+				D5EA8B94074E9DA100AE807E /* RBSplitViewPrivateDefines.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		32DBCF9F0370C38200C91783 /* Other Files */ = {
+			isa = PBXGroup;
+			children = (
+				D5E002A207328E1100594182 /* Framework-Info.plist */,
+			);
+			name = "Other Files";
+			sourceTree = "<group>";
+		};
+		D54EA7EE07504D93001EDAAC /* IBPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				8D1AC9730486D14A00FE50C9 /* Plugin-Info.plist */,
+				D51D05F407FF2A55001EE379 /* RBSplitSubview.classdescription */,
+				D51D05FB07FF2B2E001EE379 /* RBSplitView.classdescription */,
+				0259C57CFE90428111CA0C5A /* RBSplitViewPlugin.h */,
+				0259C578FE90428111CA0C5A /* RBSplitViewPlugin.m */,
+				D51189B5108E8C910074C31C /* RBSplitSubviewInspector.xib */,
+				D51189B7108E8C910074C31C /* RBSplitSubviewSizeInspector.xib */,
+				D51189B9108E8C910074C31C /* RBSplitViewInspector.xib */,
+				D51189BB108E8C910074C31C /* RBSplitViewPlugin.xib */,
+				D51189BD108E8C910074C31C /* RBSplitViewPreferences.xib */,
+				D5118C2C109297A00074C31C /* RBSplitView.png */,
+				D52683960B61A29A009B7E9D /* RBSplitViewPlugin.icns */,
+				D53539A4072D6E5500C2C058 /* Thumb8.png */,
+				D5C962B1082D0B1500D90A28 /* Thumb9.png */,
+			);
+			name = IBPlugin;
+			sourceTree = "<group>";
+		};
+		D54EA7F107504DCF001EDAAC /* Sample App */ = {
+			isa = PBXGroup;
+			children = (
+				D5AB90AD081330A100734816 /* Drag.png */,
+				D5118A9210900BD70074C31C /* main.h */,
+				D5EA8A2F074CF6DE00AE807E /* main.m */,
+				D5EA8A0B074CF5AB00AE807E /* SampleApp-Info.plist */,
+				D5118C811092E1B50074C31C /* SampleApp.nib */,
+				3D50A34F1162D826002A5832 /* SampleApp-Info copy.plist */,
+			);
+			name = "Sample App";
+			sourceTree = "<group>";
+		};
+		D54EA7F407504E35001EDAAC /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				D500FD5608170D550085E138 /* Programming Topics.rtfd */,
+				D54EA730074FC529001EDAAC /* RBSplitSubview.rtf */,
+				D54EA85F0750E978001EDAAC /* RBSplitView.rtf */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		3D50A13B1162C029002A5832 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A2321162CA7C002A5832 /* RBSplitSubview.h in Headers */,
+				3D50A2331162CA7C002A5832 /* RBSplitView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3101162D61C002A5832 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		3D50A13F1162C029002A5832 /* RBSplitViewFramework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D50A1441162C02E002A5832 /* Build configuration list for PBXNativeTarget "RBSplitViewFramework" */;
+			buildPhases = (
+				3D50A13B1162C029002A5832 /* Headers */,
+				3D50A13C1162C029002A5832 /* Resources */,
+				3D50A13D1162C029002A5832 /* Sources */,
+				3D50A13E1162C029002A5832 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RBSplitViewFramework;
+			productName = RBSplitView;
+			productReference = 3D50A1401162C029002A5832 /* RBSplitView.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		3D50A1A61162C6DF002A5832 /* RBSplitView */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D50A1B31162C6F1002A5832 /* Build configuration list for PBXNativeTarget "RBSplitView" */;
+			buildPhases = (
+				3D50A1A31162C6DF002A5832 /* Resources */,
+				3D50A1A41162C6DF002A5832 /* Sources */,
+				3D50A1A51162C6DF002A5832 /* Frameworks */,
+				3D50A1FD1162C902002A5832 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D50A1B61162C75E002A5832 /* PBXTargetDependency */,
+			);
+			name = RBSplitView;
+			productName = RBSplitView;
+			productReference = 3D50A1A71162C6DF002A5832 /* RBSplitView.ibplugin */;
+			productType = "com.apple.product-type.bundle";
+		};
+		3D50A3021162D552002A5832 /* SampleApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D50A30A1162D55A002A5832 /* Build configuration list for PBXNativeTarget "SampleApp" */;
+			buildPhases = (
+				3D50A2FF1162D552002A5832 /* Resources */,
+				3D50A3001162D552002A5832 /* Sources */,
+				3D50A3011162D552002A5832 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D50A3231162D763002A5832 /* PBXTargetDependency */,
+			);
+			name = SampleApp;
+			productName = SampleApp;
+			productReference = 3D50A3031162D552002A5832 /* SampleApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3D50A3131162D61C002A5832 /* Library */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D50A3191162D69D002A5832 /* Build configuration list for PBXNativeTarget "Library" */;
+			buildPhases = (
+				3D50A3101162D61C002A5832 /* Headers */,
+				3D50A3111162D61C002A5832 /* Sources */,
+				3D50A3121162D61C002A5832 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Library;
+			productName = libRBSplitView;
+			productReference = 3D50A3141162D61C002A5832 /* liblibRBSplitView.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		3D50A33D1162D826002A5832 /* SampleApp (GC) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D50A3481162D826002A5832 /* Build configuration list for PBXNativeTarget "SampleApp (GC)" */;
+			buildPhases = (
+				3D50A3401162D826002A5832 /* Resources */,
+				3D50A3431162D826002A5832 /* Sources */,
+				3D50A3451162D826002A5832 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D50A33E1162D826002A5832 /* PBXTargetDependency */,
+			);
+			name = "SampleApp (GC)";
+			productName = SampleApp;
+			productReference = 3D50A34D1162D826002A5832 /* SampleApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0259C573FE90428111CA0C5A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Rainer Brockerhoff";
+			};
+			buildConfigurationList = D50F206F08A01A630073A261 /* Build configuration list for PBXProject "RBSplitView" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 0259C574FE90428111CA0C5A /* RBSplitView */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3D50A21D1162C9A1002A5832 /* All */,
+				3D50A1A61162C6DF002A5832 /* RBSplitView */,
+				3D50A13F1162C029002A5832 /* RBSplitViewFramework */,
+				3D50A3131162D61C002A5832 /* Library */,
+				3D50A3021162D552002A5832 /* SampleApp */,
+				3D50A33D1162D826002A5832 /* SampleApp (GC) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3D50A13C1162C029002A5832 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A1A31162C6DF002A5832 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A1B71162C784002A5832 /* Thumb8.png in Resources */,
+				3D50A1B81162C784002A5832 /* RBSplitSubview.classdescription in Resources */,
+				3D50A1B91162C784002A5832 /* RBSplitView.classdescription in Resources */,
+				3D50A1BA1162C784002A5832 /* Thumb9.png in Resources */,
+				3D50A1BB1162C784002A5832 /* RBSplitViewPlugin.icns in Resources */,
+				3D50A1BC1162C784002A5832 /* RBSplitSubviewInspector.xib in Resources */,
+				3D50A1BD1162C784002A5832 /* RBSplitSubviewSizeInspector.xib in Resources */,
+				3D50A1BE1162C784002A5832 /* RBSplitViewInspector.xib in Resources */,
+				3D50A1BF1162C784002A5832 /* RBSplitViewPlugin.xib in Resources */,
+				3D50A1C01162C784002A5832 /* RBSplitViewPreferences.xib in Resources */,
+				3D50A1C11162C784002A5832 /* RBSplitView.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A2FF1162D552002A5832 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3241162D76D002A5832 /* Drag.png in Resources */,
+				3D50A3251162D76D002A5832 /* SampleApp.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3401162D826002A5832 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3411162D826002A5832 /* Drag.png in Resources */,
+				3D50A3421162D826002A5832 /* SampleApp.nib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3D50A1FD1162C902002A5832 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"/usr/bin/install_name_tool\" ]; then\n\n    /usr/bin/install_name_tool -change @executable_path/../Frameworks/RBSplitView.framework/Versions/A/RBSplitView @loader_path/../../../../../../../RBSplitView.framework/Versions/A/RBSplitView \"${TARGET_BUILD_DIR}/${PRODUCT_NAME}.ibplugin/Contents/MacOS/${PRODUCT_NAME}\"\n\nelse\n\n    /Developer/usr/bin/install_name_tool -change @executable_path/../Frameworks/RBSplitView.framework/Versions/A/RBSplitView @loader_path/../../../../../../../RBSplitView.framework/Versions/A/RBSplitView \"${TARGET_BUILD_DIR}/${PRODUCT_NAME}.ibplugin/Contents/MacOS/${PRODUCT_NAME}\"\n\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3D50A13D1162C029002A5832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A1611162C295002A5832 /* RBSplitSubview.m in Sources */,
+				3D50A1621162C295002A5832 /* RBSplitView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A1A41162C6DF002A5832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A1C21162C791002A5832 /* RBSplitViewPlugin.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3001162D552002A5832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3261162D779002A5832 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3111162D61C002A5832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A31A1162D6E7002A5832 /* RBSplitSubview.m in Sources */,
+				3D50A31B1162D6E7002A5832 /* RBSplitView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D50A3431162D826002A5832 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D50A3441162D826002A5832 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3D50A1B61162C75E002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A13F1162C029002A5832 /* RBSplitViewFramework */;
+			targetProxy = 3D50A1B51162C75E002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A2231162C9AE002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A1A61162C6DF002A5832 /* RBSplitView */;
+			targetProxy = 3D50A2221162C9AE002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A2251162C9B1002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A13F1162C029002A5832 /* RBSplitViewFramework */;
+			targetProxy = 3D50A2241162C9B1002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A3231162D763002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A3131162D61C002A5832 /* Library */;
+			targetProxy = 3D50A3221162D763002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A33E1162D826002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A3131162D61C002A5832 /* Library */;
+			targetProxy = 3D50A33F1162D826002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A3511162D83D002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A3131162D61C002A5832 /* Library */;
+			targetProxy = 3D50A3501162D83D002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A3531162D840002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A3021162D552002A5832 /* SampleApp */;
+			targetProxy = 3D50A3521162D840002A5832 /* PBXContainerItemProxy */;
+		};
+		3D50A3551162D84E002A5832 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D50A33D1162D826002A5832 /* SampleApp (GC) */;
+			targetProxy = 3D50A3541162D84E002A5832 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D51189B5108E8C910074C31C /* RBSplitSubviewInspector.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D51189B6108E8C910074C31C /* English */,
+			);
+			name = RBSplitSubviewInspector.xib;
+			sourceTree = "<group>";
+		};
+		D51189B7108E8C910074C31C /* RBSplitSubviewSizeInspector.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D51189B8108E8C910074C31C /* English */,
+			);
+			name = RBSplitSubviewSizeInspector.xib;
+			sourceTree = "<group>";
+		};
+		D51189B9108E8C910074C31C /* RBSplitViewInspector.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D51189BA108E8C910074C31C /* English */,
+			);
+			name = RBSplitViewInspector.xib;
+			sourceTree = "<group>";
+		};
+		D51189BB108E8C910074C31C /* RBSplitViewPlugin.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D51189BC108E8C910074C31C /* English */,
+			);
+			name = RBSplitViewPlugin.xib;
+			sourceTree = "<group>";
+		};
+		D51189BD108E8C910074C31C /* RBSplitViewPreferences.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D51189BE108E8C910074C31C /* English */,
+			);
+			name = RBSplitViewPreferences.xib;
+			sourceTree = "<group>";
+		};
+		D5118C811092E1B50074C31C /* SampleApp.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D5118C821092E1B50074C31C /* English */,
+			);
+			name = SampleApp.nib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3D50A1421162C02D002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Source/Framework-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+			};
+			name = Debug;
+		};
+		3D50A1431162C02D002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Source/Framework-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				SEPARATE_STRIP = YES;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		3D50A1491162C04C002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = RBSplitView;
+				SDKROOT = macosx10.6;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A1561162C04C002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Source/Framework-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				SEPARATE_STRIP = YES;
+				ZERO_LINK = NO;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A17D1162C349002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = RBSplitView;
+				SDKROOT = macosx10.5;
+			};
+			name = "Release Leopard";
+		};
+		3D50A18A1162C349002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Source/Framework-Info.plist";
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				SEPARATE_STRIP = YES;
+				ZERO_LINK = NO;
+			};
+			name = "Release Leopard";
+		};
+		3D50A1A81162C6E3002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/RBSplitView.framework/Resources/";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(BUILD_DIR)/$(CONFIGURATION)\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Plugin/Plugin-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				WRAPPER_EXTENSION = ibplugin;
+			};
+			name = Debug;
+		};
+		3D50A1A91162C6E3002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/RBSplitView.framework/Resources/";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(BUILD_DIR)/$(CONFIGURATION)\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Plugin/Plugin-Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				WRAPPER_EXTENSION = ibplugin;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		3D50A1AA1162C6E3002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/RBSplitView.framework/Resources/";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(BUILD_DIR)/$(CONFIGURATION)\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Plugin/Plugin-Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				WRAPPER_EXTENSION = ibplugin;
+			};
+			name = "Release Leopard";
+		};
+		3D50A1AB1162C6E3002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/RBSplitView.framework/Resources/";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(BUILD_DIR)/$(CONFIGURATION)\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_GC = supported;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Plugin/Plugin-Info.plist";
+				INSTALL_PATH = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RBSplitView;
+				WRAPPER_EXTENSION = ibplugin;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A21E1162C9A2002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = All;
+			};
+			name = Debug;
+		};
+		3D50A21F1162C9A2002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = All;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		3D50A2201162C9A2002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = "Release Leopard";
+		};
+		3D50A2211162C9A2002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A3061162D557002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sample App/SampleApp-Info.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = Debug;
+		};
+		3D50A3071162D557002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sample App/SampleApp-Info.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = Release;
+		};
+		3D50A3081162D557002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sample App/SampleApp-Info.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = "Release Leopard";
+		};
+		3D50A3091162D557002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Sample App/SampleApp-Info.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A3151162D621002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_ENABLE_OBJC_GC = supported;
+				PRODUCT_NAME = libRBSplitView;
+			};
+			name = Debug;
+		};
+		3D50A3161162D621002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_OBJC_GC = supported;
+				PRODUCT_NAME = libRBSplitView;
+			};
+			name = Release;
+		};
+		3D50A3171162D621002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = supported;
+				PRODUCT_NAME = libRBSplitView;
+			};
+			name = "Release Leopard";
+		};
+		3D50A3181162D621002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = supported;
+				PRODUCT_NAME = libRBSplitView;
+			};
+			name = "Release Snow Leopard";
+		};
+		3D50A3491162D826002A5832 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = required;
+				INFOPLIST_FILE = "Sample App/SampleApp-Info copy.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = Debug;
+		};
+		3D50A34A1162D826002A5832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = required;
+				INFOPLIST_FILE = "Sample App/SampleApp-Info copy.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = Release;
+		};
+		3D50A34B1162D826002A5832 /* Release Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = required;
+				INFOPLIST_FILE = "Sample App/SampleApp-Info copy.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = "Release Leopard";
+		};
+		3D50A34C1162D826002A5832 /* Release Snow Leopard */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_GC = required;
+				INFOPLIST_FILE = "Sample App/SampleApp-Info copy.plist";
+				PREBINDING = NO;
+				PRODUCT_NAME = SampleApp;
+			};
+			name = "Release Snow Leopard";
+		};
+		D50F207008A01A630073A261 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */;
+			buildSettings = {
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				PRODUCT_NAME = RBSplitView;
+			};
+			name = Debug;
+		};
+		D50F207108A01A630073A261 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D508879A0AA1D2A100F4ECB3 /* RB.xcconfig */;
+			buildSettings = {
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				PRODUCT_NAME = RBSplitView;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D50A1441162C02E002A5832 /* Build configuration list for PBXNativeTarget "RBSplitViewFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A1421162C02D002A5832 /* Debug */,
+				3D50A1431162C02D002A5832 /* Release */,
+				3D50A18A1162C349002A5832 /* Release Leopard */,
+				3D50A1561162C04C002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D50A1B31162C6F1002A5832 /* Build configuration list for PBXNativeTarget "RBSplitView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A1A81162C6E3002A5832 /* Debug */,
+				3D50A1A91162C6E3002A5832 /* Release */,
+				3D50A1AA1162C6E3002A5832 /* Release Leopard */,
+				3D50A1AB1162C6E3002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D50A22A1162C9BF002A5832 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A21E1162C9A2002A5832 /* Debug */,
+				3D50A21F1162C9A2002A5832 /* Release */,
+				3D50A2201162C9A2002A5832 /* Release Leopard */,
+				3D50A2211162C9A2002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D50A30A1162D55A002A5832 /* Build configuration list for PBXNativeTarget "SampleApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A3061162D557002A5832 /* Debug */,
+				3D50A3071162D557002A5832 /* Release */,
+				3D50A3081162D557002A5832 /* Release Leopard */,
+				3D50A3091162D557002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D50A3191162D69D002A5832 /* Build configuration list for PBXNativeTarget "Library" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A3151162D621002A5832 /* Debug */,
+				3D50A3161162D621002A5832 /* Release */,
+				3D50A3171162D621002A5832 /* Release Leopard */,
+				3D50A3181162D621002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D50A3481162D826002A5832 /* Build configuration list for PBXNativeTarget "SampleApp (GC)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D50A3491162D826002A5832 /* Debug */,
+				3D50A34A1162D826002A5832 /* Release */,
+				3D50A34B1162D826002A5832 /* Release Leopard */,
+				3D50A34C1162D826002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D50F206F08A01A630073A261 /* Build configuration list for PBXProject "RBSplitView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D50F207008A01A630073A261 /* Debug */,
+				D50F207108A01A630073A261 /* Release */,
+				3D50A17D1162C349002A5832 /* Release Leopard */,
+				3D50A1491162C04C002A5832 /* Release Snow Leopard */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0259C573FE90428111CA0C5A /* Project object */;
+}
