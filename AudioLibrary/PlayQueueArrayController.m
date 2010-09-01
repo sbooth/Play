@@ -142,7 +142,7 @@ NSString * const PlayQueueTableMovedRowsPboardType	= @"org.sbooth.Play.AudioLibr
 			
 		for(NSNumber *objectID in [[info draggingPasteboard] propertyListForType:AudioStreamPboardType]) {
 			stream = [[[CollectionManager manager] streamManager] streamForID:objectID];
-			[self insertObject:stream atArrangedObjectIndex:row];
+			[self insertObject:stream atArrangedObjectIndex:row++];
 		}
 		
 		return YES;
